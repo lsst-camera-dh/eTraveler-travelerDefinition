@@ -35,12 +35,13 @@ public class YamlToDb {
     public static String ingest(PageContext context) {
       String fileContents = context.getRequest().getParameter("importYamlFile");
       String useTransactions = (context.getAttribute("useTransactions")).toString();
+      String dbType = context.getRequest().getParameter("db");
       ProcessNode ingested = parse(fileContents);
       if (ingested ==  null) {
         return "Could not parse yaml input";
       }
       return writeToDb(ingested, context.getSession().getAttribute("userName").toString(),
-          useTransactions.equals("true"));
+          useTransactions.equals("true"), dbType);
   }
 
   private static ProcessNode parse(String fileContents)  {    
@@ -71,10 +72,10 @@ public class YamlToDb {
   }
 
   private static String writeToDb(ProcessNode traveler, String user,
-      boolean useTransactions)  {
+      boolean useTransactions, String dbType)  {
 
     // Try connect
-    DbConnection conn = makeConnection();
+    DbConnection conn = makeConnection(dbType);
     if (conn == null) return "Failed to connect";
 
     TravelerToDbVisitor vis = new TravelerToDbVisitor(conn);
@@ -88,34 +89,39 @@ public class YamlToDb {
     try {
       vis.visit(traveler, "new");
     }  catch (Exception ex)  {
+      conn.close();
       return "Failed to create xxDb classes with exception " + ex.getMessage();
     }
     try {
       vis.visit(traveler, "verify");
     }  catch (Exception ex)  {
+      conn.close();
       return "Failed to verify against db with exception " + ex.getMessage();
     }
     try {
       vis.visit(traveler, "write");
     }  catch (Exception ex) {
+      conn.close();
       return "Failed to write to db with exception " + ex.getMessage();
     }
+    conn.close();
     return "successfully verified traveler";
 
 
     // These probably can throw exceptions
   }
-  static private DbConnection makeConnection()  {   
+  static private DbConnection makeConnection(String dbType)  {   
     // Try connect
     DbConnection conn = new MysqlDbConnection();
+    String datasource = "jdbc/eTraveler-" + dbType + "-app";
     boolean isOpen = conn.openTomcat("jdbc/eTraveler-test-app");
     if (isOpen) {
-      System.out.println("Successfully connected to rd_lsst_camt");
+      System.out.println("Successfully connected to " + datasource);
       
       return conn;
     }
     else {
-      System.out.println("Failed to connect");
+      System.out.println("Failed to connect for dbType " + dbType);
       return null;
     }
   }

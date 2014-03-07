@@ -58,11 +58,13 @@ public class DbImporter {
         return  "input version must be integer!";
       }  catch (Exception ex)  {
         System.out.println(ex.getMessage());
+        conn.close();
         return "Failed to read traveler " + name + " with exception " 
             + ex.getMessage(); 
       }
     }
     collectOutput(name, version);
+    conn.close();
     return "Successfully read in traveler " + name;
   }
   static private DbConnection makeConnection(DbInfo info, boolean usePool,
