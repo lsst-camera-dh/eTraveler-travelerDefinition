@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context antiJARLocking="true" path="/eTravelerBackend">
+  <ResourceLink global="jdbc/config-prod" name="jdbc/config-prod" type="javax.sql.DataSource"/>
+  <ResourceLink global="jdbc/config-srs" name="jdbc/config-srs" type="javax.sql.DataSource"/>
+  <ResourceLink global="jdbc/lsst-amazon" name="jdbc/lsst-amazon" type="javax.sql.DataSource"/>
+  <ResourceLink global="jdbc/eTraveler-test-ro" name="jdbc/eTraveler-test-ro" type="javax.sql.DataSource"/>
+  <ResourceLink global="jdbc/eTraveler-test-app" name="jdbc/eTraveler-test-app" type="javax.sql.DataSource"/>
+  <ResourceLink global="jdbc/rd-lsst-cam-dev" name="jdbc/eTraveler-dev-ro" type="javax.sql.DataSource"/>
+  <ResourceLink global="jdbc/rd-lsst-cam-dev" name="jdbc/eTraveler-dev-app" type="javax.sql.DataSource"/>
+  <ResourceLink global="jdbc/rd-lsst-cam" name="jdbc/eTraveler-prod-ro" type="javax.sql.DataSource"/>
+  <ResourceLink global="jdbc/rd-lsst-cam" name="jdbc/eTraveler-prod-app" type="javax.sql.DataSource"/>
+</Context>

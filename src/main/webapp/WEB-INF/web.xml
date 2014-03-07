@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+    
+
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
+
+    <welcome-file-list>
+  <!--      <welcome-file>welcome.jsp</welcome-file>   -->
+    <welcome-file>index.jsp</welcome-file>  
+    </welcome-file-list>
+
+
+    <context-param>
+        <param-name>
+            applicationTitle
+        </param-name>
+        <param-value>
+            eTravelerbackend
+        </param-value>
+    </context-param>
+    <!--
+    <context-param>
+        <param-name>
+            file-upload
+        </param-name>
+        <param-value>
+            /u1/jrb/sys/apache-tomcat-7.0.27/webapps/uploaded
+        </param-value>
+    </context-param>
+    -->
+
+    <filter>
+        <filter-name>ModeSwitcherFilter</filter-name>
+        <filter-class>org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter</filter-class>
+        <init-param>
+            <param-name>experiment</param-name>
+            <param-value>${experiment.name}</param-value>
+        </init-param>
+        <init-param>
+            <param-name>configDb</param-name>
+            <param-value>${experiment.configuration.database}</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>ModeSwitcherFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- Login Filter -->
+
+
+    <filter>
+        <filter-name>LoginFilter</filter-name>
+        <filter-class>org.srs.web.base.filters.login.LoginFilter</filter-class>
+        <init-param>
+            <param-name>configDb</param-name>
+            <param-value>${experiment.configuration.database}</param-value>
+        </init-param>
+
+        <init-param>
+            <param-name>requireLogin</param-name>
+            <param-value>true</param-value>
+        </init-param>
+
+
+    </filter>
+
+    <filter-mapping>
+        <filter-name>LoginFilter</filter-name>
+        <url-pattern>*.jsp</url-pattern>
+    </filter-mapping>
+
+
+     <!-- Load the Multipart Filter -->
+     <filter>
+         <filter-name>MultipartFilter</filter-name>
+         <filter-class>org.srs.web.base.filters.multipart.MultipartFilter</filter-class>
+     </filter>
+     <filter-mapping>
+         <filter-name>MultipartFilter</filter-name>
+         <url-pattern>/*</url-pattern>
+     </filter-mapping>
+
+    <!-- Adding Sitemesh Filter -->
+    
+    <filter>
+        <filter-name>sitemesh</filter-name>
+        <filter-class>com.opensymphony.module.sitemesh.filter.PageFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>sitemesh</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+   
+    <!-- Done adding Sitemesh Filter -->
+
+
+</web-app>

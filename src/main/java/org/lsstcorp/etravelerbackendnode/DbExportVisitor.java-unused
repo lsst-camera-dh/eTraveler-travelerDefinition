@@ -1,0 +1,31 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package org.lsstcorp.etravelerbackendnode;
+
+import org.lsstcorp.etravelerbackenddb.DbConnection;
+
+/**
+ *
+ * @author jrb
+ */
+public class DbExportVisitor implements TravelerVisitor {
+
+  DbExportVisitor(DbConnection connection) {
+    m_connection = connection;
+  }
+ 
+  public void visit(ProcessNode process, String activity) {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  public void visit(PrescribedResult result, String activity) {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  public void visit(Prerequisite prerequisite, String activity) {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+  DbConnection m_connection = null;
+}

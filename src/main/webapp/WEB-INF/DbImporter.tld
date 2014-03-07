@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taglib version="2.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/ xml/ns/j2ee/web-jsptaglibrary_2_0.xsd">
+  <tlib-version>1.0</tlib-version>
+  <short-name>DbTImporter</short-name>
+  <uri>http://lsstcorp.org/etravelerbackenddbwar/DbImporter</uri>
+  <function>
+    <name>retrieveProcess</name>
+    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>java.lang.String retrieveProcess(javax.servlet.jsp.PageContext)</function-signature>
+ <!--   <function-signature>java.lang.String retrieveProcess(java.lang.String, java.lang.String)</function-signature> -->
+  </function>
+  <function>
+    <name>collectOutput</name>
+    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>java.lang.Void collectOutput(java.lang.String, java.lang.String)</function-signature>
+ </function>
+   <function>
+    <name>nextLine</name>
+    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>java.lang.String nextLine(java.lang.String, java.lang.String)</function-signature>
+  </function>
+  <function>
+    <name>fetchLine</name>
+    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>java.lang.String fetchLine(java.lang.String, java.lang.String, int)</function-signature>
+  </function>
+  <function>
+    <name>nLinesUsed</name>
+    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>int nLinesUsed(java.lang.String, java.lang.String)</function-signature>
+  </function>
+</taglib>

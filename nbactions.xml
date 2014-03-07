@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+    <action>
+        <actionName>CUSTOM-srs-deploy-dev</actionName>
+        <displayName>tomcat LSST deploy (dev)</displayName>
+        <goals>
+            <goal>package</goal>
+            <goal>tomcat7:deploy</goal>
+        </goals>
+        <activatedProfiles>
+            <activatedProfile>deploy-dev</activatedProfile>
+            <activatedProfile>LSST-CAMERA</activatedProfile>
+        </activatedProfiles>
+    </action>
+    <action>
+        <actionName>CUSTOM-srs-deploy-local</actionName>
+        <displayName>tomcat LSST deploy (local)</displayName>
+        <goals>
+            <goal>package</goal>
+            <goal>tomcat7:deploy</goal>
+        </goals>
+        <activatedProfiles>
+            <activatedProfile>deploy-local</activatedProfile>
+            <activatedProfile>LSST-CAMERA</activatedProfile>
+        </activatedProfiles>
+    </action>
+</actions>
