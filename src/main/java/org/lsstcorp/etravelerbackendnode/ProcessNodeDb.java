@@ -59,7 +59,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     m_parentEdgeId = parentEdgeId;
     init(processName, version, travelerRoot);
   }
-  private static String[] s_initCols = {"name", "hardwareTypeid",
+  private static String[] s_initCols = {"name", "hardwareTypeId",
     "hardwareRelationshipTypeId", "version", "userVersionString",
     "description", "substeps", "maxIteration", "travelerActionMask",
     "originalId"};
