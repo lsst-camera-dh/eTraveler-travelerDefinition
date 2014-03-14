@@ -14,4 +14,5 @@ public class TravelerActionBits {
   public static final int BREAK_HARDWARE_RELATIONSHIP=4;
   public static final int SET_HARDWARE_STATUS=8;
   public static final int SET_HARDWARE_LOCATION=16;
+  public static final int ASYNC=32;
 }

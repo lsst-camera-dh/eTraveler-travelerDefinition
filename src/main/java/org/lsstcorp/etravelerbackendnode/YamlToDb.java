@@ -96,13 +96,15 @@ public class YamlToDb {
       vis.visit(traveler, "verify");
     }  catch (Exception ex)  {
       conn.close();
-      return "Failed to verify against db with exception " + ex.getMessage();
+      return "Failed to verify against " + dbType + 
+          " db with exception " + ex.getMessage();
     }
     try {
       vis.visit(traveler, "write");
     }  catch (Exception ex) {
       conn.close();
-      return "Failed to write to db with exception " + ex.getMessage();
+      return "Failed to write to " + dbType + 
+          " db with exception " + ex.getMessage();
     }
     conn.close();
     return "successfully verified traveler";

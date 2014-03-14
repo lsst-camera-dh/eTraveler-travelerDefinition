@@ -205,21 +205,33 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
                   m_travelerActionMask |= 
                     TravelerActionBits.BREAK_HARDWARE_RELATIONSHIP;
                 } else {
-                  if (act.equals("setHardwareStatus")) {
+                  if (act.equals("SetHardwareStatus")) {
                     m_travelerActionMask |= 
                       TravelerActionBits.SET_HARDWARE_STATUS;
                   } else {
-                    if (act.equals("setHardwareLocation")) {
+                    if (act.equals("SetHardwareLocation")) {
                       m_travelerActionMask |= 
                         TravelerActionBits.SET_HARDWARE_LOCATION;
-                    } else    {
-                      throw new UnrecognizedYamlKey(act, "TravelerActions");
+                    } else {
+                      if (act.equals("Async")) {
+                        m_travelerActionMask |= 
+                          TravelerActionBits.ASYNC;
+                      } else    {
+                        throw new UnrecognizedYamlKey(act, "TravelerActions");
+                      }
                     }
                   }
                 }
               }
             }
           }
+          if ((m_travelerActionMask & (TravelerActionBits.ASYNC | 
+                                      TravelerActionBits.HARNESSED)) ==
+              TravelerActionBits.ASYNC) {
+            m_travelerActionMask -= TravelerActionBits.ASYNC;
+            System.out.println("Async qualifier on non-harnessed step ignored");
+          }
+
           break;
         case SEQUENCE:
           if (m_substeps == "SELECTION") {
@@ -263,7 +275,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       }
     }
     // If "break" is not explicitly specified, set "make" bit
-    if (m_hardwareRelationshipType != "") {  
+    if ((m_hardwareRelationshipType != null)  && !m_hardwareRelationshipType.isEmpty()) {  
       if ((m_travelerActionMask & TravelerActionBits.BREAK_HARDWARE_RELATIONSHIP) == 0) {
         m_travelerActionMask |= TravelerActionBits.MAKE_HARDWARE_RELATIONSHIP;
       }
