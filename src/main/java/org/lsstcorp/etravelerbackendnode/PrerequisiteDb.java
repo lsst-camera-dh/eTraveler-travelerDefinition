@@ -73,7 +73,7 @@ public class PrerequisiteDb implements Prerequisite.Importer, Prerequisite.Expor
    "hardwareTypeId", "quantity", "createdBy"   };
 
   void writeToDb(DbConnection connect, ProcessNodeDb parent, String user) 
-    throws    SQLException {
+    throws    SQLException, EtravelerException {
     String[] vals = new String[s_insertPrerequisiteCols.length];
 
     // code to set vals appropriately
@@ -83,6 +83,18 @@ public class PrerequisiteDb implements Prerequisite.Importer, Prerequisite.Expor
     // if type is PROCESS_STEP prereqProcessId can only reliably be 
     // determined at this point
     if (m_type.equals("PROCESS_STEP") ) {
+      String where = " where name='"+m_name+"' and ";
+      if (m_userVersionString != null) {
+        where += "userVersionString='" + m_userVersionString + "'";
+      } else {
+        where += "version='" + m_version + "'";
+      }
+      m_prereqProcessId =  m_connect.fetchColumn("Process", "id", where);
+      if (m_prereqProcessId == null) {
+        System.out.println("Failed to fetch process id for prerequisite " 
+            + m_name);
+        throw new EtravelerException("Failed writing process step prereq");
+      }
     }
     vals[3] = m_prereqProcessId;
     vals[4] = m_hardwareTypeId;
@@ -117,28 +129,6 @@ public class PrerequisiteDb implements Prerequisite.Importer, Prerequisite.Expor
       if ((s_prereqQuery == null) || (s_processQuery == null) ) {
         throw new SQLException("DbConnection.prepareQuery failure");
       }
-      //  Get all prereq type ids and names; save in map
-      // Not necessary - this map is created in ProcessNodeDb
-      /*
-      s_prereqIdMap = new ConcurrentHashMap<String, String>();
-      PreparedStatement prereqIdQuery;
-      String[] gets = {"id", "name"};
-      prereqIdQuery = connect.prepareQuery("PrerequisiteType", gets, "");
-      ResultSet r;
-      try {
-        r = prereqIdQuery.executeQuery();
-        r.next();
-        while (!r.isAfterLast()) {
-          s_prereqIdMap.put(r.getString("id"), r.getString("name"));
-          r.next();
-        }
-        r.close();
-      } catch (SQLException ex) {
-        System.out.println("query of prerequisite types failed with exception ");
-        System.out.println(ex.getMessage());
-        throw ex;
-      }
-      */
     }
 
     ResultSet rs;
