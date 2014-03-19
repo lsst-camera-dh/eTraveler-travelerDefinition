@@ -116,8 +116,15 @@ public class YamlToDb {
     // Try connect
     DbConnection conn = new MysqlDbConnection();
     String datasource = "jdbc/eTraveler-" + dbType + "-app";
-    boolean isOpen = conn.openTomcat("jdbc/eTraveler-test-app");
+    boolean isOpen = conn.openTomcat(datasource);
     if (isOpen) {
+      try {
+        conn.setReadOnly(false);
+      } catch (Exception ex) {
+        conn.close();
+        System.out.println("Unable to set connection non-readonly");
+        return null;
+      }
       System.out.println("Successfully connected to " + datasource);
       
       return conn;
