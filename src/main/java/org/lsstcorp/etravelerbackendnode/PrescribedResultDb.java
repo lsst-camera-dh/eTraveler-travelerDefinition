@@ -15,6 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PrescribedResultDb implements PrescribedResult.Importer,
     PrescribedResult.ExportTarget {
   private static PreparedStatement s_inputPatternQuery;
+  public static void reset() {
+    s_inputPatternQuery = null;
+  }
   private static String[] s_patternCols = {"inputSemanticsId", "label",
     "units", "description", "minV", "maxV", "choiceField"};
   

@@ -596,6 +596,19 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       PrerequisiteDb(m_connect, cmpName, "COMPONENT", prereqCmpTypeId, null,
                      cmpId, 1);
   }
+  /**
+   *  Clear out any static data structures dependent on db connection
+   */
+  public static void reset() {
+   s_processQuery = null;
+   s_edgeQuery = null;
+   s_prereqQuery = null;
+   s_prescribedResultsQuery = null;
+   s_childQuery = null;
+   s_edgeInfoQuery = null;
+   PrerequisiteDb.reset();
+   PrescribedResultDb.reset();
+  }
   private void initIdMaps() throws SQLException {
     m_relationshipTypeMap = new ConcurrentHashMap<String, String>();
     fillIdMap("HardwareRelationshipType", "name", m_relationshipTypeMap);

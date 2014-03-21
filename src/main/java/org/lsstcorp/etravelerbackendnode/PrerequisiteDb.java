@@ -15,6 +15,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PrerequisiteDb implements Prerequisite.Importer, Prerequisite.ExportTarget {
   private static PreparedStatement s_prereqQuery;
   private static PreparedStatement s_processQuery;
+  public static void reset() {
+    s_prereqQuery = null;
+    s_processQuery = null;
+  }
   private static String[] 
     s_prereqCols = {"name", "description", "prerequisiteTypeId", "processId", 
                     "prereqProcessId", "hardwareTypeId", "quantity"};

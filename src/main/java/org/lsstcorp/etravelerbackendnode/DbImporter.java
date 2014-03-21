@@ -46,12 +46,12 @@ public class DbImporter {
     if (s_travelers.containsKey(key)) {
       traveler = s_travelers.get(key);
     } else {
+     
       try {
         int intVersion = Integer.parseInt(version);
         conn.setReadOnly(true);
-        traveler = 
-            new ProcessNode(null, new ProcessNodeDb(conn, name, intVersion, 
-            null, null));
+        ProcessNodeDb travelerDb = new ProcessNodeDb(conn, name, intVersion, null, null);
+        traveler = new ProcessNode(null, travelerDb);
         s_travelers.putIfAbsent(key, traveler);
       }  catch (NumberFormatException ex) {
         conn.close();
@@ -61,10 +61,12 @@ public class DbImporter {
         conn.close();
         return "Failed to read traveler " + name + " with exception " 
             + ex.getMessage(); 
+      } finally {
+        conn.close();
+        ProcessNodeDb.reset();
       }
     }
     collectOutput(name, version);
-    conn.close();
     return "Successfully read in traveler " + name;
   }
   static private DbConnection makeConnection(DbInfo info, boolean usePool,
