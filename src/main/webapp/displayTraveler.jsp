@@ -25,13 +25,12 @@
  <%--  ${import:retrieveProcess( param.traveler_name, param.traveler_version)} --%>  
     ${import:retrieveProcess(pageContext)} 
     <br />
-    <c:set var="nLines" value="${import:nLinesUsed(param.traveler_name, 
-                                 param.traveler_version)}" /> 
+    <c:set var="nLines" value="${import:nLinesUsed(pageContext)}" /> 
     <c:if test="${nLines > 0}">
     <preformat>
       
       <c:forEach var="i" begin="0" end="${nLines - 1}" >
-        ${import:fetchLine(param.traveler_name, param.traveler_version, i)}
+        ${import:fetchLine(pageContext, i)}
       </c:forEach>
     </preformat>
     </c:if>

@@ -17,20 +17,7 @@ import javax.servlet.jsp.PageContext;
  * @author jrb
  */
 public class YamlToDb {
- /*
-    public static void newingest(PageContext context) {
-      String fileContents = context.getRequest().getParameter("importYamlFile");
 
-      Object useTransactions = context.getAttribute("useTransactions"); 
-      
-      System.out.println("The fileContents are "+fileContents);
-      
-      System.out.println("Use transactions "+useTransactions);
-      
-      System.out.println("And the user is "+context.getSession().getAttribute("userName"));
-      
-    }
-*/
   // public static String ingest(String fileContents, boolean useTransactions) {
     public static String ingest(PageContext context) {
       String fileContents = context.getRequest().getParameter("importYamlFile");

@@ -16,9 +16,13 @@ import javax.servlet.jsp.PageContext;
 public class DbImporter {
  
  
-  static ConcurrentHashMap<String, ProcessNode> s_travelers =
+  static ConcurrentHashMap<String, ProcessNode> s_travelers_Test =
     new ConcurrentHashMap<String, ProcessNode>();
-  static ConcurrentHashMap<String, StringArrayWriter> s_writers = 
+  static ConcurrentHashMap<String, StringArrayWriter> s_writers_Test = 
+    new ConcurrentHashMap<String, StringArrayWriter>();
+  static ConcurrentHashMap<String, ProcessNode> s_travelers_Dev =
+    new ConcurrentHashMap<String, ProcessNode>();
+  static ConcurrentHashMap<String, StringArrayWriter> s_writers_Dev = 
     new ConcurrentHashMap<String, StringArrayWriter>();
   private static String makeKey(String name, String version) 
     {return name + "_" + version;}
@@ -36,6 +40,18 @@ public class DbImporter {
     info.dbname = args[0];
     
     info.establish();
+    ConcurrentHashMap<String, ProcessNode> travelers=null;
+    ConcurrentHashMap<String, StringArrayWriter> writers=null;
+    if (dbType.equals("dev")) {
+      travelers = s_travelers_Dev;
+      writers = s_writers_Dev;
+      
+    } else if (dbType.equals("test")) {
+      travelers = s_travelers_Test;
+      writers = s_writers_Test;
+    } else {
+      return "No such database";
+    }
     
     // Try connect
     DbConnection conn = makeConnection(info, true, dbType);
@@ -43,8 +59,8 @@ public class DbImporter {
     
     String key = makeKey(name, version);
     ProcessNode traveler=null;
-    if (s_travelers.containsKey(key)) {
-      traveler = s_travelers.get(key);
+    if (travelers.containsKey(key)) {
+      traveler = travelers.get(key);
     } else {
      
       try {
@@ -52,7 +68,7 @@ public class DbImporter {
         conn.setReadOnly(true);
         ProcessNodeDb travelerDb = new ProcessNodeDb(conn, name, intVersion, null, null);
         traveler = new ProcessNode(null, travelerDb);
-        s_travelers.putIfAbsent(key, traveler);
+        travelers.putIfAbsent(key, traveler);
       }  catch (NumberFormatException ex) {
         conn.close();
         return  "input version must be integer!";
@@ -66,7 +82,7 @@ public class DbImporter {
         ProcessNodeDb.reset();
       }
     }
-    collectOutput(name, version);
+    collectOutput(name, version, travelers, writers);
     return "Successfully read in traveler " + name;
   }
   static private DbConnection makeConnection(DbInfo info, boolean usePool,
@@ -90,15 +106,17 @@ public class DbImporter {
       return null;
     }
   }
-  static public void collectOutput(String name, String version)  {
+  static public void collectOutput(String name, String version,
+      ConcurrentHashMap<String, ProcessNode> travelers, 
+      ConcurrentHashMap<String, StringArrayWriter> writers)  {
     StringArrayWriter wrt = new StringArrayWriter();
     TravelerPrintVisitor vis = new TravelerPrintVisitor();
     String key = makeKey(name, version);
-    if (!s_writers.containsKey(key)) {
+    if (!writers.containsKey(key)) {
       vis.setEol("<br />\n");
       vis.setWriter(wrt);
       vis.setIndent("&nbsp;&nbsp");
-      ProcessNode trav = s_travelers.get(key);
+      ProcessNode trav = travelers.get(key);
       try {
         vis.visit(trav, "Print Html");
       }  catch (EtravelerException ex)  {
@@ -107,31 +125,46 @@ public class DbImporter {
         return;
       }
       
-      s_writers.putIfAbsent(key, wrt);
+      writers.putIfAbsent(key, wrt);
     }
   }
-  static public String nextLine(String name, String version) {
-    String key = makeKey(name, version);
-    StringArrayWriter wrt = s_writers.get(key);
+  // static public String nextLine(String name, String version) {
+  static public String nextLine(PageContext context) {
+   
+ 
+    StringArrayWriter wrt = getWriter(context);
     if (wrt == null)  {
-      return "No information for traveler " + name + ", version " + version + "<br />";
+      return "No information for requested name, version combination <br />";
     }
     return wrt.fetchNext();
   }
-  static public String fetchLine(String name, String version, int i) {
-    String key = makeKey(name, version);
-    StringArrayWriter wrt = s_writers.get(key);
+  static public String fetchLine(PageContext context, int i) {
+    StringArrayWriter wrt = getWriter(context);
     if (wrt == null)  {
-      return "No information for traveler " + name + ", version " + version + "<br />";
+      return "No information for requested name, version combination <br />";
     }
     return wrt.fetchLine(i);
   }
-  static public int nLinesUsed(String name, String version) {
-    String key = makeKey(name, version);
-    StringArrayWriter wrt = s_writers.get(key);
+  static public int nLinesUsed(PageContext context) {
+    StringArrayWriter wrt = getWriter(context);
     if (wrt == null) return 0;
     return wrt.fetchNUsed();
     //return String.valueOf(wrt.fetchNUsed());
+  }
+  static private StringArrayWriter getWriter(PageContext context)  {
+       String name =  context.getRequest().getParameter("traveler_name");
+    String version = context.getRequest().getParameter("traveler_version");
+     
+    String dbType = context.getRequest().getParameter("db");
+    ConcurrentHashMap<String, StringArrayWriter> writers=null;
+    if (dbType.equals("dev")) {
+      writers = s_writers_Dev;
+    } else {
+      writers = s_writers_Test;
+    }
+    String key = makeKey(name, version);
+     
+    return writers.get(key);
   }
   
 }

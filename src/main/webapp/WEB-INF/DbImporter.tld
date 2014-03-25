@@ -17,16 +17,25 @@
    <function>
     <name>nextLine</name>
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>java.lang.String nextLine(javax.servlet.jsp.PageContext)</function-signature>
+    <!--
     <function-signature>java.lang.String nextLine(java.lang.String, java.lang.String)</function-signature>
-  </function>
+-->  
+</function>
   <function>
     <name>fetchLine</name>
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>java.lang.String fetchLine(javax.servlet.jsp.PageContext, int)</function-signature>
+<!-- 
     <function-signature>java.lang.String fetchLine(java.lang.String, java.lang.String, int)</function-signature>
-  </function>
+ -->
+       </function>
   <function>
     <name>nLinesUsed</name>
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>int nLinesUsed(javax.servlet.jsp.PageContext)</function-signature>
+    <!--
     <function-signature>int nLinesUsed(java.lang.String, java.lang.String)</function-signature>
-  </function>
+-->
+    </function>
 </taglib>
