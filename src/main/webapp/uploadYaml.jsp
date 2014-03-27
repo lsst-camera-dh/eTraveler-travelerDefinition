@@ -7,7 +7,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="impyaml" 
-   uri="http://lsstcorp.org/etravelerbackenddbwar/YamlImporter" %>
+   uri="http://lsstcorp.org/etravelerbackend/YamlImporter" %>
 <!DOCTYPE html>
 <html>
   <head>

@@ -6,8 +6,10 @@ package org.lsstcorp.etravelerbackendnode;
 import org.lsstcorp.etravelerbackenddb.DbInfo;
 import org.lsstcorp.etravelerbackenddb.DbConnection;
 import org.lsstcorp.etravelerbackenddb.MysqlDbConnection;
+import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.JspWriter;
 
 /**
  * Used from jsp to retrieve traveler description from db
@@ -150,6 +152,19 @@ public class DbImporter {
     if (wrt == null) return 0;
     return wrt.fetchNUsed();
     //return String.valueOf(wrt.fetchNUsed());
+  }
+  
+  static public String dotSource(PageContext context) {
+    return "Called dotSource";
+  }
+  
+  static public void dotGif(PageContext context) {
+    JspWriter jspW = context.getOut();
+    try {
+      jspW.println("Writing from dotGif");
+    } catch (IOException x) {
+      
+    }
   }
   static private StringArrayWriter getWriter(PageContext context)  {
        String name =  context.getRequest().getParameter("traveler_name");

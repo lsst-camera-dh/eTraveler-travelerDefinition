@@ -1,5 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@taglib prefix="db" uri="http://lsstcorp.org/etravelerbackenddbwar/DbTest" %>
+<%@taglib prefix="db" uri="http://lsstcorp.org/etravelerbackend/DbTest" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -25,21 +25,29 @@
 <td> <input type="text" name="traveler_name" value="" /> </td></tr>
 <tr><td> <b>Version:</b></td>
 <td> <input type="text" name="traveler_version" value="1" /> </td></tr>
+</table>
 <%--
    Database:  <select name="db"> 
      <option>Test</option>
      <option selected>Dev</option>
    </select> --%>
-     
-<tr><td>  <b>Db:</b></td>
-<td>
- <table>
-  <tr><td>Test  <input type="radio" name="db" value="test" /></td>
+ <table><tr>     
+     <td><b>Db:</b> </td>
+
+  <td>Test  <input type="radio" name="db" value="test" /></td>
       <td>Dev <input type="radio" name="db" value="dev" checked /></td>
- </tr></table>
-</td></tr>
-<tr><td>   <input type="submit" value="Display" /></td><td>&nbsp;</td>
-</tr></table>
+ </tr>
+ </table>
+ <table cellpadding="2"><tr>
+<td><b>Output style:</b>
+ <td>Pretty print <input type="radio" name="ostyle" value="pprint" checked /></td>
+ <td>Dot source <input type="radio" name="ostyle" value="dot" /></td>
+   <td>Gif <input type="radio" name="ostyle" value="gif" /> </td>
+ </tr>
+ </table>
+<br />
+  <input type="submit" value="Display" />
+
 
 </form>
 <h3> Upload a File (check syntax without ingesting)</h3>

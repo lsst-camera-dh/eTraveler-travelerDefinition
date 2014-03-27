@@ -198,6 +198,8 @@ public class ProcessNode implements  TravelerElement {
       ptarget.acceptIsCloned(m_isCloned);
     }
   }
+  
+  public String getName() { return m_name;}
   private ProcessNode m_parent=null;
   private ProcessEdge m_parentEdge=null;
   // If m_clonedFrom set to non-null, most other properties are ignored

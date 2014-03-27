@@ -7,7 +7,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="yamltodb" 
-   uri="http://lsstcorp.org/etravelerbackenddbwar/YamlToDb" %>
+   uri="http://lsstcorp.org/etravelerbackend/YamlToDb" %>
 <!DOCTYPE html>
 <html>
   <head>
