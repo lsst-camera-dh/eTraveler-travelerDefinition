@@ -6,6 +6,7 @@ package org.lsstcorp.etravelerbackendnode;
 
 import org.lsstcorp.etravelerbackenddb.DbConnection;
 import org.yaml.snakeyaml.nodes.Node;
+import java.io.Writer;
 /**
  *
  * @author jrb
@@ -148,6 +149,13 @@ public class ProcessNode implements  TravelerElement {
     Prerequisite providePrerequisite(ProcessNode parent, int n) throws Exception;
     PrescribedResult provideResult(ProcessNode parent, int n) throws Exception;
   }
+  
+  public void makeDot(Writer writer) throws EtravelerException {
+    TravelerDotVisitor vis = new TravelerDotVisitor();
+    vis.initOutput(writer, "\n");
+    vis.visit(this, "dot file");
+    vis.endOutput();
+  }
   /**
    * Interface for exporting a process node to another representation, such
    * as a text file
@@ -200,6 +208,10 @@ public class ProcessNode implements  TravelerElement {
   }
   
   public String getName() { return m_name;}
+  public String getCondition() {
+    if (m_parentEdge == null) return null;
+    return m_parentEdge.getCondition();
+  }
   private ProcessNode m_parent=null;
   private ProcessEdge m_parentEdge=null;
   // If m_clonedFrom set to non-null, most other properties are ignored

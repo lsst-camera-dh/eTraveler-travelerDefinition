@@ -9,11 +9,7 @@
     <function-signature>java.lang.String retrieveProcess(javax.servlet.jsp.PageContext)</function-signature>
  <!--   <function-signature>java.lang.String retrieveProcess(java.lang.String, java.lang.String)</function-signature> -->
   </function>
-  <function>
-    <name>collectOutput</name>
-    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
-    <function-signature>java.lang.Void collectOutput(java.lang.String, java.lang.String)</function-signature>
- </function>
+ 
    <function>
     <name>nextLine</name>
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
@@ -44,8 +40,13 @@
     <function-signature>java.lang.String dotSource(javax.servlet.jsp.PageContext)</function-signature>
   </function>
    <function>
-    <name>dotGif</name>
+    <name>dotImg</name>
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
-    <function-signature>void dotGif(javax.servlet.jsp.PageContext)</function-signature>
+    <function-signature>void dotImg(javax.servlet.jsp.PageContext)</function-signature>
+  </function>
+     <function>
+    <name>dotImgMap</name>
+    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>void dotImgMap(javax.servlet.jsp.PageContext)</function-signature>
   </function>
 </taglib>

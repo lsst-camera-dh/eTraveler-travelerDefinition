@@ -98,6 +98,17 @@
     </filter-mapping>
    
     <!-- Done adding Sitemesh Filter -->
+    
+    <!-- Servlets -->
+    <servlet>
+      <servlet-name>TravelerImageServlet</servlet-name>
+      <servlet-class>org.lsstcorp.etravelerbackendnode.TravelerImageServlet</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+      <servlet-name>TravelerImageServlet</servlet-name>
+      <url-pattern>/TravelerImageServlet</url-pattern>
+    </servlet-mapping>
 
 
 </web-app>

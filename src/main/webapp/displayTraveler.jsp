@@ -32,20 +32,25 @@
     <c:choose>
       <c:when test="${param.ostyle == 'pprint' }" >
          <c:if test="${nLines > 0}">
-    <preformat>
+    <pre>
       
       <c:forEach var="i" begin="0" end="${nLines - 1}" >
         ${import:fetchLine(pageContext, i)}
       </c:forEach>
       
-    </preformat>
+    </pre>
           </c:if>
       </c:when>
       <c:when test="${param.ostyle == 'dot' }" >
+      <pre>
     ${import:dotSource(pageContext)}
+      </pre>
       </c:when>
-      <c:when test="${param.ostyle == 'gif' }" >
-    ${import:dotGif(pageContext)}
+      <c:when test="${param.ostyle == 'img' }" >
+    ${import:dotImg(pageContext)}
+       </c:when>
+      <c:when test="${param.ostyle == 'imgMap' }" >
+    ${import:dotImgMap(pageContext)}
        </c:when>
    
     </c:choose>

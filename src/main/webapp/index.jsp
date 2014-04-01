@@ -42,7 +42,9 @@
 <td><b>Output style:</b>
  <td>Pretty print <input type="radio" name="ostyle" value="pprint" checked /></td>
  <td>Dot source <input type="radio" name="ostyle" value="dot" /></td>
-   <td>Gif <input type="radio" name="ostyle" value="gif" /> </td>
+   <td>Image <input type="radio" name="ostyle" value="img" /> </td>
+      <td>Mapped image <input type="radio" name="ostyle" value="imgMap" /> </td>
+
  </tr>
  </table>
 <br />

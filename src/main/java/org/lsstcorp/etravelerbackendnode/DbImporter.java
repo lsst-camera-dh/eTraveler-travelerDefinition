@@ -6,7 +6,12 @@ package org.lsstcorp.etravelerbackendnode;
 import org.lsstcorp.etravelerbackenddb.DbInfo;
 import org.lsstcorp.etravelerbackenddb.DbConnection;
 import org.lsstcorp.etravelerbackenddb.MysqlDbConnection;
+import org.lsstcorp.etravelerbackendutil.GraphViz;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.JspWriter;
@@ -15,8 +20,7 @@ import javax.servlet.jsp.JspWriter;
  * Used from jsp to retrieve traveler description from db
  * @author jrb
  */
-public class DbImporter {
- 
+public class DbImporter { 
  
   static ConcurrentHashMap<String, ProcessNode> s_travelers_Test =
     new ConcurrentHashMap<String, ProcessNode>();
@@ -28,20 +32,15 @@ public class DbImporter {
     new ConcurrentHashMap<String, StringArrayWriter>();
   private static String makeKey(String name, String version) 
     {return name + "_" + version;}
- // public static String retrieveProcess(String name, String version)  {
-  public static String retrieveProcess(PageContext context)  {
-    // return "retrieveProcess called with name=" + name ;
-    String name = context.getRequest().getParameter("traveler_name");
-    String version = context.getRequest().getParameter("traveler_version");
-    String dbType = context.getRequest().getParameter("db");
-    System.out.println("Got db parameter " + dbType);
-        
-    String[] args = {"rd_lsst_camt"};
+  public static ProcessNode getProcess(String name, String version, String dbType) 
+  throws EtravelerException {
     DbInfo info = new DbInfo();
-    
-    info.dbname = args[0];
-    
-    info.establish();
+    /*
+     * String[] args = {"rd_lsst_camt"};
+     * info.dbName = args[0];
+     * info.establish();
+     */
+
     ConcurrentHashMap<String, ProcessNode> travelers=null;
     ConcurrentHashMap<String, StringArrayWriter> writers=null;
     if (dbType.equals("dev")) {
@@ -52,19 +51,17 @@ public class DbImporter {
       travelers = s_travelers_Test;
       writers = s_writers_Test;
     } else {
-      return "No such database";
-    }
-    
-    // Try connect
-    DbConnection conn = makeConnection(info, true, dbType);
-    if (conn == null) return "Failed to connect";
+      throw new EtravelerException("No such database type " + dbType);
+    }   
     
     String key = makeKey(name, version);
     ProcessNode traveler=null;
     if (travelers.containsKey(key)) {
       traveler = travelers.get(key);
     } else {
-     
+      // Try connect
+      DbConnection conn = makeConnection(info, true, dbType);
+      if (conn == null) throw new EtravelerException("Failed to connect");
       try {
         int intVersion = Integer.parseInt(version);
         conn.setReadOnly(true);
@@ -73,18 +70,40 @@ public class DbImporter {
         travelers.putIfAbsent(key, traveler);
       }  catch (NumberFormatException ex) {
         conn.close();
-        return  "input version must be integer!";
+        throw  new EtravelerException("input version must be integer!");
       }  catch (Exception ex)  {
         System.out.println(ex.getMessage());
         conn.close();
-        return "Failed to read traveler " + name + " with exception " 
-            + ex.getMessage(); 
+        throw new EtravelerException("Failed to read traveler " + name + " with exception " 
+            + ex.getMessage());
       } finally {
         conn.close();
         ProcessNodeDb.reset();
       }
     }
-    collectOutput(name, version, travelers, writers);
+    return traveler;
+  }
+  public static String retrieveProcess(PageContext context)  {
+    // return "retrieveProcess called with name=" + name ;
+    String name = context.getRequest().getParameter("traveler_name");
+    String version = context.getRequest().getParameter("traveler_version");
+    String dbType = context.getRequest().getParameter("db");
+    ProcessNode traveler = null;
+    try {
+      traveler = getProcess(name, version, dbType);
+    } catch (EtravelerException ex) {
+      return("Failed to retrieve process with exception: " + ex.getMessage() );
+    }
+      
+    ConcurrentHashMap<String, StringArrayWriter> writers=null;
+    if (dbType.equals("dev")) {
+      writers = s_writers_Dev;    
+    } else if (dbType.equals("test")) {
+      writers = s_writers_Test;
+    } else {
+      return "No such database";
+    }   
+    collectOutput(name, version, traveler, writers);
     return "Successfully read in traveler " + name;
   }
   static private DbConnection makeConnection(DbInfo info, boolean usePool,
@@ -109,16 +128,14 @@ public class DbImporter {
     }
   }
   static public void collectOutput(String name, String version,
-      ConcurrentHashMap<String, ProcessNode> travelers, 
-      ConcurrentHashMap<String, StringArrayWriter> writers)  {
+     ProcessNode trav, ConcurrentHashMap<String, StringArrayWriter> writers)  {
     StringArrayWriter wrt = new StringArrayWriter();
     TravelerPrintVisitor vis = new TravelerPrintVisitor();
     String key = makeKey(name, version);
     if (!writers.containsKey(key)) {
-      vis.setEol("<br />\n");
+      vis.setEol("\n");
       vis.setWriter(wrt);
       vis.setIndent("&nbsp;&nbsp");
-      ProcessNode trav = travelers.get(key);
       try {
         vis.visit(trav, "Print Html");
       }  catch (EtravelerException ex)  {
@@ -155,19 +172,104 @@ public class DbImporter {
   }
   
   static public String dotSource(PageContext context) {
+    ProcessNode traveler = getTraveler(context);
+    TravelerDotVisitor vis = new TravelerDotVisitor();
+    JspWriter writer = context.getOut();
+    try {
+      vis.initOutput(writer, "\n");
+      // vis.initOutput(writer, "\n", context.getRequest().getParameter("db"));
+      vis.visit(traveler, "dot file");
+      vis.endOutput();
+    } catch (EtravelerException ex) {
+      return(ex.getMessage());
+    }
+    
     return "Called dotSource";
   }
   
-  static public void dotGif(PageContext context) {
-    JspWriter jspW = context.getOut();
+  static public void dotImg(PageContext context) {
+    String name = context.getRequest().getParameter("traveler_name");
+    String version = context.getRequest().getParameter("traveler_version");
+    String dbType = context.getRequest().getParameter("db");
+    ProcessNode traveler = null;
     try {
-      jspW.println("Writing from dotGif");
-    } catch (IOException x) {
-      
+      traveler = getProcess(name, version, dbType);
+    } catch (EtravelerException ex) {
+      System.out.println("Failed to retrieve process with exception: " + ex.getMessage() );
+      return;
     }
+    JspWriter outWriter = context.getOut();
+    String nameEncoded=null;
+    try {
+      nameEncoded = 
+          URLEncoder.encode(context.getRequest().getParameter("traveler_name"), "UTF-8");
+    } catch (UnsupportedEncodingException ex) {
+      System.out.println("Bad traveler name");
+      return;
+    }
+    try {
+      outWriter.println("<img src=\"TravelerImageServlet?name=" + name + "&version=" 
+          + version + "&db=" +dbType + "\" />");
+    } catch  (IOException ex) {
+      System.out.println("Couldn't write img line");
+    }
+   
   }
+   static public void dotImgMap(PageContext context) {
+    JspWriter outWriter = context.getOut();
+    /* Make the map */
+    String name = context.getRequest().getParameter("traveler_name");
+    String version = context.getRequest().getParameter("traveler_version");
+    String dbType = context.getRequest().getParameter("db");
+    ProcessNode traveler = null;
+    try {
+      traveler = getProcess(name, version, dbType);
+    } catch (EtravelerException ex) {
+      System.out.println("Failed to retrieve process with exception: " + ex.getMessage() );
+      return;
+    }
+    
+    StringWriter dotWriter = new StringWriter();
+    TravelerDotVisitor vis = new TravelerDotVisitor();
+    
+    try {
+      vis.initOutput(dotWriter, "\n");
+      vis.visit(traveler, "dot file");
+      vis.endOutput();
+    } catch (EtravelerException ex) {
+      System.out.println("Failed to make dot file: " + ex.getMessage());
+    }
+    GraphViz gv = new GraphViz("dot");
+    ByteArrayOutputStream bytes=null;
+    try {
+      bytes = gv.getGraph(dotWriter.toString(), GraphViz.Format.CMAPX);
+      //outWriter.println("<map name=\"Traveler\" >");
+      outWriter.println(bytes.toString());
+      //outWriter.println("</map>");
+    } catch (IOException ex) {
+      System.out.println("Failed to make or output image map");
+      return;
+    }
+ 
+    /* Post to servlet to make the image */
+    String encodedName=null;    
+    try {
+      encodedName = 
+          URLEncoder.encode(context.getRequest().getParameter("traveler_name"), "UTF-8");
+    } catch (UnsupportedEncodingException ex) {
+      System.out.println("Bad traveler name");
+    }
+ 
+    try {
+      outWriter.println("<img src=\"TravelerImageServlet?name=" + name + "&version=" 
+          + version + "&db=" +dbType + "\" usemap=\"#Traveler\"  />");
+    } catch  (IOException ex) {
+      System.out.println("Couldn't write img line");
+    }
+    
+   }
   static private StringArrayWriter getWriter(PageContext context)  {
-       String name =  context.getRequest().getParameter("traveler_name");
+    String name =  context.getRequest().getParameter("traveler_name");
     String version = context.getRequest().getParameter("traveler_version");
      
     String dbType = context.getRequest().getParameter("db");
@@ -181,5 +283,32 @@ public class DbImporter {
      
     return writers.get(key);
   }
-  
+  static private ProcessNode getTraveler(PageContext context)  {
+    String name =  context.getRequest().getParameter("traveler_name");
+    String version = context.getRequest().getParameter("traveler_version");
+     
+    String dbType = context.getRequest().getParameter("db");
+ 
+    return getTraveler(name, version, dbType);
+  }
+  /**
+   * getTraveler only accesses local data.  It tries to find traveler among 
+   * those already stored (unlike getProcess which will go to db if necessary)
+   * @param name      Process name
+   * @param version   Process version
+   * @param db
+   * @return 
+   */
+  static public ProcessNode getTraveler(String name, String version, String db) {
+       ConcurrentHashMap<String, ProcessNode> travelers=null;
+    if (db.equals("dev")) {
+      travelers = s_travelers_Dev;
+    } else if (db.equals("test")) {
+      travelers = s_travelers_Test;
+    } else return null;                   // or throw exception?
+    
+    String key = makeKey(name, version);
+     
+    return travelers.get(key);
+  }
 }
