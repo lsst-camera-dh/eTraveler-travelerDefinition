@@ -181,6 +181,8 @@ public class ProcessNode implements  TravelerElement {
     void acceptIsCloned(boolean isCloned);
     // Do we need anything more having to do with edges?
     // What about acceptChild ?
+    // Signal to node in case it needs to do anything after contents are complete
+    void exportDone();
   }
   public void exportTo(TravelerElement.ExportTarget target) {
     if (target instanceof ProcessNode.ExportTarget) {
@@ -204,6 +206,7 @@ public class ProcessNode implements  TravelerElement {
       ptarget.acceptPrescribedResults(m_resultNodes);
       ptarget.acceptChildren(m_children);
       ptarget.acceptIsCloned(m_isCloned);
+      ptarget.exportDone();
     }
   }
   

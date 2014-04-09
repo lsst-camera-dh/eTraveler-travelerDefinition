@@ -230,7 +230,7 @@ public class TravelerPrintVisitor implements TravelerVisitor,
    public void acceptChoiceField(String choiceField)  {
      m_choiceField = choiceField;
    }
-
+   public void exportDone() {}
   
   // Store process contents until we're ready to write
   private String m_id=null;

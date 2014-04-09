@@ -44,9 +44,19 @@
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
     <function-signature>void dotImg(javax.servlet.jsp.PageContext)</function-signature>
   </function>
-     <function>
+  <function>
     <name>dotImgMap</name>
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
     <function-signature>void dotImgMap(javax.servlet.jsp.PageContext)</function-signature>
+  </function>
+  <function>
+    <name>makeTree</name>
+    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>void makeTree(javax.servlet.jsp.PageContext)</function-signature>
+  </function>
+  <function>
+    <name>buildTree</name>
+    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>org.lsstcorp.etravelerbackendNode.ProcessTreeNode buildTree(javax.servlet.jsp.PageContext)</function-signature>
   </function>
 </taglib>

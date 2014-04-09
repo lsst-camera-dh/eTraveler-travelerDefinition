@@ -43,8 +43,8 @@
  <td>Pretty print <input type="radio" name="ostyle" value="pprint" checked /></td>
  <td>Dot source <input type="radio" name="ostyle" value="dot" /></td>
    <td>Image <input type="radio" name="ostyle" value="img" /> </td>
-      <td>Mapped image <input type="radio" name="ostyle" value="imgMap" /> </td>
-
+   <td>Mapped image <input type="radio" name="ostyle" value="imgMap" /> </td>
+   <td>Tree <input type="radio" name="ostyle" value="tree" /> </td>
  </tr>
  </table>
 <br />

@@ -7,6 +7,8 @@ import org.lsstcorp.etravelerbackenddb.DbInfo;
 import org.lsstcorp.etravelerbackenddb.DbConnection;
 import org.lsstcorp.etravelerbackenddb.MysqlDbConnection;
 import org.lsstcorp.etravelerbackendutil.GraphViz;
+import org.freehep.webutil.tree.Tree;
+import org.freehep.webutil.tree.TreeNode;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -15,6 +17,8 @@ import java.net.URLEncoder;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.JspWriter;
+// import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Used from jsp to retrieve traveler description from db
@@ -215,7 +219,53 @@ public class DbImporter {
     }
    
   }
-   static public void dotImgMap(PageContext context) {
+  static public ProcessTreeNode buildTree(PageContext context) {
+     JspWriter outWriter = context.getOut();
+    /* Make the map */
+    String name = context.getRequest().getParameter("traveler_name");
+    String version = context.getRequest().getParameter("traveler_version");
+    String dbType = context.getRequest().getParameter("db");
+    ProcessNode traveler = null;
+    try {
+      traveler = getProcess(name, version, dbType);
+    } catch (EtravelerException ex) {
+      System.out.println("Failed to retrieve process with exception: " + ex.getMessage() );
+      return null;
+    }
+    TravelerTreeVisitor vis = new TravelerTreeVisitor();
+    try {
+      vis.visit(traveler, "build");
+    } catch (EtravelerException ex) {
+      System.out.println("Failed to build tree: " + ex.getMessage() );
+      return null;
+    }
+    return vis.getTreeRoot();
+  }
+  static public void makeTree(PageContext context) {
+    
+    /* Make the map */
+    String name = context.getRequest().getParameter("traveler_name");
+    String version = context.getRequest().getParameter("traveler_version");
+    String dbType = context.getRequest().getParameter("db");
+    ProcessNode traveler = null;
+    try {
+      traveler = getProcess(name, version, dbType);
+    } catch (EtravelerException ex) {
+      System.out.println("Failed to retrieve process with exception: " + ex.getMessage() );
+      return;
+    }
+    TravelerTreeVisitor vis = new TravelerTreeVisitor();
+    HttpServletRequest request = (HttpServletRequest) context.getRequest();
+    vis.setPath(request.getContextPath());
+    try {
+      vis.visit(traveler, "build");
+    } catch (EtravelerException ex) {
+      System.out.println("Failed to build tree: " + ex.getMessage() );
+      return;
+    }
+    vis.render(context);
+  }
+  static public void dotImgMap(PageContext context) {
     JspWriter outWriter = context.getOut();
     /* Make the map */
     String name = context.getRequest().getParameter("traveler_name");
@@ -268,47 +318,47 @@ public class DbImporter {
     }
     
    }
-  static private StringArrayWriter getWriter(PageContext context)  {
-    String name =  context.getRequest().getParameter("traveler_name");
-    String version = context.getRequest().getParameter("traveler_version");
+   static private StringArrayWriter getWriter(PageContext context)  {
+     String name =  context.getRequest().getParameter("traveler_name");
+     String version = context.getRequest().getParameter("traveler_version");
      
-    String dbType = context.getRequest().getParameter("db");
-    ConcurrentHashMap<String, StringArrayWriter> writers=null;
-    if (dbType.equals("dev")) {
-      writers = s_writers_Dev;
-    } else {
-      writers = s_writers_Test;
-    }
-    String key = makeKey(name, version);
+     String dbType = context.getRequest().getParameter("db");
+     ConcurrentHashMap<String, StringArrayWriter> writers=null;
+     if (dbType.equals("dev")) {
+       writers = s_writers_Dev;
+     } else {
+       writers = s_writers_Test;
+     }
+     String key = makeKey(name, version);
      
-    return writers.get(key);
-  }
-  static private ProcessNode getTraveler(PageContext context)  {
-    String name =  context.getRequest().getParameter("traveler_name");
-    String version = context.getRequest().getParameter("traveler_version");
+     return writers.get(key);
+   }
+   static private ProcessNode getTraveler(PageContext context)  {
+     String name =  context.getRequest().getParameter("traveler_name");
+     String version = context.getRequest().getParameter("traveler_version");
      
-    String dbType = context.getRequest().getParameter("db");
- 
-    return getTraveler(name, version, dbType);
-  }
-  /**
-   * getTraveler only accesses local data.  It tries to find traveler among 
-   * those already stored (unlike getProcess which will go to db if necessary)
-   * @param name      Process name
-   * @param version   Process version
-   * @param db
-   * @return 
-   */
-  static public ProcessNode getTraveler(String name, String version, String db) {
-       ConcurrentHashMap<String, ProcessNode> travelers=null;
-    if (db.equals("dev")) {
-      travelers = s_travelers_Dev;
-    } else if (db.equals("test")) {
-      travelers = s_travelers_Test;
-    } else return null;                   // or throw exception?
-    
-    String key = makeKey(name, version);
+     String dbType = context.getRequest().getParameter("db");
      
-    return travelers.get(key);
-  }
+     return getTraveler(name, version, dbType);
+   }
+   /**
+    * getTraveler only accesses local data.  It tries to find traveler among 
+    * those already stored (unlike getProcess which will go to db if necessary)
+    * @param name      Process name
+    * @param version   Process version
+    * @param db
+    * @return 
+    */
+   static public ProcessNode getTraveler(String name, String version, String db) {
+     ConcurrentHashMap<String, ProcessNode> travelers=null;
+     if (db.equals("dev")) {
+       travelers = s_travelers_Dev;
+     } else if (db.equals("test")) {
+       travelers = s_travelers_Test;
+     } else return null;                   // or throw exception?
+     
+     String key = makeKey(name, version);
+     
+     return travelers.get(key);
+   }
 }

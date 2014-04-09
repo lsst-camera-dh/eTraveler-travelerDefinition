@@ -4,6 +4,7 @@
    uri="http://lsstcorp.org/etravelerbackend/DbImporter" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@taglib prefix="tree" uri="http://java.freehep.org/tree-taglib" %>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
@@ -51,6 +52,15 @@
        </c:when>
       <c:when test="${param.ostyle == 'imgMap' }" >
     ${import:dotImgMap(pageContext)}
+       </c:when>
+    <c:when test="${param.ostyle == 'tree' }" >
+   <%-- 
+       <c:set var="treeRoot" value="${import:buildTree(pageContext)}" />
+  <tree:tree model="${treeRoot}" folderHref="plotMain.jsp?folderSelectedPath=%p"
+             leafHref="plotMain.jsp?leafSelectedPath=%p" 
+             rootVisible="false" target="plotMain" showEmptyFolders="false" />
+      --%>
+     ${import:makeTree(pageContext)}   
        </c:when>
    
     </c:choose>

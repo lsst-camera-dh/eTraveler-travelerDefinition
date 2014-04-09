@@ -109,6 +109,18 @@
       <servlet-name>TravelerImageServlet</servlet-name>
       <url-pattern>/TravelerImageServlet</url-pattern>
     </servlet-mapping>
+    
+    <servlet>
+       <servlet-name>fhicon</servlet-name>
+       <servlet-class>org.freehep.webutil.tree.IconServlet</servlet-class>
+       <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>fhicon</servlet-name>
+        <url-pattern>/icon.jsp</url-pattern>
+    </servlet-mapping>
+
 
 
 </web-app>

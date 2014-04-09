@@ -74,6 +74,7 @@
           <groupId>org.freehep</groupId>
           <artifactId>freehep-webutil</artifactId>
           <version>1.10</version>
+         <type>jar</type>
       </dependency>
   </dependencies>
 

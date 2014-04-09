@@ -191,6 +191,7 @@ public class TravelerDotVisitor implements TravelerVisitor,
   public void acceptChoiceField(String choiceField)  {
     m_choiceField = choiceField;
   }
+  public void exportDone() {}
   public String getName() {return m_name;}
   
      // Store process contents until we're ready to write

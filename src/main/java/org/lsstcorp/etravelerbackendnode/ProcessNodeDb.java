@@ -393,7 +393,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public void acceptIsCloned(boolean isCloned) {
     m_isCloned = isCloned;
   }
-  
+  public void exportDone() {}
   public void verify(DbConnection connect) throws EtravelerException {
    
     // For first time through (parentless node)  maybe look up some things,
