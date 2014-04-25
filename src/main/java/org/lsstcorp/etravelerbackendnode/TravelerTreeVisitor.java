@@ -48,38 +48,9 @@ public class TravelerTreeVisitor implements TravelerVisitor {
       }
       m_treeRoot = treeNode;
     }
-    process.exportTo(treeNode);
-    
-    
-    /*
-     * Don't think we need this.  Recursion is done inside ProcessTreeNode.
-    if (m_substeps.equals("NONE")) return;
-  
-    String edgeAtts = " [color=black style=solid label=\"";
-    boolean seq = true;
-    if (m_substeps.equals("SELECTION"))  {
-      seq = false;
-      edgeAtts = " [color=magenta style=bold label=\"";
-    }
-    try {
-      TravelerDotVisitor childVisitor = new TravelerDotVisitor();
-      childVisitor.setIndentEol(m_indent + "  ", m_eol);
-      childVisitor.setDotWriter(m_dotWriter);
-      for (int i=0; i < m_children.length; i++) {
-        m_children[i].accept(childVisitor, activity);
-        m_dotWriter.write(m_indent +"\"" + m_name + "\"->\"" + m_children[i].getName() + "\" ");
-        if (seq) {
-          m_dotWriter.write(edgeAtts + String.valueOf(i+1));
-        } else {
-          m_dotWriter.write(edgeAtts + m_children[i].getCondition());
-        }
-        m_dotWriter.write("\"]" + m_eol);
-      }    
-    }  catch (IOException ex) {
-      throw new EtravelerException("Failed to write edge: " + ex.getMessage());
-    } 
-    */
-       //   For now ignore prereqs and results
+    process.exportTo(treeNode);   
+   
+    //   For now ignore prereqs and results
     // If children
     //   Create new travelever visitor; set output stream to ours
     //   Recurse through children.  
@@ -106,7 +77,6 @@ public class TravelerTreeVisitor implements TravelerVisitor {
     }
   }
   
-  // Write text to be input to GraphViz
   private Tree m_treeRenderer=null;
   private ProcessTreeNode m_treeRoot = null;
   private String m_path=null;

@@ -6,15 +6,15 @@ public class ProcessTreeNode extends DefaultTreeNode
   implements ProcessNode.ExportTarget {
 
 
-  ProcessTreeNode(TravelerTreeVisitor vis, ProcessNode parent, 
+  ProcessTreeNode(TravelerTreeVisitor vis, ProcessNode processNode, 
                   ProcessTreeNode treeParent) {
-    super(parent.getName(), treeParent);
+    super(processNode.getName(), treeParent);
  
     m_vis = vis;
-    m_processParent = parent;
+    m_processNode = processNode;
   }
 
-  ProcessNode getProcessParent() { return m_processParent;}
+  ProcessNode getProcessNode() { return m_processNode;}
 
   private ProcessTreeNode m_treeParent=null;
 
@@ -153,7 +153,10 @@ public class ProcessTreeNode extends DefaultTreeNode
   private String m_choiceField=null; 
 
   private TravelerTreeVisitor m_vis=null;
-  private ProcessNode m_processParent=null;
+  /*
+   * m_processNode is ProcessNode from which this ProcessTreeNode is derived
+   */
+  private ProcessNode m_processNode=null;
   private ProcessTreeNode[] m_treeChildren=null;
   private int m_edgeStep = 0;
   private String m_edgeCondition = null;
