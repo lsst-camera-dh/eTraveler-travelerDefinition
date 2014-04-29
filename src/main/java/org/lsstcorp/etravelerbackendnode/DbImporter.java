@@ -16,6 +16,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.JspContext;
 import javax.servlet.jsp.JspWriter;
 // import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -244,9 +245,14 @@ public class DbImporter {
   static public void makeTree(PageContext context) {
     
     /* Make the map */
-    String name = context.getRequest().getParameter("traveler_name");
-    String version = context.getRequest().getParameter("traveler_version");
-    String dbType = context.getRequest().getParameter("db");
+    //String name = context.getRequest().getParameter("traveler_name");
+    //String version = context.getRequest().getParameter("traveler_version");
+    //String dbType = context.getRequest().getParameter("db");
+    JspContext jspContext = (JspContext)context;
+    String name = (String)(jspContext.getAttribute("traveler_name", PageContext.SESSION_SCOPE));
+    String version = (String)(jspContext.getAttribute("traveler_version", PageContext.SESSION_SCOPE));
+    String dbType = (String)(jspContext.getAttribute("db", PageContext.SESSION_SCOPE));
+
     ProcessNode traveler = null;
     try {
       traveler = getProcess(name, version, dbType);

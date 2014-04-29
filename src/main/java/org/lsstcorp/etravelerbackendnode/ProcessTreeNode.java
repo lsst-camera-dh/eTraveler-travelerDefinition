@@ -116,6 +116,8 @@ public class ProcessTreeNode extends DefaultTreeNode
   }
   public String getName() {return m_name;}
   
+  public boolean isSelected() {return m_selected;}
+  
      // Store process contents until we're ready to write
   private String m_id=null;
   private String m_name=null;
@@ -160,4 +162,5 @@ public class ProcessTreeNode extends DefaultTreeNode
   private ProcessTreeNode[] m_treeChildren=null;
   private int m_edgeStep = 0;
   private String m_edgeCondition = null;
+  private boolean m_selected = false;
 }

@@ -67,6 +67,9 @@ public class TravelerTreeVisitor implements TravelerVisitor {
     JspWriter outWriter = context.getOut();
     try {
       if (context.getAttribute("scriptIncluded", PageContext.PAGE_SCOPE) == null) {
+        m_treeRenderer.setLeafHref("actionTraveler.jsp?leafSelectedPath=%p");
+        m_treeRenderer.setTarget("action");
+            
         m_treeRenderer.printStyle(outWriter);
         m_treeRenderer.printScript(outWriter);
         context.setAttribute("scriptInclude", Boolean.TRUE, PageContext.PAGE_SCOPE);

@@ -49,6 +49,8 @@
  </table>
 <br />
   <input type="submit" value="Display" />
+  
+  <p><a href="editTraveler.jsp">Edit traveler</a></p>
 
 
 </form>

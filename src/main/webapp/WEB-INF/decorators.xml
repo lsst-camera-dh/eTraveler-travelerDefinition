@@ -1,0 +1,13 @@
+<decorators defaultdir="/decorators">
+
+    <decorator name="noDecorator" page="noDecorator.jsp">
+        <pattern>/actionTraveler.jsp</pattern>
+        <pattern>/displayTraveler.jsp</pattern>
+        <pattern>/showTree.jsp</pattern>
+    </decorator>
+
+  <decorator name="basicDecorator" page="basicDecorator.jsp">
+       <pattern>/*</pattern>
+  </decorator>
+
+</decorators>
