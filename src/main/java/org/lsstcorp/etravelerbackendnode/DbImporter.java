@@ -27,16 +27,15 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class DbImporter { 
  
-  static ConcurrentHashMap<String, ProcessNode> s_travelers_Test =
-    new ConcurrentHashMap<String, ProcessNode>();
-  static ConcurrentHashMap<String, StringArrayWriter> s_writers_Test = 
-    new ConcurrentHashMap<String, StringArrayWriter>();
-  static ConcurrentHashMap<String, ProcessNode> s_travelers_Dev =
-    new ConcurrentHashMap<String, ProcessNode>();
-  static ConcurrentHashMap<String, StringArrayWriter> s_writers_Dev = 
-    new ConcurrentHashMap<String, StringArrayWriter>();
+  static ConcurrentHashMap<String, ProcessNode> s_travelers =
+      new ConcurrentHashMap<String, ProcessNode>();
+  static ConcurrentHashMap<String, StringArrayWriter> s_writers =
+      new ConcurrentHashMap<String, StringArrayWriter>();
+ 
   private static String makeKey(String name, String version) 
     {return name + "_" + version;}
+  private static String makeKey(String name, String version, String dbType)
+  {return name+ "_" + version + "@" + dbType;}
   public static ProcessNode getProcess(String name, String version, String dbType) 
   throws EtravelerException {
     DbInfo info = new DbInfo();
@@ -46,8 +45,9 @@ public class DbImporter {
      * info.establish();
      */
 
-    ConcurrentHashMap<String, ProcessNode> travelers=null;
-    ConcurrentHashMap<String, StringArrayWriter> writers=null;
+    ConcurrentHashMap<String, ProcessNode> travelers=s_travelers;
+    ConcurrentHashMap<String, StringArrayWriter> writers=s_writers;
+    /*
     if (dbType.equals("dev")) {
       travelers = s_travelers_Dev;
       writers = s_writers_Dev;
@@ -58,8 +58,8 @@ public class DbImporter {
     } else {
       throw new EtravelerException("No such database type " + dbType);
     }   
-    
-    String key = makeKey(name, version);
+    */
+    String key = makeKey(name, version, dbType);
     ProcessNode traveler=null;
     if (travelers.containsKey(key)) {
       traveler = travelers.get(key);
@@ -100,15 +100,7 @@ public class DbImporter {
       return("Failed to retrieve process with exception: " + ex.getMessage() );
     }
       
-    ConcurrentHashMap<String, StringArrayWriter> writers=null;
-    if (dbType.equals("dev")) {
-      writers = s_writers_Dev;    
-    } else if (dbType.equals("test")) {
-      writers = s_writers_Test;
-    } else {
-      return "No such database";
-    }   
-    collectOutput(name, version, traveler, writers);
+    collectOutput(name, version, traveler, dbType);
     return "Successfully read in traveler " + name;
   }
   static private DbConnection makeConnection(DbInfo info, boolean usePool,
@@ -133,11 +125,11 @@ public class DbImporter {
     }
   }
   static public void collectOutput(String name, String version,
-     ProcessNode trav, ConcurrentHashMap<String, StringArrayWriter> writers)  {
+     ProcessNode trav, String dbType)  {
     StringArrayWriter wrt = new StringArrayWriter();
     TravelerPrintVisitor vis = new TravelerPrintVisitor();
-    String key = makeKey(name, version);
-    if (!writers.containsKey(key)) {
+    String key = makeKey(name, version, dbType);
+    if (!s_writers.containsKey(key)) {
       vis.setEol("\n");
       vis.setWriter(wrt);
       vis.setIndent("&nbsp;&nbsp");
@@ -149,7 +141,7 @@ public class DbImporter {
         return;
       }
       
-      writers.putIfAbsent(key, wrt);
+      s_writers.putIfAbsent(key, wrt);
     }
   }
   // static public String nextLine(String name, String version) {
@@ -242,17 +234,33 @@ public class DbImporter {
     }
     return vis.getTreeRoot();
   }
-  static public void makeTree(PageContext context) {
+  /**
+   * 
+   * @param context  page context
+   * @param reason   if it's the string "edit", we're in session scope.
+   *                 save visitor
+   */
+   
+  static public void makeTree(PageContext context)  {
+    makeTree(context, "view");
+  } 
+  static public void makeTree(PageContext context, String reason) {
     
     /* Make the map */
-    //String name = context.getRequest().getParameter("traveler_name");
-    //String version = context.getRequest().getParameter("traveler_version");
-    //String dbType = context.getRequest().getParameter("db");
-    JspContext jspContext = (JspContext)context;
-    String name = (String)(jspContext.getAttribute("traveler_name", PageContext.SESSION_SCOPE));
-    String version = (String)(jspContext.getAttribute("traveler_version", PageContext.SESSION_SCOPE));
-    String dbType = (String)(jspContext.getAttribute("db", PageContext.SESSION_SCOPE));
-
+    String name;
+    String version;
+    String dbType;
+    JspContext jspContext=null;
+    if (reason.equals("edit") ) {
+      jspContext = (JspContext)context;
+      name = (String)(jspContext.getAttribute("traveler_name", PageContext.SESSION_SCOPE));
+      version = (String)(jspContext.getAttribute("traveler_version", PageContext.SESSION_SCOPE));
+      dbType = (String)(jspContext.getAttribute("db", PageContext.SESSION_SCOPE));
+    } else {
+      name = context.getRequest().getParameter("traveler_name");
+      version = context.getRequest().getParameter("traveler_version");
+      dbType = context.getRequest().getParameter("db");
+    }
     ProcessNode traveler = null;
     try {
       traveler = getProcess(name, version, dbType);
@@ -268,6 +276,10 @@ public class DbImporter {
     } catch (EtravelerException ex) {
       System.out.println("Failed to build tree: " + ex.getMessage() );
       return;
+    }
+    if (reason.equals("edit")) {
+      // Save the visitor
+      jspContext.setAttribute("treeVisitor", vis, PageContext.SESSION_SCOPE);
     }
     vis.render(context);
   }
@@ -329,15 +341,10 @@ public class DbImporter {
      String version = context.getRequest().getParameter("traveler_version");
      
      String dbType = context.getRequest().getParameter("db");
-     ConcurrentHashMap<String, StringArrayWriter> writers=null;
-     if (dbType.equals("dev")) {
-       writers = s_writers_Dev;
-     } else {
-       writers = s_writers_Test;
-     }
-     String key = makeKey(name, version);
+   
+     String key = makeKey(name, version, dbType);
      
-     return writers.get(key);
+     return s_writers.get(key);
    }
    static private ProcessNode getTraveler(PageContext context)  {
      String name =  context.getRequest().getParameter("traveler_name");
@@ -357,14 +364,9 @@ public class DbImporter {
     */
    static public ProcessNode getTraveler(String name, String version, String db) {
      ConcurrentHashMap<String, ProcessNode> travelers=null;
-     if (db.equals("dev")) {
-       travelers = s_travelers_Dev;
-     } else if (db.equals("test")) {
-       travelers = s_travelers_Test;
-     } else return null;                   // or throw exception?
+  
+     String key = makeKey(name, version, db);
      
-     String key = makeKey(name, version);
-     
-     return travelers.get(key);
+     return s_travelers.get(key);
    }
 }

@@ -17,7 +17,7 @@
   </head>
   <body>
  
-  ${import:makeTree(pageContext)}   
+  ${import:makeTree(pageContext, "edit")}   
      
 </body>
 </html>

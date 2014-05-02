@@ -16,20 +16,29 @@
     <title>Display Traveler</title>
   </head>
   <body>
+    <style type="text/css">
+    <!--
+      th { font-size: 10pt; font-weight: bold;}
+      td { font-size: 10pt;}
+      p  { font-size: 10pt;}
+      h4 {font-size: 10pt; font-weight: bold;}
+   -->
+  </style>
     <h1>Display Traveler</h1>
     <jsp:useBean id="now" class="java.util.Date"/> 
     
-    It's now 
-    <fmt:formatDate value="${now}" pattern="dd-MM-yyyy HH:mm:ss a z" />
-    <br /> <br />
-    Name is ${param.traveler_name} <br />
- <%--  ${import:retrieveProcess( param.traveler_name, param.traveler_version)} --%>  
+    <p>It's now 
+    <fmt:formatDate value="${now}" pattern="dd-MM-yyyy HH:mm:ss a z" /></p>
+    <p>
+    Displaying traveler <b>${param.traveler_name}</b>, version <b>${param.traveler_version}</b>,
+    from db <b>${param.db}</b></p>
+
+    <p>
     ${import:retrieveProcess(pageContext)} 
-    <br />
+    </p>
     <c:set var="nLines" value="${import:nLinesUsed(pageContext)}" /> 
     
     <%--  Branch on value of ostyle --%>
- 
     <c:choose>
       <c:when test="${param.ostyle == 'pprint' }" >
          <c:if test="${nLines > 0}">
@@ -60,7 +69,7 @@
              leafHref="plotMain.jsp?leafSelectedPath=%p" 
              rootVisible="false" target="plotMain" showEmptyFolders="false" />
       --%>
-     ${import:makeTree(pageContext)}   
+     ${import:makeTree(pageContext, "view")}   
        </c:when>
    
     </c:choose>

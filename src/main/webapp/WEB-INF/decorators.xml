@@ -4,6 +4,7 @@
         <pattern>/actionTraveler.jsp</pattern>
         <pattern>/displayTraveler.jsp</pattern>
         <pattern>/showTree.jsp</pattern>
+        <pattern>/processAction.jsp</pattern>
     </decorator>
 
   <decorator name="basicDecorator" page="basicDecorator.jsp">
