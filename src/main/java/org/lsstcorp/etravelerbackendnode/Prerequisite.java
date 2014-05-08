@@ -39,6 +39,17 @@ public class Prerequisite implements TravelerElement {
     m_version = imp.provideVersion();
     m_userVersionString = imp.provideUserVersionString();
   }
+  // Copy constructor
+  public Prerequisite(ProcessNode parent, Prerequisite orig) {
+    m_parent = parent;
+    m_prerequisiteType = new String(orig.m_prerequisiteType);
+    m_name = new String(orig.m_name);
+    m_description = new String(orig.m_description);
+    m_quantity = orig.m_quantity;
+    if (orig.m_version != null) m_version = new String(orig.m_version);
+    if (orig.m_userVersionString != null) 
+      m_userVersionString = new String(orig.m_userVersionString);
+  }
   public void accept(TravelerVisitor visitor, String activity) throws EtravelerException {
     visitor.visit(this, activity);
   }

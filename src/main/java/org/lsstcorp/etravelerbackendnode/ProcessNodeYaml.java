@@ -135,12 +135,22 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         }
       }
       
+      /* A clone must be cloned from something appearing earlier in the
+       * yaml definition, but it must not be an ancestor
+       */
       String processKey = formProcessKey(m_name, m_version);  
       ProcessNodeYaml referent = m_processes.get(processKey);
       if (referent == null) {
         throw new UnknownReferent(m_name, m_version);
       }
       m_clonedFrom = referent;
+      ProcessNodeYaml ancestor = m_parent;
+      while (ancestor != null) {
+        if (referent == ancestor) {
+          throw new EtravelerException("May not clone ancestor: " + m_name);
+        }
+        ancestor = ancestor.m_parent;
+      }
       m_isClone = true;
       return;
     }
@@ -324,6 +334,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   public String provideVersion() {return m_version;}
   public String provideUserVersionString() {return m_userVersionString;}
   public String provideDescription() {return m_description;}
+  public String provideInstructionsURL() {return m_instructionsURL;}
   public String provideMaxIteration() {return m_maxIteration;}
   public String provideSubsteps() {return m_substeps;}
   public int provideTravelerActionMask() {return m_travelerActionMask;}
@@ -355,6 +366,8 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
    public PrescribedResult provideResult(ProcessNode parent, int n) {
     return new PrescribedResult(parent, m_prescribedResults[n]);
   }
+  public void finishImport(ProcessNode process) {}
+
   // Properties read in directly from yaml
   private String m_name=null;
   private String m_hardwareType=null;

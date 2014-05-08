@@ -248,7 +248,14 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     return m_hardwareRelationshipType; }
   public String provideVersion() {return m_version;}
   public String provideUserVersionString() {return m_userVersionString;}
-  public String provideDescription() {return m_description;}
+  public String provideDescription() {
+    if (m_description == null) return "";
+    return m_description;
+  }
+   public String provideInstructionsURL() {
+    if (m_instructionsURL == null) return "";
+    return m_instructionsURL;
+  }
   public String provideMaxIteration() {return m_maxIteration;}
   public String provideSubsteps() {return m_substeps;}
   public int provideTravelerActionMask() {return m_travelerActionMask;}
@@ -279,6 +286,12 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     return new PrescribedResult(parent, new PrescribedResultDb(m_connect, m_resultIds[n]));
   }
   public boolean provideIsCloned() {return m_isCloned;}
+
+  public void finishImport(ProcessNode process) {
+    process.setProcessId(m_id);
+    process.setOriginalId(m_originalId);
+  }
+    
   
   // ProcessNode.ExportTarget implementation: allow ProcessNode to export to us
   public void acceptId(String id) {
@@ -299,6 +312,9 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   }
   public void acceptDescription(String description) {
     m_description = description;
+  }
+  public void acceptInstructionsURL(String url) {
+    m_instructionsURL = url;
   }
   public void acceptMaxIteration(String maxIteration) {
     m_maxIteration = maxIteration;
@@ -672,6 +688,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private String m_version=null;
   private String m_userVersionString=null;
   private String m_description=null;
+  private String m_instructionsURL=null;
   private String m_substeps=null;
   private String m_maxIteration=null;
   private int m_travelerActionMask=0;

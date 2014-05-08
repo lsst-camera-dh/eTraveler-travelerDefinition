@@ -7,14 +7,16 @@ import org.lsstcorp.etravelerbackenddb.DbInfo;
 import org.lsstcorp.etravelerbackenddb.DbConnection;
 import org.lsstcorp.etravelerbackenddb.MysqlDbConnection;
 import org.lsstcorp.etravelerbackendutil.GraphViz;
-import org.freehep.webutil.tree.Tree;
-import org.freehep.webutil.tree.TreeNode;
+import org.freehep.webutil.tree.Tree;   //  freeheptree.Tree;
+import org.freehep.webutil.tree.TreeNode; // freeheptree.TreeNode; 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import javax.management.AttributeList;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.JspContext;
 import javax.servlet.jsp.JspWriter;
@@ -31,6 +33,7 @@ public class DbImporter {
       new ConcurrentHashMap<String, ProcessNode>();
   static ConcurrentHashMap<String, StringArrayWriter> s_writers =
       new ConcurrentHashMap<String, StringArrayWriter>();
+ /* static ArrayList<String> s_editActions = new ArrayList<String>(); */
  
   private static String makeKey(String name, String version) 
     {return name + "_" + version;}
@@ -261,16 +264,21 @@ public class DbImporter {
       version = context.getRequest().getParameter("traveler_version");
       dbType = context.getRequest().getParameter("db");
     }
-    ProcessNode traveler = null;
+    ProcessNode originalTraveler = null;
+   
     try {
-      traveler = getProcess(name, version, dbType);
+      originalTraveler = getProcess(name, version, dbType);
     } catch (EtravelerException ex) {
       System.out.println("Failed to retrieve process with exception: " + ex.getMessage() );
       return;
     }
+    ProcessNode traveler = originalTraveler;
     TravelerTreeVisitor vis = new TravelerTreeVisitor();
     HttpServletRequest request = (HttpServletRequest) context.getRequest();
     vis.setPath(request.getContextPath());
+    if (reason.equals("edit"))  { /* make a copy */
+      traveler = new ProcessNode(null, originalTraveler, 0);
+    }
     try {
       vis.visit(traveler, "build");
     } catch (EtravelerException ex) {
@@ -368,5 +376,84 @@ public class DbImporter {
      String key = makeKey(name, version, db);
      
      return s_travelers.get(key);
+   }
+   /**
+    * Do selected action on current traveler/process step. 
+    * Can find tree visitor (hence traveler) and selected step path
+    * from session variables
+    * @param action 
+    */
+   static public void doAction(PageContext pageContext, String action) {
+     JspContext jspContext = (JspContext) pageContext;
+     TravelerTreeVisitor vis = (TravelerTreeVisitor) jspContext.getAttribute("treeVisitor", PageContext.SESSION_SCOPE);
+     String leafPath = (String) jspContext.getAttribute("leafPath", PageContext.SESSION_SCOPE);
+     String folderPath = (String) jspContext.getAttribute("folderPath", PageContext.SESSION_SCOPE);
+     
+     
+     try {
+       JspWriter outWriter = jspContext.getOut();
+       outWriter.println("Action passed in is " + action + "<br />" );
+       
+       if (vis.equals(null)) {
+         outWriter.println("<p>Tree visitor was null</p>");
+         return;
+       }    
+      
+       if (leafPath.equals("")) {
+         outWriter.println("<p>leafPath was empty</p>");
+       } else {
+         outWriter.println("<p>leafPath was " + leafPath + "</p>");
+       }
+       if (folderPath.equals("")) {
+         outWriter.println("<p>folderPath was empty</p>");
+       } else {
+         outWriter.println("<p>folderPath was " + folderPath + "</p>");
+       }
+   
+       // ProcessTreeNode selectedTreeNode = getTreeNode(context);
+    
+       switch(action) {
+         case "Display": {
+           outWriter.println("<p>Display case should be handled elsewhere </p>");
+           break;
+         }
+         case "Edit":
+         case "LeafSibling":
+         case "SubfolderSibling":
+         case "LeafChild":
+         case "SubfolderChild":
+         case "Remove":
+           outWriter.println("<p>Appropriate action seen</p>");
+           break;
+         default:
+           outWriter.println("Unknown action");
+       }
+     } catch (IOException ex) {
+       System.out.println("Failed to write from DbImporter:doAction");
+     }
+   }
+   static public AttributeList selectedNodeAttributes(PageContext context) {
+  
+     JspContext jspContext = (JspContext) context;
+     ProcessTreeNode selectedTreeNode = getTreeNode(jspContext);
+     ProcessNode selected = selectedTreeNode.getProcessNode();
+     
+     return selected.getAttributes();
+   }
+   
+   static private ProcessTreeNode getTreeNode(JspContext jspContext)  {
+     TravelerTreeVisitor vis = (TravelerTreeVisitor) jspContext.getAttribute("treeVisitor", PageContext.SESSION_SCOPE);
+     String nodePath = (String) jspContext.getAttribute("leafPath", PageContext.SESSION_SCOPE);
+     if (nodePath.equals("")) {
+       nodePath = (String) jspContext.getAttribute("folderPath", PageContext.SESSION_SCOPE);
+     }
+     
+     ProcessTreeNode rootTreeNode = vis.getTreeRoot();
+     int secondSlash = nodePath.indexOf("/", 1);
+     if (secondSlash == -1) return rootTreeNode;
+     
+     /* Otherwise strip off root path at the front */
+     nodePath = nodePath.substring(secondSlash);
+     return (ProcessTreeNode) rootTreeNode.findNode(nodePath, false);
    }
 }

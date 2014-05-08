@@ -144,6 +144,7 @@ public class PrerequisiteDb implements Prerequisite.Importer, Prerequisite.Expor
       int ix=0;
       m_name = rs.getString(++ix);
       m_description = rs.getString(++ix);
+      if (m_description == null) m_description = "";
       String typeId = rs.getString(++ix);
 
       if (!prereqTypeMap.containsKey(typeId))  {

@@ -29,7 +29,9 @@
    -->
   </style>
    
- 
+  <table width="100%" height="100%" border="0" style="border-top: 1px solid black;">
+    <tr width="100%">
+      <td colspan="2">
  <form method="get" action="editTraveler.jsp">
    <table>
      <tr>   
@@ -86,13 +88,8 @@
 <br />
   <input type="submit" value="Display" />
   </form>
- 
- 
-
- 
-  <c:if test="${! empty param.traveler_name}" >
-    
-    <p>Traveler name:  ${param.traveler_name}  <br />
+     <c:if test="${! empty param.traveler_name}" >
+       <p>Traveler name:  ${param.traveler_name}  <br />
     Version:   ${param.traveler_version}  <br />
     Db:  ${param.db} </p> 
 
@@ -101,38 +98,45 @@
     <c:set var="traveler_name" value="${param.traveler_name}" scope="session" />
     <c:set var="traveler_version" value="${param.traveler_version}" scope="session"/>
     <c:set var="db" value="${param.db}" scope="session" />
-
-    <table width="100%" height="100%" border="0" style="border-top: 1px solid black;">
+     </c:if>
+</td>
+</tr>
+ <%--
+  <table width="100%" height="100%" border="0" style="border-top: 1px solid black;">
+ --%>
       <tr width="100%" >
-        <td valign="top" style="border-right: 1px solid black;">
+        <td valign="top" width="300" style="border-right: 1px solid black;">
           <%-- netbeans wants width: rather than width=  etc. but then resizing doesn't work!
                so leave as is --%>
+
+ 
+  <c:if test="${! empty param.traveler_name}" >
+    
+    
+
+
           <iframe  name="tree" id="tree" src="showTree.jsp" scrolling="auto" marginwidth="0" marginheight="0" 
                    frameborder="0" vspace="0" hspace="0" style="width=100%; height=100%;"></iframe>
         </td>
-        <td valign="top" width="1000" >
+        <td valign="top" >
           <iframe  name="action" id="action" src="actionTraveler.jsp" scrolling="auto" 
                    marginwidth="0" marginheight="0" frameborder="0" vspace="0" hspace="0" 
-                   style="width=100%; height=100%;"></iframe> 
-        </td>
-      </tr>
-    </table>    
+                   style="width=100%; height=100%;" width="100%"></iframe> 
+     
       
   </c:if >
   <c:if test="${ empty param.db}">
-     <table width="100%" height="100%" border="0" style="border-top: 1px solid black;">
-      <tr width="100%" >
-        <td valign="top" style="border-right: 1px solid black;">
+
           <iframe  name="tree" id="tree"  scrolling="auto" marginwidth="0" marginheight="0" 
                    frameborder="0" vspace="0" hspace="0" style="width=100%; height=100%;"></iframe>
         </td>
-        <td valign="top" width="1000">
+        <td valign="top" >
           <iframe  name="action" id="action"  scrolling="auto" marginwidth="0" marginheight="0" 
-                   frameborder="0" vspace="0" hspace="0" style="width=100%; height=100%;"></iframe> 
-        </td>
-      </tr>
-    </table>   
+                   frameborder="0" vspace="0" hspace="0" width="100%" style="width=100%; height=100%;"></iframe> 
+         
   </c:if>
-
+   </td>
+      </tr>
+    </table>    
   
 </html>

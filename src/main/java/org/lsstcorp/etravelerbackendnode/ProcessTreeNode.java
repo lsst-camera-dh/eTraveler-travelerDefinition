@@ -1,6 +1,6 @@
 package org.lsstcorp.etravelerbackendnode;
 
-import org.freehep.webutil.tree.DefaultTreeNode;
+import org.freehep.webutil.tree.DefaultTreeNode; // freeheptree.DefaultTreeNode;
 
 public class ProcessTreeNode extends DefaultTreeNode 
   implements ProcessNode.ExportTarget {
@@ -14,11 +14,14 @@ public class ProcessTreeNode extends DefaultTreeNode
     m_processNode = processNode;
   }
 
-  ProcessNode getProcessNode() { return m_processNode;}
+  public ProcessNode getProcessNode() { return m_processNode;}
 
   private ProcessTreeNode m_treeParent=null;
 
-   // Implementation of ProcessNode.ExportTarget
+  /* Implementation of ProcessNode.ExportTarget
+     Is there any good reason for storing all this stuff?
+     Could probably turn most of the accept.. methods into no-ops
+  */
   public void acceptId(String id) {m_id = id;}
   public void acceptName(String name) {
     m_name = name;
@@ -32,6 +35,7 @@ public class ProcessTreeNode extends DefaultTreeNode
   public void acceptUserVersionString(String userVersionString) {
     m_userVersionString = userVersionString;}
   public void acceptDescription(String description) {m_description = description;}
+  public void acceptInstructionsURL(String url) {m_instructionsURL = url;}
   public void acceptMaxIteration(String maxIteration) {
     m_maxIteration = maxIteration;}
   public void acceptSubsteps(String substeps) {m_substeps = substeps;}
@@ -126,6 +130,7 @@ public class ProcessTreeNode extends DefaultTreeNode
   private String m_version=null;
   private String m_userVersionString=null;
   private String m_description=null;
+  private String m_instructionsURL=null;
   private String m_maxIteration=null;
   private String m_substeps=null;
   private String m_condition=null;

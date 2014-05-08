@@ -9,10 +9,8 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
-import org.freehep.webutil.tree.DefaultIconSet;
-import org.freehep.webutil.tree.Tree;
-import org.freehep.webutil.tree.TreeNode;
-
+import org.freehep.webutil.tree.DefaultIconSet; // freeheptree.DefaultIconSet;
+import org.freehep.webutil.tree.Tree; // freeheptree.Tree;  
 
 /**
  * Create text file (or byte stream) for input to GraphViz
@@ -46,6 +44,7 @@ public class TravelerTreeVisitor implements TravelerVisitor {
       } else {
         m_treeRenderer = new Tree(m_path);
       }
+      //m_treeRenderer.setRootVisible(false);
       m_treeRoot = treeNode;
     }
     process.exportTo(treeNode);   
@@ -68,7 +67,7 @@ public class TravelerTreeVisitor implements TravelerVisitor {
     try {
       if (context.getAttribute("scriptIncluded", PageContext.PAGE_SCOPE) == null) {
         m_treeRenderer.setLeafHref("actionTraveler.jsp?leafSelectedPath=%p");
-        m_treeRenderer.setFolderHref("actionTraveler.jsp?leafSelectedPath=%p");
+        m_treeRenderer.setFolderHref("actionTraveler.jsp?folderSelectedPath=%p");
         m_treeRenderer.setTarget("action");
             
         m_treeRenderer.printStyle(outWriter);

@@ -7,15 +7,70 @@ package org.lsstcorp.etravelerbackendnode;
 import org.lsstcorp.etravelerbackenddb.DbConnection;
 import org.yaml.snakeyaml.nodes.Node;
 import java.io.Writer;
+import javax.management.Attribute;
+import javax.management.AttributeList;
+
 /**
  *
  * @author jrb
  */
-public class ProcessNode implements  TravelerElement {
+public class ProcessNode implements  TravelerElement
+{
   static private void checkNonempty(String label, String toCheck) throws Exception {
     if ((toCheck == null) || (toCheck == "")) {
       throw new Exception("Every process step must have a " + label);
     }
+  }
+
+  // Deep copy
+  public ProcessNode(ProcessNode parent, ProcessNode orig, int step) {
+    m_parent = parent;
+    /* handle m_parentEdge a bit further down */
+    /* m_clonedFrom is a tricky one! */
+    if (orig.m_originalId != null) m_originalId = new String(orig.m_originalId);
+    if (orig.m_processId != null) m_processId = new String(orig.m_processId);
+    m_sequenceCount = orig.m_sequenceCount;
+    m_optionCount = orig.m_optionCount;
+    m_name = new String(orig.m_name);
+    m_isCloned = orig.m_isCloned;
+    m_hardwareType = new String(orig.m_hardwareType);
+    if (orig.m_hardwareRelationshipType != null)
+      m_hardwareRelationshipType = new String(orig.m_hardwareRelationshipType);
+    m_version = new String(orig.m_version);
+    if (orig.m_userVersionString != null) 
+      m_userVersionString = new String(orig.m_userVersionString);
+    m_description = new String(orig.m_description);
+    m_instructionsURL = new String(orig.m_instructionsURL);
+    m_maxIteration = new String(orig.m_maxIteration);
+    m_substeps = new String(orig.m_substeps);
+    m_isOption = orig.m_isOption;
+    m_travelerActionMask = orig.m_travelerActionMask;
+    if (m_parent != null) {
+      m_parentEdge = new ProcessEdge(m_parent, this, step, 
+                                     orig.getCondition());
+    }
+    if (orig.m_prerequisites != null) {
+      int plen = orig.m_prerequisites.length;
+      m_prerequisites = new Prerequisite[plen];
+      for (int ip = 0; ip < plen; ip++) {
+        m_prerequisites[ip] = new Prerequisite(this, orig.m_prerequisites[ip]);
+      }
+    }
+    if (orig.m_resultNodes != null) {
+      int rlen = orig.m_resultNodes.length;
+      m_resultNodes = new PrescribedResult[rlen];
+      for (int ir = 0; ir < rlen; ir++) {
+        m_resultNodes[ir] = new PrescribedResult(this, orig.m_resultNodes[ir]);
+      }
+    }
+    if (orig.m_children != null) {
+      int clen = orig.m_children.length;
+      m_children = new ProcessNode[clen];
+      for (int ic = 0; ic < clen; ic++) {
+        m_children[ic] = new ProcessNode(this, orig.m_children[ic], ic);
+      }
+    }
+      
   }
   public ProcessNode(ProcessNode parent, ProcessNode.Importer imp) 
       throws Exception {
@@ -90,7 +145,34 @@ public class ProcessNode implements  TravelerElement {
     
     m_isOption = (m_optionCount > 0);
   }
-  
+  public AttributeList getAttributes() {
+    AttributeList pList = new AttributeList(20);
+    pList.add(new Attribute("name", m_name));
+    pList.add(new Attribute("version", m_version));
+    if (m_userVersionString != null) {
+      pList.add(new Attribute("user version string", m_userVersionString));
+    }
+    pList.add(new Attribute("hardware type", m_hardwareType));
+    if (m_hardwareRelationshipType != null) {
+      pList.add(new Attribute("hardware relationship type", m_hardwareRelationshipType));
+    }
+    pList.add(new Attribute("description", m_description));
+    pList.add(new Attribute("max iterations", m_maxIteration));
+    pList.add(new Attribute("child type", m_substeps));
+    pList.add(new Attribute("traveler action mask", Integer.toString(m_travelerActionMask)));
+    int nChild = m_optionCount;
+
+    if (m_sequenceCount > nChild) nChild = m_sequenceCount;
+    pList.add(new Attribute("# substeps", Integer.toString(nChild)));
+    int nPrereq = 0;
+    if (m_prerequisites != null)      nPrereq = m_prerequisites.length;
+    pList.add(new Attribute("# prerequisites", Integer.toString(nPrereq)));
+    int nResults = 0;
+    if (m_resultNodes != null) nResults = m_resultNodes.length;
+    pList.add(new Attribute("# solicited results", Integer.toString(nResults)));
+    pList.add(new Attribute("Instructions URL", m_instructionsURL));
+    return pList;
+  }
   public int writeDb() {
         return 0;  // for now
     }
@@ -132,6 +214,7 @@ public class ProcessNode implements  TravelerElement {
     String provideVersion();
     String provideUserVersionString();
     String provideDescription();
+    String provideInstructionsURL();
     String provideMaxIteration();
     String provideSubsteps();
     int provideTravelerActionMask();
@@ -148,6 +231,8 @@ public class ProcessNode implements  TravelerElement {
     ProcessNode provideChild(ProcessNode parent, int n) throws Exception;
     Prerequisite providePrerequisite(ProcessNode parent, int n) throws Exception;
     PrescribedResult provideResult(ProcessNode parent, int n) throws Exception;
+    /* chance for source to do anything else it needs to do */
+    void finishImport(ProcessNode process);
   }
   
   public void makeDot(Writer writer) throws EtravelerException {
@@ -168,6 +253,7 @@ public class ProcessNode implements  TravelerElement {
     void acceptVersion(String version);
     void acceptUserVersionString(String userVersionString);
     void acceptDescription(String description);
+    void acceptInstructionsURL(String instructionsURL);
     void acceptMaxIteration(String maxIterations);
     void acceptSubsteps(String substeps);
     void acceptTravelerActionMask(int travelerActionMask);
@@ -198,6 +284,7 @@ public class ProcessNode implements  TravelerElement {
       ptarget.acceptVersion(m_version);
       ptarget.acceptUserVersionString(m_userVersionString);
       ptarget.acceptDescription(m_description);
+      ptarget.acceptInstructionsURL(m_instructionsURL);
       ptarget.acceptMaxIteration(m_maxIteration);
       ptarget.acceptOriginalId(m_originalId);
       ptarget.acceptSubsteps(m_substeps);
@@ -209,12 +296,20 @@ public class ProcessNode implements  TravelerElement {
       ptarget.exportDone();
     }
   }
+
+  void acceptCondition(String condition) {
+    if (m_parentEdge != null) {
+      m_parentEdge.setCondition(condition);
+    }
+  }
   
   public String getName() { return m_name;}
   public String getCondition() {
     if (m_parentEdge == null) return null;
     return m_parentEdge.getCondition();
   }
+  public void setProcessId(String id) {m_processId = id;}
+  public void setOriginalId(String id) {m_originalId = id;}
   private ProcessNode m_parent=null;
   private ProcessEdge m_parentEdge=null;
   // If m_clonedFrom set to non-null, most other properties are ignored
@@ -232,6 +327,7 @@ public class ProcessNode implements  TravelerElement {
   private String m_version=null;
   private String m_userVersionString=null;
   private String m_description=null;
+  private String m_instructionsURL= "";
   private String m_maxIteration=null;
   private String m_substeps=null;
   private boolean m_isOption=false;

@@ -66,4 +66,14 @@
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
     <function-signature>org.lsstcorp.etravelerbackendNode.ProcessTreeNode buildTree(javax.servlet.jsp.PageContext)</function-signature>
   </function>
+  <function>
+    <name>doAction</name>
+    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>void doAction(javax.servlet.jsp.PageContext, java.lang.String)</function-signature>
+  </function>
+  <function>
+    <name>selectedNodeAttributes</name>
+    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>javax.management.AttributeList selectedNodeAttributes(javax.servlet.jsp.PageContext)</function-signature>
+  </function>
 </taglib>

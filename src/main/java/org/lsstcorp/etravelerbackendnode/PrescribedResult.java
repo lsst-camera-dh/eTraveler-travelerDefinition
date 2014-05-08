@@ -55,6 +55,18 @@ public class PrescribedResult  implements TravelerElement {
     m_maxValue = imp.provideMaxValue();
     m_choiceField = imp.provideChoiceField();
   }
+  // Copy constructor
+  public PrescribedResult(ProcessNode parent, PrescribedResult orig) {
+    m_parent = parent;
+    m_label = new String(orig.m_label);
+    m_semantics = new String(orig.m_semantics);
+    m_description = new String(orig.m_description);
+    m_units = new String(orig.m_units);
+    if (orig.m_minValue != null) m_minValue = new String(orig.m_minValue);
+    if (orig.m_maxValue != null) m_maxValue = new String(orig.m_maxValue);
+    if (orig.m_choiceField != null) m_choiceField = new String(orig.m_choiceField);
+  }
+
   private String m_label;
   private String m_semantics;
   private String m_units="";

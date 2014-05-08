@@ -25,26 +25,46 @@
    -->
   </style>
     <c:choose> 
-    <c:when test="${! empty param.leafSelectedPath}">
+    <c:when test="${! empty param.leafSelectedPath}">   
       <h4>Selected step:  ${param.leafSelectedPath}</h4>
       <c:set var="leafPath" value="${param.leafSelectedPath}" scope="session" />
+      <c:set var="folderPath" scope="session" />
        <br /><br />
-     <form action="processAction.jsp" id="actionForm"  name="actionForm"
+     <form action="processAction.jsp" id="actionForm"  name="actionForm" target="treeNodeAction"
            title="Edit Actions" >
        <table>
          <tr><th>
        <label for="actions">Select Action</label> </th></tr>
-         <tr><td>Display step details<input type="radio" id="action" name="action "value="Display"></td></tr>  
+         <tr><td>Display step details<input type="radio" id="action" name="action" value="Display"></td></tr>  
          <tr><td>Edit step<input type="radio" id="action" name="action"value="Edit"></td></tr>
-         <tr><td>Add leaf child<input type="radio" id="action" name="action" value="LeafChild"></td></tr>
-         <tr><td>Add subfolder child<input type="radio" id="action" name="action" value="Subfolder child"></td></tr>
          <tr><td>Add leaf sibling<input type="radio" id="action" name="action" value="LeafSibling"></td></tr>
-         <tr><td>Add subfolder sibling<input type="radio" id="action" name="action" value="SubfolderSiblin"></td></tr>
+         <tr><td>Add subfolder sibling<input type="radio" id="action" name="action" value="SubfolderSibling"></td></tr>
          <tr><td>Remove step<input type="radio" id="action" name="action "value="Remove"></td></tr>
        </table>
        <input type="submit" value="Do it" />
      </form>
     </c:when>
+     <c:when test="${! empty param.folderSelectedPath}">
+         <h4>Selected step:  ${param.folderSelectedPath}</h4>
+      <c:set var="folderPath" value="${param.folderSelectedPath}" scope="session" />
+      <c:set var="leafPath" scope="session" />
+       <br /><br />
+     <form action="processAction.jsp" id="actionForm"  name="actionForm" target="treeNodeAction"
+           title="Edit Actions" >
+       <table>
+         <tr><th>
+       <label for="actions">Select Action</label> </th></tr>
+         <tr><td>Display step details<input type="radio" id="action" name="action"value="Display"></td></tr>  
+         <tr><td>Edit step<input type="radio" id="action" name="action"value="Edit"></td></tr>
+         <tr><td>Add leaf child<input type="radio" id="action" name="action" value="LeafChild"></td></tr>
+         <tr><td>Add subfolder child<input type="radio" id="action" name="action" value="SubfolderChild"></td></tr>
+         <tr><td>Add leaf sibling<input type="radio" id="action" name="action" value="LeafSibling"></td></tr>
+         <tr><td>Add subfolder sibling<input type="radio" id="action" name="action" value="SubfolderSibling"></td></tr>
+         <tr><td>Remove step (and all substeps)<input type="radio" id="action" name="action "value="Remove"></td></tr>
+       </table>
+       <input type="submit" value="Do it" />
+     </form>
+     </c:when>
       <c:otherwise> <h4> NO process step selected</h4>
         <p>Select step in navigation pane to left to see edit operations</p></c:otherwise>
     </c:choose>
