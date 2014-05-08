@@ -14,7 +14,7 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Traveler Action in Progress</title>
+    <title>Traveler Action &quot;${param.action}&quot; in Progress</title>
   </head>
   <body>
     <h3> 
