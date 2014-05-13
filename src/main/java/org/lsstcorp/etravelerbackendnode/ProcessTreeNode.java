@@ -22,69 +22,75 @@ public class ProcessTreeNode extends DefaultTreeNode
      Is there any good reason for storing all this stuff?
      Could probably turn most of the accept.. methods into no-ops
   */
-  public void acceptId(String id) {m_id = id;}
+  public void acceptId(String id) {}
   public void acceptName(String name) {
-    m_name = name;
+    //m_name = name;
     setLabel(name);
   }
-  public void acceptHardwareType(String hardwareType ) {m_hardwareType  = hardwareType ;}
+  public void acceptHardwareType(String hardwareType ) {}
   public void acceptHardwareRelationshipType(String hardwareRelationshipType ) {
-    m_hardwareRelationshipType  = hardwareRelationshipType;
+    //m_hardwareRelationshipType  = hardwareRelationshipType;
   }
-  public void acceptVersion(String version) {m_version = version;}
-  public void acceptUserVersionString(String userVersionString) {
-    m_userVersionString = userVersionString;}
-  public void acceptDescription(String description) {m_description = description;}
-  public void acceptInstructionsURL(String url) {m_instructionsURL = url;}
-  public void acceptMaxIteration(String maxIteration) {
-    m_maxIteration = maxIteration;}
+  public void acceptVersion(String version) {}
+  public void acceptUserVersionString(String userVersionString) {}
+//    m_userVersionString = userVersionString;}
+  public void acceptDescription(String description) {}
+  public void acceptInstructionsURL(String url) {}
+  public void acceptMaxIteration(String maxIteration) {}
+  //  m_maxIteration = maxIteration;}
   public void acceptSubsteps(String substeps) {m_substeps = substeps;}
-  public void acceptTravelerActionMask(int travelerActionMask) {
-    m_travelerActionMask = travelerActionMask;}
-  public void acceptOriginalId(String originalId) {m_originalId = originalId;}
-  public void acceptCondition(String condition) {m_condition=condition;}
+  public void acceptTravelerActionMask(int travelerActionMask) {}
+   // m_travelerActionMask = travelerActionMask;}
+  public void acceptOriginalId(String originalId) {}
+  public void acceptCondition(String condition) {}
+    //m_condition=condition;}
   public void acceptChildren(ProcessNode[] children) {
-    m_children=children;
-    if (m_children == null) return;
+    // m_children=children;
+    if (children == null) return;
 
     // Do recursion here
     if (children.length > 0) {
       m_treeChildren = new ProcessTreeNode[children.length];
       for (int i = 0; i < children.length; i++) {
-        int edgeStep = i +1;
-        if (m_substeps.equals("SELECTION")) { edgeStep = -edgeStep; }
+        /* int edgeStep = i +1;
+        if (m_substeps.equals("SELECTION")) { edgeStep = -edgeStep; } */
         // m_treeChildren[i] = new ProcessTreeNode(m_vis, this, edgeStep);
-        m_treeChildren[i] = new ProcessTreeNode(m_vis, m_children[i], this);
+        m_treeChildren[i] = new ProcessTreeNode(m_vis, children[i], this);
         children[i].exportTo(m_treeChildren[i]);
       }
     }
   }
   public void acceptPrerequisites(Prerequisite[] prereqs) {
-    m_prerequisites=prereqs;
+    //m_prerequisites=prereqs;
   }
   public void acceptPrescribedResults(PrescribedResult[] res) {
-    m_results=res;
+    //m_results=res;
   }
   // Implementation of Prerequisite.ExportTarget
   public void acceptPrerequisiteType(String prerequisiteType) {
-    m_prereqType = prerequisiteType;
+  //  m_prereqType = prerequisiteType;
   }
   // In expected use don't need to identify parent process
-  public void acceptPrereqName(String name)  {m_prereqName = name; }
-  public void acceptPrereqProcessVersion(String version) {
-    m_prereqProcessVersion = version; }
-  public void acceptPrereqProcessUserVersionString(String userVersionString) {
-    m_prereqProcessUserVersionString = userVersionString;
+  public void acceptPrereqName(String name)  {
+    // m_prereqName = name; 
   }
-  public void acceptPrereqQuantity(int quantity) {m_prereqQuantity=quantity;}
+  public void acceptPrereqProcessVersion(String version) {
+    //m_prereqProcessVersion = version; 
+  }
+  public void acceptPrereqProcessUserVersionString(String userVersionString) {
+    //m_prereqProcessUserVersionString = userVersionString;
+  }
+  public void acceptPrereqQuantity(int quantity) {
+   // m_prereqQuantity=quantity;
+  }
   public void acceptPrereqDescription(String description) {
-    m_prereqDescription = description;
+    // m_prereqDescription = description;
   }
   public void acceptClonedFrom(ProcessNode clonedFrom) {
-    m_clonedFrom = clonedFrom;
+    // m_clonedFrom = clonedFrom;
   }
   public void acceptIsCloned(boolean isCloned)  {
-    m_isCloned = isCloned;
+    // m_isCloned = isCloned;
   }
   public void acceptPrereqParent(ProcessNode process) { }
  
@@ -93,36 +99,37 @@ public class ProcessTreeNode extends DefaultTreeNode
  
   // Implementation of PrescribedResult.ExportTarget
   public void acceptLabel(String label) {
-    m_label = label;
+    // m_label = label;
   }
   public void acceptSemantics(String semantics) {
-    m_semantics = semantics;
+    // m_semantics = semantics;
   }
   public void acceptUnits(String units) {
-    m_units=units;
+    // m_units=units;
   }
   public void acceptMinValue(String minValue) {
-    m_minValue = minValue;
+   // m_minValue = minValue;
   }
   public void acceptMaxValue(String maxValue) {
-    m_maxValue = maxValue;
+    // m_maxValue = maxValue;
   }
-  public void acceptResultDescription(String description) {
-    m_resultDescription = description;
-  }
+  public void acceptResultDescription(String description) {}
+    // m_resultDescription = description;
+ 
   
-  public void acceptChoiceField(String choiceField)  {
-    m_choiceField = choiceField;
-  }
+  public void acceptChoiceField(String choiceField)  {}
+    // m_choiceField = choiceField;
+  
   public void exportDone() {
     // invoke setHref
     // invoke setTarget
   }
-  public String getName() {return m_name;}
+  public String getName() {return m_processNode.getName();}
   
   public boolean isSelected() {return m_selected;}
+  private String m_substeps=null;
   
-     // Store process contents until we're ready to write
+  /* Don't think we need these.  Info is in assoc. ProcessNode
   private String m_id=null;
   private String m_name=null;
   private String m_hardwareType=null;
@@ -132,7 +139,7 @@ public class ProcessTreeNode extends DefaultTreeNode
   private String m_description=null;
   private String m_instructionsURL=null;
   private String m_maxIteration=null;
-  private String m_substeps=null;
+
   private String m_condition=null;
   private int m_travelerActionMask=0;
   private String m_originalId=null;
@@ -158,6 +165,7 @@ public class ProcessTreeNode extends DefaultTreeNode
   private String m_maxValue=null;
   private String m_resultDescription=null;
   private String m_choiceField=null; 
+  */
 
   private TravelerTreeVisitor m_vis=null;
   /*

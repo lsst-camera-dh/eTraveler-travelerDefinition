@@ -310,6 +310,7 @@ public class ProcessNode implements  TravelerElement
   }
   public void setProcessId(String id) {m_processId = id;}
   public void setOriginalId(String id) {m_originalId = id;}
+  public void setDescription(String description) {m_description = description;}
   private ProcessNode m_parent=null;
   private ProcessEdge m_parentEdge=null;
   // If m_clonedFrom set to non-null, most other properties are ignored

@@ -384,6 +384,8 @@ public class DbImporter {
     * @param action 
     */
    static public void doAction(PageContext pageContext, String action) {
+     if (action == null) return;
+     if (action.isEmpty()) return;
      JspContext jspContext = (JspContext) pageContext;
      TravelerTreeVisitor vis = (TravelerTreeVisitor) jspContext.getAttribute("treeVisitor", PageContext.SESSION_SCOPE);
      String leafPath = (String) jspContext.getAttribute("leafPath", PageContext.SESSION_SCOPE);
@@ -439,6 +441,13 @@ public class DbImporter {
      ProcessNode selected = selectedTreeNode.getProcessNode();
      
      return selected.getAttributes();
+   }
+   
+   static public void saveStep(PageContext context)  {
+     JspContext jspContext = (JspContext) context;
+     ProcessTreeNode selectedTreeNode = getTreeNode(jspContext);
+     ProcessNode selected = selectedTreeNode.getProcessNode();
+     selected.setDescription(context.getRequest().getParameter("description"));
    }
    
    static private ProcessTreeNode getTreeNode(JspContext jspContext)  {

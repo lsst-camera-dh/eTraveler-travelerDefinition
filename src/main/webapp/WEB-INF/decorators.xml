@@ -1,11 +1,15 @@
 <decorators defaultdir="/decorators">
 
-    <decorator name="noDecorator" page="noDecorator.jsp">
-        <pattern>/actionTraveler.jsp</pattern>
+   
+   <excludes>
+        <pattern>/actionTraveler.jsp*</pattern>
+   </excludes>
+   
+   <decorator name="noDecorator" page ="noDecorator.jsp">
         <pattern>/displayTraveler.jsp</pattern>
         <pattern>/showTree.jsp</pattern>
-        <pattern>/processAction.jsp</pattern>
-    </decorator>
+        <pattern>/processAction.jsp</pattern>  
+   </decorator>
 
   <decorator name="basicDecorator" page="basicDecorator.jsp">
        <pattern>/*</pattern>
