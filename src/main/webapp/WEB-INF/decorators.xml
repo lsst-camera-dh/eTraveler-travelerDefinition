@@ -6,7 +6,6 @@
    </excludes>
    
    <decorator name="noDecorator" page ="noDecorator.jsp">
-        <pattern>/displayTraveler.jsp</pattern>
         <pattern>/showTree.jsp</pattern>
         <pattern>/processAction.jsp</pattern>  
    </decorator>

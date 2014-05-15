@@ -106,6 +106,7 @@ public class ProcessNode implements  TravelerElement
     m_version = imp.provideVersion();
     m_userVersionString = imp.provideUserVersionString();
     m_description = imp.provideDescription();
+    m_instructionsURL = imp.provideInstructionsURL();
     m_maxIteration = imp.provideMaxIteration();
     m_substeps = imp.provideSubsteps();
     checkNonempty("children type", m_substeps);

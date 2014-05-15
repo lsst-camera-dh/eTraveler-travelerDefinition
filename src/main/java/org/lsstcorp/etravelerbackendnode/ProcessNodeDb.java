@@ -61,7 +61,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   }
   private static String[] s_initCols = {"name", "hardwareTypeId",
     "hardwareRelationshipTypeId", "version", "userVersionString",
-    "description", "substeps", "maxIteration", "travelerActionMask",
+    "description", "instructionsURL", "substeps", "maxIteration", "travelerActionMask",
     "originalId"};
   private static String[] s_edgeCols = {"step", "cond"};
   private static PreparedStatement s_processQuery = null;
@@ -174,6 +174,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       m_version = rs.getString(++ix);
       m_userVersionString = rs.getString(++ix);
       m_description = rs.getString(++ix);
+      m_instructionsURL = rs.getString(++ix);
       m_substeps = rs.getString(++ix);
       m_maxIteration = rs.getString(++ix);
       m_travelerActionMask = rs.getInt(++ix);
@@ -480,7 +481,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   // NOTE:  Can use keyword DEFAULT for columns not always set to user-supplied,
   //         value, e.g. hardwareRelationshipType
   private static   String[] s_insertProcessCols={"name", "hardwareTypeId", "version",
-    "userVersionString", "description", "substeps", "maxIteration", "originalId",
+    "userVersionString", "description", "instructionsURL", "substeps", "maxIteration", "originalId",
     "travelerActionMask", "hardwareRelationshipTypeId", "createdBy"};
   private static   String[] s_insertEdgeCols={"parent", "child", "step", "cond", "createdBy"};
   public void writeToDb(DbConnection connect, ProcessNodeDb parent) 
@@ -496,13 +497,14 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       vals[2] = m_version;
       vals[3] = m_userVersionString;
       vals[4] = m_description;
-      vals[5] = m_substeps;
-      vals[6] = m_maxIteration;
-      vals[7] = m_originalId;
-      vals[8] = String.valueOf(m_travelerActionMask);
-      vals[9] = m_hardwareRelationshipTypeId;
+      vals[5] = m_instructionsURL;
+      vals[6] = m_substeps;
+      vals[7] = m_maxIteration;
+      vals[8] = m_originalId;
+      vals[9] = String.valueOf(m_travelerActionMask);
+      vals[10] = m_hardwareRelationshipTypeId;
       //  Value for user should come from Confluence log-in
-      vals[10] = m_vis.getUser();
+      vals[11] = m_vis.getUser();
       try {
         m_id = m_connect.doInsert("Process", s_insertProcessCols, vals, "", 
                                   DbConnection.ADD_CREATION_TIMESTAMP);
