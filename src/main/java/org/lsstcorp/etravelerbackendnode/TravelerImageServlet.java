@@ -32,9 +32,9 @@ public class TravelerImageServlet extends HttpServlet {
       throw new ServletException("Images not implemented for db=NONE");
     }
     String decodedName = URLDecoder.decode(request.getParameter("name"), "UTF-8");
-    ProcessNode trav = DbImporter.getTraveler(decodedName,
+    Traveler trav = DbImporter.getTraveler(decodedName,
         request.getParameter("version"), request.getParameter("db"));
-    ByteArrayOutputStream bytes = createTravelerImage(trav);
+    ByteArrayOutputStream bytes = createTravelerImage(trav.getRoot());
     response.setContentType("image/png");
     bytes.writeTo(response.getOutputStream());
   }

@@ -305,6 +305,7 @@ public class ProcessNode implements  TravelerElement
   }
   
   public String getName() { return m_name;}
+  public String getVersion() {return m_version;}
   public String getCondition() {
     if (m_parentEdge == null) return null;
     return m_parentEdge.getCondition();

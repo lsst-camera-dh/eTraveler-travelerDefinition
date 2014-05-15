@@ -22,6 +22,7 @@ import javax.servlet.jsp.JspContext;
 import javax.servlet.jsp.JspWriter;
 // import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
+import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
 
 /**
  * Used from jsp to retrieve traveler description from db
@@ -29,8 +30,8 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class DbImporter { 
  
-  static ConcurrentHashMap<String, ProcessNode> s_travelers =
-      new ConcurrentHashMap<String, ProcessNode>();
+  static ConcurrentHashMap<String, Traveler> s_travelers =
+      new ConcurrentHashMap<String, Traveler>();
   static ConcurrentHashMap<String, StringArrayWriter> s_writers =
       new ConcurrentHashMap<String, StringArrayWriter>();
  /* static ArrayList<String> s_editActions = new ArrayList<String>(); */
@@ -48,24 +49,15 @@ public class DbImporter {
      * info.establish();
      */
 
-    ConcurrentHashMap<String, ProcessNode> travelers=s_travelers;
+    ConcurrentHashMap<String, Traveler> travelers=s_travelers;
     ConcurrentHashMap<String, StringArrayWriter> writers=s_writers;
-    /*
-    if (dbType.equals("dev")) {
-      travelers = s_travelers_Dev;
-      writers = s_writers_Dev;
-      
-    } else if (dbType.equals("test")) {
-      travelers = s_travelers_Test;
-      writers = s_writers_Test;
-    } else {
-      throw new EtravelerException("No such database type " + dbType);
-    }   
-    */
+   
     String key = makeKey(name, version, dbType);
-    ProcessNode traveler=null;
+    ProcessNode travelerRoot = null;
+    Traveler traveler = null;
     if (travelers.containsKey(key)) {
       traveler = travelers.get(key);
+      travelerRoot = traveler.getRoot();
     } else {
       // Try connect
       DbConnection conn = makeConnection(info, true, dbType);
@@ -74,7 +66,8 @@ public class DbImporter {
         int intVersion = Integer.parseInt(version);
         conn.setReadOnly(true);
         ProcessNodeDb travelerDb = new ProcessNodeDb(conn, name, intVersion, null, null);
-        traveler = new ProcessNode(null, travelerDb);
+        travelerRoot = new ProcessNode(null, travelerDb);
+        traveler = new Traveler(travelerRoot, "db", dbType);
         travelers.putIfAbsent(key, traveler);
       }  catch (NumberFormatException ex) {
         conn.close();
@@ -89,7 +82,7 @@ public class DbImporter {
         ProcessNodeDb.reset();
       }
     }
-    return traveler;
+    return travelerRoot;
   }
   public static String retrieveProcess(PageContext context)  {
     // return "retrieveProcess called with name=" + name ;
@@ -111,6 +104,7 @@ public class DbImporter {
     // Try connect
     DbConnection conn = new MysqlDbConnection();
     boolean isOpen = false;
+    //String datasource = ModeSwitcherFilter.getVariable(session or request, "etravelerDb");
     String datasource = "jdbc/eTraveler-" + dbType + "-ro";
     if (usePool) {
        isOpen = conn.openTomcat(datasource);
@@ -172,13 +166,13 @@ public class DbImporter {
   }
   
   static public String dotSource(PageContext context) {
-    ProcessNode traveler = getTraveler(context);
+    ProcessNode travelerRoot = getTraveler(context).getRoot();
     TravelerDotVisitor vis = new TravelerDotVisitor();
     JspWriter writer = context.getOut();
     try {
       vis.initOutput(writer, "\n");
       // vis.initOutput(writer, "\n", context.getRequest().getParameter("db"));
-      vis.visit(traveler, "dot file");
+      vis.visit(travelerRoot, "dot file");
       vis.endOutput();
     } catch (EtravelerException ex) {
       return(ex.getMessage());
@@ -354,7 +348,7 @@ public class DbImporter {
      
      return s_writers.get(key);
    }
-   static private ProcessNode getTraveler(PageContext context)  {
+   static private Traveler getTraveler(PageContext context)  {
      String name =  context.getRequest().getParameter("traveler_name");
      String version = context.getRequest().getParameter("traveler_version");
      
@@ -370,11 +364,10 @@ public class DbImporter {
     * @param db
     * @return 
     */
-   static public ProcessNode getTraveler(String name, String version, String db) {
-     ConcurrentHashMap<String, ProcessNode> travelers=null;
+   static public Traveler getTraveler(String name, String version, String db) {
   
      String key = makeKey(name, version, db);
-     
+
      return s_travelers.get(key);
    }
    /**
