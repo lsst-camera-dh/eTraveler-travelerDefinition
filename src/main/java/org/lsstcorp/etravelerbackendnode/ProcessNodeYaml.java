@@ -68,6 +68,9 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     s_knownKeys.add("Prerequisites");
     s_knownKeys.add("RequiredInputs");
     s_knownKeys.add("TravelerActions");
+    s_knownKeys.add("RefName");
+    s_knownKeys.add("RefVersion");
+    s_knownKeys.add("SourceDb");
   }
   static final int NAME=0;
   static final int HARDWARETYPE=1;
@@ -84,6 +87,9 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   static final int PREREQUISITES=12;
   static final int REQUIREDINPUTS=13;
   static final int TRAVELERACTIONS=14;
+  static final int REFNAME=15;
+  static final int REFVERSION=16;
+  static final int SOURCEDB=17;
 
  
   /**
@@ -111,10 +117,25 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     m_parent = parent;
     m_edgeStep = iChild;
     
-    // First check for Clone
+    // First check for RefName
+    if (yamlMap.containsKey("RefName"))  {
+      if (yamlMap.get("RefName") == null) {
+        throw new NullYamlValue("RefName", "Process");
+      }
+      if (yamlMap.containsKey("Name")) {  // not allowed
+        throw new YamlIncompatibleKeys("RefName", "Name");
+      }
+      if (yamlMap.containsKey("Clone"))  { // also not allowed
+        throw new YamlIncompatibleKeys("Refname", "Clone");
+      }
+    }
+    // Check for Clone
     if (yamlMap.containsKey("Clone"))  {
       if (yamlMap.get("Clone") == null) {
         throw new NullYamlValue("Clone", "Process");
+      }
+      if (yamlMap.containsKey("Name")) {   // not allowed for Clone
+        throw new YamlIncompatibleKeys("Clone", "Name");
       }
       m_name = (yamlMap.get("Clone")).toString();
       if (yamlMap.containsKey("Version")) {
@@ -383,6 +404,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private int m_nPrerequisites = 0;
   private int m_nPrescribedResults = 0;
   private boolean m_isClone=false;
+  private boolean m_isRef=false;
   /*   private int m_nInputs = 0;  same as above?? */
 
   // Not read in directly from yaml
