@@ -484,6 +484,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     "userVersionString", "description", "instructionsURL", "substeps", "maxIteration", "originalId",
     "travelerActionMask", "hardwareRelationshipTypeId", "createdBy"};
   private static   String[] s_insertEdgeCols={"parent", "child", "step", "cond", "createdBy"};
+  private static   String[] s_insertTravTypeCols={"rootProcessId", "createdBy"};
   public void writeToDb(DbConnection connect, ProcessNodeDb parent) 
     throws    SQLException, EtravelerException {
     if (!m_verified) {
@@ -593,6 +594,22 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     if (m_childrenDb == null) { return; }
     for (int iChild = 0; iChild < m_childrenDb.length; iChild++ ) {
       m_childrenDb[iChild].writeToDb(connect, this);
+    }
+  }
+  /*
+   * Add new row to TravelerType table
+   */
+  public  void registerTraveler() throws SQLException, EtravelerException {
+    String[] vals = new String[s_insertTravTypeCols.length];
+    vals[0] = m_id;
+    vals[1] = m_vis.getUser();
+    try {
+      String travTypeId = m_connect.doInsert("TravelerType", s_insertTravTypeCols,
+          vals, "", DbConnection.ADD_CREATION_TIMESTAMP);
+    }  catch (SQLException ex) {
+        System.out.println("Failed to create edge leading to process " + m_name + "with exception");
+        System.out.println(ex.getMessage());
+        throw ex;
     }
   }
   private void addComponentPrerequisite(String cmpId) {

@@ -40,6 +40,7 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
       try {
         if (m_useTransactions) m_connect.setAutoCommit(false);
         m_processNodeDb.writeToDb(m_connect, null);
+        m_processNodeDb.registerTraveler();
         if (m_useTransactions) m_connect.commit();
       } catch (SQLException ex) {
         if (m_useTransactions) {
@@ -61,6 +62,7 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
   public void visit(Prerequisite prerequisite, String activity) {
     
   }
+ 
   public ProcessNode getProcess() {return m_process;}
   public DbConnection getConnection() {return m_connect;}
   public ProcessNodeDb getProcessNodeDb() {return m_processNodeDb; }
