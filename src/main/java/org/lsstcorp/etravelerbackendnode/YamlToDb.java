@@ -58,7 +58,7 @@ public class YamlToDb {
     return traveler;
   }
 
-  private static String writeToDb(ProcessNode traveler, String user,
+  private static String writeToDb(ProcessNode travelerRoot, String user,
       boolean useTransactions, String dbType)  {
 
     // Try connect
@@ -74,20 +74,20 @@ public class YamlToDb {
     
     // next visit with activity "verify", then "write".
     try {
-      vis.visit(traveler, "new");
+      vis.visit(travelerRoot, "new");
     }  catch (Exception ex)  {
       conn.close();
       return "Failed to create xxDb classes with exception " + ex.getMessage();
     }
     try {
-      vis.visit(traveler, "verify");
+      vis.visit(travelerRoot, "verify");
     }  catch (Exception ex)  {
       conn.close();
       return "Failed to verify against " + dbType + 
           " db with exception " + ex.getMessage();
     }
     try {
-      vis.visit(traveler, "write");
+      vis.visit(travelerRoot, "write");
     }  catch (Exception ex) {
       conn.close();
       return "Failed to write to " + dbType + 
