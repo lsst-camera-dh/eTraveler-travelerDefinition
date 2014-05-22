@@ -24,6 +24,8 @@ import org.srs.web.base.db.ConnectionManager;
 public class MysqlDbConnection implements DbConnection {
   public MysqlDbConnection() {  }
   private Connection m_connect = null;
+  /* Give caller a place to store identifying string */
+  private String m_sourceDb = null;
 
   public boolean setOption(int option, String value) {
     return true;
@@ -199,7 +201,10 @@ public class MysqlDbConnection implements DbConnection {
   public boolean isConnected() {
     return (m_connect != null);
   }
-  
+  public void setSourceDb(String src) {
+    m_sourceDb = src;
+  }
+  public String getSourceDb() {return m_sourceDb; }
   public boolean getAutoCommit() throws SQLException {
     return m_connect.getAutoCommit();
   }

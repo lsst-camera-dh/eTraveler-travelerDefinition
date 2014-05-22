@@ -96,5 +96,7 @@ public interface DbConnection {
   void rollback() throws SQLException;
   void setReadOnly(boolean readOnly) throws SQLException;
   boolean isReadOnly() throws SQLException;
+  void setSourceDb(String dbSource);
+  String getSourceDb();
   
 }
