@@ -164,6 +164,8 @@ public class TravelerDotVisitor implements TravelerVisitor,
   public void acceptIsCloned(boolean isCloned)  {
     m_isCloned = isCloned;
   }
+  // Dot visitor never deals with ref nodes
+  public void acceptIsRef(boolean isRef) {}  
   public void acceptPrereqParent(ProcessNode process) { }
  
   

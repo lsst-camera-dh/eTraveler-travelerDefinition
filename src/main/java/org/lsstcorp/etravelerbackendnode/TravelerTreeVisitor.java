@@ -20,7 +20,6 @@ import org.freehep.webutil.tree.Tree; // freeheptree.Tree;
  * @author jrb
  */
 public class TravelerTreeVisitor implements TravelerVisitor { 
-  /*    ProcessNode.ExportTarget, Prerequisite.ExportTarget, PrescribedResult.ExportTarget {   */
   
   public void setTreeRenderer(Tree renderer) {
     m_treeRenderer = renderer;
@@ -47,7 +46,7 @@ public class TravelerTreeVisitor implements TravelerVisitor {
       //m_treeRenderer.setRootVisible(false);
       m_treeRoot = treeNode;
     }
-    process.exportTo(treeNode);   
+    process.exportToWrapper(treeNode);   
    
     //   For now ignore prereqs and results
     // If children

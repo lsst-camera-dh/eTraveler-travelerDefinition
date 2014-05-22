@@ -47,7 +47,7 @@ public class PrerequisiteYaml implements Prerequisite.Importer {
       
     
       if (yamlMap.get(foundKey) == null)  {
-        throw new NullYamlValue(foundKey, "Prerequisite");
+        throw new NullYamlValue(foundKey, "Prerequisite", "");
       }
       String v = yamlMap.get(foundKey).toString();
       switch (keyIx)  {

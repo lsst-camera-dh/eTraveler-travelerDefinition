@@ -33,8 +33,23 @@ public class TravelerPrintVisitor implements TravelerVisitor,
       }
       return;
     }
+    if (m_isRef) {
+      try {
+        s_writer.write(leadingBlanks + "++" + s_eol);
+        s_writer.write(leadingBlanks + "RefName: " + m_name + s_eol);
+        if (m_version != null) {
+          s_writer.write(leadingBlanks + "RefVersion: " + m_version + s_eol);
+        }
+      } catch (IOException ex) {
+        System.out.println("whoops!  " + ex.getMessage());
+      }
+      return;
+    }
     try {
       s_writer.write(leadingBlanks + "++" + s_eol);
+      if (m_sourceDb != null)  {
+        s_writer.write(leadingBlanks + "SourceDb: " + m_sourceDb + s_eol);
+      }
       s_writer.write(leadingBlanks + "Name: " + m_name + s_eol);
       s_writer.write(leadingBlanks + "Version: " + m_version + s_eol);
       if (m_userVersionString != null) {
@@ -205,6 +220,13 @@ public class TravelerPrintVisitor implements TravelerVisitor,
   public void acceptIsCloned(boolean isCloned)  {
     m_isCloned = isCloned;
   }
+  public void acceptIsRef(boolean isRef) {
+    m_isRef = isRef;
+  }
+  public void acceptSourceDb(String sourceDb) {
+    m_sourceDb = sourceDb;
+  }
+
   public void acceptPrereqParent(ProcessNode process) { }
  
   
@@ -234,7 +256,7 @@ public class TravelerPrintVisitor implements TravelerVisitor,
    public void acceptChoiceField(String choiceField)  {
      m_choiceField = choiceField;
    }
-   public void exportDone() {}
+   public void exportDone() { }
   
   // Store process contents until we're ready to write
   private String m_id=null;
@@ -249,9 +271,11 @@ public class TravelerPrintVisitor implements TravelerVisitor,
   private String m_substeps=null;
   private String m_condition=null;
   private int m_travelerActionMask=0;
+  private String m_sourceDb=null;
   private String m_originalId=null;
   private ProcessNode m_clonedFrom = null;
   private boolean m_isCloned = false;
+  private boolean m_isRef = false;
   private ProcessNode[] m_children=null;
   private Prerequisite[] m_prerequisites=null;
   private PrescribedResult[] m_results=null;

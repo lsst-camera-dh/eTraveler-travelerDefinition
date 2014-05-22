@@ -63,6 +63,7 @@ public class YamlToDb {
 
     // Try connect
     DbConnection conn = makeConnection(dbType);
+    conn.setSourceDb(dbType);
     if (conn == null) return "Failed to connect";
 
     TravelerToDbVisitor vis = new TravelerToDbVisitor(conn);

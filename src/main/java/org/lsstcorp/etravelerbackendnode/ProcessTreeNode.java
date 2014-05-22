@@ -3,7 +3,7 @@ package org.lsstcorp.etravelerbackendnode;
 import org.freehep.webutil.tree.DefaultTreeNode; // freeheptree.DefaultTreeNode;
 
 public class ProcessTreeNode extends DefaultTreeNode 
-  implements ProcessNode.ExportTarget {
+  implements ProcessNode.Wrapper {
 
 
   ProcessTreeNode(TravelerTreeVisitor vis, ProcessNode processNode, 
@@ -22,11 +22,29 @@ public class ProcessTreeNode extends DefaultTreeNode
      Is there any good reason for storing all this stuff?
      Could probably turn most of the accept.. methods into no-ops
   */
-  public void acceptId(String id) {}
+ 
   public void acceptName(String name) {
     //m_name = name;
     setLabel(name);
   }
+  public void acceptChildren(ProcessNode[] children) {
+    // m_children=children;
+    if (children == null) return;
+
+    // Do recursion here
+    if (children.length > 0) {
+      m_treeChildren = new ProcessTreeNode[children.length];
+      for (int i = 0; i < children.length; i++) {
+        /* int edgeStep = i +1;
+        if (m_substeps.equals("SELECTION")) { edgeStep = -edgeStep; } */
+        // m_treeChildren[i] = new ProcessTreeNode(m_vis, this, edgeStep);
+        m_treeChildren[i] = new ProcessTreeNode(m_vis, children[i], this);
+        children[i].exportToWrapper(m_treeChildren[i]);
+      }
+    }
+  }
+  /*
+  public void acceptId(String id) {}
   public void acceptHardwareType(String hardwareType ) {}
   public void acceptHardwareRelationshipType(String hardwareRelationshipType ) {
     //m_hardwareRelationshipType  = hardwareRelationshipType;
@@ -44,22 +62,7 @@ public class ProcessTreeNode extends DefaultTreeNode
   public void acceptOriginalId(String originalId) {}
   public void acceptCondition(String condition) {}
     //m_condition=condition;}
-  public void acceptChildren(ProcessNode[] children) {
-    // m_children=children;
-    if (children == null) return;
 
-    // Do recursion here
-    if (children.length > 0) {
-      m_treeChildren = new ProcessTreeNode[children.length];
-      for (int i = 0; i < children.length; i++) {
-        /* int edgeStep = i +1;
-        if (m_substeps.equals("SELECTION")) { edgeStep = -edgeStep; } */
-        // m_treeChildren[i] = new ProcessTreeNode(m_vis, this, edgeStep);
-        m_treeChildren[i] = new ProcessTreeNode(m_vis, children[i], this);
-        children[i].exportTo(m_treeChildren[i]);
-      }
-    }
-  }
   public void acceptPrerequisites(Prerequisite[] prereqs) {
     //m_prerequisites=prereqs;
   }
@@ -92,6 +95,7 @@ public class ProcessTreeNode extends DefaultTreeNode
   public void acceptIsCloned(boolean isCloned)  {
     // m_isCloned = isCloned;
   }
+  public void acceptIsRef(boolean isRef) {}
   public void acceptPrereqParent(ProcessNode process) { }
  
   
@@ -119,6 +123,8 @@ public class ProcessTreeNode extends DefaultTreeNode
   
   public void acceptChoiceField(String choiceField)  {}
     // m_choiceField = choiceField;
+    
+    */
   
   public void exportDone() {
     // invoke setHref

@@ -45,7 +45,7 @@ public class PrescribedResultYaml implements PrescribedResult.Importer {
       
     
       if (yamlMap.get(foundKey) == null)  {
-        throw new NullYamlValue(foundKey, "RequiredInputs");
+        throw new NullYamlValue(foundKey, "RequiredInputs", "");
       }
       String v = yamlMap.get(foundKey).toString();
       switch (keyIx)  {

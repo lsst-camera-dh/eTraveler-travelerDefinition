@@ -32,8 +32,10 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     m_edgeStep = edgeStep;
     if (parent != null) {
       m_travelerRoot = parent.m_travelerRoot;
+      m_sourceDb = parent.m_sourceDb;
     }    else  {
       m_travelerRoot = this;
+      m_sourceDb = connect.getSourceDb();
     }
   }
 
@@ -235,6 +237,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
           m_resultIds[i] = rs.getString(1);
         }
       }
+      m_sourceDb = m_connect.getSourceDb();
     } catch (SQLException ex) {
       System.out.println("Query for process " + m_id + " failed with exception");
       System.out.println(ex.getMessage());
@@ -287,6 +290,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     return new PrescribedResult(parent, new PrescribedResultDb(m_connect, m_resultIds[n]));
   }
   public boolean provideIsCloned() {return m_isCloned;}
+  public boolean provideIsRef() { return m_isRef;}  // does this make any sense?
+  public String provideSourceDb() { return m_sourceDb;}
 
   public void finishImport(ProcessNode process) {
     process.setProcessId(m_id);
@@ -295,15 +300,9 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     
   
   // ProcessNode.ExportTarget implementation: allow ProcessNode to export to us
-  public void acceptId(String id) {
-    m_id = id;
-  }
-  public void acceptName(String name) {
-    m_name = name;
-  }
-  public void acceptHardwareType(String hardwareType) {
-    m_hardwareType = hardwareType;
-  }
+  public void acceptId(String id) {   m_id = id; }
+  public void acceptName(String name) {  m_name = name; }
+  public void acceptHardwareType(String hardwareType) {m_hardwareType = hardwareType;}
   public void acceptHardwareRelationshipType(String hardwareRelationshipType) {
     m_hardwareRelationshipType = hardwareRelationshipType;
   }
@@ -311,22 +310,16 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public void acceptUserVersionString(String userVersionString) {
     m_userVersionString = userVersionString;
   }
-  public void acceptDescription(String description) {
-    m_description = description;
-  }
-  public void acceptInstructionsURL(String url) {
-    m_instructionsURL = url;
-  }
-  public void acceptMaxIteration(String maxIteration) {
-    m_maxIteration = maxIteration;
-  }
+  public void acceptDescription(String description) {m_description=description;}
+  public void acceptInstructionsURL(String url) {m_instructionsURL = url;}
+  public void acceptMaxIteration(String maxIteration) {m_maxIteration=maxIteration;}
   public void acceptSubsteps(String substeps) {m_substeps = substeps; }
   public void acceptTravelerActionMask(int travelerActionMask) {
     m_travelerActionMask = travelerActionMask;
   }
   public  void acceptOriginalId(String originalId) {m_originalId = originalId;}
   public void acceptChildren(ProcessNode[] children) {
-    if (m_isCloned)  {
+    if (m_isCloned || m_isRef)  {
       m_children = null;
     } else {
       m_children = children;
@@ -346,9 +339,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     }
   }
     
-  public void acceptPrerequisites(Prerequisite[] prerequisites) { 
-    
-    if (m_isCloned)  {
+  public void acceptPrerequisites(Prerequisite[] prerequisites) {    
+    if (m_isCloned || m_isRef)  {
       m_prerequisites = null;
     } else {
       m_prerequisites = prerequisites;
@@ -384,7 +376,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   }
  
   public void acceptPrescribedResults(PrescribedResult[] prescribedResults) {
-    if (m_isCloned)  {
+    if (m_isCloned || m_isRef)  {
       m_results = null;
     } else {
       m_results = prescribedResults;
@@ -410,6 +402,9 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public void acceptIsCloned(boolean isCloned) {
     m_isCloned = isCloned;
   }
+  public void acceptIsRef(boolean isRef) {
+    m_isRef = isRef;
+  }
   public void exportDone() {}
   public void verify(DbConnection connect) throws EtravelerException {
    
@@ -417,8 +412,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     // such as all possible relationship types, prereq types and semantic types.
     //  Save and pass on through when calling verify on children, prereqs, etc.
     if (m_dbParent == null)  {
-
-      // Check that connect is same as m_connect
+     
       try {
         initIdMaps();
       }  catch (Exception ex) {
@@ -426,9 +420,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
           EtravelerException("ProcessNodeDb.verify: Error initializing maps :"
                                      + ex.getMessage());
       }
-    }  else {
-      copyIdMaps();
-    }
+    }  else {  copyIdMaps();  }
     
     // Verify m_hardwareType against db for top node.  For others just check
     // it matches parent
@@ -440,6 +432,19 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       }
     }   else { // assuming we checked compatibility of child earlier
       m_hardwareTypeId = m_dbParent.m_hardwareTypeId;
+    }
+    // If ref, verify we have the right db and node we need really is there
+    if (m_isRef)   {
+      if (!m_sourceDb.equals(connect.getSourceDb() ) ){
+        throw new EtravelerException("Process definition refers to wrong db");
+      }
+      String where = " where name='" + m_name + "' and version='" 
+          + m_version + "'";
+      m_id = m_connect.fetchColumn("Process", "id", where);
+      if (m_id == null) {
+        throw new EtravelerException("Process " + m_name + ", version " 
+            + m_version + " does not exist for dbType " + m_sourceDb);
+      } 
     }
         
     // Verify relationship type if not null
@@ -489,6 +494,10 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     throws    SQLException, EtravelerException {
     if (!m_verified) {
       throw new EtravelerException("Unverified ProcessNodeDb cannot be written");
+    }
+    if (m_isRef) {
+      insertEdge();
+      return;
     }
     if (!m_isCloned) {
       // Make our row in Process
@@ -573,6 +582,15 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       m_id = m_processNameIdMap.get(formProcessKey(m_name, m_version));
     }
     //  If parent isn't null, make edge between us and it
+    insertEdge();
+ 
+    //   Call recursively on children.  
+    if (m_childrenDb == null) { return; }
+    for (int iChild = 0; iChild < m_childrenDb.length; iChild++ ) {
+      m_childrenDb[iChild].writeToDb(connect, this);
+    }
+  }
+  private void insertEdge() throws SQLException {
     if (m_dbParent != null)  {
       String[] edgeVals = new String[s_insertEdgeCols.length];
       edgeVals[0] = m_dbParent.m_id;
@@ -589,12 +607,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
         System.out.println(ex.getMessage());
         throw ex;
       }
-    }
-    //   Call recursively on children.  
-    if (m_childrenDb == null) { return; }
-    for (int iChild = 0; iChild < m_childrenDb.length; iChild++ ) {
-      m_childrenDb[iChild].writeToDb(connect, this);
-    }
+    } 
   }
   /*
    * Add new row to TravelerType table
@@ -724,6 +737,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private String[] m_resultIds; // save these to make assoc prescribed results
   private DbConnection m_connect;
   private boolean m_isCloned=false;
+  private boolean m_isRef=false;
+  private String m_sourceDb=null;
   private ProcessNodeDb m_travelerRoot=null; 
   private ConcurrentHashMap<String, ProcessNodeDb> m_nodeMap=null;
   // For exporting to db

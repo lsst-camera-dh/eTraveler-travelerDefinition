@@ -45,6 +45,7 @@ public class ProcessNode implements  TravelerElement
     m_substeps = new String(orig.m_substeps);
     m_isOption = orig.m_isOption;
     m_travelerActionMask = orig.m_travelerActionMask;
+    m_sourceDb = orig.m_sourceDb;
     if (m_parent != null) {
       m_parentEdge = new ProcessEdge(m_parent, this, step, 
                                      orig.getCondition());
@@ -77,9 +78,19 @@ public class ProcessNode implements  TravelerElement
     m_parent = parent;
     m_name = imp.provideName();
     checkNonempty("name", m_name);
-    m_isCloned = imp.provideIsCloned();
+
+    if (parent != null) {
+      m_parentEdge = imp.provideParentEdge(parent, this);
+    }
     
+    m_isCloned = imp.provideIsCloned();
     if (m_isCloned) return;
+    
+    m_isRef = imp.provideIsRef();
+    if (m_isRef) {
+      m_version = imp.provideVersion();
+      return;
+    }
     
     m_hardwareType = imp.provideHardwareType();
     try {
@@ -109,6 +120,10 @@ public class ProcessNode implements  TravelerElement
     m_instructionsURL = imp.provideInstructionsURL();
     m_maxIteration = imp.provideMaxIteration();
     m_substeps = imp.provideSubsteps();
+    m_sourceDb = imp.provideSourceDb();
+    /* No more to do if we're a ref */
+
+    
     checkNonempty("children type", m_substeps);
     if ((!m_substeps.equals("NONE")) 
        && (!m_substeps.equals("SEQUENCE"))
@@ -117,9 +132,7 @@ public class ProcessNode implements  TravelerElement
     }
     m_travelerActionMask = imp.provideTravelerActionMask();
     //m_originalId = imp.provideOriginalId();
-    if (parent != null) {
-      m_parentEdge = imp.provideParentEdge(parent, this);
-    }
+
     int nPrereq = imp.provideNPrerequisites();
     if (nPrereq > 0) {
       m_prerequisites = new Prerequisite[nPrereq];
@@ -229,6 +242,8 @@ public class ProcessNode implements  TravelerElement
     String provideEdgeCondition();
     int provideEdgeStep();
     boolean provideIsCloned();
+    boolean provideIsRef();
+    String provideSourceDb();
     ProcessNode provideChild(ProcessNode parent, int n) throws Exception;
     Prerequisite providePrerequisite(ProcessNode parent, int n) throws Exception;
     PrescribedResult provideResult(ProcessNode parent, int n) throws Exception;
@@ -266,9 +281,19 @@ public class ProcessNode implements  TravelerElement
     void acceptCondition(String condition); 
     void acceptClonedFrom(ProcessNode process);
     void acceptIsCloned(boolean isCloned);
+    void acceptIsRef(boolean isRef);
     // Do we need anything more having to do with edges?
     // What about acceptChild ?
     // Signal to node in case it needs to do anything after contents are complete
+    void exportDone();
+  }
+  /*
+   * used to build parallel tree structure.  Wrapper keeps a refernece to 
+   * corresponding ProcessNode so interface is minimal
+   */
+  public interface Wrapper {
+    void acceptName(String name);
+    void acceptChildren(ProcessNode[] children);
     void exportDone();
   }
   public void exportTo(TravelerElement.ExportTarget target) {
@@ -294,8 +319,13 @@ public class ProcessNode implements  TravelerElement
       ptarget.acceptPrescribedResults(m_resultNodes);
       ptarget.acceptChildren(m_children);
       ptarget.acceptIsCloned(m_isCloned);
+      ptarget.acceptIsRef(m_isRef);
       ptarget.exportDone();
     }
+  }
+  public void exportToWrapper(Wrapper target) {
+    target.acceptName(m_name);
+    target.acceptChildren(m_children);
   }
 
   void acceptCondition(String condition) {
@@ -310,6 +340,7 @@ public class ProcessNode implements  TravelerElement
     if (m_parentEdge == null) return null;
     return m_parentEdge.getCondition();
   }
+  public boolean isRef() {return m_isRef; }
   public void setProcessId(String id) {m_processId = id;}
   public void setOriginalId(String id) {m_originalId = id;}
   public void setDescription(String description) {m_description = description;}
@@ -324,6 +355,7 @@ public class ProcessNode implements  TravelerElement
   private PrescribedResult[] m_resultNodes=null;
   private String m_name=null;
   private boolean m_isCloned=false;
+  private boolean m_isRef=false;
   private String m_hardwareType=null;
   private String m_hardwareRelationshipType=null;
   private String m_processId=null;
@@ -333,6 +365,7 @@ public class ProcessNode implements  TravelerElement
   private String m_instructionsURL= "";
   private String m_maxIteration=null;
   private String m_substeps=null;
+  private String m_sourceDb=null;
   private boolean m_isOption=false;
   private int m_travelerActionMask=0;
   private String m_originalId=null;

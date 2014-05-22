@@ -114,47 +114,46 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     if (s_knownKeys == null) {
       initKnownKeys();
     }
+    if (parent == null)  {
+      if (yamlMap.containsKey("SourceDb"))  {
+        m_sourceDb = yamlMap.get("SourceDb").toString();
+      } 
+    } else {
+      m_sourceDb = parent.m_sourceDb;
+    }
     m_parent = parent;
     m_edgeStep = iChild;
     
     // First check for RefName
     if (yamlMap.containsKey("RefName"))  {
-      if (yamlMap.get("RefName") == null) {
-        throw new NullYamlValue("RefName", "Process");
-      }
+      if (m_sourceDb == null)  {
+        throw new NullYamlValue("SourceDb", "root Process", " when traveler contains ref node");
+      }     
       if (yamlMap.containsKey("Name")) {  // not allowed
         throw new YamlIncompatibleKeys("RefName", "Name");
       }
       if (yamlMap.containsKey("Clone"))  { // also not allowed
         throw new YamlIncompatibleKeys("Refname", "Clone");
       }
+      m_name = getStringVal(yamlMap, "RefName");
+      m_isRef = true;
+      m_version = getStringVal(yamlMap, "RefVersion", m_version);
+      m_edgeCondition = getStringVal(yamlMap, "Condition" );
+      return;
     }
     // Check for Clone
     if (yamlMap.containsKey("Clone"))  {
       if (yamlMap.get("Clone") == null) {
-        throw new NullYamlValue("Clone", "Process");
+        throw new NullYamlValue("Clone", "Process", "");
       }
       if (yamlMap.containsKey("Name")) {   // not allowed for Clone
         throw new YamlIncompatibleKeys("Clone", "Name");
       }
       m_name = (yamlMap.get("Clone")).toString();
-      if (yamlMap.containsKey("Version")) {
-        if (yamlMap.get("Version") == null)  {
-          throw new NullYamlValue("Version", "Process");
-        }
-        else {
-          m_version = (yamlMap.get("Version")).toString();
-        }
-      }
-
-      if (yamlMap.containsKey("Condition")) {
-        if (yamlMap.get("Condition") == null)  {
-          throw new NullYamlValue("Condition", "Process");
-        }
-        else {
-          m_edgeCondition = (yamlMap.get("Condition")).toString();
-        }
-      }
+     
+      m_version = getStringVal(yamlMap, "Version", m_version);
+      
+      m_edgeCondition = getStringVal(yamlMap, "Condition");     
       
       /* A clone must be cloned from something appearing earlier in the
        * yaml definition, but it must not be an ancestor
@@ -187,7 +186,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       
     
       if (yamlMap.get(foundKey) == null)  {
-        throw new NullYamlValue(foundKey, "Process");
+        throw new NullYamlValue(foundKey, "Process", "");
       }
       String v = yamlMap.get(foundKey).toString();
       switch (keyIx)  {
@@ -210,6 +209,10 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         m_maxIteration = v; break;
       case CONDITION:
         m_edgeCondition = v; break;
+      case SOURCEDB:
+      case REFNAME:
+      case REFVERSION:
+        break;  /* all handled above */
         /*
           already dealt with Clone above
       case CLONE:
@@ -341,6 +344,22 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     }        
   
   }
+  private String getStringVal(Map<String, Object> yamlMap, String keyName, String dflt) 
+      throws NullYamlValue {
+    if (yamlMap.containsKey(keyName) ) {
+        if (yamlMap.get(keyName) == null) {
+          throw new NullYamlValue(keyName, "Process", "");
+        } else {
+          return (yamlMap.get(keyName)).toString();
+        }
+      } else {
+      return dflt;
+    }
+  }
+  private String getStringVal(Map<String, Object> yamlMap, String keyName) 
+      throws NullYamlValue {
+    return getStringVal(yamlMap, keyName, null);
+  }
 
 /*
   private static String[] s_edgeCols = {"step", "cond"};
@@ -364,6 +383,8 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   public int provideNPrerequisites() {return m_nPrerequisites;}
   public int provideNPrescribedResults() {return m_nPrescribedResults;}
   public boolean provideIsCloned() {return (m_clonedFrom != null); }
+  public boolean provideIsRef() {return m_isRef; }
+  public String provideSourceDb() {return m_sourceDb;}
   public int provideEdgeStep() {return m_edgeStep;}
   public String provideEdgeCondition() {return m_edgeCondition;}
   //public String provideParentEdgeId() {return m_parentEdgeId;}
@@ -399,6 +420,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private String m_description=null;
   private String m_maxIteration="1";
   private String m_edgeCondition = null;
+  private String m_sourceDb = null;  // only of interest for top node
   
   private int m_nChildren = 0;
   private int m_nPrerequisites = 0;
