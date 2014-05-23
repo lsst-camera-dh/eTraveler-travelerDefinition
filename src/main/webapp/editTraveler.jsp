@@ -57,38 +57,6 @@
       </c:if>
    </table>
 
-   
- <table><tr>     
-     <td valign="bottom"><b>Db:</b> 
-       <c:choose>
-         <c:when test="${! empty param.db}">
-       
-     <%-- <p> param.db is ${param.db}</p>   --%>
-  
-      
-     <c:set var="dbSeen" value="${param.db}" />
-         </c:when> 
-   
-         <c:otherwise>
-       <c:set var="dbSeen" value="dev" />
-         </c:otherwise>
-       </c:choose>
-       </td>
-     <%-- <p> dbSeen is ${dbSeen}</p>  --%>
-     <td valign="bottom">
-       <c:choose>
-     <c:when test="${dbSeen == 'dev'}" >
-      Test  <input type="radio" name="db" value="test" /></td>
-      <td>Dev <input type="radio" name="db" value="dev" checked />
-     </c:when>
-     <c:otherwise>
-      Test  <input type="radio" name="db" value="test" checked/></td>
-      <td>Dev <input type="radio" name="db" value="dev"  />
-     </c:otherwise>
-      </c:choose>
-     </td>
- </tr>
- </table>
  
 <br />
   <input type="submit" value="Display" />
@@ -96,30 +64,23 @@
      <c:if test="${! empty param.traveler_name}" >
        <p>Traveler name:  ${param.traveler_name}  <br />
     Version:   ${param.traveler_version}  <br />
-    Db:  ${param.db} </p> 
+   <%-- Db:  ${param.db} --%> </p> 
 
-    ${import:retrieveProcess(pageContext)} 
 
     <c:set var="traveler_name" value="${param.traveler_name}" scope="session" />
     <c:set var="traveler_version" value="${param.traveler_version}" scope="session"/>
-    <c:set var="db" value="${param.db}" scope="session" />
+     ${import:retrieveProcess(pageContext)} 
      </c:if>
 </td>
 </tr>
- <%--
-  <table width="100%" height="100%" border="0" style="border-top: 1px solid black;">
- --%>
+
       <tr width="100%" >
         <td valign="top" width="300" style="border-right: 1px solid black;">
        <%-- netbeans wants width: rather than width=  etc. but then resizing 
             doesn't work!     so leave as is --%>
 
- 
   <c:if test="${! empty param.traveler_name}" >
-    
-    
-
-
+      
           <iframe  name="tree" id="tree" src="showTree.jsp" scrolling="auto" 
                    marginwidth="0" marginheight="0" 
                    frameborder="0" vspace="0" hspace="0" 
@@ -133,18 +94,6 @@
      
       
   </c:if >
-  <c:if test="${ empty param.db}">
-
-          <iframe  name="tree" id="tree"  scrolling="auto" marginwidth="0" 
-                   marginheight="0" frameborder="0" vspace="0" hspace="0" 
-                   style="width=100%; height=100%;"></iframe>
-        </td>
-        <td valign="top" >
-          <iframe  name="action" id="action"  scrolling="auto" marginwidth="0" 
-                   marginheight="0" frameborder="0" vspace="0" hspace="0" 
-                   width="100%" style="width=100%; height=100%;"></iframe> 
-         
-  </c:if>
  
   </td>
 

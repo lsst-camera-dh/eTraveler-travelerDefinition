@@ -22,25 +22,14 @@
    <table width="100%" cellpadding="3" border="2">
     <tr><td>
  <h3 align="center"> Display a Traveler </h3>
- <form method="get" action="displayTraveler.jsp" target="view_traveler">
+ <form method="get" action="displayTraveler.jsp" >
 <table>
 <tr>   <td><b>Traveler name:</b></td>
 <td> <input type="text" name="traveler_name" value="" /> </td></tr>
 <tr><td> <b>Version:</b></td>
 <td> <input type="text" name="traveler_version" value="1" /> </td></tr>
 </table>
-<%--
-   Database:  <select name="db"> 
-     <option>Test</option>
-     <option selected>Dev</option>
-   </select> --%>
- <table><tr>     
-     <td valign="bottom"><b>Source Db:</b> </td>
 
-  <td>Test  <input type="radio" name="db" value="test" /></td>
-      <td>Dev <input type="radio" name="db" value="dev" checked /></td>
- </tr>
- </table>
  <table cellpadding="2"><tr>
 <td valign="bottom"><b>Output style:</b>
  <td>Pretty print <input type="radio" name="ostyle" value="pprint" checked /></td>
@@ -86,14 +75,7 @@ value="" width="60" /></td></tr>
     <tr> <th><b> Yaml file: </b> </th> 
       <td><input type="file" name="importYamlFile" 
 value="" width="60" /></td></tr>
-    <tr><td valign="bottom">
-        <b>Target Db:</b> </td><td>
-        <table><tr>
-            <td>Test  <input type="radio" name="db" value="test" /></td>
-      <td>Dev <input type="radio" name="db" value="dev" checked /></td>
-      
-          </tr></table></td>
-    </tr>
+    
     <tr>
       <td><input type="submit" value="Import" name="importFromFileAction" />  
       </td>

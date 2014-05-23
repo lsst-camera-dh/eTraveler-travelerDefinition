@@ -31,7 +31,7 @@
     <fmt:formatDate value="${now}" pattern="dd-MM-yyyy HH:mm:ss a z" /></p>
     <p>
     Displaying traveler <b>${param.traveler_name}</b>, version <b>${param.traveler_version}</b>,
-    from db <b>${param.db}</b></p>
+    from db <b>${session.getAttribute("dataSourceMode")}</b></p>
 
     <p>
     ${import:retrieveProcess(pageContext)} 

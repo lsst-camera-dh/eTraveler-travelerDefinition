@@ -12,6 +12,7 @@ import org.lsstcorp.etravelerbackenddb.DbConnection;
 import org.lsstcorp.etravelerbackenddb.MysqlDbConnection;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.jsp.PageContext;
+import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
 /**
  * Used from jsp to ingest Yaml, export to Db
  * @author jrb
@@ -22,13 +23,17 @@ public class YamlToDb {
     public static String ingest(PageContext context) {
       String fileContents = context.getRequest().getParameter("importYamlFile");
       String useTransactions = (context.getAttribute("useTransactions")).toString();
-      String dbType = context.getRequest().getParameter("db");
+      String dbType = ModeSwitcherFilter.getVariable(context.getSession(),
+          "dataSourceMode");
+      String datasource = ModeSwitcherFilter.getVariable(context.getSession(),
+          "etravelerDb");
+      // String dbType = context.getRequest().getParameter("db");
       ProcessNode ingested = parse(fileContents);
       if (ingested ==  null) {
         return "Could not parse yaml input";
       }
       return writeToDb(ingested, context.getSession().getAttribute("userName").toString(),
-          useTransactions.equals("true"), dbType);
+          useTransactions.equals("true"), dbType, datasource);
   }
 
   private static ProcessNode parse(String fileContents)  {    
@@ -59,10 +64,10 @@ public class YamlToDb {
   }
 
   private static String writeToDb(ProcessNode travelerRoot, String user,
-      boolean useTransactions, String dbType)  {
+      boolean useTransactions, String dbType, String datasource)  {
 
     // Try connect
-    DbConnection conn = makeConnection(dbType);
+    DbConnection conn = makeConnection(dbType, datasource);
     conn.setSourceDb(dbType);
     if (conn == null) return "Failed to connect";
 
@@ -122,5 +127,20 @@ public class YamlToDb {
       return null;
     }
   }
-  
+  static private DbConnection makeConnection(String dbType, String datasource)  {
+   //String datasource = ModeSwitcherFilter.getVariable(session or request, "etravelerDb");
+ 
+
+    DbConnection conn = new MysqlDbConnection();
+    conn.setSourceDb(dbType);
+    boolean isOpen = conn.openTomcat(datasource);
+    if (isOpen) {
+      System.out.println("Successfully connected to " + datasource);    
+      return conn;
+    }
+    else {
+      System.out.println("Failed to connect");
+      return null;
+    }
+  }  
 }

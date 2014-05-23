@@ -19,8 +19,18 @@
             applicationTitle
         </param-name>
         <param-value>
-            eTravelerbackend
+            eTraveler
         </param-value>
+    </context-param>
+    
+    <!-- Default database connection -->
+    <context-param>
+      <param-name>
+        javax.servlet.jsp.jstl.sql.dataSource
+      </param-name>
+      <param-value>
+        jdbc/rd-lsst-cam-dev
+      </param-value>
     </context-param>
     <!--
     <context-param>
@@ -100,6 +110,7 @@
     <!-- Done adding Sitemesh Filter -->
     
     <!-- Servlets -->
+    <!-- Locally defined servlet needed for creating circle-and-arrow images -->
     <servlet>
       <servlet-name>TravelerImageServlet</servlet-name>
       <servlet-class>org.lsstcorp.etravelerbackendnode.TravelerImageServlet</servlet-class>
@@ -110,6 +121,7 @@
       <url-pattern>/TravelerImageServlet</url-pattern>
     </servlet-mapping>
     
+    <!-- Icons for tree display -->
     <servlet>
        <servlet-name>fhicon</servlet-name>
        <servlet-class>org.freehep.webutil.tree.IconServlet</servlet-class>
@@ -121,6 +133,7 @@
         <url-pattern>/icon.jsp</url-pattern>
     </servlet-mapping>
 
+    <!-- insist on newish compiler -->
     <servlet>
       <servlet-name>jsp</servlet-name>
       <servlet-class>org.apache.jasper.servlet.JspServlet</servlet-class>
@@ -142,6 +155,21 @@
       </init-param>
       <load-on-startup>3</load-on-startup>
     </servlet>
+    
+  
+    
+    <context-param>
+      <param-name>org.srs.web.base.datasource.mode</param-name>
+      <param-value>dataSourceMode</param-value>
+    </context-param>
+    <context-param>
+      <param-name>org.srs.web.base.datasource.variable</param-name>
+      <param-value>etravelerDb</param-value>  
+    </context-param>
+    
+    <listener>
+      <listener-class>org.srs.web.base.datasource.DefaultDataSourceSwitcher</listener-class>
+    </listener>
 
     <!-- The mappings for the JSP servlet 
     <servlet-mapping>

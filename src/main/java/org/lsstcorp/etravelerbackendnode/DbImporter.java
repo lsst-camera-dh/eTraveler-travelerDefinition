@@ -20,7 +20,6 @@ import javax.management.AttributeList;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.JspContext;
 import javax.servlet.jsp.JspWriter;
-// import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
 
@@ -40,7 +39,8 @@ public class DbImporter {
     {return name + "_" + version;}
   private static String makeKey(String name, String version, String dbType)
   {return name+ "_" + version + "@" + dbType;}
-  public static ProcessNode getProcess(String name, String version, String dbType) 
+  public static ProcessNode getProcess(String name, String version, String dbType,
+      String datasource) 
   throws EtravelerException {
     DbInfo info = new DbInfo();
     /*
@@ -60,7 +60,7 @@ public class DbImporter {
       travelerRoot = traveler.getRoot();
     } else {
       // Try connect
-      DbConnection conn = makeConnection(info, true, dbType);
+      DbConnection conn = makeConnection(dbType, datasource);
       if (conn == null) throw new EtravelerException("Failed to connect");
       try {
         int intVersion = Integer.parseInt(version);
@@ -88,10 +88,14 @@ public class DbImporter {
     // return "retrieveProcess called with name=" + name ;
     String name = context.getRequest().getParameter("traveler_name");
     String version = context.getRequest().getParameter("traveler_version");
-    String dbType = context.getRequest().getParameter("db");
+  
+    String dbType = ModeSwitcherFilter.getVariable(context.getSession(), 
+        "dataSourceMode");
+    String datasource = ModeSwitcherFilter.getVariable(context.getSession(), 
+        "etravelerDb");
     ProcessNode traveler = null;
     try {
-      traveler = getProcess(name, version, dbType);
+      traveler = getProcess(name, version, dbType, datasource);
     } catch (EtravelerException ex) {
       return("Failed to retrieve process with exception: " + ex.getMessage() );
     }
@@ -99,19 +103,41 @@ public class DbImporter {
     collectOutput(name, version, traveler, dbType);
     return "Successfully read in traveler " + name;
   }
-  static private DbConnection makeConnection(DbInfo info, boolean usePool,
-      String dbType)  {   
+  /**
+   * Make a connection using Tomcat pool
+   *  @param dbType       One of "Prod", "Dev", "Test", "Raw"
+   *  @param datasource   datasource name associated with the type, e.g.
+   *                      jdbc/rd-lsst-cam
+   */
+  static private DbConnection makeConnection(String dbType, String datasource)  {
+    DbConnection conn = new MysqlDbConnection();
+    conn.setSourceDb(dbType);
+    boolean isOpen = conn.openTomcat(datasource);
+    if (isOpen) {
+      System.out.println("Successfully connected to " + datasource);    
+      return conn;
+    }
+    else {
+      System.out.println("Failed to connect");
+      return null;
+    }
+  }
+  /**
+   * Make a connection with supplied information
+   * @param info   Data structure containing part of connection info
+   * @param dbType  One of "Prod", "Dev", "Test", "Raw"
+   * @return 
+   */
+  static private DbConnection makeConnection(DbInfo info, String dbType)  {   
     // Try connect
     DbConnection conn = new MysqlDbConnection();
-    boolean isOpen = false;
-    //String datasource = ModeSwitcherFilter.getVariable(session or request, "etravelerDb");
-    String datasource = "jdbc/eTraveler-" + dbType + "-ro";
-    if (usePool) {
-       isOpen = conn.openTomcat(datasource);
-    } else {
-      datasource = info.dbname;
-      isOpen = conn.open(info.host, info.user, info.pwd, info.dbname);
-    }
+    conn.setSourceDb(dbType);
+    
+  
+    // String datasource = "jdbc/eTraveler-" + dbType + "-ro";
+    String datasource = info.dbname;
+    boolean  isOpen = conn.open(info.host, info.user, info.pwd, info.dbname);
+  
     if (isOpen) {
       System.out.println("Successfully connected to " + datasource);    
       return conn;
@@ -141,10 +167,7 @@ public class DbImporter {
       s_writers.putIfAbsent(key, wrt);
     }
   }
-  // static public String nextLine(String name, String version) {
-  static public String nextLine(PageContext context) {
-   
- 
+  static public String nextLine(PageContext context) {   
     StringArrayWriter wrt = getWriter(context);
     if (wrt == null)  {
       return "No information for requested name, version combination <br />";
@@ -184,10 +207,13 @@ public class DbImporter {
   static public void dotImg(PageContext context) {
     String name = context.getRequest().getParameter("traveler_name");
     String version = context.getRequest().getParameter("traveler_version");
-    String dbType = context.getRequest().getParameter("db");
+    String dbType = ModeSwitcherFilter.getVariable(context.getSession(), 
+        "dataSourceMode");
+    String datasource = ModeSwitcherFilter.getVariable(context.getSession(), 
+        "etravelerDb");
     ProcessNode traveler = null;
     try {
-      traveler = getProcess(name, version, dbType);
+      traveler = getProcess(name, version, dbType, datasource);
     } catch (EtravelerException ex) {
       System.out.println("Failed to retrieve process with exception: " + ex.getMessage() );
       return;
@@ -214,10 +240,13 @@ public class DbImporter {
     /* Make the map */
     String name = context.getRequest().getParameter("traveler_name");
     String version = context.getRequest().getParameter("traveler_version");
-    String dbType = context.getRequest().getParameter("db");
+    String dbType = ModeSwitcherFilter.getVariable(context.getSession(), 
+        "dataSourceMode");
+    String datasource = ModeSwitcherFilter.getVariable(context.getSession(), 
+        "etravelerDb");
     ProcessNode traveler = null;
     try {
-      traveler = getProcess(name, version, dbType);
+      traveler = getProcess(name, version, dbType, datasource);
     } catch (EtravelerException ex) {
       System.out.println("Failed to retrieve process with exception: " + ex.getMessage() );
       return null;
@@ -246,22 +275,21 @@ public class DbImporter {
     /* Make the map */
     String name;
     String version;
-    String dbType;
     JspContext jspContext=null;
+    String datasource = ModeSwitcherFilter.getVariable(context.getSession(), "etravelerDb");
+    String dbType = ModeSwitcherFilter.getVariable(context.getSession(), "dataSourceMode");
     if (reason.equals("edit") ) {
       jspContext = (JspContext)context;
       name = (String)(jspContext.getAttribute("traveler_name", PageContext.SESSION_SCOPE));
       version = (String)(jspContext.getAttribute("traveler_version", PageContext.SESSION_SCOPE));
-      dbType = (String)(jspContext.getAttribute("db", PageContext.SESSION_SCOPE));
     } else {
       name = context.getRequest().getParameter("traveler_name");
       version = context.getRequest().getParameter("traveler_version");
-      dbType = context.getRequest().getParameter("db");
     }
     ProcessNode originalTraveler = null;
    
     try {
-      originalTraveler = getProcess(name, version, dbType);
+      originalTraveler = getProcess(name, version, dbType, datasource);
     } catch (EtravelerException ex) {
       System.out.println("Failed to retrieve process with exception: " + ex.getMessage() );
       return;
@@ -290,10 +318,13 @@ public class DbImporter {
     /* Make the map */
     String name = context.getRequest().getParameter("traveler_name");
     String version = context.getRequest().getParameter("traveler_version");
-    String dbType = context.getRequest().getParameter("db");
+    String dbType = ModeSwitcherFilter.getVariable(context.getSession(),
+        "dataSourceMode");
+    String datasource = ModeSwitcherFilter.getVariable(context.getSession(),
+        "etravelerDb");
     ProcessNode traveler = null;
     try {
-      traveler = getProcess(name, version, dbType);
+      traveler = getProcess(name, version, dbType, datasource);
     } catch (EtravelerException ex) {
       System.out.println("Failed to retrieve process with exception: " + ex.getMessage() );
       return;
@@ -341,8 +372,8 @@ public class DbImporter {
    static private StringArrayWriter getWriter(PageContext context)  {
      String name =  context.getRequest().getParameter("traveler_name");
      String version = context.getRequest().getParameter("traveler_version");
-     
-     String dbType = context.getRequest().getParameter("db");
+     String dbType = ModeSwitcherFilter.getVariable(context.getSession(),
+         "dataSourceMode");
    
      String key = makeKey(name, version, dbType);
      
@@ -352,8 +383,8 @@ public class DbImporter {
      String name =  context.getRequest().getParameter("traveler_name");
      String version = context.getRequest().getParameter("traveler_version");
      
-     String dbType = context.getRequest().getParameter("db");
-     
+     String dbType = ModeSwitcherFilter.getVariable(context.getSession(), 
+         "dataSourceMode");
      return getTraveler(name, version, dbType);
    }
    /**
