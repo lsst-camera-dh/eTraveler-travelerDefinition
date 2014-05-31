@@ -6,6 +6,7 @@ package org.lsstcorp.etravelerbackendnode;
 import org.yaml.snakeyaml.Yaml;
 import java.io.File;
 import java.io.FileInputStream;
+import java.sql.SQLException;
 import java.util.Map;
 import org.lsstcorp.etravelerbackenddb.DbInfo;
 import org.lsstcorp.etravelerbackenddb.DbConnection;
@@ -135,6 +136,13 @@ public class YamlToDb {
     conn.setSourceDb(dbType);
     boolean isOpen = conn.openTomcat(datasource);
     if (isOpen) {
+      try {
+        conn.setReadOnly(false);
+      } catch (Exception ex) {
+        conn.close();
+        System.out.println("Unable to set connection non-readonly");
+        return null;
+      }
       System.out.println("Successfully connected to " + datasource);    
       return conn;
     }
