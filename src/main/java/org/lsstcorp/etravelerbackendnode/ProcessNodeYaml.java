@@ -206,7 +206,16 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       case INSTRUCTIONSURL:
         m_instructionsURL = v; break;
       case MAXITERATION:
-        m_maxIteration = v; break;
+        m_maxIteration = v; 
+        try {
+          int maxI = Integer.parseInt(v);
+          if (maxI < 1)  {
+            throw new WrongTypeYamlValue("maxIteration", v, "Process");
+          }
+        } catch (NumberFormatException e) {
+          throw new WrongTypeYamlValue("maxIteration", v, "Process");
+        }
+        break;
       case CONDITION:
         m_edgeCondition = v; break;
       case SOURCEDB:
