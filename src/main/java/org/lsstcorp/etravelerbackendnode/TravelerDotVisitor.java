@@ -7,6 +7,7 @@ import java.io.Writer;
 import java.io.StringWriter;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 
 /**
  * Create text file (or byte stream) for input to GraphViz
@@ -89,13 +90,13 @@ public class TravelerDotVisitor implements TravelerVisitor,
       TravelerDotVisitor childVisitor = new TravelerDotVisitor();
       childVisitor.setIndentEol(m_indent + "  ", m_eol);
       childVisitor.setDotWriter(m_dotWriter);
-      for (int i=0; i < m_children.length; i++) {
-        m_children[i].accept(childVisitor, activity);
-        m_dotWriter.write(m_indent +"\"" + m_name + "\"->\"" + m_children[i].getName() + "\" ");
+      for (int i=0; i < m_children.size(); i++) {
+        m_children.get(i).accept(childVisitor, activity);
+        m_dotWriter.write(m_indent +"\"" + m_name + "\"->\"" + m_children.get(i).getName() + "\" ");
         if (seq) {
           m_dotWriter.write(edgeAtts + String.valueOf(i+1));
         } else {
-          m_dotWriter.write(edgeAtts + m_children[i].getCondition());
+          m_dotWriter.write(edgeAtts + m_children.get(i).getCondition());
         }
         m_dotWriter.write("\"]" + m_eol);
       }    
@@ -136,11 +137,11 @@ public class TravelerDotVisitor implements TravelerVisitor,
     m_travelerActionMask = travelerActionMask;}
   public void acceptOriginalId(String originalId) {m_originalId = originalId;}
   public void acceptCondition(String condition) {m_condition=condition;}
-  public void acceptChildren(ProcessNode[] children) {m_children=children;}
-  public void acceptPrerequisites(Prerequisite[] prereqs) {
+  public void acceptChildren(ArrayList<ProcessNode> children) {m_children=children;}
+  public void acceptPrerequisites(ArrayList<Prerequisite> prereqs) {
     m_prerequisites=prereqs;
   }
-  public void acceptPrescribedResults(PrescribedResult[] res) {
+  public void acceptPrescribedResults(ArrayList<PrescribedResult> res) {
     m_results=res;
   }
   // Implementation of Prerequisite.ExportTarget
@@ -213,9 +214,9 @@ public class TravelerDotVisitor implements TravelerVisitor,
   private String m_originalId=null;
   private ProcessNode m_clonedFrom = null;
   private boolean m_isCloned = false;
-  private ProcessNode[] m_children=null;
-  private Prerequisite[] m_prerequisites=null;
-  private PrescribedResult[] m_results=null;
+  private ArrayList<ProcessNode> m_children=null;
+  private ArrayList<Prerequisite> m_prerequisites=null;
+  private ArrayList<PrescribedResult> m_results=null;
   
   // Store prereq. contents until we're ready to write
   private String m_prereqType=null;

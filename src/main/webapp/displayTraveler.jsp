@@ -63,12 +63,7 @@
     ${import:dotImgMap(pageContext)}
        </c:when>
     <c:when test="${param.ostyle == 'tree' }" >
-   <%-- 
-       <c:set var="treeRoot" value="${import:buildTree(pageContext)}" />
-  <tree:tree model="${treeRoot}" folderHref="plotMain.jsp?folderSelectedPath=%p"
-             leafHref="plotMain.jsp?leafSelectedPath=%p" 
-             rootVisible="false" target="plotMain" showEmptyFolders="false" />
-      --%>
+
      ${import:makeTree(pageContext, "view")}   
        </c:when>
    

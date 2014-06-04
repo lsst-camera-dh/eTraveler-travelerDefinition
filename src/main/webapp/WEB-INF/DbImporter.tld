@@ -7,78 +7,92 @@
     <name>retrieveProcess</name>
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
     <function-signature>java.lang.String retrieveProcess(javax.servlet.jsp.PageContext)</function-signature>
- <!--   <function-signature>java.lang.String retrieveProcess(java.lang.String, java.lang.String)</function-signature> -->
   </function>
  
    <function>
     <name>nextLine</name>
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
-    <function-signature>java.lang.String nextLine(javax.servlet.jsp.PageContext)</function-signature>
-    <!--
-    <function-signature>java.lang.String nextLine(java.lang.String, java.lang.String)</function-signature>
--->  
+    <function-signature>java.lang.String nextLine(javax.servlet.jsp.PageContext)</function-signature> 
 </function>
+
   <function>
     <name>fetchLine</name>
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
     <function-signature>java.lang.String fetchLine(javax.servlet.jsp.PageContext, int)</function-signature>
-<!-- 
-    <function-signature>java.lang.String fetchLine(java.lang.String, java.lang.String, int)</function-signature>
- -->
-       </function>
+  </function>
+  
   <function>
     <name>nLinesUsed</name>
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
     <function-signature>int nLinesUsed(javax.servlet.jsp.PageContext)</function-signature>
-    <!--
-    <function-signature>int nLinesUsed(java.lang.String, java.lang.String)</function-signature>
--->
-    </function>
+  </function>
+  
   <function>
     <name>dotSource</name>
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
     <function-signature>java.lang.String dotSource(javax.servlet.jsp.PageContext)</function-signature>
   </function>
+  
    <function>
     <name>dotImg</name>
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
     <function-signature>void dotImg(javax.servlet.jsp.PageContext)</function-signature>
   </function>
   <function>
+    
     <name>dotImgMap</name>
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
     <function-signature>void dotImgMap(javax.servlet.jsp.PageContext)</function-signature>
   </function>
+  
   <function>
     <name>makeTree</name>
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
     <function-signature>void makeTree(javax.servlet.jsp.PageContext, java.lang.String)</function-signature>
   </function>
-  <!--
-   <function>
-    <name>makeTree</name>
-    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
-    <function-signature>void makeTree(javax.servlet.jsp.PageContext)</function-signature>
-  </function>
-  -->
-  <function>
-    <name>buildTree</name>
-    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
-    <function-signature>org.lsstcorp.etravelerbackendNode.ProcessTreeNode buildTree(javax.servlet.jsp.PageContext)</function-signature>
-  </function>
+ 
   <function>
     <name>doAction</name>
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
     <function-signature>void doAction(javax.servlet.jsp.PageContext, java.lang.String)</function-signature>
   </function>
+  
   <function>
     <name>selectedNodeAttributes</name>
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
     <function-signature>javax.management.AttributeList selectedNodeAttributes(javax.servlet.jsp.PageContext)</function-signature>
   </function>
-    <function>
+ 
+  <function>
+    <name>getPrerequisiteCount</name>
+    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>int getPrerequisiteCount(javax.servlet.jsp.PageContext)
+    </function-signature>
+  </function>
+
+  <function>
+    <name>getPrerequisites</name>
+    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>java.util.ArrayList getPrerequisites(javax.servlet.jsp.PageContext)
+    </function-signature>
+  </function>
+   <function>
+    <name>getResults</name>
+    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>java.util.ArrayList getResults(javax.servlet.jsp.PageContext)
+    </function-signature>
+  </function>
+  
+  <function>
+    <name>getResultCount</name>
+    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>int getResultCount(javax.servlet.jsp.PageContext)
+    </function-signature>
+  </function>
+
+  <function>
     <name>saveStep</name>
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
-    <function-signature>void saveStep(javax.servlet.jsp.PageContext)</function-signature>
+    <function-signature>java.lang.String saveStep(javax.servlet.jsp.PageContext)</function-signature>
   </function>
 </taglib>

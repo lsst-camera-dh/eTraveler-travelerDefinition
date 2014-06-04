@@ -7,6 +7,7 @@ import org.lsstcorp.etravelerbackenddb.DbConnection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -318,7 +319,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     m_travelerActionMask = travelerActionMask;
   }
   public  void acceptOriginalId(String originalId) {m_originalId = originalId;}
-  public void acceptChildren(ProcessNode[] children) {
+  public void acceptChildren(ArrayList<ProcessNode> children) {
     if (m_isCloned || m_isRef)  {
       m_children = null;
     } else {
@@ -328,18 +329,18 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       return;
     }
     // Do recursion here
-    if (children.length > 0) {
-      m_childrenDb = new ProcessNodeDb[children.length];
-      for (int i = 0; i < children.length; i++) {
+    if (children.size() > 0) {
+      m_childrenDb = new ProcessNodeDb[children.size()];
+      for (int i = 0; i < children.size(); i++) {
         int edgeStep = i +1;
         if (m_substeps.equals("SELECTION")) { edgeStep = -edgeStep; }
         m_childrenDb[i] = new ProcessNodeDb(m_connect, m_vis, this, edgeStep);
-        children[i].exportTo(m_childrenDb[i]);
+        children.get(i).exportTo(m_childrenDb[i]);
       }
     }
   }
     
-  public void acceptPrerequisites(Prerequisite[] prerequisites) {    
+  public void acceptPrerequisites(ArrayList<Prerequisite> prerequisites) {    
     if (m_isCloned || m_isRef)  {
       m_prerequisites = null;
     } else {
@@ -355,19 +356,18 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       return;
     }
     // Then maybe...
-    int allocLen = m_prerequisites.length;
+    int allocLen = m_prerequisites.size();
     if (hasRelation) {
       allocLen += 2;
     }
-    if (prerequisites.length > 0) {
+    if (prerequisites.size() > 0) {
       m_prerequisitesDb = 
         new PrerequisiteDb[allocLen];
-      for (int i = 0; i < prerequisites.length; i++) {
-        for (int ip = 0; ip < prerequisites.length; ip++) {
-          m_prerequisitesDb[ip] = new PrerequisiteDb(m_connect);
-          prerequisites[ip].exportTo(m_prerequisitesDb[ip]);
-        }
+      for (int ip = 0; ip < prerequisites.size(); ip++) {
+        m_prerequisitesDb[ip] = new PrerequisiteDb(m_connect);
+        prerequisites.get(ip).exportTo(m_prerequisitesDb[ip]);
       }
+      
       if (hasRelation) {
         m_prerequisitesDb[allocLen - 2] = null;
         m_prerequisitesDb[allocLen - 1] = null;
@@ -375,7 +375,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     }
   }
  
-  public void acceptPrescribedResults(PrescribedResult[] prescribedResults) {
+  public void acceptPrescribedResults(ArrayList<PrescribedResult> prescribedResults) {
     if (m_isCloned || m_isRef)  {
       m_results = null;
     } else {
@@ -384,11 +384,11 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     if (m_results == null)  {
       return;
     }
-    if (prescribedResults.length > 0) {
-      m_resultsDb = new PrescribedResultDb[prescribedResults.length];
-      for (int ir = 0; ir < prescribedResults.length; ir++) {
+    if (prescribedResults.size() > 0) {
+      m_resultsDb = new PrescribedResultDb[prescribedResults.size()];
+      for (int ir = 0; ir < prescribedResults.size(); ir++) {
         m_resultsDb[ir] = new PrescribedResultDb(m_connect);
-        m_results[ir].exportTo(m_resultsDb[ir]);
+        m_results.get(ir).exportTo(m_resultsDb[ir]);
       }
     }
   }
@@ -628,7 +628,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private void addComponentPrerequisite(String cmpId) {
     // Check if it's already in original prerequisites
     if (m_prerequisites != null) {
-      for (int i = 0; i < m_prerequisites.length; i++) {
+      for (int i = 0; i < m_prerequisites.size(); i++) {
         if (cmpId.equals(m_prerequisitesDb[i].getHardwareTypeId()) ) {
           return;
         }
@@ -744,9 +744,9 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   // For exporting to db
   private TravelerToDbVisitor m_vis=null;    // may not need this
 
-  private ProcessNode[] m_children=null;
-  private Prerequisite[] m_prerequisites=null;
-  private PrescribedResult[] m_results=null;
+  private ArrayList<ProcessNode> m_children=null;
+  private ArrayList<Prerequisite> m_prerequisites=null;
+  private ArrayList<PrescribedResult> m_results=null;
   private ProcessNodeDb[] m_childrenDb=null;
   private PrerequisiteDb[] m_prerequisitesDb=null;
   private PrescribedResultDb[] m_resultsDb=null;

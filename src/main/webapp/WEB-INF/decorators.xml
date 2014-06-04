@@ -8,6 +8,7 @@
    <decorator name="noDecorator" page ="noDecorator.jsp">
         <pattern>/showTree.jsp</pattern>
         <pattern>/processAction.jsp</pattern>  
+        <pattern>/updateStep.jsp</pattern>
    </decorator>
 
   <decorator name="basicDecorator" page="basicDecorator.jsp">

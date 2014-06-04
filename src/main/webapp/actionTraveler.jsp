@@ -14,11 +14,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Traveler Actions</title>
+    <link href="http://srs.slac.stanford.edu/Commons/css/srsCommons.jsp?experimentName=LSST-CAMERA" rel="stylesheet" type="text/css">
+
    <script type="text/javascript">
   <!--    
       function  clearDoAction() { 
         var frm  = window.parent.document.getElementById('doAction');
-     //   document.write('<p>Inside clearDoAction</p>');
+  
         if (frm != null)  frm.src = "";
       }
  // -->    
@@ -47,25 +49,27 @@
       <c:set var="isLeaf" value="1" scope="session" />
   
        <p>To unselect all steps use the browser refresh button</p>
-       <br /><br />
+      
      <form action="processAction.jsp" id="actionForm"  name="actionForm" 
            target="doAction"  title="Edit Actions" onreset="clearDoAction()">
+       <fieldset><legend>Select action</legend>
        <table>
-         <tr><th>
-       <label for="actions">Select Action</label> </th></tr>
          <tr><td>Display step details<input type="radio" id="action" 
-                                            name="action" value="Display"></td></tr>  
+                                            name="action" value="Display" /></td></tr>  
          <tr><td>Edit step<input type="radio" id="action" name="action"
-                                 value="Edit"></td></tr>
+                                 value="Edit" /></td></tr>
          <tr><td>Add leaf sibling<input type="radio" id="action" name="action" 
-                                        value="LeafSibling"></td></tr>
+                                        value=" leafSibling"/></td></tr>
          <tr><td>Add subfolder sibling<input type="radio" id="action" name="action" 
-                                             value="SubfolderSibling"></td></tr>
-         <tr><td>Remove step<input type="radio" id="action" name="action"
-                                   value="Remove"></td></tr>
+                                             value="subfolderSibling" /></td></tr>
+         <tr><td bgcolor="yellow" ><b>Remove step</b><input type="radio" id="action" name="action"
+                                   value="remove" /></td></tr>
      
        </table>
+       </fieldset>
+       <p>
        <input type="submit" value="Do it" /> <input type="reset" value="Reset" />
+       </p>
      </form>
     </c:when>
      <c:when test="${! empty param.folderSelectedPath}">
@@ -75,29 +79,34 @@
       <c:set var="nodePath"  value="${param.folderSelectedPath}" scope="session"/>
       <c:set var="isLeaf" scope="session" />
         <p>To unselect all steps use the browser refresh button</p>
-       <br /><br />
+      
      <form action="processAction.jsp" id="actionForm"  name="actionForm" 
            target="doAction"  title="Edit Actions" onreset="clearDoAction()" >
+       <fieldset><legend>Select action</legend>
        <table>
-         <tr><th>
-       <label for="actions">Select Action</label> </th></tr>
+     <%--    <tr><th>
+       <label for="actions">Select Action</label> </th></tr> --%>
          <tr><td>Display step details<input type="radio" id="action" 
-                                            name="action"value="Display"></td></tr>  
+                                            name="action"value="Display" /></td></tr>  
          <tr><td>Edit step<input type="radio" id="action" name="action"
-                                 value="Edit"></td></tr>
+                                 value="Edit" /></td></tr>
+   
          <tr><td>Add leaf child<input type="radio" id="action" name="action" 
-                                      value="LeafChild"></td></tr>
+                                      value="leafChild"/></td></tr>
          <tr><td>Add subfolder child<input type="radio" id="action" name="action" 
-                                           value="SubfolderChild"></td></tr>
+                                           value="subfolderChild"/></td></tr>
          <tr><td>Add leaf sibling<input type="radio" id="action" name="action" 
-                                        value="LeafSibling"></td></tr>
+                                        value="leafSibling" /></td></tr>
          <tr><td>Add subfolder sibling<input type="radio" id="action" name="action" 
-                                             value="SubfolderSibling"></td></tr>
-         <tr><td>Remove step (and all substeps)<input type="radio" id="action" 
-                                        name="action "value="Remove"></td></tr>
+                                             value="subfolderSibling" /></td></tr>
+         <tr><td bgcolor="orange"><b>Remove step</b> (and all substeps)<input type="radio" id="action" 
+                                        name="action "value="remove" /></td></tr>
        
        </table>
+       </fieldset>
+         <p>
        <input type="submit" value="Do it" /> <input type="reset" value="Reset" />
+         </p>
      </form>
       
      </c:when>

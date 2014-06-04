@@ -9,6 +9,8 @@ import org.yaml.snakeyaml.nodes.Node;
 import java.io.Writer;
 import javax.management.Attribute;
 import javax.management.AttributeList;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  *
@@ -51,24 +53,25 @@ public class ProcessNode implements  TravelerElement
                                      orig.getCondition());
     }
     if (orig.m_prerequisites != null) {
-      int plen = orig.m_prerequisites.length;
-      m_prerequisites = new Prerequisite[plen];
-      for (int ip = 0; ip < plen; ip++) {
-        m_prerequisites[ip] = new Prerequisite(this, orig.m_prerequisites[ip]);
+      int plen = orig.m_prerequisites.size();
+      m_prerequisites = new ArrayList<Prerequisite>(plen);
+      //for (int ip = 0; ip < plen; ip++) {
+      for (Prerequisite pre: orig.m_prerequisites)  {
+        m_prerequisites.add(new Prerequisite(this, pre));
       }
     }
     if (orig.m_resultNodes != null) {
-      int rlen = orig.m_resultNodes.length;
-      m_resultNodes = new PrescribedResult[rlen];
-      for (int ir = 0; ir < rlen; ir++) {
-        m_resultNodes[ir] = new PrescribedResult(this, orig.m_resultNodes[ir]);
+      int rlen = orig.m_resultNodes.size();
+      m_resultNodes = new ArrayList<PrescribedResult>(rlen);
+      for (PrescribedResult res: orig.m_resultNodes) {
+        m_resultNodes.add(new PrescribedResult(this, res));
       }
     }
     if (orig.m_children != null) {
-      int clen = orig.m_children.length;
-      m_children = new ProcessNode[clen];
+      int clen = orig.m_children.size();
+      m_children = new ArrayList<ProcessNode>(clen);
       for (int ic = 0; ic < clen; ic++) {
-        m_children[ic] = new ProcessNode(this, orig.m_children[ic], ic);
+        m_children.add(new ProcessNode(this, (orig.m_children).get(ic), ic));
       }
     }
       
@@ -135,25 +138,25 @@ public class ProcessNode implements  TravelerElement
 
     int nPrereq = imp.provideNPrerequisites();
     if (nPrereq > 0) {
-      m_prerequisites = new Prerequisite[nPrereq];
+      m_prerequisites = new ArrayList<Prerequisite>(nPrereq);
       for (int iPrereq = 0; iPrereq < nPrereq; iPrereq++) {
-        m_prerequisites[iPrereq] = imp.providePrerequisite(parent, iPrereq);
+        m_prerequisites.add(imp.providePrerequisite(parent, iPrereq));
       }
     }
     int nResults = imp.provideNPrescribedResults();
     if (nResults > 0) {
-      m_resultNodes = new PrescribedResult[nResults];
+      m_resultNodes = new ArrayList<PrescribedResult>(nResults);
       for (int iResult = 0; iResult < nResults; iResult++) {
-        m_resultNodes[iResult] = imp.provideResult(parent, iResult);
+        m_resultNodes.add(imp.provideResult(parent, iResult));
       }
     }
     int nChildren = imp.provideNChildren();
     if (nChildren > 0)  {
-      m_children = new ProcessNode[nChildren];
+      m_children = new ArrayList<ProcessNode>(nChildren);
       if (m_substeps.equals("SEQUENCE")) { m_sequenceCount = nChildren;}
       else {m_optionCount = nChildren;}
       for (int iChild = 0; iChild < nChildren; iChild++) {
-        m_children[iChild] = imp.provideChild(this, iChild);
+        m_children.add(imp.provideChild(this, iChild));
       }
     }  
     
@@ -179,13 +182,24 @@ public class ProcessNode implements  TravelerElement
     if (m_sequenceCount > nChild) nChild = m_sequenceCount;
     pList.add(new Attribute("# substeps", Integer.toString(nChild)));
     int nPrereq = 0;
-    if (m_prerequisites != null)      nPrereq = m_prerequisites.length;
+    if (m_prerequisites != null)      nPrereq = m_prerequisites.size();
     pList.add(new Attribute("# prerequisites", Integer.toString(nPrereq)));
     int nResults = 0;
-    if (m_resultNodes != null) nResults = m_resultNodes.length;
+    if (m_resultNodes != null) nResults = m_resultNodes.size();
     pList.add(new Attribute("# solicited results", Integer.toString(nResults)));
-    pList.add(new Attribute("Instructions URL", m_instructionsURL));
+    pList.add(new Attribute("instructions URL", m_instructionsURL));
+    pList.add(new Attribute("Edited", Boolean.toString(m_edited)));
     return pList;
+  }
+  
+  public AttributeList getPrerequisiteAttributes(int ix) {
+    if (ix >= m_prerequisites.size()) return null;
+    return m_prerequisites.get(ix).getAttributes();
+  }
+  
+  public AttributeList getResultAttributes(int ix) {
+    if (ix >= m_resultNodes.size()) return null;
+    return m_resultNodes.get(ix).getAttributes();
   }
   public int writeDb() {
         return 0;  // for now
@@ -274,9 +288,9 @@ public class ProcessNode implements  TravelerElement
     void acceptSubsteps(String substeps);
     void acceptTravelerActionMask(int travelerActionMask);
     void acceptOriginalId(String originalId);
-    void acceptChildren(ProcessNode[] children);
-    void acceptPrerequisites(Prerequisite[] prerequisites);
-    void acceptPrescribedResults(PrescribedResult[] prescribedResults);
+    void acceptChildren(ArrayList<ProcessNode> children);
+    void acceptPrerequisites(ArrayList<Prerequisite> prerequisites);
+    void acceptPrescribedResults(ArrayList<PrescribedResult> prescribedResults);
     // Following is to transmit condition assoc. with parent edge
     void acceptCondition(String condition); 
     void acceptClonedFrom(ProcessNode process);
@@ -293,7 +307,7 @@ public class ProcessNode implements  TravelerElement
    */
   public interface Wrapper {
     void acceptName(String name);
-    void acceptChildren(ProcessNode[] children);
+    void acceptChildren(ArrayList<ProcessNode> children);
     void exportDone();
   }
   public void exportTo(TravelerElement.ExportTarget target) {
@@ -336,23 +350,53 @@ public class ProcessNode implements  TravelerElement
   
   public String getName() { return m_name;}
   public String getVersion() {return m_version;}
+  public String getUserVersionString() {return m_userVersionString;}
+  public String getDescription() {return m_description;}
+  public String getInstructionsURL() { return m_instructionsURL;}
+  public String getMaxIteration() {return m_maxIteration;}
   public String getCondition() {
     if (m_parentEdge == null) return null;
     return m_parentEdge.getCondition();
   }
+  public int getPrerequisiteCount() { 
+    if (m_prerequisites == null) return 0;
+    return m_prerequisites.size(); }
+  public int getResultCount() { 
+    if (m_resultNodes == null) return 0;
+    return m_resultNodes.size(); }
   public boolean isRef() {return m_isRef; }
   public void setProcessId(String id) {m_processId = id;}
   public void setOriginalId(String id) {m_originalId = id;}
   public void setDescription(String description) {m_description = description;}
+  public void setVersion(String version)  {m_version = version;}
+  public void setUserVersionString(String ustring) {m_userVersionString = ustring;}
+  public void setInstructionsURL(String url) {m_instructionsURL = url;}
+  public void setMaxIteration(String maxIt) {m_maxIteration = maxIt;}
+  public void newVersion() {
+    m_edited = true;
+    ProcessNode parent = m_parent;
+    while (parent != null) {
+      parent.m_edited = true;
+      parent = parent.m_parent;
+    }
+  }
+  public ArrayList<Prerequisite> getPrerequisites() {
+    return m_prerequisites;
+  }
+  public ArrayList<PrescribedResult> getResults() {
+    return m_resultNodes;
+  }
   private ProcessNode m_parent=null;
   private ProcessEdge m_parentEdge=null;
   // If m_clonedFrom set to non-null, most other properties are ignored
   private ProcessNode m_clonedFrom=null;  
   private int m_sequenceCount=0;
   private int m_optionCount=0;
-  private ProcessNode[] m_children=null;
-  private Prerequisite[] m_prerequisites=null;
-  private PrescribedResult[] m_resultNodes=null;
+  private ArrayList<ProcessNode> m_children=null;
+  private ArrayList<Prerequisite> m_prerequisites=null;
+  private ArrayList<PrescribedResult> m_resultNodes=null;
+  //private Prerequisite[] m_prerequisites=null;
+  //private PrescribedResult[] m_resultNodes=null;
   private String m_name=null;
   private boolean m_isCloned=false;
   private boolean m_isRef=false;
@@ -369,4 +413,5 @@ public class ProcessNode implements  TravelerElement
   private boolean m_isOption=false;
   private int m_travelerActionMask=0;
   private String m_originalId=null;
+  private boolean m_edited=false;
 }

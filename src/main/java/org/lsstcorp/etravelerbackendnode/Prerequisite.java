@@ -4,6 +4,9 @@
  */
 package org.lsstcorp.etravelerbackendnode;
 
+import javax.management.Attribute;
+import javax.management.AttributeList;
+
 /**
  * Internal representation of prerequisite attached to a particular ProcessNode
  * @author jrb
@@ -65,6 +68,33 @@ public class Prerequisite implements TravelerElement {
         ptarget.acceptPrereqProcessUserVersionString(m_userVersionString);
       }
     }
+  }
+  
+  public AttributeList getAttributes() {
+    AttributeList atts = new AttributeList(6);
+    atts.add(new Attribute("name", m_name));
+    atts.add(new Attribute("Type", m_prerequisiteType));
+    atts.add(new Attribute("description", m_description));
+    atts.add(new Attribute("quantity", m_quantity));
+    if (!m_version.equals("")) {
+      atts.add(new Attribute("version", m_version));
+    }
+    if (!m_userVersionString.equals("")) {
+      atts.add(new Attribute("User version", m_userVersionString));
+    }
+    return atts;
+  }
+  public String getName() {return m_name;}
+  public String getType() {return m_prerequisiteType;}
+  public String getDescription() {return m_description;}
+  public String getQuantity() {return Integer.toString(m_quantity);}
+  public String getVersion() {
+    if (m_version == null) return "";
+    return m_version;
+  }
+  public String getUserVersionString() {
+    if (m_userVersionString == null) return "";
+    return m_userVersionString;
   }
   private String m_prerequisiteType = null;
   // All prereqs have a name. For component prereqs it's the

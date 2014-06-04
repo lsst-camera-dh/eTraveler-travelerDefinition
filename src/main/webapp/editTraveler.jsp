@@ -61,12 +61,9 @@
 <br />
   <input type="submit" value="Display" />
   </form>
+        
      <c:if test="${! empty param.traveler_name}" >
-       <p>Traveler name:  ${param.traveler_name}  <br />
-    Version:   ${param.traveler_version}  <br />
-   <%-- Db:  ${param.db} --%> </p> 
-
-
+    
     <c:set var="traveler_name" value="${param.traveler_name}" scope="session" />
     <c:set var="traveler_version" value="${param.traveler_version}" scope="session"/>
      ${import:retrieveProcess(pageContext)} 
@@ -86,7 +83,7 @@
                    frameborder="0" vspace="0" hspace="0" 
                    style="width=100%; height=100%;"></iframe>
         </td>
-        <td valign="top" style="border-right: 1px solid black;">
+        <td valign="top" width="300" style="border-right: 1px solid black;">
           <iframe  name="action" id="action" src="actionTraveler.jsp" 
                    scrolling="auto" marginwidth="0" marginheight="0" 
                    frameborder="0" vspace="0"    hspace="0" 

@@ -6,6 +6,7 @@ package org.lsstcorp.etravelerbackendnode;
 //import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 
 /**
  *
@@ -72,8 +73,9 @@ public class TravelerPrintVisitor implements TravelerVisitor,
         return;
       }
       s_nIndent++;
-      for (int i = 0; i < m_prerequisites.length; i++) {
-        m_prerequisites[i].accept(this, activity);
+      //for (int i = 0; i < m_prerequisites.length; i++) {
+      for (Prerequisite prereq: m_prerequisites) {
+        prereq.accept(this, activity);
       }
       m_prerequisites = null;  
       s_nIndent--;
@@ -87,8 +89,9 @@ public class TravelerPrintVisitor implements TravelerVisitor,
         return;
       }
       s_nIndent++;
-      for (int i=0; i < m_results.length; i++) {
-        m_results[i].accept(this, activity);
+//      for (int i=0; i < m_results.length; i++) {
+      for (PrescribedResult res: m_results) {
+        res.accept(this, activity);
       }
       m_results = null;
       s_nIndent--;
@@ -104,8 +107,9 @@ public class TravelerPrintVisitor implements TravelerVisitor,
       }
       s_nIndent++;
       TravelerVisitor childVisitor = new TravelerPrintVisitor();
-      for (int i=0; i < m_children.length; i++) {
-        m_children[i].accept(childVisitor, activity);
+      for (ProcessNode child: m_children) {
+          //(int i=0; i < m_children.size(); i++) {
+        child.accept(childVisitor, activity);
         //childVisitor.visit(m_children[i]);
       }
       s_nIndent--;
@@ -192,11 +196,11 @@ public class TravelerPrintVisitor implements TravelerVisitor,
     m_travelerActionMask = travelerActionMask;}
   public void acceptOriginalId(String originalId) {m_originalId = originalId;}
   public void acceptCondition(String condition) {m_condition=condition;}
-  public void acceptChildren(ProcessNode[] children) {m_children=children;}
-  public void acceptPrerequisites(Prerequisite[] prereqs) {
+  public void acceptChildren(ArrayList<ProcessNode> children) {m_children=children;}
+  public void acceptPrerequisites(ArrayList<Prerequisite> prereqs) {
     m_prerequisites=prereqs;
   }
-  public void acceptPrescribedResults(PrescribedResult[] res) {
+  public void acceptPrescribedResults(ArrayList<PrescribedResult> res) {
     m_results=res;
   }
   // Implementation of Prerequisite.ExportTarget
@@ -276,9 +280,9 @@ public class TravelerPrintVisitor implements TravelerVisitor,
   private ProcessNode m_clonedFrom = null;
   private boolean m_isCloned = false;
   private boolean m_isRef = false;
-  private ProcessNode[] m_children=null;
-  private Prerequisite[] m_prerequisites=null;
-  private PrescribedResult[] m_results=null;
+  private ArrayList<ProcessNode> m_children=null;
+  private ArrayList<Prerequisite> m_prerequisites=null;
+  private ArrayList<PrescribedResult> m_results=null;
   
   // Store prereq. contents until we're ready to write
   private String m_prereqType=null;

@@ -4,6 +4,9 @@
  */
 package org.lsstcorp.etravelerbackendnode;
 
+import javax.management.Attribute;
+import javax.management.AttributeList;
+
 /**
  *  Internal representation of result template for a particular Process;
  * e.g., description of measured quantity operator must enter
@@ -67,6 +70,29 @@ public class PrescribedResult  implements TravelerElement {
     if (orig.m_choiceField != null) m_choiceField = new String(orig.m_choiceField);
   }
 
+  public AttributeList getAttributes() {
+    AttributeList atts = new AttributeList(6);
+    atts.add(new Attribute("label", m_label));
+    atts.add(new Attribute("type", m_semantics));
+    atts.add(new Attribute("description", m_description));
+    if (!m_units.equals("")) {
+      atts.add(new Attribute("units", m_units));
+    }
+    if (!m_minValue.equals("")) {
+      atts.add(new Attribute("min value", m_minValue));
+    }
+    if (!m_maxValue.equals("")) {
+      atts.add(new Attribute("max value", m_maxValue));
+    }
+    return atts;
+  }
+    
+  public String getLabel() {return m_label;}
+  public String getSemantics() {return m_semantics;}
+  public String getDescription() {return m_description;}
+  public String getUnits() {return m_units;}
+  public String getMinValue() {return m_minValue;}
+  public String getMaxValue() {return m_maxValue;}
   private String m_label;
   private String m_semantics;
   private String m_units="";

@@ -235,51 +235,26 @@ public class DbImporter {
     }
    
   }
-  static public ProcessTreeNode buildTree(PageContext context) {
-     JspWriter outWriter = context.getOut();
-    /* Make the map */
-    String name = context.getRequest().getParameter("traveler_name");
-    String version = context.getRequest().getParameter("traveler_version");
-    String dbType = ModeSwitcherFilter.getVariable(context.getSession(), 
-        "dataSourceMode");
-    String datasource = ModeSwitcherFilter.getVariable(context.getSession(), 
-        "etravelerDb");
-    ProcessNode traveler = null;
-    try {
-      traveler = getProcess(name, version, dbType, datasource);
-    } catch (EtravelerException ex) {
-      System.out.println("Failed to retrieve process with exception: " + ex.getMessage() );
-      return null;
-    }
-    TravelerTreeVisitor vis = new TravelerTreeVisitor();
-    try {
-      vis.visit(traveler, "build");
-    } catch (EtravelerException ex) {
-      System.out.println("Failed to build tree: " + ex.getMessage() );
-      return null;
-    }
-    return vis.getTreeRoot();
-  }
-  /**
-   * 
-   * @param context  page context
-   * @param reason   if it's the string "edit", we're in session scope.
-   *                 save visitor
-   */
-   
+
+
   static public void makeTree(PageContext context)  {
     makeTree(context, "view");
   } 
+    /**
+   * 
+   * @param context  page context
+   * @param reason   if it's the string "edit", we're in session scope.
+   */  
   static public void makeTree(PageContext context, String reason) {
     
     /* Make the map */
     String name;
     String version;
     JspContext jspContext=null;
+    jspContext = (JspContext)context;
     String datasource = ModeSwitcherFilter.getVariable(context.getSession(), "etravelerDb");
     String dbType = ModeSwitcherFilter.getVariable(context.getSession(), "dataSourceMode");
     if (reason.equals("edit") ) {
-      jspContext = (JspContext)context;
       name = (String)(jspContext.getAttribute("traveler_name", PageContext.SESSION_SCOPE));
       version = (String)(jspContext.getAttribute("traveler_version", PageContext.SESSION_SCOPE));
     } else {
@@ -295,7 +270,7 @@ public class DbImporter {
       return;
     }
     ProcessNode traveler = originalTraveler;
-    TravelerTreeVisitor vis = new TravelerTreeVisitor();
+    TravelerTreeVisitor vis = new TravelerTreeVisitor(reason.equals("edit"));
     HttpServletRequest request = (HttpServletRequest) context.getRequest();
     vis.setPath(request.getContextPath());
     if (reason.equals("edit"))  { /* make a copy */
@@ -307,10 +282,10 @@ public class DbImporter {
       System.out.println("Failed to build tree: " + ex.getMessage() );
       return;
     }
-    if (reason.equals("edit")) {
+    //if (reason.equals("edit")) {
       // Save the visitor
-      jspContext.setAttribute("treeVisitor", vis, PageContext.SESSION_SCOPE);
-    }
+    jspContext.setAttribute("treeVisitor", vis, PageContext.SESSION_SCOPE);
+    //}
     vis.render(context);
   }
   static public void dotImgMap(PageContext context) {
@@ -413,8 +388,7 @@ public class DbImporter {
      JspContext jspContext = (JspContext) pageContext;
      TravelerTreeVisitor vis = (TravelerTreeVisitor) jspContext.getAttribute("treeVisitor", PageContext.SESSION_SCOPE);
      String leafPath = (String) jspContext.getAttribute("leafPath", PageContext.SESSION_SCOPE);
-     String folderPath = (String) jspContext.getAttribute("folderPath", PageContext.SESSION_SCOPE);
-     
+     String folderPath = (String) jspContext.getAttribute("folderPath", PageContext.SESSION_SCOPE);   
      
      try {
        JspWriter outWriter = jspContext.getOut();
@@ -467,19 +441,78 @@ public class DbImporter {
      return selected.getAttributes();
    }
    
-   static public void saveStep(PageContext context)  {
+   static public int getPrerequisiteCount(PageContext context) {
+     JspContext jspContext = (JspContext) context;
+     ProcessNode selected = getTreeNode(jspContext).getProcessNode();
+     return selected.getPrerequisiteCount();
+   }
+   static public ArrayList<Prerequisite> getPrerequisites(PageContext context) {
+     JspContext jspContext = (JspContext) context;
+     ProcessNode selected = getTreeNode(jspContext).getProcessNode();
+     return selected.getPrerequisites();
+   }
+   
+   static public int getResultCount(PageContext context) {
+     JspContext jspContext = (JspContext) context;
+     ProcessNode selected = getTreeNode(jspContext).getProcessNode();
+     return selected.getResultCount();
+   }
+   
+   static public ArrayList<PrescribedResult> getResults(PageContext context) {
+     JspContext jspContext = (JspContext) context;
+     ProcessNode selected = getTreeNode(jspContext).getProcessNode();
+     return selected.getResults();
+   }
+   
+   static public String saveStep(PageContext context)  {
      JspContext jspContext = (JspContext) context;
      ProcessTreeNode selectedTreeNode = getTreeNode(jspContext);
      ProcessNode selected = selectedTreeNode.getProcessNode();
-     selected.setDescription(context.getRequest().getParameter("description"));
+     boolean changed = false;
+
+     String newVal = context.getRequest().getParameter("maxIt");
+     if (!newVal.equals(selected.getMaxIteration()) ) {
+       // Check it's a legal value
+       try {
+         int maxI = Integer.parseInt(newVal);
+         if (maxI < 1) { 
+           return "Max iteration must be > 0";
+         }
+       } catch (NumberFormatException e) {
+         return "Value for max iteration must be positive integer";
+       }
+       selected.setMaxIteration(newVal);          
+       changed = true;
+     }
+     newVal = context.getRequest().getParameter("description");
+     if (!newVal.equals(selected.getDescription()) ) {
+       selected.setDescription(newVal);
+       changed = true;
+     }
+
+     newVal = context.getRequest().getParameter("instructionsURL");
+     if (!newVal.equals(selected.getInstructionsURL()) ) {
+       selected.setInstructionsURL(newVal);
+       changed = true;
+     }
+     if (changed) {
+       selected.newVersion();
+     }
+     return null;
    }
    
-   static private ProcessTreeNode getTreeNode(JspContext jspContext)  {
-     TravelerTreeVisitor vis = (TravelerTreeVisitor) jspContext.getAttribute("treeVisitor", PageContext.SESSION_SCOPE);
+   static private ProcessTreeNode getTreeNode(JspContext jspContext) {
+     TravelerTreeVisitor vis = (TravelerTreeVisitor) jspContext.getAttribute("treeVisitor", 
+            PageContext.SESSION_SCOPE);
+
+     /*
      String nodePath = (String) jspContext.getAttribute("leafPath", PageContext.SESSION_SCOPE);
-     if (nodePath.equals("")) {
+     if (nodePath.equals("") ) {
        nodePath = (String) jspContext.getAttribute("folderPath", PageContext.SESSION_SCOPE);
      }
+     if (nodePath.equals("") ) { */
+     String nodePath = (String) jspContext.getAttribute("nodePath", PageContext.SESSION_SCOPE);
+    /* } */
      
      ProcessTreeNode rootTreeNode = vis.getTreeRoot();
      int secondSlash = nodePath.indexOf("/", 1);
