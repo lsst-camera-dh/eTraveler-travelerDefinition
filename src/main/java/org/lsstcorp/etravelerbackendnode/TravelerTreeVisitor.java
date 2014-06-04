@@ -20,6 +20,9 @@ import org.freehep.webutil.tree.Tree; // freeheptree.Tree;
  * @author jrb
  */
 public class TravelerTreeVisitor implements TravelerVisitor { 
+  public TravelerTreeVisitor(boolean editable) {
+    m_editable = editable;
+  }
   
   public void setTreeRenderer(Tree renderer) {
     m_treeRenderer = renderer;
@@ -65,9 +68,16 @@ public class TravelerTreeVisitor implements TravelerVisitor {
     JspWriter outWriter = context.getOut();
     try {
       if (context.getAttribute("scriptIncluded", PageContext.PAGE_SCOPE) == null) {
-        m_treeRenderer.setLeafHref("actionTraveler.jsp?leafSelectedPath=%p");
-        m_treeRenderer.setFolderHref("actionTraveler.jsp?folderSelectedPath=%p");
-        m_treeRenderer.setTarget("action");
+        if (m_editable)  {
+          m_treeRenderer.setLeafHref("actionTraveler.jsp?leafSelectedPath=%p");
+          m_treeRenderer.setFolderHref("actionTraveler.jsp?folderSelectedPath=%p");
+          m_treeRenderer.setTarget("action");
+             
+        } else {
+          m_treeRenderer.setLeafHref("processAction.jsp?nodePath=%p&action=DisplayOrig");
+          m_treeRenderer.setFolderHref("processAction.jsp?nodePath=%p&action=DisplayOrig");
+        }
+        // m_treeRenderer.setTarget("action");
             
         m_treeRenderer.printStyle(outWriter);
         m_treeRenderer.printScript(outWriter);
@@ -82,4 +92,5 @@ public class TravelerTreeVisitor implements TravelerVisitor {
   private Tree m_treeRenderer=null;
   private ProcessTreeNode m_treeRoot = null;
   private String m_path=null;
+  private boolean m_editable=false; 
 }
