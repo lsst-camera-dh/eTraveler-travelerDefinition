@@ -10,7 +10,7 @@
                                 class="datatable" >
            <display:column property="name" title="Attribute" 
                            headerClass="sortable" style="text-align:left" />
-           <display:column property="value" />
+           <display:column property="value" style="text-align:left" />
          </display:table>
       <c:if test="${import:getPrerequisiteCount(pageContext) > 0}">
         <h3>Prerequisites</h3>
@@ -21,7 +21,8 @@
                           style="text-align:left"/>
           <display:column property="type" title="Type" style="text-align:left"/>
           <display:column property="quantity" title="Quant" style="text-align:right" />
-          <display:column property="description" title="Descrip" style="text-align:left" />
+          <display:column property="description" title="Descrip" 
+                          style="text-aling:left" />
 
           <display:column property="version" style="text-align:right" />
           <display:column property="userVersionString" title="User version"

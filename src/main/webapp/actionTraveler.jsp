@@ -15,7 +15,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Traveler Actions</title>
     <link href="http://srs.slac.stanford.edu/Commons/css/srsCommons.jsp?experimentName=LSST-CAMERA" rel="stylesheet" type="text/css">
-
+    <link href="css/backendStyle.css" type="text/css" rel="stylesheet" /> 
    <script type="text/javascript">
   <!--    
       function  clearDoAction() { 
@@ -25,18 +25,12 @@
       }
  // -->    
     </script>
+    
 
   </head>
   <body onload="clearDoAction()">
- 
-  <style type="text/css">
-    <!--
-      th { font-size: 10pt; font-weight: bold;}
-      td { font-size: 10pt;}
-      p  { font-size: 10pt;}
-      h4 {font-size: 10pt; font-weight: bold;}
-   -->
-  </style>
+
+
   <c:set var="nodePath" scope="session" />
   <c:set var="isLeaf" scope="session" />
  
@@ -62,7 +56,7 @@
                                         value=" leafSibling"/></td></tr>
          <tr><td>Add subfolder sibling<input type="radio" id="action" name="action" 
                                              value="subfolderSibling" /></td></tr>
-         <tr><td bgcolor="yellow" ><b>Remove step</b><input type="radio" id="action" name="action"
+         <tr><td class="warn" ><b>Remove step</b><input type="radio" id="action" name="action"
                                    value="remove" /></td></tr>
      
        </table>
@@ -99,7 +93,7 @@
                                         value="leafSibling" /></td></tr>
          <tr><td>Add subfolder sibling<input type="radio" id="action" name="action" 
                                              value="subfolderSibling" /></td></tr>
-         <tr><td bgcolor="orange"><b>Remove step</b> (and all substeps)<input type="radio" id="action" 
+         <tr><td class="seriousWarn"><b>Remove step</b> (and all substeps)<input type="radio" id="action" 
                                         name="action "value="remove" /></td></tr>
        
        </table>

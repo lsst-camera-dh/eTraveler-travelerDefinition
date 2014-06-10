@@ -6,7 +6,37 @@
                  processAction.jsp
 --%>
 
-
+<script type="text/javascript">
+  <!--
+      function isInt(id) {
+        node = document.getElementById(id);
+        if (Math.floor(node.value) != node.value) {
+          alert("Not an integer!");
+          window.setTimeout("node.focus()", 100);
+         } else return true;}
+      function isPosInt(id) {
+        node = document.getElementById(id);
+        if  (!(Math.floor(node.value) == node.value) ) {
+          alert("Value must be an integer!");
+          window.setTimeout("node.focus()", 100);
+        } else if (node.value <= 0) {
+          alert("Value must be a positive integer!");
+          window.setTimeout("node.focus()", 100);
+        } else return true;
+      }
+      function isNumber(id) {
+        node = document.getElementById(id);
+        if ( (node.value == null) || (Math.abs(node.value) != Math.abs(node.value) ) ) {
+          alert("Supplied value is not a number!");
+          window.setTimeout("node.focus(), 100");
+        } 
+        else {
+          return true;
+        }
+      }
+     
+  // -->    
+</script>
      <% 
       AttributeList attsj = imp.selectedNodeAttributes(pageContext);
       String name="", oldVersion="", htype="", childType="", maxIt="", nSub="";
@@ -68,7 +98,7 @@
       <form action="updateStep.jsp" id="updateForm" name="updateForm" >
         <table cellpadding="2">
           <tbody>
-          <tr><td class="bold"">Name</td><td><%= name %></td></tr>
+          <tr><td class="bold">Name</td><td><%= name %></td></tr>
           <tr><td class="bold">Original version</td><td><%= oldVersion %></td></tr>
           <tr><td class="bold">Hardware type</td><td><%= htype %></td></tr>
           <tr><td class="bold">Child type</td><td><%= childType %></td></tr>
@@ -80,7 +110,7 @@
                        value="<%= instructionsURL %>" /></td></tr>       
            <tr><td class="bold"><label for="maxIt">Max iteration</label></td>
             <td><input name="maxIt" id="maxIt" size="3"
-                       value="<%= maxIt %>" /></td></tr>
+                       value="<%= maxIt %>" onblur='isPosInt("maxIt")' /></td></tr>
           </tbody>
         </table>
         <input type="hidden" name="name" id="name" value="<%= name %>" />
@@ -89,10 +119,24 @@
         <input type="hidden" name="htype" id="htype" value="<%= htype %>" />
         <input type="hidden" name="childType" id="childType" 
                value="<%= childType %>" />
+        <%!         
+          String nodestring;
+          String idstring;
+          int    ix = 0;
+          
+          String genId(String nm) {
+            return  nm+ "_" + Integer.toString(ix);
+          }
+          String genNode(String nm) {
+            return "document.updateForm." + genId(nm);                                  
+          }
+         %>
         
         
         <% 
-          if (prereqs != null) {  %>
+          if (prereqs != null) { 
+            ix = 0;
+        %>
           <fieldset>
           <legend>Prerequisites</legend>
            <table cellpadding="2"  class="datatable" border="0"> 
@@ -106,14 +150,15 @@
              </thead>
            <tbody>
             <%! 
-             
+            
               String rowclass="odd";
               String warning="grey"; 
-              int ix=0;
-              String genId(String nm) {
-                return  nm+ "_" + Integer.toString(ix);
-              }
-            %>                    
+ 
+            %>    
+            <%-- 
+                
+                return "document.getElementById('" + genId(nm) + "')"; 
+            --%>
             <%                                                   
               for (Prerequisite prereq: prereqs) {                                                                                                      
                   %>
@@ -124,9 +169,11 @@
                  <td class="left"><%= prereq.getName() %></td>
                  <td class="left"><%= prereq.getType() %></td>
                  <td>
-                   <input type="text" name='<%= genId("count") %>' 
+                   <input type="number" min="1" step="1" name='<%= genId("count") %>' 
                           id='<%= genId("count") %>'
-                          size="3" value="<%= prereq.getQuantity() %>" /></td>
+                          size="3" value="<%= prereq.getQuantity() %>"
+                          <% idstring = genId("count"); %>
+                          onblur='isPosInt("<%= idstring %>")' /></td>
                  <td>
                    <input type="text" name='<%= genId("prereqDescrip") %>' 
                           id='<%= genId("prereqDescrip") %>'  
@@ -180,32 +227,37 @@
                           id='<%= genId("resultDescrip") %>'
                             value="<%= result.getDescription() %>" /></td>
                  <% if (haveNumeric) { 
-                   if (result.getSemantics().equals("int") || result.getSemantics().equals("float")) {  
+                   
                  %>
                  <td class="left">
                    <input type="text" name='<%= genId("units") %>' 
+      
                           id='<%= genId("units") %>' size="6"
-                            value="<%= result.getUnits() %>" /></td>
-                 <td><input type="text" name='<%= genId("min") %>' 
-                            id='<%= genId("min") %>' size="4"
-                           value="<%= result.getMinValue() %>" /></td>
-                 <td><input type="text" name='<%= genId("max") %>' 
-                            id='<%= genId("max") %>' size="4"
-                           value="<%= result.getMaxValue() %>" /></td>
+                            value="<%= result.getUnits() %>" 
+                            /></td>
+                 <td><input type="text" 
+                          <% idstring = genId("min"); %>
+                            name='<%= idstring %>' 
+                            id='<%= idstring %>' size="4"
+                           value="<%= result.getMinValue() %>" 
+                           onblur="isNumber('<%= idstring %>')"  /></td>
+                 <td><input type="text"  <% idstring = genId("max"); %>
+                            name='<%= idstring %>' 
+                            id='<%= idstring %>' size="4"
+                           value="<%= result.getMaxValue() %>" 
+                           onblur="isNumber('<%= idstring %>')" /></td>
                  <% } else { %>
                  <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
                   <% } %>
                </tr>
                <%   if (rowclass.equals("even")) {
                  rowclass="odd";  warning="grey"; }
-                 else { rowclass="even"; warning="black"; }
-                 } 
-                 ix++;
-               }%>        
-             <tbody></table></fieldset>
-             <% } %>         
- 
-       
+                 else { rowclass="even"; warning="black"; }            
+                ix++;
+                 }
+                %>  
+             <tbody></table></fieldset>       
+           <% } %> 
         <p>
         <input type="submit" value="Save edit" />
         <input type="reset"  value="Reset form" />

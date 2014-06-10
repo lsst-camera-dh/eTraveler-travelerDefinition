@@ -21,18 +21,20 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Traveler Action in Progress</title>
+    <link href="http://srs.slac.stanford.edu/Commons/css/srsCommons.jsp?experimantName=LSST-CAMERA"
+          rel="stylesheet" type="text/css" />
+    <link href="css/backendStyle.css" type="text/css" rel="stylesheet" /> 
   </head>
   <body>
+    <%--
    <style type="text/css">
     <!--
-      th { font-size: 10pt; font-weight: bold;}
-      td { font-size: 10pt;}
-      p  { font-size: 10pt;}
-      h4 {font-size: 10pt; font-weight: bold;}
+     
       .bold {font-weight: bold}
       .left {align: left; text-align: left;}
    -->
     </style>
+    --%>
     <% if (request.getParameter("nodePath") != null )     { %>
       <c:set var="nodePath" value="${param.nodePath}" scope="session" />
       <c:set var="leafPath" value="" scope="session" />
