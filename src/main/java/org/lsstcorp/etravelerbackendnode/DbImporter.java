@@ -7,6 +7,7 @@ import org.lsstcorp.etravelerbackenddb.DbInfo;
 import org.lsstcorp.etravelerbackenddb.DbConnection;
 import org.lsstcorp.etravelerbackenddb.MysqlDbConnection;
 import org.lsstcorp.etravelerbackendutil.GraphViz;
+import org.lsstcorp.etravelerbackendutil.Verify;
 import org.freehep.webutil.tree.Tree;   //  freeheptree.Tree;
 import org.freehep.webutil.tree.TreeNode; // freeheptree.TreeNode; 
 import java.io.ByteArrayOutputStream;
@@ -21,6 +22,7 @@ import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.JspContext;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.ServletRequest;
 import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
 
 /**
@@ -41,7 +43,7 @@ public class DbImporter {
   {return name+ "_" + version + "@" + dbType;}
   public static ProcessNode getProcess(String name, String version, String dbType,
       String datasource) 
-  throws EtravelerException {
+    throws EtravelerException {
     DbInfo info = new DbInfo();
     /*
      * String[] args = {"rd_lsst_camt"};
@@ -101,7 +103,7 @@ public class DbImporter {
     }
       
     collectOutput(name, version, traveler, dbType);
-    return "Successfully read in traveler " + name;
+    return "";
   }
   /**
    * Make a connection using Tomcat pool
@@ -109,7 +111,7 @@ public class DbImporter {
    *  @param datasource   datasource name associated with the type, e.g.
    *                      jdbc/rd-lsst-cam
    */
-  static private DbConnection makeConnection(String dbType, String datasource)  {
+  static private DbConnection makeConnection(String dbType, String datasource){
     DbConnection conn = new MysqlDbConnection();
     conn.setSourceDb(dbType);
     boolean isOpen = conn.openTomcat(datasource);
@@ -132,7 +134,6 @@ public class DbImporter {
     // Try connect
     DbConnection conn = new MysqlDbConnection();
     conn.setSourceDb(dbType);
-    
   
     // String datasource = "jdbc/eTraveler-" + dbType + "-ro";
     String datasource = info.dbname;
@@ -236,17 +237,15 @@ public class DbImporter {
    
   }
 
-
   static public void makeTree(PageContext context)  {
     makeTree(context, "view");
   } 
-    /**
+  /**
    * 
    * @param context  page context
    * @param reason   if it's the string "edit", we're in session scope.
    */  
   static public void makeTree(PageContext context, String reason) {
-    
     /* Make the map */
     String name;
     String version;
@@ -343,167 +342,306 @@ public class DbImporter {
       System.out.println("Couldn't write img line");
     }
     
-   }
-   static private StringArrayWriter getWriter(PageContext context)  {
-     String name =  context.getRequest().getParameter("traveler_name");
-     String version = context.getRequest().getParameter("traveler_version");
-     String dbType = ModeSwitcherFilter.getVariable(context.getSession(),
-         "dataSourceMode");
-   
-     String key = makeKey(name, version, dbType);
+  }
+  static private StringArrayWriter getWriter(PageContext context)  {
+    String name =  context.getRequest().getParameter("traveler_name");
+    String version = context.getRequest().getParameter("traveler_version");
+    String dbType = ModeSwitcherFilter.getVariable(context.getSession(),
+                                                   "dataSourceMode");
+    String key = makeKey(name, version, dbType);
      
-     return s_writers.get(key);
-   }
-   static private Traveler getTraveler(PageContext context)  {
-     String name =  context.getRequest().getParameter("traveler_name");
-     String version = context.getRequest().getParameter("traveler_version");
-     
-     String dbType = ModeSwitcherFilter.getVariable(context.getSession(), 
-         "dataSourceMode");
-     return getTraveler(name, version, dbType);
-   }
-   /**
-    * getTraveler only accesses local data.  It tries to find traveler among 
-    * those already stored (unlike getProcess which will go to db if necessary)
-    * @param name      Process name
-    * @param version   Process version
-    * @param db
-    * @return 
-    */
-   static public Traveler getTraveler(String name, String version, String db) {
-  
-     String key = makeKey(name, version, db);
-
-     return s_travelers.get(key);
-   }
-   /**
+    return s_writers.get(key);
+  }
+  static private Traveler getTraveler(PageContext context)  {
+    String name =  context.getRequest().getParameter("traveler_name");
+    String version = context.getRequest().getParameter("traveler_version");
+    
+    String dbType = ModeSwitcherFilter.getVariable(context.getSession(), 
+                                                   "dataSourceMode");
+    return getTraveler(name, version, dbType);
+  }
+  /**
+   * getTraveler only accesses local data.  It tries to find traveler among 
+   * those already stored (unlike getProcess which will go to db if necessary)
+   * @param name      Process name
+   * @param version   Process version
+   * @param db
+   * @return 
+   */
+  static public Traveler getTraveler(String name, String version, String db) {
+    String key = makeKey(name, version, db);
+    return s_travelers.get(key);
+  }
+  /**
     * Do selected action on current traveler/process step. 
     * Can find tree visitor (hence traveler) and selected step path
     * from session variables
     * @param action 
     */
-   static public void doAction(PageContext pageContext, String action) {
-     if (action == null) return;
-     if (action.isEmpty()) return;
-     JspContext jspContext = (JspContext) pageContext;
-     TravelerTreeVisitor vis = (TravelerTreeVisitor) jspContext.getAttribute("treeVisitor", PageContext.SESSION_SCOPE);
-     String leafPath = (String) jspContext.getAttribute("leafPath", PageContext.SESSION_SCOPE);
-     String folderPath = (String) jspContext.getAttribute("folderPath", PageContext.SESSION_SCOPE);   
-     
-     try {
-       JspWriter outWriter = jspContext.getOut();
-       outWriter.println("Action passed in is " + action + "<br />" );
-       
-       if (vis.equals(null)) {
-         outWriter.println("<p>Tree visitor was null</p>");
-         return;
-       }    
-      
-       if (leafPath.equals("")) {
-         outWriter.println("<p>leafPath was empty</p>");
-       } else {
-         outWriter.println("<p>leafPath was " + leafPath + "</p>");
-       }
-       if (folderPath.equals("")) {
-         outWriter.println("<p>folderPath was empty</p>");
-       } else {
-         outWriter.println("<p>folderPath was " + folderPath + "</p>");
-       }
-   
-       // ProcessTreeNode selectedTreeNode = getTreeNode(context);
+  static public void doAction(PageContext pageContext, String action) {
+    if (action == null) return;
+    if (action.isEmpty()) return;
+    JspContext jspContext = (JspContext) pageContext;
+    TravelerTreeVisitor vis = 
+      (TravelerTreeVisitor) jspContext.getAttribute("treeVisitor", 
+                                                    PageContext.SESSION_SCOPE);
+    String leafPath = (String) 
+      jspContext.getAttribute("leafPath", PageContext.SESSION_SCOPE);
+    String folderPath = (String) 
+      jspContext.getAttribute("folderPath", PageContext.SESSION_SCOPE);   
     
-       switch(action) {
-         case "Display": {
-           outWriter.println("<p>Display case should be handled elsewhere </p>");
-           break;
-         }
-         case "Edit":
-         case "LeafSibling":
-         case "SubfolderSibling":
-         case "LeafChild":
-         case "SubfolderChild":
-         case "Remove":
-           outWriter.println("<p>Appropriate action seen</p>");
-           break;
-         default:
-           outWriter.println("Unknown action");
-       }
-     } catch (IOException ex) {
-       System.out.println("Failed to write from DbImporter:doAction");
-     }
-   }
-   static public AttributeList selectedNodeAttributes(PageContext context) {
+    try {
+      JspWriter outWriter = jspContext.getOut();
+      outWriter.println("Action passed in is " + action + "<br />" );
+       
+      if (vis.equals(null)) {
+        outWriter.println("<p>Tree visitor was null</p>");
+        return;
+      }    
+      
+      if (leafPath.equals("")) {
+        outWriter.println("<p>leafPath was empty</p>");
+      } else {
+        outWriter.println("<p>leafPath was " + leafPath + "</p>");
+      }
+      if (folderPath.equals("")) {
+        outWriter.println("<p>folderPath was empty</p>");
+      } else {
+        outWriter.println("<p>folderPath was " + folderPath + "</p>");
+      }
+      
+      // ProcessTreeNode selectedTreeNode = getTreeNode(context);
+      
+      switch(action) {
+      case "Display": {
+        outWriter.println("<p>Display case should be handled elsewhere </p>");
+        break;
+      }
+      case "Edit":
+      case "LeafSibling":
+      case "SubfolderSibling":
+      case "LeafChild":
+      case "SubfolderChild":
+      case "Remove":
+        outWriter.println("<p>Appropriate action seen</p>");
+      break;
+      default:
+        outWriter.println("Unknown action");
+      }
+    } catch (IOException ex) {
+      System.out.println("Failed to write from DbImporter:doAction");
+    }
+  }
+
+  static public AttributeList selectedNodeAttributes(PageContext context) {
+    JspContext jspContext = (JspContext) context;
+    ProcessTreeNode selectedTreeNode = getTreeNode(jspContext);
+    ProcessNode selected = selectedTreeNode.getProcessNode();
+    
+    return selected.getAttributes();
+  }
+   
+  static public int getPrerequisiteCount(PageContext context) {
+    JspContext jspContext = (JspContext) context;
+    ProcessNode selected = getTreeNode(jspContext).getProcessNode();
+    return selected.getPrerequisiteCount();
+  }
+
+  static public ArrayList<Prerequisite> getPrerequisites(PageContext context) {
+    JspContext jspContext = (JspContext) context;
+    ProcessNode selected = getTreeNode(jspContext).getProcessNode();
+    return selected.getPrerequisites();
+  }
+   
+  static public int getResultCount(PageContext context) {
+    JspContext jspContext = (JspContext) context;
+    ProcessNode selected = getTreeNode(jspContext).getProcessNode();
+    return selected.getResultCount();
+  }
   
-     JspContext jspContext = (JspContext) context;
-     ProcessTreeNode selectedTreeNode = getTreeNode(jspContext);
-     ProcessNode selected = selectedTreeNode.getProcessNode();
-     
-     return selected.getAttributes();
-   }
+  static public ArrayList<PrescribedResult> getResults(PageContext context) {
+    JspContext jspContext = (JspContext) context;
+    ProcessNode selected = getTreeNode(jspContext).getProcessNode();
+    return selected.getResults();
+  }
    
-   static public int getPrerequisiteCount(PageContext context) {
-     JspContext jspContext = (JspContext) context;
-     ProcessNode selected = getTreeNode(jspContext).getProcessNode();
-     return selected.getPrerequisiteCount();
-   }
-   static public ArrayList<Prerequisite> getPrerequisites(PageContext context) {
-     JspContext jspContext = (JspContext) context;
-     ProcessNode selected = getTreeNode(jspContext).getProcessNode();
-     return selected.getPrerequisites();
-   }
+  static public String saveStep(PageContext context)  {
+    JspContext jspContext = (JspContext) context;
+    ProcessTreeNode selectedTreeNode = getTreeNode(jspContext);
+    ProcessNode selected = selectedTreeNode.getProcessNode();
+    boolean changed = false;
+    
+    String valid = checkStep(context, selected);
+    if (!valid.isEmpty()) return valid;
+    
+    String newVal = context.getRequest().getParameter("maxIt");
+    if (!newVal.equals(selected.getMaxIteration()) ) { 
+      selected.setMaxIteration(newVal);          
+      changed = true;
+    }
+    newVal = context.getRequest().getParameter("description");
+    if (!newVal.equals(selected.getDescription()) ) {
+      selected.setDescription(newVal);
+      changed = true;
+    }
+    newVal = context.getRequest().getParameter("instructionsURL");
+    if (!newVal.equals(selected.getInstructionsURL()) ) {
+      selected.setInstructionsURL(newVal);
+      changed = true;
+    }
+    for (int iPre=0; iPre < selected.getPrerequisiteCount(); iPre++ ) {
+      changed |= savePrereq(context.getRequest(), 
+                            selected.getPrerequisites().get(iPre), iPre);
+    }
+    for (int iRes=0; iRes < selected.getResultCount(); iRes++ ) {
+      changed |= saveResult(context.getRequest(), 
+                            selected.getResults().get(iRes), iRes);
+    }   
+    
+    if (changed) {
+      TravelerTreeVisitor vis = 
+        (TravelerTreeVisitor) jspContext.getAttribute("treeVisitor", 
+                                                      PageContext.SESSION_SCOPE);
+      vis.addEdited(selectedTreeNode, "modified");
+      selected.newVersion();
+    }
+    return null;
+  }
+  /**
+   * Handle requests for actions concerning entire traveler currently
+   * being edited.
+   * @param context 
+   */
+  static public AttributeList listEdited(PageContext context) {
+    JspContext jspContext = (JspContext)context;
+    TravelerTreeVisitor vis = (TravelerTreeVisitor) 
+      jspContext.getAttribute("treeVisitor", 
+                              PageContext.SESSION_SCOPE);   
+    return vis.getEdited();  
+  }
    
-   static public int getResultCount(PageContext context) {
-     JspContext jspContext = (JspContext) context;
-     ProcessNode selected = getTreeNode(jspContext).getProcessNode();
-     return selected.getResultCount();
-   }
-   
-   static public ArrayList<PrescribedResult> getResults(PageContext context) {
-     JspContext jspContext = (JspContext) context;
-     ProcessNode selected = getTreeNode(jspContext).getProcessNode();
-     return selected.getResults();
-   }
-   
-   static public String saveStep(PageContext context)  {
-     JspContext jspContext = (JspContext) context;
-     ProcessTreeNode selectedTreeNode = getTreeNode(jspContext);
-     ProcessNode selected = selectedTreeNode.getProcessNode();
-     boolean changed = false;
-
-     String newVal = context.getRequest().getParameter("maxIt");
-     if (!newVal.equals(selected.getMaxIteration()) ) {
-       // Check it's a legal value
-       try {
-         int maxI = Integer.parseInt(newVal);
-         if (maxI < 1) { 
-           return "Max iteration must be > 0";
-         }
-       } catch (NumberFormatException e) {
-         return "Value for max iteration must be positive integer";
-       }
-       selected.setMaxIteration(newVal);          
-       changed = true;
-     }
-     newVal = context.getRequest().getParameter("description");
-     if (!newVal.equals(selected.getDescription()) ) {
-       selected.setDescription(newVal);
-       changed = true;
-     }
-
-     newVal = context.getRequest().getParameter("instructionsURL");
-     if (!newVal.equals(selected.getInstructionsURL()) ) {
-       selected.setInstructionsURL(newVal);
-       changed = true;
-     }
-     if (changed) {
-       selected.newVersion();
-     }
-     return null;
-   }
-   
-   static private ProcessTreeNode getTreeNode(JspContext jspContext) {
-     TravelerTreeVisitor vis = (TravelerTreeVisitor) jspContext.getAttribute("treeVisitor", 
-            PageContext.SESSION_SCOPE);
+  static public void ingestEdited(PageContext context) {
+    JspContext jspContext = (JspContext)context;
+    String dbType = ModeSwitcherFilter.getVariable(context.getSession(), 
+                                                   "dataSourceMode");
+    String datasource = 
+      ModeSwitcherFilter.getVariable(context.getSession(), "etravelerDb");
+    TravelerTreeVisitor vis = 
+      (TravelerTreeVisitor) jspContext.getAttribute("treeVisitor", 
+                                                    PageContext.SESSION_SCOPE);
+    ProcessNode travelerRoot = vis.getTravelerRoot();
+    String msg = 
+      YamlToDb.writeToDb(travelerRoot, 
+                         context.getSession().getAttribute("userName").toString(),
+                         true, dbType, datasource);
+    try {
+      context.getOut().println(msg);
+    } catch (IOException ex) {
+      System.out.println("DbImporter.ingestEdited: JspWriter failed to write");
+    }
+  }
+  
+  static public void revertEdited(PageContext context) {
+    
+  }
+  
+  static private String checkStep(PageContext context, ProcessNode selected) {
+    String newVal = context.getRequest().getParameter("maxIt");
+    String ret="";
+    if (!newVal.equals(selected.getMaxIteration()) ) {
+      ret = Verify.isPosInt(newVal);
+      if (!ret.isEmpty()) return ret;
+    }
+    // Validate Prerequisites if any
+    if (selected.getPrerequisiteCount() > 0) {
+      for (int i=0; i < selected.getPrerequisiteCount(); i++) {
+        String param = genId("count", i);
+        newVal = context.getRequest().getParameter(param);
+        ret = Verify.isPosInt(newVal);
+        if (!ret.isEmpty()) return ret;
+      }
+    }
+    // Validate PrescribedResults if any
+    if (selected.getResultCount() > 0) {
+      for (int i=0; i < selected.getResultCount(); i++) {
+        if (selected.getResults().get(i).numberSemantics()) {
+          String minValue = context.getRequest().getParameter(genId("min", i));
+          String maxValue = context.getRequest().getParameter(genId("max", i));
+          if (minValue.isEmpty() && maxValue.isEmpty()) continue;
+          boolean haveBoth = !(minValue.isEmpty() || maxValue.isEmpty());
+          String ok="";
+          if (selected.getResults().get(i).getSemantics().equals("int")) {
+            if (!minValue.isEmpty()) ok = Verify.isInt(minValue);
+            if (ok.isEmpty() && !maxValue.isEmpty()) ok = Verify.isInt(maxValue);
+            if (haveBoth) {
+              if (Integer.parseInt(minValue) > Integer.parseInt(maxValue)) {
+                return "max must be greater than min";
+              }
+            }
+          }   else { // must be float
+            if (!minValue.isEmpty()) ok = Verify.isFloat(minValue);
+            if (ok.isEmpty() && !maxValue.isEmpty()) {
+              ok = Verify.isFloat(maxValue);
+            }
+            if (haveBoth) {
+              if (Float.parseFloat(minValue) > Float.parseFloat(maxValue)) {
+                return "max must be greater than min";
+              }
+            }
+          }
+        }    
+      }
+    }
+    return "";
+  }
+  /**
+   * Update stored Prerequisite according to form input 
+   * @param req   servlet request 
+   * @param pre   Prerequisite to be updated
+   * @param iPre  prerequisite number, needed to form ids for form fields
+   * @return   true if Prerequisite object was changed by request input
+   */
+  static private boolean savePrereq(ServletRequest req, Prerequisite pre, int iPre)  {
+    boolean changed = false;
+    
+    String newVal = req.getParameter(genId("prereqDescrip", iPre));
+    changed |= pre.setDescription(newVal);
+    
+    newVal = req.getParameter(genId("count", iPre));
+    changed |= pre.setQuantity(newVal);
+    
+    if ((pre.getType()).equals("PROCESS_STEP")) {
+      newVal = req.getParameter(genId("userVersion", iPre));
+      changed |= pre.setUserVersionString(newVal);
+    }
+    return changed;
+  }
+  static private boolean saveResult(ServletRequest req, 
+                                    PrescribedResult result, int iRes)  {
+    boolean changed = false;
+    String newVal = req.getParameter(genId("resultDescrip", iRes));
+    changed |= result.setDescription(newVal);
+    
+    if (result.numberSemantics()) {
+      newVal = req.getParameter(genId("units", iRes));
+      changed |= result.setUnits(newVal);
+      
+      newVal = req.getParameter(genId("min", iRes));
+      changed |= result.setMinValue(newVal);
+      
+      newVal = req.getParameter(genId("max", iRes));
+      changed |= result.setMaxValue(newVal);
+    }
+    return changed;
+  }
+  static private String genId(String nm, int i) {
+    return nm + "_" + Integer.toString(i);
+  }
+ 
+  static private ProcessTreeNode getTreeNode(JspContext jspContext) {
+    TravelerTreeVisitor vis = (TravelerTreeVisitor) 
+      jspContext.getAttribute("treeVisitor", 
+                              PageContext.SESSION_SCOPE);
 
      /*
      String nodePath = (String) jspContext.getAttribute("leafPath", PageContext.SESSION_SCOPE);
@@ -511,15 +649,16 @@ public class DbImporter {
        nodePath = (String) jspContext.getAttribute("folderPath", PageContext.SESSION_SCOPE);
      }
      if (nodePath.equals("") ) { */
-     String nodePath = (String) jspContext.getAttribute("nodePath", PageContext.SESSION_SCOPE);
+    String nodePath=(String) jspContext.getAttribute("nodePath", 
+                                                     PageContext.SESSION_SCOPE);
     /* } */
      
-     ProcessTreeNode rootTreeNode = vis.getTreeRoot();
-     int secondSlash = nodePath.indexOf("/", 1);
-     if (secondSlash == -1) return rootTreeNode;
-     
-     /* Otherwise strip off root path at the front */
-     nodePath = nodePath.substring(secondSlash);
-     return (ProcessTreeNode) rootTreeNode.findNode(nodePath, false);
-   }
+    ProcessTreeNode rootTreeNode = vis.getTreeRoot();
+    int secondSlash = nodePath.indexOf("/", 1);
+    if (secondSlash == -1) return rootTreeNode;
+    
+    /* Otherwise strip off root path at the front */
+    nodePath = nodePath.substring(secondSlash);
+    return (ProcessTreeNode) rootTreeNode.findNode(nodePath, false);
+  }
 }

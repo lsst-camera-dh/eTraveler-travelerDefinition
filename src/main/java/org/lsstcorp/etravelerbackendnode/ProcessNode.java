@@ -30,7 +30,10 @@ public class ProcessNode implements  TravelerElement
     /* handle m_parentEdge a bit further down */
     /* m_clonedFrom is a tricky one! */
     if (orig.m_originalId != null) m_originalId = new String(orig.m_originalId);
-    if (orig.m_processId != null) m_processId = new String(orig.m_processId);
+    if (orig.m_processId != null) {
+      m_processId = new String(orig.m_processId);
+      m_isRef = true;
+    }
     m_sequenceCount = orig.m_sequenceCount;
     m_optionCount = orig.m_optionCount;
     m_name = new String(orig.m_name);
@@ -124,6 +127,8 @@ public class ProcessNode implements  TravelerElement
     m_maxIteration = imp.provideMaxIteration();
     m_substeps = imp.provideSubsteps();
     m_sourceDb = imp.provideSourceDb();
+    m_processId = imp.provideId();
+    m_originalId = imp.provideOriginalId();
     /* No more to do if we're a ref */
 
     
@@ -235,7 +240,7 @@ public class ProcessNode implements  TravelerElement
    * ProcessNodeDb implements this interface.
    */
   public interface Importer {
-    //String provideId();
+    String provideId();
     String provideName();
     String provideHardwareType();
     String provideHardwareRelationshipType();
@@ -246,7 +251,7 @@ public class ProcessNode implements  TravelerElement
     String provideMaxIteration();
     String provideSubsteps();
     int provideTravelerActionMask();
-    //String provideOriginalId();
+    String provideOriginalId();
     int provideNChildren();
     int provideNPrerequisites();
     int provideNPrescribedResults();
@@ -364,6 +369,7 @@ public class ProcessNode implements  TravelerElement
   public int getResultCount() { 
     if (m_resultNodes == null) return 0;
     return m_resultNodes.size(); }
+  public boolean getIsEdited() {return m_edited;}
   public boolean isRef() {return m_isRef; }
   public void setProcessId(String id) {m_processId = id;}
   public void setOriginalId(String id) {m_originalId = id;}
@@ -374,10 +380,16 @@ public class ProcessNode implements  TravelerElement
   public void setMaxIteration(String maxIt) {m_maxIteration = maxIt;}
   public void newVersion() {
     m_edited = true;
+    m_isRef = false;
+    m_version = "modified";
     ProcessNode parent = m_parent;
     while (parent != null) {
-      parent.m_edited = true;
-      parent = parent.m_parent;
+      if (parent.m_edited == false) {
+        parent.m_edited = true;
+        parent.m_isRef = false;
+        parent.m_version = "modified";
+        parent = parent.m_parent;
+      } else break;
     }
   }
   public ArrayList<Prerequisite> getPrerequisites() {
@@ -395,8 +407,6 @@ public class ProcessNode implements  TravelerElement
   private ArrayList<ProcessNode> m_children=null;
   private ArrayList<Prerequisite> m_prerequisites=null;
   private ArrayList<PrescribedResult> m_resultNodes=null;
-  //private Prerequisite[] m_prerequisites=null;
-  //private PrescribedResult[] m_resultNodes=null;
   private String m_name=null;
   private boolean m_isCloned=false;
   private boolean m_isRef=false;
