@@ -89,7 +89,8 @@ public class PrerequisiteDb implements Prerequisite.Importer, Prerequisite.Expor
     if (m_type.equals("PROCESS_STEP") ) {
       String where = " where name='"+m_name+"' and ";
       if (m_userVersionString != null) {
-        where += "userVersionString='" + m_userVersionString + "'";
+        where += "userVersionString='" + m_userVersionString + 
+            "' order by id desc limit 1";
       } else {
         where += "version='" + m_version + "'";
       }
