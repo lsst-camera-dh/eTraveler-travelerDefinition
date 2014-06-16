@@ -7,6 +7,11 @@ import java.io.Writer;
 import java.io.StringWriter;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
+import javax.management.AttributeList;
+import javax.management.Attribute;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 import org.freehep.webutil.tree.DefaultIconSet; // freeheptree.DefaultIconSet;
@@ -22,6 +27,13 @@ import org.freehep.webutil.tree.Tree; // freeheptree.Tree;
 public class TravelerTreeVisitor implements TravelerVisitor { 
   public TravelerTreeVisitor(boolean editable) {
     m_editable = editable;
+    if (editable) m_editedNodes = new HashMap<ProcessTreeNode, String>();
+  }
+  
+  public TravelerTreeVisitor(boolean editable, String title) {
+    m_editable = editable;
+    m_title=title;
+    if (editable) m_editedNodes = new HashMap<ProcessTreeNode, String>();
   }
   
   public void setTreeRenderer(Tree renderer) {
@@ -32,6 +44,9 @@ public class TravelerTreeVisitor implements TravelerVisitor {
   }
   public ProcessTreeNode getTreeRoot() {
     return m_treeRoot;
+  }
+  public ProcessNode getTravelerRoot() {
+    return m_treeRoot.getProcessNode();
   }
   public void setPath(String path) {
     m_path = path;
@@ -83,14 +98,37 @@ public class TravelerTreeVisitor implements TravelerVisitor {
         m_treeRenderer.printScript(outWriter);
         context.setAttribute("scriptInclude", Boolean.TRUE, PageContext.PAGE_SCOPE);
       }
-      m_treeRenderer.printTree(outWriter, m_treeRoot, "The tree");
+      m_treeRenderer.printTree(outWriter, m_treeRoot, m_title);
     } catch (IOException ex)  {
       System.out.println("Failed to render tree with exception: " + ex.getMessage());
     }
+  }
+  public boolean addEdited(ProcessTreeNode node, String how)  {
+    if (!m_editable) return false;
+    m_editedNodes.put(node, how);
+    return true;
+  }
+  
+  public AttributeList getEdited() {
+    AttributeList edited = new AttributeList();
+    
+    Set<ProcessTreeNode> nodes = m_editedNodes.keySet();
+    for (ProcessTreeNode node: nodes) {
+      edited.add(new Attribute(node.getPath(), m_editedNodes.get(node)));
+    }
+    return edited;
+  }
+  
+  public boolean clearModified() {
+    if (!m_editable) return false;
+    m_editedNodes.clear();
+    return true;
   }
   
   private Tree m_treeRenderer=null;
   private ProcessTreeNode m_treeRoot = null;
   private String m_path=null;
   private boolean m_editable=false; 
+  private String m_title="The tree";
+  private HashMap <ProcessTreeNode, String> m_editedNodes=null;
 }
