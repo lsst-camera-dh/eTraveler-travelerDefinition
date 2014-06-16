@@ -24,17 +24,20 @@
           window.setTimeout("node.focus()", 100);
         } else return true;
       }
-      function isNumber(id) {
+      function isNumber(id, type) {
+        if (type == "int") {
+         return isInt(id);
+        }
         node = document.getElementById(id);
-        if ( (node.value == null) || (Math.abs(node.value) != Math.abs(node.value) ) ) {
+        if ( (node.value == null) ||           
+          (Math.abs(node.value) != Math.abs(node.value) ) ) {
           alert("Supplied value is not a number!");
           window.setTimeout("node.focus(), 100");
         } 
         else {
           return true;
         }
-      }
-     
+      }    
   // -->    
 </script>
      <% 
@@ -92,6 +95,10 @@
           String sem = r.getSemantics();
           if ((sem.equals("int")) || (sem.equals("float")) ) {haveNumeric = true;}
         }
+      }
+      %>
+      <%! boolean isNumberSemantics(String sem) {
+        return (sem.equals("int") || sem.equals("float"));
       }
       %>
    
@@ -227,7 +234,7 @@
                           id='<%= genId("resultDescrip") %>'
                             value="<%= result.getDescription() %>" /></td>
                  <% if (haveNumeric) { 
-                   
+                   if (isNumberSemantics(result.getSemantics())) {
                  %>
                  <td class="left">
                    <input type="text" name='<%= genId("units") %>' 
@@ -240,15 +247,17 @@
                             name='<%= idstring %>' 
                             id='<%= idstring %>' size="4"
                            value="<%= result.getMinValue() %>" 
-                           onblur="isNumber('<%= idstring %>')"  /></td>
+                           onblur="isNumber('<%= idstring %>', 
+                             '<%= result.getSemantics() %>')"  /></td>
                  <td><input type="text"  <% idstring = genId("max"); %>
                             name='<%= idstring %>' 
                             id='<%= idstring %>' size="4"
                            value="<%= result.getMaxValue() %>" 
-                           onblur="isNumber('<%= idstring %>')" /></td>
+                           onblur="isNumber('<%= idstring %>', 
+                           '<%= result.getSemantics() %>')" /></td>
                  <% } else { %>
                  <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
-                  <% } %>
+                  <% } } %>
                </tr>
                <%   if (rowclass.equals("even")) {
                  rowclass="odd";  warning="grey"; }

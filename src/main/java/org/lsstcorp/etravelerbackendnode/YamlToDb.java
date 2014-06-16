@@ -64,7 +64,7 @@ public class YamlToDb {
     return traveler;
   }
 
-  private static String writeToDb(ProcessNode travelerRoot, String user,
+  public static String writeToDb(ProcessNode travelerRoot, String user,
       boolean useTransactions, String dbType, String datasource)  {
 
     // Try connect
@@ -76,9 +76,7 @@ public class YamlToDb {
     vis.setUseTransactions(useTransactions);
     vis.setUser(user);
 
-    // Convert to db-like classes, e.g. ProcessNodeDb
-
-    
+    // Convert to db-like classes, e.g. ProcessNodeDb   
     // next visit with activity "verify", then "write".
     try {
       vis.visit(travelerRoot, "new");
@@ -101,7 +99,7 @@ public class YamlToDb {
           " db with exception " + ex.getMessage();
     }
     conn.close();
-    return "successfully verified traveler";
+    return "successfully wrote traveler to " + dbType + " db";
 
 
     // These probably can throw exceptions

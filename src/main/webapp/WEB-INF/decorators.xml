@@ -9,6 +9,7 @@
         <pattern>/showTree.jsp</pattern>
         <pattern>/processAction.jsp</pattern>  
         <pattern>/updateStep.jsp</pattern>
+        <pattern>/globalActions.jsp</pattern>
    </decorator>
 
   <decorator name="basicDecorator" page="basicDecorator.jsp">

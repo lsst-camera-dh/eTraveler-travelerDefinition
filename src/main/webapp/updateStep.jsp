@@ -27,12 +27,9 @@
       </c:when>
       <c:otherwise>
         <h3>Updated Process Step</h3>
-        <display:table name="${import:selectedNodeAttributes(pageContext)}" 
-                       class="datatable" >
-          <display:column property="name" title="Attribute" 
-                          headerClass="sortable" style="text-align:left" />
-          <display:column property="value" />
-        </display:table>
+        
+              <%@include file="displayProcessFragment.jsp" %>
+   
       </c:otherwise>
     </c:choose>
   </body>

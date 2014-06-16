@@ -46,18 +46,18 @@
       
      <form action="processAction.jsp" id="actionForm"  name="actionForm" 
            target="doAction"  title="Edit Actions" onreset="clearDoAction()">
-       <fieldset><legend>Select action</legend>
+       <fieldset><legend>Select per-step action</legend>
        <table>
          <tr><td>Display step details<input type="radio" id="action" 
                                             name="action" value="Display" /></td></tr>  
          <tr><td>Edit step<input type="radio" id="action" name="action"
                                  value="Edit" /></td></tr>
-         <tr><td>Add leaf sibling<input type="radio" id="action" name="action" 
-                                        value=" leafSibling"/></td></tr>
-         <tr><td>Add subfolder sibling<input type="radio" id="action" name="action" 
-                                             value="subfolderSibling" /></td></tr>
-         <tr><td class="warn" ><b>Remove step</b><input type="radio" id="action" name="action"
-                                   value="remove" /></td></tr>
+         <tr><td>Add leaf sibling (NYI)<input type="radio" id="action" name="action" 
+                                        value=" leafSibling" disabled /></td></tr>
+         <tr><td>Add subfolder sibling (NYI)<input type="radio" id="action" name="action" 
+                                             value="subfolderSibling" disabled /></td></tr>
+         <tr><td class="warn" ><b>Remove step</b> (NYI)<input type="radio" id="action" name="action"
+                                   value="remove" disabled /></td></tr>
      
        </table>
        </fieldset>
@@ -76,7 +76,7 @@
       
      <form action="processAction.jsp" id="actionForm"  name="actionForm" 
            target="doAction"  title="Edit Actions" onreset="clearDoAction()" >
-       <fieldset><legend>Select action</legend>
+       <fieldset><legend>Select per-step action</legend>
        <table>
      <%--    <tr><th>
        <label for="actions">Select Action</label> </th></tr> --%>
@@ -85,16 +85,16 @@
          <tr><td>Edit step<input type="radio" id="action" name="action"
                                  value="Edit" /></td></tr>
    
-         <tr><td>Add leaf child<input type="radio" id="action" name="action" 
-                                      value="leafChild"/></td></tr>
-         <tr><td>Add subfolder child<input type="radio" id="action" name="action" 
-                                           value="subfolderChild"/></td></tr>
-         <tr><td>Add leaf sibling<input type="radio" id="action" name="action" 
-                                        value="leafSibling" /></td></tr>
-         <tr><td>Add subfolder sibling<input type="radio" id="action" name="action" 
-                                             value="subfolderSibling" /></td></tr>
-         <tr><td class="seriousWarn"><b>Remove step</b> (and all substeps)<input type="radio" id="action" 
-                                        name="action "value="remove" /></td></tr>
+         <tr><td>Add leaf child (NYI)<input type="radio" id="action" name="action" 
+                                      value="leafChild" disabled /></td></tr>
+         <tr><td>Add subfolder child (NYI)<input type="radio" id="action" name="action" 
+                                           value="subfolderChild" disabled /></td></tr>
+         <tr><td>Add leaf sibling (NYI)<input type="radio" id="action" name="action" 
+                                        value="leafSibling" disabled  /></td></tr>
+         <tr><td>Add subfolder sibling (NYI)<input type="radio" id="action" name="action" 
+                                             value="subfolderSibling" disabled /></td></tr>
+         <tr><td class="seriousWarn"><b>Remove step</b> (and all substeps) (NYI)<input type="radio" id="action" 
+                                        name="action "value="remove" disabled /></td></tr>
        
        </table>
        </fieldset>
@@ -108,6 +108,16 @@
         <p>Select step in navigation pane to left to see edit operations</p>
       </c:otherwise>
     </c:choose>
-
+        
+    <h4>Global Traveler Actions</h4>
+    <table><tr><td>
+    <a href="globalActions.jsp?action=list" target="doAction">List modified steps</a>
+        </td></tr> 
+  <%--    <tr><td>
+    <a href="globalActions.jsp?action=revert" target="doAction">Undo step modifications</a><br />
+      </td></tr>   --%>
+      <tr><td>
+    <a href="globalActions.jsp?action=ingest" target="doAction">Ingest modified traveler</a></p>
+      </td></tr>  </table>
   </body>
 </html>
