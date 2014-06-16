@@ -433,7 +433,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     }   else { // assuming we checked compatibility of child earlier
       m_hardwareTypeId = m_dbParent.m_hardwareTypeId;
     }
-    // If ref, verify we have the right db and node we need really is there
+    // If ref, verify we have the right db and that the node we need really is.
+    // there. No need to check anything else.
     if (m_isRef)   {
       if (!m_sourceDb.equals(connect.getSourceDb() ) ){
         throw new EtravelerException("Process definition refers to wrong db");
@@ -445,6 +446,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
         throw new EtravelerException("Process " + m_name + ", version " 
             + m_version + " does not exist for dbType " + m_sourceDb);
       } 
+      m_verified = true;
+      return;
     }
         
     // Verify relationship type if not null
@@ -469,11 +472,24 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
         m_resultsDb[ir].verify(m_semanticsTypeMap);
       }
     }
-    if (!(m_version.equals("1"))) {  /* Look up id of version 1 */
+    if (!(m_version.equals("1"))) { 
+      if (!acceptableVersion(m_version)) {
+        throw new 
+          EtravelerException("Unacceptable Process version: " + m_version);
+      }
+      /* Look up id of version 1 */
       String where = " where version=1 and name='" + m_name + "'";
       m_originalId = m_connect.fetchColumn("Process", "id", where);
       if (m_originalId == null)  {
-        throw new EtravelerException("No version 1 for Process name " + m_name);
+        /* If "next" then need not have been prior version with this name.
+           Other accepted values - numeric or "modified" - require
+           existence of a version 1.
+         */
+        if (m_version.equals("next")) m_version = "1";
+        else {
+            throw new 
+              EtravelerException("No version 1 for Process name " + m_name);
+          }
       }
     }
     if (m_childrenDb != null) {
@@ -482,6 +498,15 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       }
     }
     m_verified = true;
+  }
+  private boolean acceptableVersion(String v) {
+    if (v.equals("next") || v.equals("modified") ) return true;
+    try {
+      int iv = Integer.parseInt(v);
+      return true;
+    } catch (NumberFormatException ex) {
+      return false;
+    }
   }
   // NOTE:  Can use keyword DEFAULT for columns not always set to user-supplied,
   //         value, e.g. hardwareRelationshipType
@@ -504,6 +529,9 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       String[] vals = new String[s_insertProcessCols.length];
       vals[0] = m_name;
       vals[1] = m_hardwareTypeId;
+      if (m_version.equals("next") || m_version.equals("modified")) {
+        m_version = nextAvailableVersion(m_originalId);
+      }
       vals[2] = m_version;
       vals[3] = m_userVersionString;
       vals[4] = m_description;
@@ -589,6 +617,14 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     for (int iChild = 0; iChild < m_childrenDb.length; iChild++ ) {
       m_childrenDb[iChild].writeToDb(connect, this);
     }
+  }
+  private String nextAvailableVersion(String originalId) 
+    throws SQLException, EtravelerException {
+    String where = " where originalId='" + originalId + 
+      "' order by version desc limit 1";
+    String old = m_connect.fetchColumn("Process", "version", where);
+    int intNext = Integer.parseInt(old) + 1;
+    return Integer.toString(intNext);
   }
   private void insertEdge() throws SQLException {
     if (m_dbParent != null)  {
