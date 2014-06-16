@@ -93,6 +93,51 @@ public class PrescribedResult  implements TravelerElement {
   public String getUnits() {return m_units;}
   public String getMinValue() {return m_minValue;}
   public String getMaxValue() {return m_maxValue;}
+  public boolean setDescription(String desc) 
+  {
+    if (!desc.equals(m_description)) {
+      m_description = desc;
+      return true;
+    }
+    return false;
+  }
+  public boolean setUnits(String u) {
+    if (!u.equals(m_units)) {
+      m_units = u;
+      return true;
+    }
+    return false;
+  }
+  public boolean setMinValue(String minV) {
+    if (!minV.equals(m_minValue)) {
+      if (numericEquals(m_minValue, minV)) return false;
+      m_minValue = minV;
+      return true;
+    }
+    return false;
+  }
+  public boolean setMaxValue(String maxV) {
+    if (!maxV.equals(m_maxValue)) {
+      if (numericEquals(m_maxValue, maxV)) return false;
+      m_maxValue = maxV;
+      return true;
+    }
+    return false;
+  }
+  public boolean numberSemantics() {
+    return (m_semantics.equals("int") || m_semantics.equals("float") );
+  }
+  private boolean numericEquals(String s1, String s2) {
+    if ((s1.isEmpty()) || (s2.isEmpty())) {
+      if ((s1.isEmpty()) && (s2.isEmpty())) return true;
+      return false;
+    }
+    if (m_semantics.equals("int")) {
+      return (Integer.parseInt(s1) == Integer.parseInt(s2));
+    } else if (m_semantics.equals("float")) {
+      return (Float.parseFloat(s1) == Float.parseFloat(s2));
+    } else return s1.equals(s2);
+  }
   private String m_label;
   private String m_semantics;
   private String m_units="";

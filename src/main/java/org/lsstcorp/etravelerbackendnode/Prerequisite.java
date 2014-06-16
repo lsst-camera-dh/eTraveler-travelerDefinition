@@ -96,6 +96,38 @@ public class Prerequisite implements TravelerElement {
     if (m_userVersionString == null) return "";
     return m_userVersionString;
   }
+  public boolean setDescription(String desc) {
+    if (!desc.equals(m_description) ) {
+      //m_parent.newVersion();
+      m_description = desc;
+      return true;
+    }
+    return false;
+  }
+  public boolean setUserVersionString(String uversion) {
+    if (!uversion.equals(m_userVersionString) ) {
+      //m_parent.newVersion();
+      m_userVersionString = uversion;
+      return true;
+    }
+    return false;
+  }
+  public boolean setQuantity(String quant)  {
+    int iq = Integer.parseInt(quant);
+    if (iq != m_quantity) {
+      m_quantity = iq;
+      return true;
+    }
+    return false;
+  }
+  private boolean isInt(String inp) {
+    try {
+      int i = Integer.parseInt(inp);
+      return true;
+    } catch (NumberFormatException ex) {
+      return false;
+    }
+  }
   private String m_prerequisiteType = null;
   // All prereqs have a name. For component prereqs it's the
   // HardwareType.name.  PROCESS_STEP it's Process.name
