@@ -4,7 +4,7 @@
 
     <session-config>
         <session-timeout>
-            30
+            120
         </session-timeout>
     </session-config>
 
@@ -42,6 +42,7 @@
         </param-value>
     </context-param>
     -->
+
 
     <filter>
         <filter-name>ModeSwitcherFilter</filter-name>
@@ -108,6 +109,8 @@
     </filter-mapping>
    
     <!-- Done adding Sitemesh Filter -->
+    
+  
     
     <!-- Servlets -->
     <!-- Locally defined servlet needed for creating circle-and-arrow images -->

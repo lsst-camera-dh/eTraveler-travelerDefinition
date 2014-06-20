@@ -27,6 +27,7 @@ public class ProcessNode implements  TravelerElement
   // Deep copy
   public ProcessNode(ProcessNode parent, ProcessNode orig, int step) {
     m_parent = parent;
+    m_copiedFrom = orig;
     /* handle m_parentEdge a bit further down */
     /* m_clonedFrom is a tricky one! */
     if (orig.m_originalId != null) m_originalId = new String(orig.m_originalId);
@@ -90,7 +91,10 @@ public class ProcessNode implements  TravelerElement
     }
     
     m_isCloned = imp.provideIsCloned();
-    if (m_isCloned) return;
+    if (m_isCloned) {
+      m_version = imp.provideVersion();
+      return;
+    }
     
     m_isRef = imp.provideIsRef();
     if (m_isRef) {
@@ -208,7 +212,7 @@ public class ProcessNode implements  TravelerElement
   }
   public int writeDb() {
         return 0;  // for now
-    }
+  }
   /**
    * Verify that various values in the traveler are consistent with 
    * the database to which the traveler might be added
@@ -301,6 +305,7 @@ public class ProcessNode implements  TravelerElement
     void acceptClonedFrom(ProcessNode process);
     void acceptIsCloned(boolean isCloned);
     void acceptIsRef(boolean isRef);
+    void acceptEdited(boolean edited);
     // Do we need anything more having to do with edges?
     // What about acceptChild ?
     // Signal to node in case it needs to do anything after contents are complete
@@ -339,6 +344,7 @@ public class ProcessNode implements  TravelerElement
       ptarget.acceptChildren(m_children);
       ptarget.acceptIsCloned(m_isCloned);
       ptarget.acceptIsRef(m_isRef);
+      ptarget.acceptEdited(m_edited);
       ptarget.exportDone();
     }
   }
@@ -351,6 +357,71 @@ public class ProcessNode implements  TravelerElement
     if (m_parentEdge != null) {
       m_parentEdge.setCondition(condition);
     }
+  }
+  /**
+   * Undo edit on descendent ProcessNode. Called on root of traveler containing
+   *   edited node
+   * @param path   Path to node to be recovered (starting at traveler root)
+   * @param editType  One of "modified", "deleted", "added"
+   * @param orig    Original traveler from which we were cloned
+   * @return 
+   */
+  public boolean recover(boolean recurse) {
+    copyFrom(m_copiedFrom, recurse);
+    return true;
+  }
+  boolean recover(ProcessNode theNode, String path, String editType, 
+      ProcessNode origRoot) {
+    // For now just handling "modify"
+    // Find the corresponding node in the original traveler
+    ProcessNode theSource = origRoot;
+    String[] cmps = path.split("/");
+    for (String cmp: cmps) {
+      if (cmp.isEmpty()) continue;
+      for (ProcessNode child: theSource.m_children) {
+        if (child.m_name.equals(cmp)) {
+          theSource = child;
+          break;
+        } 
+      }
+    }
+    theNode.copyFrom(theSource, false);
+    return true;
+  }
+  /**
+   * Copy immediate node attributes, prereqs and prescribed results from
+   * source node.  Do not copy children unless recurs is true
+   * @param src 
+   * @param recurs
+   */
+  void copyFrom(ProcessNode src, boolean recurs)  {
+    // some things can't have changed; name, hardwareType, userVersionString,
+    // hardwareRelationshipType, isOption, travelerActionMask,
+    // Don't bother copying those.
+  
+    m_isRef = src.m_isRef;
+    m_edited = false;   // FIX ME could cause trouble if child was modified 
+    m_processId = src.m_processId;
+    m_version = src.m_version;
+    m_originalId = src.m_originalId;
+    m_description = src.m_description;
+    m_instructionsURL = src.m_instructionsURL;
+    m_maxIteration = src.m_maxIteration;
+    // For now, do not handle recurs==true, so leave option count and seq count
+    // alone
+    if (src.getPrerequisiteCount() > 0) {
+      m_prerequisites = new ArrayList<Prerequisite>(src.getPrerequisiteCount());
+      for (Prerequisite srcPre: src.m_prerequisites) {
+        m_prerequisites.add(new Prerequisite(this, srcPre));
+      }
+    } else m_prerequisites = null;
+    if (src.getResultCount() > 0) {
+      m_resultNodes = new ArrayList<PrescribedResult>(src.getResultCount());
+      for (PrescribedResult srcRes: src.m_resultNodes) {
+        m_resultNodes.add(new PrescribedResult(this, srcRes));
+      }
+    }
+    
   }
   
   public String getName() { return m_name;}
@@ -370,6 +441,7 @@ public class ProcessNode implements  TravelerElement
     if (m_resultNodes == null) return 0;
     return m_resultNodes.size(); }
   public boolean getIsEdited() {return m_edited;}
+  public String getSourceDb() {return m_sourceDb;}
   public boolean isRef() {return m_isRef; }
   public void setProcessId(String id) {m_processId = id;}
   public void setOriginalId(String id) {m_originalId = id;}
@@ -387,7 +459,7 @@ public class ProcessNode implements  TravelerElement
       if (parent.m_edited == false) {
         parent.m_edited = true;
         parent.m_isRef = false;
-        parent.m_version = "modified";
+        // parent.m_version = "modified";
         parent = parent.m_parent;
       } else break;
     }
@@ -402,6 +474,7 @@ public class ProcessNode implements  TravelerElement
   private ProcessEdge m_parentEdge=null;
   // If m_clonedFrom set to non-null, most other properties are ignored
   private ProcessNode m_clonedFrom=null;  
+  private ProcessNode m_copiedFrom=null;
   private int m_sequenceCount=0;
   private int m_optionCount=0;
   private ArrayList<ProcessNode> m_children=null;

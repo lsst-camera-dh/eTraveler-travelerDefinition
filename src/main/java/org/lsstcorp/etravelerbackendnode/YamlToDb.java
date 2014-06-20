@@ -6,6 +6,7 @@ package org.lsstcorp.etravelerbackendnode;
 import org.yaml.snakeyaml.Yaml;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Map;
 import org.lsstcorp.etravelerbackenddb.DbInfo;
@@ -13,6 +14,7 @@ import org.lsstcorp.etravelerbackenddb.DbConnection;
 import org.lsstcorp.etravelerbackenddb.MysqlDbConnection;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.JspWriter;
 import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
 /**
  * Used from jsp to ingest Yaml, export to Db
@@ -23,18 +25,41 @@ public class YamlToDb {
   // public static String ingest(String fileContents, boolean useTransactions) {
     public static String ingest(PageContext context) {
       String fileContents = context.getRequest().getParameter("importYamlFile");
-      String useTransactions = (context.getAttribute("useTransactions")).toString();
+      String useTransactions = "true";
+      if (context.getAttribute("useTransaaction") != null) {
+        useTransactions = (context.getAttribute("useTransactions")).toString();
+      }
       String dbType = ModeSwitcherFilter.getVariable(context.getSession(),
           "dataSourceMode");
       String datasource = ModeSwitcherFilter.getVariable(context.getSession(),
           "etravelerDb");
+      JspWriter writer = context.getOut();
       // String dbType = context.getRequest().getParameter("db");
+      String action = context.getRequest().getParameter("fileAction");
       ProcessNode ingested = parse(fileContents);
       if (ingested ==  null) {
+        /*
+        try {
+          writer.println("<p>Could not parse yaml input</p>");
+        } catch (IOException ex)  {}
+        * */
         return "Could not parse yaml input";
       }
-      return writeToDb(ingested, context.getSession().getAttribute("userName").toString(),
+      if (action.equals("Check")) {
+        /*
+        try {
+          writer.println("<p>File successfully parsed</p>");
+        } catch  (IOException ex) {}
+        */
+        return "File successfully parsed";
+      }
+      String writeRet =
+          writeToDb(ingested, context.getSession().getAttribute("userName").toString(),
           useTransactions.equals("true"), dbType, datasource);
+      /* try {
+        writer.println("<p>" + writeRet + "</p>");
+      }  catch (IOException ex) {}    */
+      return writeRet;
   }
 
   private static ProcessNode parse(String fileContents)  {    

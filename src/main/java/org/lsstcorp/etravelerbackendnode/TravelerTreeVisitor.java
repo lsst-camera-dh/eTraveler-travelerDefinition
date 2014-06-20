@@ -25,6 +25,16 @@ import org.freehep.webutil.tree.Tree; // freeheptree.Tree;
  * @author jrb
  */
 public class TravelerTreeVisitor implements TravelerVisitor { 
+  /**
+   * Store vital information about a edited ProcessTreeNode in case
+   * we later want to restore. It's a pure data class.
+   
+  private class TreeNodeEditInfo {
+    public ProcessNode m_process;
+    public int         m_myId;
+    public String      m_editType;
+  }
+  */
   public TravelerTreeVisitor(boolean editable) {
     m_editable = editable;
     if (editable) m_editedNodes = new HashMap<ProcessTreeNode, String>();
@@ -50,6 +60,14 @@ public class TravelerTreeVisitor implements TravelerVisitor {
   }
   public void setPath(String path) {
     m_path = path;
+  }
+  /**
+   * If created for editing, we'll want to save root of the original
+   * traveler our traveler was copied from
+   * @param original 
+   */
+  public void setCopiedFrom(ProcessNode original) {
+    m_original = original;
   }
   // Implementation of TravelerVisitor
   public void visit(ProcessNode process, String activity) throws EtravelerException {
@@ -105,28 +123,56 @@ public class TravelerTreeVisitor implements TravelerVisitor {
   }
   public boolean addEdited(ProcessTreeNode node, String how)  {
     if (!m_editable) return false;
+   
     m_editedNodes.put(node, how);
     return true;
   }
+  public boolean undoEdited(String path) {
+    if (!m_editable) return false;
+    ProcessTreeNode theNode = null;
+    boolean ok = false;
+    Set<ProcessTreeNode> nodes = m_editedNodes.keySet();
+    for (ProcessTreeNode node: nodes) {
+      if (node.getPath().equals(path)) {
+        theNode=node;
+        ok = theNode.getProcessNode().recover(false);
+        if (ok) m_editedNodes.remove(theNode);
+        return ok;
+      }
+    }
+    return false;
+  }
   
-  public AttributeList getEdited() {
-    AttributeList edited = new AttributeList();
+  public ArrayList<EditedTreeNode> getEdited() {
+    ArrayList<EditedTreeNode> edited = new ArrayList<EditedTreeNode>();
     
     Set<ProcessTreeNode> nodes = m_editedNodes.keySet();
     for (ProcessTreeNode node: nodes) {
-      edited.add(new Attribute(node.getPath(), m_editedNodes.get(node)));
+      EditedTreeNode e = new EditedTreeNode(node.getPath(), m_editedNodes.get(node));
+      edited.add(e);
     }
     return edited;
   }
   
   public boolean clearModified() {
     if (!m_editable) return false;
+    /* Really should be
+     *    for node in HashMap
+     *        restore
+     *        remove from HashMap
+     */
     m_editedNodes.clear();
     return true;
   }
+  int getCount() {
+    m_treeNodeCount++;
+    return m_treeNodeCount;
+  }
   
   private Tree m_treeRenderer=null;
+  private int m_treeNodeCount = 0;
   private ProcessTreeNode m_treeRoot = null;
+  private ProcessNode m_original = null;
   private String m_path=null;
   private boolean m_editable=false; 
   private String m_title="The tree";

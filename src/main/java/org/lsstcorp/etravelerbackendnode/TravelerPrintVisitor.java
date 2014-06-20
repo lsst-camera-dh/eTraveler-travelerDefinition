@@ -260,6 +260,7 @@ public class TravelerPrintVisitor implements TravelerVisitor,
    public void acceptChoiceField(String choiceField)  {
      m_choiceField = choiceField;
    }
+   public void acceptEdited(boolean edited) {}
    public void exportDone() { }
   
   // Store process contents until we're ready to write

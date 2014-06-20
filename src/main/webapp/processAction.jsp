@@ -47,11 +47,11 @@
   
     <c:choose>
     <c:when test="${param.action == 'Display' || param.action == 'DisplayOrig'}">
-      <%@include file="displayProcessFragment.jsp" %>
+      <%@include file="displayProcessFragment.jspf" %>
     </c:when>
   
     <c:when test="${param.action == 'Edit' }">
-      <%@include file="editProcessFragment.jsp" %>    
+      <%@include file="editProcessFragment.jspf" %>    
     </c:when>
    
     <c:otherwise>

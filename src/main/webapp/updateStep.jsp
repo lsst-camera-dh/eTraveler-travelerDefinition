@@ -28,7 +28,7 @@
       <c:otherwise>
         <h3>Updated Process Step</h3>
         
-              <%@include file="displayProcessFragment.jsp" %>
+              <%@include file="displayProcessFragment.jspf" %>
    
       </c:otherwise>
     </c:choose>

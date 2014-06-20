@@ -27,6 +27,12 @@
     <function-signature>int nLinesUsed(javax.servlet.jsp.PageContext)</function-signature>
   </function>
   
+   <function>
+    <name>displayTraveler</name>
+    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>java.lang.String displayTraveler(javax.servlet.jsp.PageContext)</function-signature>
+  </function>
+  
   <function>
     <name>dotSource</name>
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
@@ -94,5 +100,17 @@
     <name>saveStep</name>
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
     <function-signature>java.lang.String saveStep(javax.servlet.jsp.PageContext)</function-signature>
+  </function>
+   <function>
+    <name>listEdited</name>
+    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>java.util.ArrayList listEdited(javax.servlet.jsp.PageContext)</function-signature>
+  </function>
+   <function>
+    <name>adjustList</name>
+    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>java.lang.String adjustList(javax.servlet.jsp.PageContext,
+                         java.lang.String)
+    </function-signature>
   </function>
 </taglib>

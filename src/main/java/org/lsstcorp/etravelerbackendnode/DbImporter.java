@@ -236,6 +236,38 @@ public class DbImporter {
     }
    
   }
+  static public void displayTraveler(PageContext context) {
+    String ostyle =  context.getRequest().getParameter("ostyle");
+    switch (ostyle) {
+      case "pprint":
+        JspWriter writer = context.getOut();
+        int nLines = nLinesUsed(context);
+        try {
+          writer.println("<pre>");
+          for (int iLine = 0; iLine < nLines; iLine++) {
+            writer.println(fetchLine(context, iLine));
+          }
+          writer.println("</pre>");
+        } catch (IOException ex) {
+          System.out.println("IOException from DbImporter.displayTraveler");
+        }
+        break;
+      case "dot":
+        dotSource(context);
+        break;
+      case "img":
+        dotImg(context);
+        break;
+      case "imgMap":
+        dotImgMap(context);
+        break;
+      case "tree":
+        makeTree(context);
+        break;
+      default:
+        break;
+    }
+  }
 
   static public void makeTree(PageContext context)  {
     makeTree(context, "view");
@@ -281,8 +313,10 @@ public class DbImporter {
       System.out.println("Failed to build tree: " + ex.getMessage() );
       return;
     }
-    //if (reason.equals("edit")) {
-      // Save the visitor
+    if (reason.equals("edit")) {
+      // Tell visitor about original traveler
+      vis.setCopiedFrom(originalTraveler);
+    }
     jspContext.setAttribute("treeVisitor", vis, PageContext.SESSION_SCOPE);
     //}
     vis.render(context);
@@ -512,7 +546,9 @@ public class DbImporter {
    * being edited.
    * @param context 
    */
-  static public AttributeList listEdited(PageContext context) {
+  //  static public AttributeList listEdited(PageContext context) {
+  static public ArrayList<EditedTreeNode>
+    listEdited(PageContext context) {
     JspContext jspContext = (JspContext)context;
     TravelerTreeVisitor vis = (TravelerTreeVisitor) 
       jspContext.getAttribute("treeVisitor", 
@@ -539,6 +575,15 @@ public class DbImporter {
     } catch (IOException ex) {
       System.out.println("DbImporter.ingestEdited: JspWriter failed to write");
     }
+  }
+  static public void adjustList(PageContext context, String path) {
+    JspContext jspContext = (JspContext) context;
+    TravelerTreeVisitor vis = 
+        (TravelerTreeVisitor) jspContext.getAttribute("treeVisitor", 
+        PageContext.SESSION_SCOPE);
+
+    boolean ok = vis.undoEdited(path);
+    /* Maybe need to re-render if successful? */
   }
   
   static public void revertEdited(PageContext context) {

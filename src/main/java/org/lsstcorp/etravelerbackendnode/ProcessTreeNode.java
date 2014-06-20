@@ -12,6 +12,7 @@ public class ProcessTreeNode extends DefaultTreeNode
     super(processNode.getName(), treeParent);
  
     m_vis = vis;
+    m_myId = vis.getCount();
     m_processNode = processNode;
   }
 
@@ -53,17 +54,17 @@ public class ProcessTreeNode extends DefaultTreeNode
   public String getName() {return m_processNode.getName();}
   
   public boolean isSelected() {return m_selected;}
+  public int getMyId() {return m_myId; }
+
   private String m_substeps=null;
-  
-
-
   private TravelerTreeVisitor m_vis=null;
   /*
    * m_processNode is ProcessNode from which this ProcessTreeNode is derived
    */
   private ProcessNode m_processNode=null;
   private ProcessTreeNode[] m_treeChildren=null;
-  private int m_edgeStep = 0;
-  private String m_edgeCondition = null;
+  // private int m_edgeStep = 0;
+  // private String m_edgeCondition = null;
   private boolean m_selected = false;
+  private int m_myId = -1;
 }

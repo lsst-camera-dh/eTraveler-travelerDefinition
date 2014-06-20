@@ -405,7 +405,10 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public void acceptIsRef(boolean isRef) {
     m_isRef = isRef;
   }
-  public void exportDone() {}
+  public void acceptEdited(boolean edited) { m_edited = edited;}
+  public void exportDone() {
+    if (m_edited) {m_version = "modified";}
+  }
   public void verify(DbConnection connect) throws EtravelerException {
    
     // For first time through (parentless node)  maybe look up some things,
@@ -774,6 +777,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private DbConnection m_connect;
   private boolean m_isCloned=false;
   private boolean m_isRef=false;
+  private boolean m_edited=false;
   private String m_sourceDb=null;
   private ProcessNodeDb m_travelerRoot=null; 
   private ConcurrentHashMap<String, ProcessNodeDb> m_nodeMap=null;

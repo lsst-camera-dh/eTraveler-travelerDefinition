@@ -8,9 +8,12 @@
 <%@taglib prefix="import" 
           uri="http://lsstcorp.org/etravelerbackend/DbImporter" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="display" uri="http://displaytag.sf.net" %>
 <%@page import="org.lsstcorp.etravelerbackendnode.DbImporter" %>
+<%@page import="org.lsstcorp.etravelerbackendnode.EditedTreeNode" %>
 <%@page import="javax.management.Attribute" %>
 <%@page import="javax.management.AttributeList" %>
+<%@page import="java.util.ArrayList"%>
 
 <!DOCTYPE html>
 <html>
@@ -23,7 +26,7 @@
   </head>
   <body>
     <%! DbImporter imp; 
-        AttributeList lst;   
+        ArrayList<EditedTreeNode> lst;   
         String oe="even";        
     %>
     <p>Called with action parameter equal to 
@@ -34,7 +37,21 @@
       if (lst.size() == 0) { %>
     <p> No edited steps found </p>
     <% } else { %>
-    <table class="datatable">
+    <form action="updateEditedList.jsp" >
+    <display:table class="datatable" name="${import:listEdited(pageContext)}"
+                   id="row">
+      <display:column property="path" title="Path" style="text-align:left" />
+      <display:column property="editType" title="Edit type" 
+                      style="text-align:left" />
+      <display:column  title="Undo" style="text-align:left">
+        <button type="submit" title="${row.undo}" name="undo" value="${row.path}" >
+        <c:out value="${row.undo}" />
+        </button>
+      </display:column> />
+    </display:table>
+    </form>
+      <%--
+      <table class="datatable"
       <thead><tr><th>Path</th><th>Edit type</th></tr>
         <% for (int i = 0; i < lst.size(); i++) {
         Attribute a = (Attribute) lst.get(i);
@@ -45,9 +62,10 @@
           <td class="leftAligned"><%= a.getValue() %></td>
          
         </tr>
+      </table>
+      --%>
         <% } %>
-    </table>
-    <% } %>
+     
       </c:when>
       <c:when test="${param.action == 'ingest'}">
         <% imp.ingestEdited(pageContext); %>
