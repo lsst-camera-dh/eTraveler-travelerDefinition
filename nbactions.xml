@@ -24,4 +24,17 @@
             <activatedProfile>LSST-CAMERA</activatedProfile>
         </activatedProfiles>
     </action>
+    <action>
+      <actionName>CUSTOM-srs-deploy-prod</actionName>
+      <displayName>tomcat LSST deploy (prod)</displayName>
+        <goals>
+          <goal>package</goal>
+          <goal>tomcat7:deploy</goal>
+        </goals>
+        <activatedProfiles>
+          <activatedProfile>deploy-prod</activatedProfile>
+          <activatedProfile>LSST-CAMERA</activatedProfile>
+        </activatedProfiles>
+    </action>
+
 </actions>
