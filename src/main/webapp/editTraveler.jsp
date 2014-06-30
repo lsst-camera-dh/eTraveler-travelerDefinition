@@ -19,6 +19,8 @@
     <title>Traveler Tree</title>
     
   <frames:fitToScreenInternalFrame ids="tree,action,doAction" />
+    
+    
 
   <link href="css/backendStyle.css" type="text/css" rel="stylesheet" />    
   </head>
@@ -80,13 +82,13 @@
         <iframe  name="tree" id="tree" src="showTree.jsp" scrolling="auto" 
                  marginwidth="0" marginheight="0" 
                  frameborder="0" vspace="0" hspace="0" 
-                 style="width=100%; height=100%;"></iframe>
+                 style="width:100%; height=100%;"></iframe>
       </td>
       <td valign="top" width="300" style="border-right: 1px solid black;">
         <iframe  name="action" id="action" src="actionTraveler.jsp" 
                  scrolling="auto" marginwidth="0" marginheight="0" 
                  frameborder="0" vspace="0"    hspace="0" 
-                 style="width=100%; height=100%;" width="100%"></iframe> 
+                 style="width:100%; height=100%;" width="100%"></iframe> 
       </c:when>
       <c:otherwise>
         <p> ${retrieveReturn} </p>      
@@ -100,12 +102,12 @@
        <% if (session.getAttribute("nodePath") != null) { %>
     <iframe name="doAction"  id="doAction" scrolling="auto" marginwidth="0" 
             marginheight="0" frameborder="0" vspace="0" hspace="0" 
-            style="width=100%; height=100%" src="processAction.jsp"
-            width="100%" height="100%"> </iframe>
+            style="width:100%; height=100%" src="processAction.jsp"
+           > </iframe>
   <% } else { %>
     <iframe name="doAction"  id="doAction" scrolling="auto" marginwidth="0" 
             marginheight="0" frameborder="0" vspace="0" hspace="0" 
-            style="width=100%; height=100%" > </iframe>
+            style="width:100%; height=100%"  > </iframe>
   <% } %>
    </td>
       </tr>
