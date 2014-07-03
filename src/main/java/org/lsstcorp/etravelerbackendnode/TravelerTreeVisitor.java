@@ -37,15 +37,25 @@ public class TravelerTreeVisitor implements TravelerVisitor {
   */
   public TravelerTreeVisitor(boolean editable) {
     m_editable = editable;
+    if (editable)  {
+      m_reason = "edit";
+    } else {
+      m_reason = "display";
+    }
     if (editable) m_editedNodes = new HashMap<ProcessTreeNode, String>();
   }
   
-  public TravelerTreeVisitor(boolean editable, String title) {
+  public TravelerTreeVisitor(boolean editable, String reason) {
     m_editable = editable;
-    m_title=title;
+    m_reason = reason;
     if (editable) m_editedNodes = new HashMap<ProcessTreeNode, String>();
   }
   
+  public String getReason() {return m_reason;}
+  
+  public void setTitle(String title)  {
+    m_title = title;
+  }
   public void setTreeRenderer(Tree renderer) {
     m_treeRenderer = renderer;
   }
@@ -58,6 +68,7 @@ public class TravelerTreeVisitor implements TravelerVisitor {
   public ProcessNode getTravelerRoot() {
     return m_treeRoot.getProcessNode();
   }
+  
   public void setPath(String path) {
     m_path = path;
   }
@@ -99,17 +110,21 @@ public class TravelerTreeVisitor implements TravelerVisitor {
   }
   public void render(PageContext context) {
     JspWriter outWriter = context.getOut();
+    String href = "actionTraveler.jsp?action=" + m_reason;
     try {
       if (context.getAttribute("scriptIncluded", PageContext.PAGE_SCOPE) == null) {
+
+        m_treeRenderer.setLeafHref(href + "&leafSelectedPath=%p");
+        m_treeRenderer.setFolderHref(href + "&folderSelectedPath=%p");
+        //m_treeRenderer.setLeafHref("actionTraveler.jsp?leafSelectedPath=%p");
+        //m_treeRenderer.setFolderHref("actionTraveler.jsp?folderSelectedPath=%p");
         if (m_editable)  {
-          m_treeRenderer.setLeafHref("actionTraveler.jsp?leafSelectedPath=%p");
-          m_treeRenderer.setFolderHref("actionTraveler.jsp?folderSelectedPath=%p");
           m_treeRenderer.setTarget("action");
              
-        } else {
-          m_treeRenderer.setLeafHref("processAction.jsp?nodePath=%p&action=DisplayOrig");
-          m_treeRenderer.setFolderHref("processAction.jsp?nodePath=%p&action=DisplayOrig");
-        }
+        }  //else {
+          //m_treeRenderer.setLeafHref("processAction.jsp?nodePath=%p&action=DisplayOrig");
+          //m_treeRenderer.setFolderHref("processAction.jsp?nodePath=%p&action=DisplayOrig");
+        //}
         // m_treeRenderer.setTarget("action");
             
         m_treeRenderer.printStyle(outWriter);
@@ -175,6 +190,7 @@ public class TravelerTreeVisitor implements TravelerVisitor {
   private ProcessNode m_original = null;
   private String m_path=null;
   private boolean m_editable=false; 
+  private String m_reason=null;
   private String m_title="The tree";
   private HashMap <ProcessTreeNode, String> m_editedNodes=null;
 }

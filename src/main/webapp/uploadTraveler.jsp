@@ -12,8 +12,8 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Upload traveler</title>
+    <link href="css/backendStyle.css" type="text/css" rel="stylesheet" /> 
     <style type="text/css">
-      fieldset  { width : 200px;}
       form    {width: 320px}
     </style>
   </head>

@@ -10,7 +10,7 @@
           uri="http://lsstcorp.org/etravelerbackend/DbImporter" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<%@taglib prefix="display" uri="http://displaytag.sf.net" %>
+<%@taglib prefix="local" tagdir="/WEB-INF/tags/" %>
 
 <!DOCTYPE html>
 <html>
@@ -28,7 +28,7 @@
       <c:otherwise>
         <h3>Updated Process Step</h3>
         
-              <%@include file="displayProcessFragment.jspf" %>
+        <local:displayProcessStep />
    
       </c:otherwise>
     </c:choose>

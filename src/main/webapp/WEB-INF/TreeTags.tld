@@ -1,0 +1,10 @@
+<taglib>
+  <tlib-version>1.0</tlib-version>
+  <jsp-version>2.0</jsp-version>
+  <short-name>TreeTags</short-name>
+  <tag>
+    <name>TreeVariables</name>
+    <tag-class>org.lsstcorp.etravelerbackendnode.TreeVariables</tag-class>
+    <body-content>empty</body-content>
+  </tag>	
+</taglib>

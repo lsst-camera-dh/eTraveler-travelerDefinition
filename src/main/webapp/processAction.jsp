@@ -6,6 +6,7 @@
 
 <%@taglib prefix="tree" uri="http://java.freehep.org/tree-taglib" %>
 <%@taglib prefix="display" uri="http://displaytag.sf.net" %>
+<%@taglib prefix="local" tagdir="/WEB-INF/tags/" %>
 <%@page import="java.util.ArrayList" %>
 <%@page import="javax.management.AttributeList" %>
 <%@page import="javax.management.Attribute" %>
@@ -46,8 +47,8 @@
     <% DbImporter imp = new DbImporter(); %>
   
     <c:choose>
-    <c:when test="${param.action == 'Display' || param.action == 'DisplayOrig'}">
-      <%@include file="displayProcessFragment.jspf" %>
+    <c:when test="${param.action=='Display' || param.action=='DisplayOrig' || param.action=='view'}">
+      <local:displayProcessStep />
     </c:when>
   
     <c:when test="${param.action == 'Edit' }">

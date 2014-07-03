@@ -285,7 +285,7 @@ public class DbImporter {
     jspContext = (JspContext)context;
     String datasource = ModeSwitcherFilter.getVariable(context.getSession(), "etravelerDb");
     String dbType = ModeSwitcherFilter.getVariable(context.getSession(), "dataSourceMode");
-    if (reason.equals("edit") ) {
+    if (reason.equals("edit") || reason.equals("editException")) {
       name = (String)(jspContext.getAttribute("traveler_name", PageContext.SESSION_SCOPE));
       version = (String)(jspContext.getAttribute("traveler_version", PageContext.SESSION_SCOPE));
     } else {
@@ -301,7 +301,8 @@ public class DbImporter {
       return;
     }
     ProcessNode traveler = originalTraveler;
-    TravelerTreeVisitor vis = new TravelerTreeVisitor(reason.equals("edit"));
+    TravelerTreeVisitor vis = 
+        new TravelerTreeVisitor(reason.equals("edit"), reason);
     HttpServletRequest request = (HttpServletRequest) context.getRequest();
     vis.setPath(request.getContextPath());
     if (reason.equals("edit"))  { /* make a copy */

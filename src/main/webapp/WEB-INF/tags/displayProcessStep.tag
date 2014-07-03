@@ -1,9 +1,18 @@
 <%-- 
-    Document   : displayProcessFragment
-    Created on : Jun 4, 2014, 11:26:07 AM
+    Document   : displayProcessStep
+    Created on : July 2, 2014, 5:17:07 PM
     Author     : jrb
-    Purpose    : To be include in processAction.jsp
+    Purpose    : To be used in processAction.jsp and anywhere else that
+                 process step needs to be displayed
 --%>
+
+<%@tag description="display attributes of process step, assoc. prereq, results"
+       pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="display" uri="http://displaytag.sf.net" %>
+<%@taglib prefix="import" 
+          uri="http://lsstcorp.org/etravelerbackend/DbImporter" %>
+
 
       <h3>Process Attributes</h3>
          <display:table name="${import:selectedNodeAttributes(pageContext)}" 

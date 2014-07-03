@@ -5,7 +5,8 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@taglib prefix="tree" uri="http://java.freehep.org/tree-taglib" %>
-
+<%@taglib prefix="myTree"  uri="WEB-INF/TreeTags.tld" %>
+<%@taglib prefix="local" tagdir="/WEB-INF/tags/" %>
 <!DOCTYPE html>
 
 
@@ -15,6 +16,7 @@
     <title>Traveler Actions</title>
     <link href="http://srs.slac.stanford.edu/Commons/css/srsCommons.jsp?experimentName=LSST-CAMERA" rel="stylesheet" type="text/css">
     <link href="css/backendStyle.css" type="text/css" rel="stylesheet" /> 
+
    <script type="text/javascript">
   <!--    
       function  clearDoAction() { 
@@ -29,23 +31,19 @@
   </head>
   <body onload="clearDoAction()">
 
-
-  <c:set var="nodePath" scope="session" />
-  <c:set var="isLeaf" scope="session" />
- 
+  <myTree:TreeVariables />
+  <c:choose>
+    <c:when test="${param.action == 'edit' }">
     <c:choose> 
-    <c:when test="${! empty param.leafSelectedPath}">   
+      <c:when test="${! empty sessionScope.leafPath }">   
       <h4>Selected step:  ${param.leafSelectedPath}</h4>
-      <c:set var="leafPath" value="${param.leafSelectedPath}" scope="session" />
-      <c:set var="folderPath" scope="session" />
-      <c:set var="nodePath" value="${param.leafSelectedPath}" scope="session" />
-      <c:set var="isLeaf" value="1" scope="session" />
   
        <p>To unselect all steps use the browser refresh button</p>
       
      <form action="processAction.jsp" id="actionForm"  name="actionForm" 
            target="doAction"  title="Edit Actions" onreset="clearDoAction()">
-       <fieldset><legend>Select per-step action</legend>
+       <fieldset>
+         <legend>Select per-step action</legend>
        <table>
          <tr><td>Display step details<input type="radio" id="action" 
                                             name="action" value="Display" /></td></tr>  
@@ -65,17 +63,15 @@
        </p>
      </form>
     </c:when>
-     <c:when test="${! empty param.folderSelectedPath}">
+     <c:when test="${! empty param.folderSelectedPath}" >
          <h4>Selected step:  ${param.folderSelectedPath}</h4>
-      <c:set var="folderPath" value="${param.folderSelectedPath}" scope="session"/>
-      <c:set var="leafPath" scope="session" />
-      <c:set var="nodePath"  value="${param.folderSelectedPath}" scope="session"/>
-      <c:set var="isLeaf" scope="session" />
         <p>To unselect all steps use the browser refresh button</p>
       
      <form action="processAction.jsp" id="actionForm"  name="actionForm" 
            target="doAction"  title="Edit Actions" onreset="clearDoAction()" >
-       <fieldset><legend>Select per-step action</legend>
+    
+       <fieldset>
+         <legend>Select per-step action</legend>
        <table>
      <%--    <tr><th>
        <label for="actions">Select Action</label> </th></tr> --%>
@@ -118,5 +114,13 @@
       <tr><td>
     <a href="globalActions.jsp?action=ingest" target="doAction">Ingest modified traveler</a></p>
       </td></tr>  </table>
+    </c:when>
+    <c:when test="${param.action == 'view' }">
+       <local:displayProcessStep />
+    </c:when>
+    <c:otherwise>
+      
+    </c:otherwise>
+  </c:choose>
   </body>
 </html>

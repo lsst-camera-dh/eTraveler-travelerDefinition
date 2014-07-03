@@ -50,20 +50,7 @@
       </display:column> />
     </display:table>
     </form>
-      <%--
-      <table class="datatable"
-      <thead><tr><th>Path</th><th>Edit type</th></tr>
-        <% for (int i = 0; i < lst.size(); i++) {
-        Attribute a = (Attribute) lst.get(i);
-        if (i%2 ==0) oe = "odd";
-       else oe = "even";               
-       %>
-        <tr class="<%= oe %>"><td class="leftAligned"><%= a.getName() %></td>
-          <td class="leftAligned"><%= a.getValue() %></td>
-         
-        </tr>
-      </table>
-      --%>
+     
         <% } %>
      
       </c:when>
