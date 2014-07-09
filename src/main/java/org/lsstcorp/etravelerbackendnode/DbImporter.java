@@ -285,7 +285,7 @@ public class DbImporter {
     jspContext = (JspContext)context;
     String datasource = ModeSwitcherFilter.getVariable(context.getSession(), "etravelerDb");
     String dbType = ModeSwitcherFilter.getVariable(context.getSession(), "dataSourceMode");
-    if (reason.equals("edit") || reason.equals("editException")) {
+    if (reason.equals("edit") || reason.equals("NCR")) {
       name = (String)(jspContext.getAttribute("traveler_name", PageContext.SESSION_SCOPE));
       version = (String)(jspContext.getAttribute("traveler_version", PageContext.SESSION_SCOPE));
     } else {
@@ -297,6 +297,10 @@ public class DbImporter {
     try {
       originalTraveler = getProcess(name, version, dbType, datasource);
     } catch (EtravelerException ex) {
+      try {
+        context.getOut().println("Failed to retreive process with exception: " 
+            + ex.getMessage());
+      } catch (IOException ioex) {}
       System.out.println("Failed to retrieve process with exception: " + ex.getMessage() );
       return;
     }

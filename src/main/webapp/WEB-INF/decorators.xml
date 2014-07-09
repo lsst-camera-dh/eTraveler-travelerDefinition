@@ -11,6 +11,7 @@
         <pattern>/updateStep.jsp</pattern>
         <pattern>/globalActions.jsp</pattern>
         <pattern>/updateEditedList.jsp</pattern>
+        <pattern>/NCRForm.jsp*</pattern>
    </decorator>
 
   <decorator name="basicDecorator" page="basicDecorator.jsp">

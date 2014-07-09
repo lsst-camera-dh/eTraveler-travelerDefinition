@@ -32,8 +32,11 @@
   <body onload="clearDoAction()">
 
   <myTree:TreeVariables />
+  
   <c:choose>
     <c:when test="${param.action == 'edit' }">
+  <p>Selected node path using session.getAttribute:  <%= session.getAttribute("nodePath") %></p>
+  <p>or try using sessionScope:  ${sessionScope.nodePath} </p>
     <c:choose> 
       <c:when test="${! empty sessionScope.leafPath }">   
       <h4>Selected step:  ${param.leafSelectedPath}</h4>
@@ -117,6 +120,14 @@
     </c:when>
     <c:when test="${param.action == 'view' }">
        <local:displayProcessStep />
+    </c:when>
+    <c:when test="${param.action == 'NCR' }" >
+      <c:if test="${! empty param.leafSelectedPath}" >
+        <c:redirect url="NCRForm.jsp?action=NCR&leafSelectedPath=${param.leafSelectedPath}" />
+      </c:if>
+      <c:if test="${! empty param.folderSelectedPath}" >
+        <c:redirect url="NCRForm.jsp?action=NCR&folderSelectedPath=${param.folderSelectedPath}" />
+      </c:if>
     </c:when>
     <c:otherwise>
       

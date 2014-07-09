@@ -126,6 +126,9 @@ public class TravelerTreeVisitor implements TravelerVisitor {
           //m_treeRenderer.setFolderHref("processAction.jsp?nodePath=%p&action=DisplayOrig");
         //}
         // m_treeRenderer.setTarget("action");
+        if (m_reason.equals("NCR")) {
+          m_treeRenderer.setTarget("NCR");
+        }
             
         m_treeRenderer.printStyle(outWriter);
         m_treeRenderer.printScript(outWriter);
