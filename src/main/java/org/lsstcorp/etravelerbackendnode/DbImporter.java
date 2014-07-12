@@ -552,7 +552,7 @@ public class DbImporter {
     
   }
   
-  static public void makeNCR(PageContext context)  {
+  static public void makeNCR(PageContext context, String ncrId)  {
      
     /* Get the tree and traveler */
     TravelerTreeVisitor vis = 
@@ -579,10 +579,16 @@ public class DbImporter {
         "etravelerDb");
     
     /* Have to get ncrProcessId from context somehow */
-    String ncrProcessId = 
-        context.getSession().getAttribute("NCRProcessId").toString();
+    /*
+    ServletRequest rqst = context.getRequest();
+    Object ncrIdObj = rqst.getAttribute("ncrTraveler");
+    if (ncrIdObj == null) {
+      return;    // rats!
+    }
+    */
     NCRSpecification ncrSpec = NCRSpecification.makeNCRSpecification(
-     treeRoot.getProcessNode(), exitProcess, returnProcess, ncrProcessId, ncrCondition);
+     treeRoot.getProcessNode(), exitProcess, returnProcess, ncrId, 
+     ncrCondition);
 
     /* Invoke a "do it" routine, passing 
      *        root of traveler

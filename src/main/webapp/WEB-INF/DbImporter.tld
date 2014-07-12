@@ -123,7 +123,7 @@
    <function>
     <name>makeNCR</name>
     <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
-    <function-signature>void makeNCR(javax.servlet.jsp.PageContext)
+    <function-signature>void makeNCR(javax.servlet.jsp.PageContext, java.lang.String)
     </function-signature>
   </function>
 </taglib>

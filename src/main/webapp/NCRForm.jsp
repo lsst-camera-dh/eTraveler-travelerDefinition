@@ -64,7 +64,7 @@
        
          
        <c:otherwise>
-         ${import:makeNCR(pageContext)}
+         ${import:makeNCR(pageContext, param.ncrTraveler)}
           <p>Making the NCR!! </p>
        </c:otherwise>
      </c:choose>
