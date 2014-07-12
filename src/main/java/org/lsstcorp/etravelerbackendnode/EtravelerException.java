@@ -9,7 +9,7 @@ package org.lsstcorp.etravelerbackendnode;
  * @author jrb
  */
 public class EtravelerException extends Exception {
-  EtravelerException(String msg)  {
+  public EtravelerException(String msg)  {
       super(msg);
   }
 }

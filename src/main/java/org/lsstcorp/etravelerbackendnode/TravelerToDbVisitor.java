@@ -62,6 +62,17 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
   public void visit(Prerequisite prerequisite, String activity) {
     
   }
+  public void visit(NCRSpecification ncrSpec, String activity)  {
+    if (activity.equals("new")) {
+      m_spec = ncrSpec;
+    }
+    else if (activity.equals("verify")) {
+      
+    } else if (activity.equals("write")) {
+      
+    }
+    
+  }
  
   public ProcessNode getProcess() {return m_process;}
   public DbConnection getConnection() {return m_connect;}
@@ -74,4 +85,5 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
   private DbConnection m_connect = null;
   private boolean m_useTransactions = true;
   private String m_user = null;
+  private NCRSpecification m_spec = null;
 }

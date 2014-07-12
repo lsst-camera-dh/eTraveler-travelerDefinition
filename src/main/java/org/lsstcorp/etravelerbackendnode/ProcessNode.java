@@ -427,6 +427,8 @@ public class ProcessNode implements  TravelerElement
   public String getName() { return m_name;}
   public String getVersion() {return m_version;}
   public String getUserVersionString() {return m_userVersionString;}
+  public String getProcessId() {return m_processId;}
+  public String getHardwareType() {return m_hardwareType;}
   public String getDescription() {return m_description;}
   public String getInstructionsURL() { return m_instructionsURL;}
   public String getMaxIteration() {return m_maxIteration;}

@@ -9,9 +9,4 @@
     <tag-class>org.lsstcorp.etravelerbackendnode.web.TreeVariables</tag-class>
     <body-content>empty</body-content>
   </tag>
-  <tag>
-    <name>ClearNCRVariables</name>
-    <tag-class>org.lsstcorp.etravelerbackendnode.web.ClearNCRVariables</tag-class>
-    <body-content>empty</body-content>
-  </tag>
 </taglib>

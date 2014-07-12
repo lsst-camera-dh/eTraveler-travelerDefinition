@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.lsstcorp.etravelerbackendnode;
 import org.yaml.snakeyaml.Yaml;
 import java.io.File;
@@ -18,9 +14,10 @@ import javax.servlet.jsp.JspWriter;
 import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
 /**
  * Used from jsp to ingest Yaml, export to Db
+ * Also used to write modified travelers; exception entries
  * @author jrb
  */
-public class YamlToDb {
+public class WriteToDb {
 
   // public static String ingest(String fileContents, boolean useTransactions) {
     public static String ingest(PageContext context) {
@@ -94,8 +91,8 @@ public class YamlToDb {
 
     // Try connect
     DbConnection conn = makeConnection(dbType, datasource);
-    conn.setSourceDb(dbType);
     if (conn == null) return "Failed to connect";
+    conn.setSourceDb(dbType);
 
     TravelerToDbVisitor vis = new TravelerToDbVisitor(conn);
     vis.setUseTransactions(useTransactions);
@@ -125,9 +122,40 @@ public class YamlToDb {
     }
     conn.close();
     return "successfully wrote traveler to " + dbType + " db";
-
-
-    // These probably can throw exceptions
+  }
+  
+  public static String writeNCRToDb(NCRSpecification ncr, String user, 
+      boolean useTransactions, String dbType, String dataSource) {
+    DbConnection conn = makeConnection(dbType, dataSource);
+    if (conn == null) return "Unable to get db connection for " + dbType;
+    conn.setSourceDb(dbType);
+    TravelerToDbVisitor vis = new TravelerToDbVisitor(conn);
+    vis.setUseTransactions(useTransactions);
+    vis.setUser(user);
+  
+    try {
+      vis.visit(ncr, "new");
+    }  catch (Exception ex)  {
+      conn.close();
+      return "Failed to create xxDb classes with exception " + ex.getMessage();
+    }
+    try {
+      vis.visit(ncr, "verify");
+    }  catch (Exception ex)  {
+      conn.close();
+      return "Failed to verify against " + dbType + 
+          " db with exception " + ex.getMessage();
+    }
+    try {
+      vis.visit(ncr, "write");
+    }  catch (Exception ex) {
+      conn.close();
+      return "Failed to write to " + dbType + 
+          " db with exception " + ex.getMessage();
+    }
+    conn.close();
+    
+    return "";
   }
   static private DbConnection makeConnection(String dbType)  {   
     // Try connect

@@ -5,8 +5,8 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>  
-<%@taglib prefix="yamltodb" 
-   uri="http://lsstcorp.org/etravelerbackend/YamlToDb" %>
+<%-- <%@taglib prefix="yamltodb" 
+   uri="http://lsstcorp.org/etravelerbackend/WriteToDb" %>  --%>
 <!DOCTYPE html>
 <html>
   <head>

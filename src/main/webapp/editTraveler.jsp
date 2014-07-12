@@ -32,7 +32,7 @@
     
       <c:set var="traveler_name" value="${param.traveler_name}" scope="session" />
       <c:set var="traveler_version" value="${param.traveler_version}" scope="session"/>
-      <c:set var="retrieveReturn" value="${import:retrieveProcess(pageContext)}" /> 
+      <c:set var="retrieveReturn" value="${import:retrieveProcess(pageContext, false)}" /> 
       <%! ModeSwitcherFilter msf;
               String dbtype; %>
    

@@ -88,6 +88,11 @@ public class DbImporter {
   }
   public static String retrieveProcess(PageContext context)  {
     // return "retrieveProcess called with name=" + name ;
+    return retrieveProcess(context, true);
+   
+  }
+   public static String retrieveProcess(PageContext context, boolean printIt)  {
+    // return "retrieveProcess called with name=" + name ;
     String name = context.getRequest().getParameter("traveler_name");
     String version = context.getRequest().getParameter("traveler_version");
   
@@ -101,53 +106,12 @@ public class DbImporter {
     } catch (EtravelerException ex) {
       return("Failed to retrieve process with exception: " + ex.getMessage() );
     }
-      
-    collectOutput(name, version, traveler, dbType);
-    return "";
+    if (printIt)   {
+      collectOutput(name, version, traveler, dbType);
+    }
+      return "";
   }
-  /**
-   * Make a connection using Tomcat pool
-   *  @param dbType       One of "Prod", "Dev", "Test", "Raw"
-   *  @param datasource   datasource name associated with the type, e.g.
-   *                      jdbc/rd-lsst-cam
-   */
-  static private DbConnection makeConnection(String dbType, String datasource){
-    DbConnection conn = new MysqlDbConnection();
-    conn.setSourceDb(dbType);
-    boolean isOpen = conn.openTomcat(datasource);
-    if (isOpen) {
-      System.out.println("Successfully connected to " + datasource);    
-      return conn;
-    }
-    else {
-      System.out.println("Failed to connect");
-      return null;
-    }
-  }
-  /**
-   * Make a connection with supplied information
-   * @param info   Data structure containing part of connection info
-   * @param dbType  One of "Prod", "Dev", "Test", "Raw"
-   * @return 
-   */
-  static private DbConnection makeConnection(DbInfo info, String dbType)  {   
-    // Try connect
-    DbConnection conn = new MysqlDbConnection();
-    conn.setSourceDb(dbType);
-  
-    // String datasource = "jdbc/eTraveler-" + dbType + "-ro";
-    String datasource = info.dbname;
-    boolean  isOpen = conn.open(info.host, info.user, info.pwd, info.dbname);
-  
-    if (isOpen) {
-      System.out.println("Successfully connected to " + datasource);    
-      return conn;
-    }
-    else {
-      System.out.println("Failed to connect");
-      return null;
-    }
-  }
+ 
   static public void collectOutput(String name, String version,
      ProcessNode trav, String dbType)  {
     StringArrayWriter wrt = new StringArrayWriter();
@@ -391,14 +355,7 @@ public class DbImporter {
      
     return s_writers.get(key);
   }
-  static private Traveler getTraveler(PageContext context)  {
-    String name =  context.getRequest().getParameter("traveler_name");
-    String version = context.getRequest().getParameter("traveler_version");
-    
-    String dbType = ModeSwitcherFilter.getVariable(context.getSession(), 
-                                                   "dataSourceMode");
-    return getTraveler(name, version, dbType);
-  }
+
   /**
    * getTraveler only accesses local data.  It tries to find traveler among 
    * those already stored (unlike getProcess which will go to db if necessary)
@@ -572,7 +529,7 @@ public class DbImporter {
                                                     PageContext.SESSION_SCOPE);
     ProcessNode travelerRoot = vis.getTravelerRoot();
     String msg = 
-      YamlToDb.writeToDb(travelerRoot, 
+      WriteToDb.writeToDb(travelerRoot, 
                          context.getSession().getAttribute("userName").toString(),
                          true, dbType, datasource);
     try {
@@ -595,6 +552,105 @@ public class DbImporter {
     
   }
   
+  static public void makeNCR(PageContext context)  {
+     
+    /* Get the tree and traveler */
+    TravelerTreeVisitor vis = 
+        (TravelerTreeVisitor) ((JspContext) context).getAttribute("treeVisitor", 
+        PageContext.SESSION_SCOPE);
+    
+    ProcessTreeNode treeRoot = vis.getTreeRoot();
+    ProcessNode travelerRoot = vis.getTravelerRoot();
+    
+    /* Use session vars for exit & return steps to find corr. process nodes */
+    String exitPath = context.getSession().getAttribute("exitStep").toString();
+    String returnPath = 
+      context.getSession().getAttribute("returnStep").toString();
+    String ncrCondition = 
+      context.getSession().getAttribute("NCRCondition").toString();
+    ProcessNode exitProcess = (vis.findNodeFromPath(exitPath)).getProcessNode();
+    ProcessNode returnProcess = 
+      (vis.findNodeFromPath(returnPath)).getProcessNode();
+
+    /* Get a suitable (write) db connection */
+    String dbType = ModeSwitcherFilter.getVariable(context.getSession(), 
+        "dataSourceMode");
+    String datasource = ModeSwitcherFilter.getVariable(context.getSession(), 
+        "etravelerDb");
+    
+    /* Have to get ncrProcessId from context somehow */
+    String ncrProcessId = 
+        context.getSession().getAttribute("NCRProcessId").toString();
+    NCRSpecification ncrSpec = NCRSpecification.makeNCRSpecification(
+     treeRoot.getProcessNode(), exitProcess, returnProcess, ncrProcessId, ncrCondition);
+
+    /* Invoke a "do it" routine, passing 
+     *        root of traveler
+     *        exit node
+     *        return node
+     *        condition string
+     *        db connection info
+     */
+    WriteToDb.writeNCRToDb(ncrSpec, 
+        context.getSession().getAttribute("userName").toString(), true, 
+        dbType, datasource);
+  }
+  
+  
+  /*  Private from here on out  */
+  /**
+   * Make a connection using Tomcat pool
+   *  @param dbType       One of "Prod", "Dev", "Test", "Raw"
+   *  @param datasource   datasource name associated with the type, e.g.
+   *                      jdbc/rd-lsst-cam
+   */
+  static private DbConnection makeConnection(String dbType, String datasource){
+    DbConnection conn = new MysqlDbConnection();
+    conn.setSourceDb(dbType);
+    boolean isOpen = conn.openTomcat(datasource);
+    if (isOpen) {
+      System.out.println("Successfully connected to " + datasource);    
+      return conn;
+    }
+    else {
+      System.out.println("Failed to connect");
+      return null;
+    }
+  }
+  /**
+   * Make a connection with supplied information
+   * @param info   Data structure containing part of connection info
+   * @param dbType  One of "Prod", "Dev", "Test", "Raw"
+   * @return 
+   */
+  static private DbConnection makeConnection(DbInfo info, String dbType)  {   
+    // Try connect
+    DbConnection conn = new MysqlDbConnection();
+    conn.setSourceDb(dbType);
+  
+    // String datasource = "jdbc/eTraveler-" + dbType + "-ro";
+    String datasource = info.dbname;
+    boolean  isOpen = conn.open(info.host, info.user, info.pwd, info.dbname);
+  
+    if (isOpen) {
+      System.out.println("Successfully connected to " + datasource);    
+      return conn;
+    }
+    else {
+      System.out.println("Failed to connect");
+      return null;
+    }
+  }
+  
+  static private Traveler getTraveler(PageContext context)  {
+    String name =  context.getRequest().getParameter("traveler_name");
+    String version = context.getRequest().getParameter("traveler_version");
+    
+    String dbType = ModeSwitcherFilter.getVariable(context.getSession(), 
+                                                   "dataSourceMode");
+    return getTraveler(name, version, dbType);
+  }
+    
   static private String checkStep(PageContext context, ProcessNode selected) {
     String newVal = context.getRequest().getParameter("maxIt");
     String ret="";
@@ -702,13 +758,16 @@ public class DbImporter {
     String nodePath=(String) jspContext.getAttribute("nodePath", 
                                                      PageContext.SESSION_SCOPE);
     /* } */
-     
+     /*
     ProcessTreeNode rootTreeNode = vis.getTreeRoot();
     int secondSlash = nodePath.indexOf("/", 1);
     if (secondSlash == -1) return rootTreeNode;
-    
+    */
     /* Otherwise strip off root path at the front */
+    /*
     nodePath = nodePath.substring(secondSlash);
     return (ProcessTreeNode) rootTreeNode.findNode(nodePath, false);
+    */
+    return vis.findNodeFromPath(nodePath);
   }
 }

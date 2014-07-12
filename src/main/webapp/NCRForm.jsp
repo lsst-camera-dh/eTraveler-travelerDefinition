@@ -5,7 +5,7 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@taglib prefix="tree" uri="http://java.freehep.org/tree-taglib" %>
-<%@taglib prefix="myTree"  uri="WEB-INF/TreeTags.tld" %>
+<%@taglib prefix="ncr" uri="WEB-INF/NCRTags.tld" %>
 <%@taglib prefix="local" tagdir="/WEB-INF/tags/" %>
 <!DOCTYPE html>
 
@@ -20,13 +20,11 @@
   <body>
     
   
-<%--
-  <myTree:TreeVariables />
-  --%>
+
 
   <c:choose>
     <c:when test="${! empty param.reset}" >
-      <myTree:ClearNCRVariables />  
+      <ncr:ClearNCRVariables />  
     </c:when>
     <c:otherwise>
       <c:if test="${! empty sessionScope.nodePath}" >
@@ -46,6 +44,10 @@
   
    <c:if test="${ ! empty param.create}" >
      <c:choose>
+       <c:when test="${ empty param.ncrTraveler }" >
+         <p>Missing required field <b>NCR traveler</b>. No travelers of
+           appropriate hardware type found.</p>
+       </c:when>
        <c:when test="${ empty sessionScope.NCRCondition || empty sessionScope.exitStep || empty sessionScope.returnStep}" >
          <c:if test="${ empty sessionScope.NCRCondition}">
            <p>Missing required field <b>Condition text</b></p>
@@ -59,8 +61,10 @@
            Use tree to choose step; then exit/return selection.</p>
          </c:if>
        </c:when>
+       
          
        <c:otherwise>
+         ${import:makeNCR(pageContext)}
           <p>Making the NCR!! </p>
        </c:otherwise>
      </c:choose>
@@ -101,9 +105,11 @@
         <td><input type="text" name="NCRCondition" id="NCRCondition" 
                    value="${sessionScope.NCRCondition}"  /></td>
       </tr>
-    </table>
+  
     
     
+        <ncr:ShowNCRCandidates />
+        </table>
     <p>
       <input type="submit" value="Create NCR" name="create" id="create" /> 
       <input type="submit" value="Reset" name="reset" />

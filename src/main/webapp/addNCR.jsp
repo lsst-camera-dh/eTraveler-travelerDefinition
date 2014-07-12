@@ -7,7 +7,7 @@
 <%@taglib prefix="tree" uri="http://java.freehep.org/tree-taglib" %>
 
 <%@taglib prefix="frames" uri="http://srs.slac.stanford.edu/frames" %>
-<%@taglib prefix="myTree"  uri="WEB-INF/TreeTags.tld" %>
+<%@taglib prefix="ncr" uri="WEB-INF/NCRTags.tld" %>
 <%@taglib prefix="local" tagdir="/WEB-INF/tags/" %>
 
 
@@ -32,7 +32,7 @@
   </c:if>
   
   <%-- Clear session variables --%>
-  <myTree:ClearNCRVariables />
+  <ncr:ClearNCRVariables />
 
   
   <table width="100%" height="100%" border="0" style="border-top: 1px solid black;">
@@ -46,7 +46,7 @@
     
     <c:set var="traveler_name" value="${param.traveler_name}" scope="session" />
     <c:set var="traveler_version" value="${param.traveler_version}" scope="session"/>
-    <c:set var="retrieveReturn" value="${import:retrieveProcess(pageContext)}" /> 
+    <c:set var="retrieveReturn" value="${import:retrieveProcess(pageContext, false)}" /> 
      <%! ModeSwitcherFilter msf;
          String dbtype; %>
    

@@ -109,13 +109,13 @@ public class MysqlDbConnection implements DbConnection {
   /**
    * Implementation of ConnectionDb.prepareQuery
    *
-   * @param table Table(s?) to be queried
+   * @param tableSpec Table(s) to be queried
    * @param cols Fields to be fetched
    * @param where WHERE clause (may be "")
    * @return a PreparedStatement. May be modified before execution and reused.
    */
   @Override
-  public PreparedStatement prepareQuery(String table, String[] cols,
+  public PreparedStatement prepareQuery(String tableSpec, String[] cols,
           String where) {
     int len = Array.getLength(cols);
     if (len == 0) {
@@ -125,7 +125,7 @@ public class MysqlDbConnection implements DbConnection {
     for (int i = 1; i < len; i++) {
       theSql += "," + cols[i];
     }
-    theSql += " from " + table;  // may need to support multiple tables
+    theSql += " from " + tableSpec;  // single table or join
     theSql += " " + where;
     PreparedStatement stmt;
     try {
@@ -137,10 +137,10 @@ public class MysqlDbConnection implements DbConnection {
     return stmt;
   }
   
-  public String fetchColumn(String table, String col, String where) {
+  public String fetchColumn(String tableSpec, String col, String where) {
      String[] cols = new String[1];
      cols[0] = col;
-     PreparedStatement stmt = prepareQuery(table, cols, where);
+     PreparedStatement stmt = prepareQuery(tableSpec, cols, where);
      ResultSet rs;
      String val = null;
      try {

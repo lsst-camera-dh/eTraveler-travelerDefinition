@@ -80,6 +80,18 @@ public class TravelerTreeVisitor implements TravelerVisitor {
   public void setCopiedFrom(ProcessNode original) {
     m_original = original;
   }
+
+  public ProcessTreeNode findNodeFromPath(String path) {
+    if (m_treeRoot == null) return null;  /* not built yet */
+
+    int secondSlash = path.indexOf("/", 1);
+    if (secondSlash == -1) return m_treeRoot;
+    String nodePath = path;
+    /* Otherwise strip off root path at the front */
+    nodePath = nodePath.substring(secondSlash);
+    return (ProcessTreeNode) m_treeRoot.findNode(nodePath, false);
+  }
+
   // Implementation of TravelerVisitor
   public void visit(ProcessNode process, String activity) throws EtravelerException {
     

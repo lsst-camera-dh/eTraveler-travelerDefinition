@@ -38,7 +38,7 @@
     from db <b>${appVariables.dataSourceMode}</b></p>
 
     <p>
-    ${import:retrieveProcess(pageContext)} 
+    ${import:retrieveProcessPrint(pageContext)} 
     </p>
     ${import:displayTraveler(pageContext)}
    
