@@ -3,6 +3,8 @@
  * and open the template in the editor.
  */
 package org.lsstcorp.etravelerbackendnode;
+import org.lsstcorp.etravelerbackendexceptions.UnknownDbId;
+import org.lsstcorp.etravelerbackendexceptions.EtravelerException;
 import org.lsstcorp.etravelerbackenddb.DbConnection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

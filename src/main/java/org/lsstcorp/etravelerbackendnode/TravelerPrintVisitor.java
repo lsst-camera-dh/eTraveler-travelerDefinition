@@ -4,6 +4,7 @@
  */
 package org.lsstcorp.etravelerbackendnode;
 //import java.io.FileWriter;
+import org.lsstcorp.etravelerbackendexceptions.EtravelerException;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;

@@ -4,6 +4,8 @@
  */
 package org.lsstcorp.etravelerbackendnode;
 
+import org.lsstcorp.etravelerbackendexceptions.EtravelerException;
+
 /**
  * Abstract out navigation of a traveler
  * @author jrb

@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 package org.lsstcorp.etravelerbackendnode.web;
-import org.lsstcorp.etravelerbackendnode.EtravelerException;
+import org.lsstcorp.etravelerbackendexceptions.EtravelerException;
 import  org.lsstcorp.etravelerbackenddb.MysqlDbConnection;
 import  org.lsstcorp.etravelerbackenddb.DbConnection;
 import  javax.servlet.jsp.JspContext;

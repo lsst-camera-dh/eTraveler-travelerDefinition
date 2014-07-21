@@ -2,14 +2,14 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.lsstcorp.etravelerbackendnode;
+package org.lsstcorp.etravelerbackendexceptions;
 
 /**
  *
  * @author jrb
  */
 public class DbContentException extends IllegalStateException {
-  DbContentException(String msg)  {
+  public DbContentException(String msg)  {
     super("Bad database content: "  + msg);
   }
 }

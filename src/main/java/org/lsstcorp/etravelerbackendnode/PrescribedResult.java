@@ -4,6 +4,7 @@
  */
 package org.lsstcorp.etravelerbackendnode;
 
+import org.lsstcorp.etravelerbackendexceptions.EtravelerException;
 import javax.management.Attribute;
 import javax.management.AttributeList;
 

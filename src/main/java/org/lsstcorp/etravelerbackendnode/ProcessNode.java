@@ -4,6 +4,8 @@
  */
 package org.lsstcorp.etravelerbackendnode;
 
+import org.lsstcorp.etravelerbackendexceptions.IncompatibleChild;
+import org.lsstcorp.etravelerbackendexceptions.EtravelerException;
 import org.lsstcorp.etravelerbackenddb.DbConnection;
 import org.yaml.snakeyaml.nodes.Node;
 import java.io.Writer;

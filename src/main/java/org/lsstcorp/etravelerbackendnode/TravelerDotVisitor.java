@@ -3,6 +3,7 @@
  * and open the template in the editor.
  */
 package org.lsstcorp.etravelerbackendnode;
+import org.lsstcorp.etravelerbackendexceptions.EtravelerException;
 import java.io.Writer;
 import java.io.StringWriter;
 import java.io.IOException;
