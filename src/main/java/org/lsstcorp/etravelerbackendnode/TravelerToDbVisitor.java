@@ -63,16 +63,18 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
   public void visit(Prerequisite prerequisite, String activity) {
     
   }
-  public void visit(NCRSpecification ncrSpec, String activity)  {
+  
+  public void visit(NCRSpecification ncrSpec, String activity) throws EtravelerException {
     if (activity.equals("new")) {
-      m_spec = ncrSpec;
+      m_specDb = new NCRSpecificationDb(ncrSpec, this);
     }
     else if (activity.equals("verify")) {
+      if (m_specDb==null) throw new EtravelerException("Null NCR specification");
+      m_specDb.verify(m_connect);
       
     } else if (activity.equals("write")) {
-      
+      m_specDb.writeToDb(m_connect);
     }
-    
   }
  
   public ProcessNode getProcess() {return m_process;}
@@ -86,5 +88,5 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
   private DbConnection m_connect = null;
   private boolean m_useTransactions = true;
   private String m_user = null;
-  private NCRSpecification m_spec = null;
+  private NCRSpecificationDb m_specDb = null;
 }

@@ -126,6 +126,7 @@ public class WriteToDb {
   
   public static String writeNCRToDb(NCRSpecification ncr, String user, 
       boolean useTransactions, String dbType, String dataSource) {
+    if (!dbType.equals(ncr.getDbType())) return "db type match failure";
     DbConnection conn = makeConnection(dbType, dataSource);
     if (conn == null) return "Unable to get db connection for " + dbType;
     conn.setSourceDb(dbType);

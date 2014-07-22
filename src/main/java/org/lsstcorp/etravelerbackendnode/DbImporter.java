@@ -589,7 +589,7 @@ public class DbImporter {
     */
     NCRSpecification ncrSpec = NCRSpecification.makeNCRSpecification(
      treeRoot.getProcessNode(), exitProcess, returnProcess, ncrId, 
-     ncrCondition);
+     ncrCondition, dbType);
 
     /* Invoke a "do it" routine, passing 
      *        root of traveler
