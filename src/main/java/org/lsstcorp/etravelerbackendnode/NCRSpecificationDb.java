@@ -34,11 +34,11 @@ public class NCRSpecificationDb {
   public void verify(DbConnection conn) throws EtravelerException {
     m_travelerRootId = m_spec.getRoot().getProcessId();
  
-    m_exitPathString = formPathString(m_spec.getRoot(), m_spec.getExit(), ",");
+    m_exitPathString = formPathString(m_spec.getRoot(), m_spec.getExit(), ".");
     if (m_exitPathString == null) {
       throw new EtravelerException("NCRSpecificationDb: Cannot verify exit process");
     }
-    m_returnPathString = formPathString(m_spec.getRoot(), m_spec.getReturn(), ",");
+    m_returnPathString = formPathString(m_spec.getRoot(), m_spec.getReturn(), ".");
     if (m_returnPathString == null) {
       throw new EtravelerException("NCRSpecificationDb: Cannot verify return process");
     }
@@ -81,11 +81,12 @@ public class NCRSpecificationDb {
   private static String formPathString(ProcessNode root, ProcessNode node, String sep) {
     ProcessNode current = node;
     if (node == null)  return null;
+ 
     ArrayList<String> ids = new ArrayList<String>();
     String result = "";
     while (current != null) {
-      ids.add(current.getProcessId());
       if (current == root)   break;       /* we're done */
+      ids.add(current.getParentEdge().getId());
       current = current.getParent();
       if (current == null) return null;    /* failure */
     }

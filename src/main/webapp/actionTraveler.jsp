@@ -35,13 +35,11 @@
   
   <c:choose>
     <c:when test="${param.action == 'edit' }">
-  <p>Selected node path using session.getAttribute:  <%= session.getAttribute("nodePath") %></p>
-  <p>or try using sessionScope:  ${sessionScope.nodePath} </p>
+
+  <h4>Selected step:  ${sessionScope.nodePath} </h4>
+   <p>To unselect all steps use the browser refresh button</p>
     <c:choose> 
       <c:when test="${! empty sessionScope.leafPath }">   
-      <h4>Selected step:  ${param.leafSelectedPath}</h4>
-  
-       <p>To unselect all steps use the browser refresh button</p>
       
      <form action="processAction.jsp" id="actionForm"  name="actionForm" 
            target="doAction"  title="Edit Actions" onreset="clearDoAction()">
@@ -67,8 +65,6 @@
      </form>
     </c:when>
      <c:when test="${! empty param.folderSelectedPath}" >
-         <h4>Selected step:  ${param.folderSelectedPath}</h4>
-        <p>To unselect all steps use the browser refresh button</p>
       
      <form action="processAction.jsp" id="actionForm"  name="actionForm" 
            target="doAction"  title="Edit Actions" onreset="clearDoAction()" >

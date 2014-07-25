@@ -31,6 +31,7 @@ public class ProcessEdge {
   public void setId(String id) {
     m_edgeId = id;
   }
+  public String getId() {return m_edgeId;}
   public int writeDb(DbConnection conn, String user, String childId) {
   return 0; // for now
     

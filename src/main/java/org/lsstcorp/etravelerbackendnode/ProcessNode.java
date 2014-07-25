@@ -427,6 +427,7 @@ public class ProcessNode implements  TravelerElement
   }
   
   public ProcessNode getParent() {return m_parent;}
+  public ProcessEdge getParentEdge() { return m_parentEdge;}
   public String getName() { return m_name;}
   public String getVersion() {return m_version;}
   public String getUserVersionString() {return m_userVersionString;}
