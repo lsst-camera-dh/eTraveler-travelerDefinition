@@ -205,6 +205,7 @@ public class DbImporter {
     String ostyle =  context.getRequest().getParameter("ostyle");
     switch (ostyle) {
       case "pprint":
+      case "Pretty print":
         JspWriter writer = context.getOut();
         int nLines = nLinesUsed(context);
         try {
@@ -218,15 +219,19 @@ public class DbImporter {
         }
         break;
       case "dot":
+      case "Dot file":
         dotSource(context);
         break;
       case "img":
+      case "Image":
         dotImg(context);
         break;
       case "imgMap":
+      case "Image map":
         dotImgMap(context);
         break;
       case "tree":
+      case "Tree":
         makeTree(context);
         break;
       default:

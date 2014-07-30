@@ -46,22 +46,20 @@
        <fieldset>
          <legend>Select per-step action</legend>
        <table>
-         <tr><td>Display step details<input type="radio" id="action" 
+         <tr><td><input type="submit" id="action" 
                                             name="action" value="Display" /></td></tr>  
-         <tr><td>Edit step<input type="radio" id="action" name="action"
+         <tr><td><input type="submit" id="action" name="action"
                                  value="Edit" /></td></tr>
-         <tr><td>Add leaf sibling (NYI)<input type="radio" id="action" name="action" 
-                                        value=" leafSibling" disabled /></td></tr>
-         <tr><td>Add subfolder sibling (NYI)<input type="radio" id="action" name="action" 
-                                             value="subfolderSibling" disabled /></td></tr>
-         <tr><td class="warn" ><b>Remove step</b> (NYI)<input type="radio" id="action" name="action"
-                                   value="remove" disabled /></td></tr>
+         <tr><td><input type="submit" id="action" name="action" 
+                                        value=" Add leaf sibling (NYI)" disabled /></td></tr>
+         <tr><td><input type="submit" id="action" name="action" 
+                                             value="Add folder sibling" disabled /></td></tr>
+         <tr><td><b><input class="warn" type="submit" id="action" name="action"
+                                   value="Remove (NYI)" disabled /></b></td></tr>
      
        </table>
        </fieldset>
-       <p>
-       <input type="submit" value="Do it" /> <input type="reset" value="Reset" />
-       </p>
+     
      </form>
     </c:when>
      <c:when test="${! empty param.folderSelectedPath}" >
@@ -72,29 +70,27 @@
        <fieldset>
          <legend>Select per-step action</legend>
        <table>
-     <%--    <tr><th>
-       <label for="actions">Select Action</label> </th></tr> --%>
-         <tr><td>Display step details<input type="radio" id="action" 
+     
+         <tr><td><input type="submit" id="action" 
                                             name="action"value="Display" /></td></tr>  
-         <tr><td>Edit step<input type="radio" id="action" name="action"
+         <tr><td><input type="submit" id="action" name="action"
                                  value="Edit" /></td></tr>
    
-         <tr><td>Add leaf child (NYI)<input type="radio" id="action" name="action" 
-                                      value="leafChild" disabled /></td></tr>
-         <tr><td>Add subfolder child (NYI)<input type="radio" id="action" name="action" 
-                                           value="subfolderChild" disabled /></td></tr>
-         <tr><td>Add leaf sibling (NYI)<input type="radio" id="action" name="action" 
-                                        value="leafSibling" disabled  /></td></tr>
-         <tr><td>Add subfolder sibling (NYI)<input type="radio" id="action" name="action" 
-                                             value="subfolderSibling" disabled /></td></tr>
-         <tr><td class="seriousWarn"><b>Remove step</b> (and all substeps) (NYI)<input type="radio" id="action" 
-                                        name="action "value="remove" disabled /></td></tr>
+         <tr><td><input type="submit" id="action" name="action" 
+                                      value="Add leaf child (NYI)" disabled /></td></tr>
+         <tr><td><input type="submit" id="action" name="action" 
+                                           value="Add folder child (NYI)" disabled /></td></tr>
+         <tr><td><input type="submit" id="action" name="action" 
+                                        value="Add leaf sibling (NYI)" disabled  /></td></tr>
+         <tr><td><input type="submit" id="action" name="action" 
+                                             value="Add folder sibling (NYI)" disabled /></td></tr>
+         <tr><td >
+             <b> <input class="seriousWarn" type="submit" id="action" 
+                name="action "value="Remove step &amp; substeps! (NYI)" disabled /></b></td></tr>
        
        </table>
        </fieldset>
-         <p>
-       <input type="submit" value="Do it" /> <input type="reset" value="Reset" />
-         </p>
+  
      </form>
       
      </c:when>

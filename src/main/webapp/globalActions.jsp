@@ -29,8 +29,11 @@
         ArrayList<EditedTreeNode> lst;   
         String oe="even";        
     %>
+    
+    <%--
     <p>Called with action parameter equal to 
       <%= request.getParameter("action")  %> </p>
+    --%>
     <c:choose>
       <c:when test="${param.action == 'list'}">
       <% lst = imp.listEdited(pageContext);

@@ -13,6 +13,9 @@
 <%@attribute name="oformat" %>
 
 <%-- any content can be specified here e.g.: --%>
+<style type="text/css">
+  fieldset { border-color: black; width: 50%}
+</style>
 
 <c:set var="boo" value="jum" >
 </c:set>
@@ -30,23 +33,20 @@
 <td> <input type="text" name="traveler_version" value="1" /> </td></tr>
 </table>
 
- <table cellpadding="2"><tr>
-<td valign="bottom"><b>Output style:</b>
- <td>Pretty print <input type="radio" name="ostyle" value="pprint" /></td>
- <td>Dot source <input type="radio" name="ostyle" value="dot" /></td>
-   <td>Image <input type="radio" name="ostyle" value="img" /> </td>
-   <td>Mapped image <input type="radio" name="ostyle" value="imgMap" /> </td>
-   <td>Tree <input type="radio" name="ostyle" value="tree" /> </td>
- </tr>
- </table>
-<br />
-  <input type="submit" value="Display" />
+<fieldset >
+  <legend>Output style</legend>
+   <input type="submit" name="ostyle" value="Pretty print" />
+  <input type="submit" name="ostyle" value="Dot file" />
+  <input type="submit" name="ostyle" value="Image" />
+  <input type="submit" name="ostyle" value="Image map" />
+  <input type="submit" name="ostyle" value="Tree" />
+</fieldset>
   </form>
 
 </c:if>
 
 <c:if test="${! empty traveler }">
-  <c:set var="ostyle" value="${oformat}" />
+ <%-- <c:set var="ostyle" value="${oformat}" />  --%>
 <form method="get" action="displayTraveler.jsp" >
 <table>
 <tr>   <td><b>Traveler name:</b></td>
@@ -55,17 +55,16 @@
 <td> <input type="text" name="traveler_version" value="${version}" /> </td></tr>
 </table>
 
- <table cellpadding="2"><tr>
-<td valign="bottom"><b>Output style:</b>
- <td>Pretty print <input type="radio" name="ostyle" value="pprint" /></td>
- <td>Dot source <input type="radio" name="ostyle" value="dot" /></td>
-   <td>Image <input type="radio" name="ostyle" value="img" /> </td>
-   <td>Mapped image <input type="radio" name="ostyle" value="imgMap" /> </td>
-   <td>Tree <input type="radio" name="ostyle" value="tree" /> </td>
- </tr>
- </table>
-<br />
-  <input type="submit" value="Display" />
+<fieldset >
+  <legend>Output style</legend>
+   
+  <input type="submit" name="ostyle" value="Pretty print" />
+  <input type="submit" name="ostyle" value="Dot file" />
+  <input type="submit" name="ostyle" value="Image" />
+  <input type="submit" name="ostyle" value="Image map" />
+  <input type="submit" name="ostyle" value="Tree" />
+ 
+</fieldset>
   </form>
 </c:if>
 
