@@ -13,6 +13,7 @@ import javax.management.Attribute;
 import javax.management.AttributeList;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -27,8 +28,11 @@ public class ProcessNode implements  TravelerElement
   }
 
   // Deep copy
-  public ProcessNode(ProcessNode parent, ProcessNode orig, int step) {
+  // FIX ME:   do something about m_root, m_nodeMap
+  public ProcessNode(ProcessNode parent, ProcessNode orig, int step) 
+      throws EtravelerException {
     m_parent = parent;
+    initNodeMap(parent);
     m_copiedFrom = orig;
     /* handle m_parentEdge a bit further down */
     /* m_clonedFrom is a tricky one! */
@@ -37,42 +41,26 @@ public class ProcessNode implements  TravelerElement
       m_processId = new String(orig.m_processId);
       m_isRef = true;
     }
-    m_sequenceCount = orig.m_sequenceCount;
-    m_optionCount = orig.m_optionCount;
     m_name = new String(orig.m_name);
-    m_isCloned = orig.m_isCloned;
-    m_hardwareType = new String(orig.m_hardwareType);
-    if (orig.m_hardwareRelationshipType != null)
-      m_hardwareRelationshipType = new String(orig.m_hardwareRelationshipType);
     m_version = new String(orig.m_version);
-    if (orig.m_userVersionString != null) 
-      m_userVersionString = new String(orig.m_userVersionString);
-    m_description = new String(orig.m_description);
-    m_instructionsURL = new String(orig.m_instructionsURL);
-    m_maxIteration = new String(orig.m_maxIteration);
-    m_substeps = new String(orig.m_substeps);
-    m_isOption = orig.m_isOption;
-    m_travelerActionMask = orig.m_travelerActionMask;
-    m_sourceDb = orig.m_sourceDb;
+    m_isCloned = orig.m_isCloned;
     if (m_parent != null) {
       m_parentEdge = new ProcessEdge(m_parent, this, step, 
-                                     orig.getCondition());
+          orig.getCondition());
     }
-    if (orig.m_prerequisites != null) {
-      int plen = orig.m_prerequisites.size();
-      m_prerequisites = new ArrayList<Prerequisite>(plen);
-      //for (int ip = 0; ip < plen; ip++) {
-      for (Prerequisite pre: orig.m_prerequisites)  {
-        m_prerequisites.add(new Prerequisite(this, pre));
-      }
+    if (m_isCloned != storeToNodeMap()) {
+      throw new EtravelerException("Inconsistent clone information");
     }
-    if (orig.m_resultNodes != null) {
-      int rlen = orig.m_resultNodes.size();
-      m_resultNodes = new ArrayList<PrescribedResult>(rlen);
-      for (PrescribedResult res: orig.m_resultNodes) {
-        m_resultNodes.add(new PrescribedResult(this, res));
-      }
+    m_sourceDb = orig.m_sourceDb;
+    if (m_isCloned)   { // get remainder of fields from our big brother
+      copyFrom(m_clonedFrom);
+    }  else {
+      copyFrom(orig);
     }
+    m_sequenceCount = orig.m_sequenceCount;
+    m_optionCount = orig.m_optionCount;
+    
+    
     if (orig.m_children != null) {
       int clen = orig.m_children.size();
       m_children = new ArrayList<ProcessNode>(clen);
@@ -82,27 +70,70 @@ public class ProcessNode implements  TravelerElement
     }
       
   }
+  /**
+   *  Copy various attributes from model node to self. Assume a few key fields
+   * (name, version, source db..) and edge information has already been handled
+   * For now, do not copy children.  That will also be handled elsewhere.
+   * @param model 
+   */
+  private void copyFrom(ProcessNode model) {
+    m_hardwareType = new String(model.m_hardwareType);
+    if (model.m_hardwareRelationshipType != null)
+      m_hardwareRelationshipType = new String(model.m_hardwareRelationshipType);
+
+    if (model.m_userVersionString != null) 
+      m_userVersionString = new String(model.m_userVersionString);
+    m_description = new String(model.m_description);
+    m_instructionsURL = new String(model.m_instructionsURL);
+    m_maxIteration = new String(model.m_maxIteration);
+    m_substeps = new String(model.m_substeps);
+    m_isOption = model.m_isOption;
+    m_travelerActionMask = model.m_travelerActionMask;
+   
+
+    if (model.m_prerequisites != null) {
+      int plen = model.m_prerequisites.size();
+      m_prerequisites = new ArrayList<Prerequisite>(plen);
+      //for (int ip = 0; ip < plen; ip++) {
+      for (Prerequisite pre: model.m_prerequisites)  {
+        m_prerequisites.add(new Prerequisite(this, pre));
+      }
+    }
+    if (model.m_resultNodes != null) {
+      int rlen = model.m_resultNodes.size();
+      m_resultNodes = new ArrayList<PrescribedResult>(rlen);
+      for (PrescribedResult res: model.m_resultNodes) {
+        m_resultNodes.add(new PrescribedResult(this, res));
+      }
+    }
+  }
   public ProcessNode(ProcessNode parent, ProcessNode.Importer imp) 
       throws Exception {
     m_parent = parent;
+    initNodeMap(parent);
+  
     m_name = imp.provideName();
     checkNonempty("name", m_name);
-
+    m_version = imp.provideVersion();
+    m_processId = imp.provideId();
+    m_sourceDb = imp.provideSourceDb();
     if (parent != null) {
       m_parentEdge = imp.provideParentEdge(parent, this);
     }
-    
+    m_isRef = imp.provideIsRef();
     m_isCloned = imp.provideIsCloned();
     if (m_isCloned) {
-      m_version = imp.provideVersion();
+      if (!storeToNodeMap()) {
+        throw new EtravelerException("Inconsistent clone information");
+      }
       return;
+    }  else {
+      if (storeToNodeMap()) {
+        throw new EtravelerException("Inconsistent clone information");
+      }
     }
-    
-    m_isRef = imp.provideIsRef();
-    if (m_isRef) {
-      m_version = imp.provideVersion();
-      return;
-    }
+ 
+    if (m_isRef) return;
     
     m_hardwareType = imp.provideHardwareType();
     try {
@@ -126,7 +157,7 @@ public class ProcessNode implements  TravelerElement
         m_hardwareRelationshipType = parent.m_hardwareRelationshipType;
       }
     }
-    m_version = imp.provideVersion();
+
     m_userVersionString = imp.provideUserVersionString();
     m_description = imp.provideDescription();
     m_instructionsURL = imp.provideInstructionsURL();
@@ -146,7 +177,14 @@ public class ProcessNode implements  TravelerElement
     }
     m_travelerActionMask = imp.provideTravelerActionMask();
     //m_originalId = imp.provideOriginalId();
-
+    if ( ( (m_travelerActionMask & TravelerActionBits.HARNESSED) != 0) &&
+        (!m_substeps.equals("NONE")) ) {
+        throw new EtravelerException("Harnessed steps may not have substeps");
+    }
+    boolean automatable = ((m_travelerActionMask & TravelerActionBits.AUTOMATABLE) != 0);
+    if (automatable & !(m_substeps.equals("SEQUENCE"))) {
+      throw new EtravelerException("Step " + m_name + " is not automatable!");
+    }
     int nPrereq = imp.provideNPrerequisites();
     if (nPrereq > 0) {
       m_prerequisites = new ArrayList<Prerequisite>(nPrereq);
@@ -170,8 +208,42 @@ public class ProcessNode implements  TravelerElement
         m_children.add(imp.provideChild(this, iChild));
       }
     }  
+    if (automatable)  { // check all children are harnessed jobs or are
+      // themselves automatable
+      for (ProcessNode child: m_children) {
+        if (((child.m_travelerActionMask & 
+            (TravelerActionBits.HARNESSED | TravelerActionBits.AUTOMATABLE)) == 0)) {
+          throw new EtravelerException("Step " + m_name +
+              " is not automatable due to non-harnessed or non-automated child step");
+        }
+      }
+    }
     
     m_isOption = (m_optionCount > 0);
+  }
+  /**
+   *  When making a new traveler, set up map to associate (name, version) with
+   * ProcessNode.  Only make entry the first time the (name, version) combination
+   * occurs.  Other nodes with same (name, version) are clones
+   * @param parent 
+   */
+  private void initNodeMap(ProcessNode parent) {
+    if (parent == null)  {
+      m_root = this;
+      m_nodeMap = new ConcurrentHashMap<String, ProcessNode>();
+    }  else {
+      m_nodeMap = m_parent.m_nodeMap;
+    }
+  }
+  private boolean storeToNodeMap() {
+    ProcessNode val = m_nodeMap.putIfAbsent(makeKey(), this);
+    if (val == null) return false;
+    boolean isCloned = (val != this);
+    if (isCloned) m_clonedFrom = val;
+    return isCloned;
+  }
+  private String makeKey() {
+    return m_name + '%' + m_version;
   }
   public AttributeList getAttributes() {
     AttributeList pList = new AttributeList(20);
@@ -503,4 +575,6 @@ public class ProcessNode implements  TravelerElement
   private int m_travelerActionMask=0;
   private String m_originalId=null;
   private boolean m_edited=false;
+  private ProcessNode m_root=null;
+  private ConcurrentHashMap<String, ProcessNode> m_nodeMap=null;
 }

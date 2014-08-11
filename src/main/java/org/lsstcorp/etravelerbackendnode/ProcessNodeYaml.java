@@ -264,10 +264,13 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
                         TravelerActionBits.SET_HARDWARE_LOCATION;
                     } else {
                       if (act.equals("Async")) {
-                        m_travelerActionMask |= 
-                          TravelerActionBits.ASYNC;
-                      } else    {
-                        throw new UnrecognizedYamlKey(act, "TravelerActions");
+                        m_travelerActionMask |= TravelerActionBits.ASYNC;
+                      } else {
+                        if (act.equals("Automatable")) {
+                          m_travelerActionMask |= TravelerActionBits.AUTOMATABLE;
+                        } else    {
+                          throw new UnrecognizedYamlKey(act, "TravelerActions");
+                        }
                       }
                     }
                   }

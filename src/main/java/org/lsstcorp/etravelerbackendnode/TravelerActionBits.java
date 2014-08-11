@@ -15,4 +15,5 @@ public class TravelerActionBits {
   public static final int SET_HARDWARE_STATUS=8;
   public static final int SET_HARDWARE_LOCATION=16;
   public static final int ASYNC=32;
+  public static final int AUTOMATABLE=64;
 }

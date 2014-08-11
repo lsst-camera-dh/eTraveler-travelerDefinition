@@ -23,7 +23,7 @@ public class WriteToDb {
     public static String ingest(PageContext context) {
       String fileContents = context.getRequest().getParameter("importYamlFile");
       String useTransactions = "true";
-      if (context.getAttribute("useTransaaction") != null) {
+      if (context.getAttribute("useTransaction") != null) {
         useTransactions = (context.getAttribute("useTransactions")).toString();
       }
       String dbType = ModeSwitcherFilter.getVariable(context.getSession(),

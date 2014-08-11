@@ -572,11 +572,13 @@ public class DbImporter {
     String exitPath = context.getSession().getAttribute("exitStep").toString();
     String returnPath = 
       context.getSession().getAttribute("returnStep").toString();
+    String treeNodeId = context.getSession().getAttribute("treeNodeId").toString();
     String ncrCondition = 
       context.getSession().getAttribute("NCRCondition").toString();
-    ProcessNode exitProcess = (vis.findNodeFromPath(exitPath)).getProcessNode();
+    ProcessNode exitProcess = 
+        (vis.findNodeFromPath(exitPath, treeNodeId)).getProcessNode();
     ProcessNode returnProcess = 
-      (vis.findNodeFromPath(returnPath)).getProcessNode();
+      (vis.findNodeFromPath(returnPath, treeNodeId)).getProcessNode();
 
     /* Get a suitable (write) db connection */
     String dbType = ModeSwitcherFilter.getVariable(context.getSession(), 
@@ -769,6 +771,8 @@ public class DbImporter {
      if (nodePath.equals("") ) { */
     String nodePath=(String) jspContext.getAttribute("nodePath", 
                                                      PageContext.SESSION_SCOPE);
+    String treeNodeId = (String) jspContext.getAttribute("treeNodeId", 
+        PageContext.SESSION_SCOPE);
     /* } */
      /*
     ProcessTreeNode rootTreeNode = vis.getTreeRoot();
@@ -780,6 +784,6 @@ public class DbImporter {
     nodePath = nodePath.substring(secondSlash);
     return (ProcessTreeNode) rootTreeNode.findNode(nodePath, false);
     */
-    return vis.findNodeFromPath(nodePath);
+    return vis.findNodeFromPath(nodePath, treeNodeId);
   }
 }

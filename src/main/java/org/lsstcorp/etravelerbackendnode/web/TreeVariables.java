@@ -18,6 +18,7 @@ public class TreeVariables extends SimpleTagSupport {
     PageContext page = (PageContext) cxt;
     cxt.removeAttribute("nodePath", PageContext.SESSION_SCOPE);
     cxt.removeAttribute("isLeaf", PageContext.SESSION_SCOPE);
+    cxt.removeAttribute("treeNodeId", PageContext.SESSION_SCOPE);
     if (page.getRequest().getParameter("leafSelectedPath") != null) {
       String leafRqst = page.getRequest().getParameter("leafSelectedPath");
       cxt.setAttribute("leafPath", leafRqst, PageContext.SESSION_SCOPE);
@@ -34,5 +35,9 @@ public class TreeVariables extends SimpleTagSupport {
       cxt.removeAttribute("isLeaf", PageContext.SESSION_SCOPE);
       cxt.setAttribute("isLeaf", "0", PageContext.SESSION_SCOPE);
     }  
+    if (page.getRequest().getParameter("treeNodeId") != null) {
+      String treeNodeId = page.getRequest().getParameter("treeNodeId");
+      cxt.setAttribute("treeNodeId", treeNodeId, PageContext.SESSION_SCOPE);
+    }
   }
 }

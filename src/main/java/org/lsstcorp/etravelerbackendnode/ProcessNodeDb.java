@@ -130,39 +130,37 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     } else {
       m_travelerRoot = travelerRoot;
       copyIdMaps();
+    }
+    if (s_processQuery == null)  {
+      initQueries();
+    }
+    ResultSet rs;
+   
+    if (m_parentEdgeId != null) {  // needed even for clones
+      try {
+        s_edgeInfoQuery.setString(1, m_parentEdgeId);
+        rs = s_edgeInfoQuery.executeQuery();
+        rs.next();
+        m_edgeStep = rs.getInt(1);
+        m_edgeCondition = rs.getString(2);
+      } catch (SQLException ex) {
+        System.out.println("Query for process " + m_id + " failed with exception");
+        System.out.println(ex.getMessage());
+        throw ex;
+      }
+    }
+    if (travelerRoot != null)  {
       if (travelerRoot.m_nodeMap.containsKey(m_id))  {
         m_isCloned = true;
         m_name = travelerRoot.m_nodeMap.get(m_id).m_name;
+        m_version = travelerRoot.m_nodeMap.get(m_id).m_version;
+        m_sourceDb = m_connect.getSourceDb();
         return;
       }  else {
         travelerRoot.m_nodeMap.put(m_id, this);
       }
     }
-    if (s_processQuery == null)  {
-      String where = " WHERE id=?";
-      s_processQuery = m_connect.prepareQuery("Process", s_initCols, where);
-      s_edgeInfoQuery = m_connect.prepareQuery("ProcessEdge", s_edgeCols, where);
-      
-      
-      where = " WHERE parent=?";    
-      String[] getCol = {"COUNT(*)"};
-      s_edgeQuery = m_connect.prepareQuery("ProcessEdge", getCol, where);
-      String[] childCol = {"child", "id"};
-      where = " WHERE parent=? order by abs(step)";    
-      s_childQuery = m_connect.prepareQuery("ProcessEdge", childCol, where);  
- 
-      where = " WHERE processId=?"; 
-      getCol[0] = "id";
-      s_prereqQuery = m_connect.prepareQuery("PrerequisitePattern", getCol, where);
-      s_prescribedResultsQuery = m_connect.prepareQuery("InputPattern", getCol, where);
-     
-      if ((s_processQuery == null) || (s_edgeQuery == null) || 
-          (s_prereqQuery == null) || (s_prescribedResultsQuery == null) ||        
-          (s_edgeInfoQuery == null)) {
-        throw  new SQLException("DbConnection.prepareQuery failure");
-      }
-    }
-    ResultSet rs;
+
     try {
       s_processQuery.setString(1, m_id);
       rs = s_processQuery.executeQuery();
@@ -185,13 +183,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       m_travelerActionMask = rs.getInt(++ix);
       m_originalId = rs.getString(++ix);
       rs.close();
-      if (m_parentEdgeId != null) {
-        s_edgeInfoQuery.setString(1, m_parentEdgeId);
-        rs = s_edgeInfoQuery.executeQuery();
-        rs.next();
-        m_edgeStep = rs.getInt(1);
-        m_edgeCondition = rs.getString(2);
-      }
+    
       if (!m_substeps.equals("NONE")) { // can't use default m_nChildren=0 
         s_edgeQuery.setString(1, m_id);
         rs = s_edgeQuery.executeQuery();          
@@ -240,12 +232,53 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
           m_resultIds[i] = rs.getString(1);
         }
       }
+      if (m_travelerRoot == this) {
+      /*
+       * Check for associated ExceptionType entries.  If found, invoke
+       * constructor for each
+       */
+        String where = " where rootProcessId='" + m_id + "'";
+        ArrayList<String> exceptIds = 
+            m_connect.fetchColumnMulti("ExceptionType", "id", where);
+        if (exceptIds != null)  {
+          m_ncrSpecsDb = new ArrayList<NCRSpecificationDb>();
+          for (String id: exceptIds)  {
+            m_ncrSpecsDb.add(new NCRSpecificationDb(m_connect, id));
+          }
+        }
+      }
       m_sourceDb = m_connect.getSourceDb();
     } catch (SQLException ex) {
       System.out.println("Query for process " + m_id + " failed with exception");
       System.out.println(ex.getMessage());
       throw ex;
-    }    
+    }    catch (EtravelerException ex) {
+      System.out.println(ex.getMessage());
+    }
+  }
+  private void initQueries() throws SQLException {
+    String where = " WHERE id=?";
+    s_processQuery = m_connect.prepareQuery("Process", s_initCols, where);
+    s_edgeInfoQuery = m_connect.prepareQuery("ProcessEdge", s_edgeCols, where);
+    
+    
+    where = " WHERE parent=?";    
+    String[] getCol = {"COUNT(*)"};
+    s_edgeQuery = m_connect.prepareQuery("ProcessEdge", getCol, where);
+    String[] childCol = {"child", "id"};
+    where = " WHERE parent=? order by abs(step)";    
+    s_childQuery = m_connect.prepareQuery("ProcessEdge", childCol, where);  
+    
+    where = " WHERE processId=?"; 
+    getCol[0] = "id";
+    s_prereqQuery = m_connect.prepareQuery("PrerequisitePattern", getCol, where);
+    s_prescribedResultsQuery = m_connect.prepareQuery("InputPattern", getCol, where);
+    
+    if ((s_processQuery == null) || (s_edgeQuery == null) || 
+        (s_prereqQuery == null) || (s_prescribedResultsQuery == null) ||        
+        (s_edgeInfoQuery == null)) {
+      throw  new SQLException("DbConnection.prepareQuery failure");
+    }
   }
   // ProcessNode.Importer interface implementation: support import into ProcessNode
   public String provideId() {return m_id;}
@@ -792,6 +825,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private ProcessNodeDb[] m_childrenDb=null;
   private PrerequisiteDb[] m_prerequisitesDb=null;
   private PrescribedResultDb[] m_resultsDb=null;
+  private ArrayList<NCRSpecificationDb> m_ncrSpecsDb=null;
   private ProcessNodeDb m_dbParent = null;
   
   private ConcurrentHashMap<String, String> m_relationshipTypeMap = null;

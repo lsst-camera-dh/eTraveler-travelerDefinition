@@ -42,7 +42,6 @@
     <% } %>
     <% if ((session.getAttribute("nodePath") != null ) &&
            (request.getParameter("action") != null) )         { %>
-    <%-- <h3> <%= session.getAttribute("nodePath") %> </h3>    --%>
     <% DbImporter imp = new DbImporter(); %>
   
     <c:choose>

@@ -82,7 +82,7 @@ public class TravelerTreeVisitor implements TravelerVisitor {
     m_original = original;
   }
 
-  public ProcessTreeNode findNodeFromPath(String path) {
+  public ProcessTreeNode findNodeFromPath(String path, String treeNodeId) {
     if (m_treeRoot == null) return null;  /* not built yet */
 
     int secondSlash = path.indexOf("/", 1);
@@ -90,7 +90,11 @@ public class TravelerTreeVisitor implements TravelerVisitor {
     String nodePath = path;
     /* Otherwise strip off root path at the front */
     nodePath = nodePath.substring(secondSlash);
-    return (ProcessTreeNode) m_treeRoot.findNode(nodePath, false);
+    ProcessTreeNode guess = (ProcessTreeNode) m_treeRoot.findNode(nodePath, false);
+    /* The only way guess can be wrong is if there are at least two siblings with the same
+     * name.  See if we've got the right one by looking at treeNodeId field
+     */
+    return guess.findSibling(treeNodeId);
   }
 
   // Implementation of TravelerVisitor
