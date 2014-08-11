@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import javax.servlet.jsp.JspException;
 import org.srs.web.base.db.ConnectionManager;
 
@@ -161,6 +162,38 @@ public class MysqlDbConnection implements DbConnection {
      } catch (SQLException ex) { }
      
      return val;
+   }
+  /**
+   *   Same as fetchColumn but doesn't expect only single row to satisfy query
+   * @param tableSpec
+   * @param col
+   * @param where
+   * @return 
+   */
+  public ArrayList<String> fetchColumnMulti(String tableSpec, String col, String where) {
+     String[] cols = new String[1];
+     cols[0] = col;
+     PreparedStatement stmt = prepareQuery(tableSpec, cols, where);
+     ResultSet rs;
+     ArrayList<String> vals = null;
+     try {
+       rs = stmt.executeQuery();
+       boolean ok = rs.first();
+       if (ok) {
+         vals = new ArrayList<String>();
+         vals.add(rs.getString(col));
+         while (rs.relative(1))  {
+           vals.add(rs.getString(col));
+         }
+       }
+     } catch (SQLException ex) {
+       vals = null;
+     }  
+     try {
+       stmt.close();
+     } catch (SQLException ex) { }
+     
+     return vals;
    }
   public void updateColumn(String table, String col, String val, String where,
       int extras) throws SQLException {

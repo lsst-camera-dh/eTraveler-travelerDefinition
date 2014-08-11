@@ -4,6 +4,7 @@
  */
 package org.lsstcorp.etravelerbackenddb;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 /**
  *
@@ -78,6 +79,15 @@ public interface DbConnection {
    * @return        Field value if all goes well; else null
    */
   String fetchColumn(String table, String col, String where);
+  
+  /**
+   *  Return array of values for specified column, satisfying "where" condition 
+   * @param tableSpec   Table to be queried
+   * @param col         Column to be fetched
+   * @param where       WHERE clause
+   * @return            ArrayList<String> of values or null
+   */
+  ArrayList<String> fetchColumnMulti(String tableSpec, String col, String where);
   /**
    * Update a single column to new value according to condition 'where'
    * @param table  Table to be updated
