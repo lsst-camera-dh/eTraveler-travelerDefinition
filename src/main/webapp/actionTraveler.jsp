@@ -5,7 +5,7 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@taglib prefix="tree" uri="http://java.freehep.org/tree-taglib" %>
-<%@taglib prefix="myTree"  uri="WEB-INF/TreeTags.tld" %>
+<%@taglib prefix="myTree"  uri="WEB-INF/BackendWebTags.tld" %>
 <%@taglib prefix="local" tagdir="/WEB-INF/tags/" %>
 <!DOCTYPE html>
 

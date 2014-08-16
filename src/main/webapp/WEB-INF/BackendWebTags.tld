@@ -3,10 +3,15 @@
 <taglib>
   <tlib-version>1.0</tlib-version>
   <jsp-version>2.0</jsp-version>
-  <short-name>TreeTags</short-name>
+  <short-name>BackendWebTags</short-name>
   <tag>
     <name>TreeVariables</name>
     <tag-class>org.lsstcorp.etravelerbackendnode.web.TreeVariables</tag-class>
+    <body-content>empty</body-content>
+  </tag>
+   <tag>
+    <name>ListTravelerTypes</name>
+    <tag-class>org.lsstcorp.etravelerbackendnode.web.ListTravelerTypes</tag-class>
     <body-content>empty</body-content>
   </tag>
 </taglib>

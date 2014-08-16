@@ -27,10 +27,11 @@
   <link href="css/backendStyle.css" type="text/css" rel="stylesheet" />    
   </head>
 
+  <%--
   <c:if test="${! empty sessionScope.nodePath }" >
     <p>session variable nodePath is ${sessionScope.nodePath}</p>
   </c:if>
-  
+  --%>
   <%-- Clear session variables --%>
   <ncr:ClearNCRVariables />
 
