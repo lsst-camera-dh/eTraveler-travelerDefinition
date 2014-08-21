@@ -279,10 +279,10 @@ public class DbImporter {
         new TravelerTreeVisitor(reason.equals("edit"), reason);
     HttpServletRequest request = (HttpServletRequest) context.getRequest();
     vis.setPath(request.getContextPath());
-    if (reason.equals("edit"))  { /* make a copy */
-      traveler = new ProcessNode(null, originalTraveler, 0);
-    }
     try {
+      if (reason.equals("edit"))  { /* make a copy */
+        traveler = new ProcessNode(null, originalTraveler, 0);
+      }
       vis.visit(traveler, "build");
     } catch (EtravelerException ex) {
       System.out.println("Failed to build tree: " + ex.getMessage() );

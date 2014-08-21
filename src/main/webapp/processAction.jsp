@@ -26,15 +26,7 @@
     <link href="css/backendStyle.css" type="text/css" rel="stylesheet" /> 
   </head>
   <body>
-    <%--
-   <style type="text/css">
-    <!--
-     
-      .bold {font-weight: bold}
-      .left {align: left; text-align: left;}
-   -->
-    </style>
-    --%>
+  
     <% if (request.getParameter("nodePath") != null )     { %>
       <c:set var="nodePath" value="${param.nodePath}" scope="session" />
       <c:set var="leafPath" value="" scope="session" />
@@ -42,7 +34,7 @@
     <% } %>
     <% if ((session.getAttribute("nodePath") != null ) &&
            (request.getParameter("action") != null) )         { %>
-    <% DbImporter imp = new DbImporter(); %>
+   
   
     <c:choose>
     <c:when test="${param.action=='Display' || param.action=='DisplayOrig' || param.action=='view'}">

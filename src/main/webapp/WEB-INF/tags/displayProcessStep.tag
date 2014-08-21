@@ -16,22 +16,22 @@
 
       <h3>Process Attributes</h3>
          <display:table name="${import:selectedNodeAttributes(pageContext)}" 
-                                class="datatable" >
+                                class="datatable" uid="process">
            <display:column property="name" title="Attribute" 
-                           headerClass="sortable" style="text-align:left" />
+                          sortable="true" style="text-align:left" />
            <display:column property="value" style="text-align:left" />
          </display:table>
       <c:if test="${import:getPrerequisiteCount(pageContext) > 0}">
         <h3>Prerequisites</h3>
    
         <display:table name="${import:getPrerequisites(pageContext)}"
-                       class="datatable" >
-          <display:column property="name" title="Name" headerClass="sortable"
-                          style="text-align:left"/>
+                       class="datatable" uid="prereq" >
+          <display:column property="name" title="Name" 
+                          sortable="true" style="text-align:left"/>
           <display:column property="type" title="Type" style="text-align:left"/>
           <display:column property="quantity" title="Quant" style="text-align:right" />
           <display:column property="description" title="Descrip" 
-                          style="text-aling:left" />
+                          style="text-align:left" />
 
           <display:column property="version" style="text-align:right" />
           <display:column property="userVersionString" title="User version"
@@ -41,9 +41,9 @@
       <c:if test="${import:getResultCount(pageContext) > 0}">
         <h3>Prescribed Operator Inputs</h3>
         <display:table name="${import:getResults(pageContext)}"
-                       class="datatable" >
-          <display:column property="label" title="Label" headerClass="sortable"
-                          style="text-align:left"/>
+                       class="datatable" uid="result" >
+          <display:column property="label" title="Label" 
+                          sortable="true" style="text-align:left"/>
           <display:column property="semantics" title="Type" style="text-align:left"/>
           <display:column property="description" title="Descrip" style="text-align:left" />
           <display:column property="units" style="text-align:left" />

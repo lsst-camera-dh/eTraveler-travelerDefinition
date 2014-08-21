@@ -1,6 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="backweb" uri="WEB-INF/BackendWebTags.tld" %>
+<%@taglib prefix="display" uri="http://displaytag.sf.net" %>
 
 <!DOCTYPE html>
 
@@ -16,18 +17,24 @@
     <body>
       
         <h1>View and Edit Traveler Definitions</h1>
+        
+          
         <c:set var="ttype_action" value="editTraveler.jsp" />
-        <backweb:ListTravelerTypes />
-        <%--
-        <p> <a href="displayTraveler.jsp">Display a Traveler</a></p>
-  
-  
-    <p>  <a href="editTraveler.jsp">Edit a Traveler</a></p>
-    <p>  <a href="addNCR.jsp">Add NCR to a Traveler</a></p>
+        <c:set var="result" value="${backweb:getTravelerTypeInfo(pageContext)}"/>
 
-<p><a href="uploadTraveler.jsp">Ingest a File</p>
---%>
-
+        <display:table   name="${result.rows}"   uid="ttypes" class="datatable"
+                         decorator="org.lsstcorp.etravelerbackendnode.web.TtypeDecorator">
+           <display:column property="name" 
+                          sortable="true" style="text-align:left" />
+           <display:column property="version" sortable="true" style="text-align:right" />
+           <display:column property="hname" sortable="true" style="text-align:left" />
+           <display:column property="description"  style="text-align:left" />
+           <display:column property="createdBy" title="Creator"  style="text-align:left" />
+           <display:column title="Creation TS" property="creationTS" sortable="true" 
+                           style="text-align:left" />
+           <display:column property = "viewEdit" title="View/edit" style="text-align:left"  />                     
+           <display:column property = "addNCR" title="Add NCR" style="text-align:left"  />                        
+         </display:table>
         
 </body>
 </html>

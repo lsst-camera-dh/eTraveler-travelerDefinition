@@ -55,10 +55,11 @@ public class ListTravelerTypes extends SimpleTagSupport {
   private boolean generateTravelerTable(ResultSet r, String href, JspWriter wrt ) 
       throws JspException, IOException {
   
+    
     try {
       r.next();
       wrt.println("<table class='datatable'><thead><tr>");
-      wrt.println("<th class='sortable'>Name</th><th>Version</th><th class='sortable'>Hname</th>");
+      wrt.println("<th sortable='true'>Name</th><th>Version</th><th class='sortable'> Hname</th>");
       wrt.println("<th>Description</th><th class='sortable'>Creator</th>");
       wrt.println("<th class='sortable'>Creation TS</th>");
       wrt.println("<th>View/edit</th><th>Add NCR</th></tr></thead><tbody>");
@@ -94,4 +95,10 @@ public class ListTravelerTypes extends SimpleTagSupport {
     
     return true;
   }
+   private boolean generateTravelerTable2(ResultSet r, String href, JspWriter wrt ) 
+      throws JspException, IOException {
+     
+     
+     return true;
+   }
 }

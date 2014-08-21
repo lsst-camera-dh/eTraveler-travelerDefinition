@@ -34,17 +34,23 @@
         <name>SRS Maven2 central SNAPSHOTS repository</name>
         <url>http://srs.slac.stanford.edu/maven2/SNAPSHOTS</url>
     </repository>
+    
+    <repository>
+      <id>central</id>
+      <name>Apache central repository</name>
+      <url>http://repo.maven.apache.org/maven2</url>
+    </repository>
   </repositories>
 
 
   <dependencies>
       
-        <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-web-api</artifactId>
-            <version>6.0</version>
-            <scope>provided</scope>
-        </dependency>
+    <dependency>
+      <groupId>javax</groupId>
+      <artifactId>javaee-web-api</artifactId>
+      <version>6.0</version>
+      <scope>provided</scope>
+    </dependency>
       
       <dependency>
           <groupId>mysql</groupId>
@@ -69,6 +75,12 @@
           <version>1.11</version>
       </dependency>
 
+      <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <version>1.9.2</version>
+      </dependency>
+      
       <!-- Do we need this for login filter? -->
       <dependency>
           <groupId>org.freehep</groupId>

@@ -40,7 +40,9 @@
       }    
   // -->    
 </script>
+ 
      <% 
+      DbImporter imp = new DbImporter();
       AttributeList attsj = imp.selectedNodeAttributes(pageContext);
       String name="", oldVersion="", htype="", childType="", maxIt="", nSub="";
       String nPrereq="", nResult="";
