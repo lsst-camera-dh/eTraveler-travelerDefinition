@@ -91,11 +91,16 @@ public class PrerequisiteDb implements Prerequisite.Importer, Prerequisite.Expor
     if (m_type.equals("PROCESS_STEP") ) {
       String where = " where name='"+m_name+"' and ";
       if (m_userVersionString != null) {
-        where += "userVersionString='" + m_userVersionString + 
-            "' order by id desc limit 1";
+        if (!m_userVersionString.isEmpty() ){
+          where += "userVersionString='" + m_userVersionString + 
+              "' order by id desc limit 1";
+        } else {
+          where += "version='" + m_version + "'";
+        }
       } else {
         where += "version='" + m_version + "'";
       }
+       
       m_prereqProcessId =  m_connect.fetchColumn("Process", "id", where);
       if (m_prereqProcessId == null) {
         System.out.println("Failed to fetch process id for prerequisite " 
