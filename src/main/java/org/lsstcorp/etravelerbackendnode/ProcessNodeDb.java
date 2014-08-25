@@ -51,18 +51,18 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
    init(id, travelerRoot);
   }
   public ProcessNodeDb(DbConnection connect, String processName, 
-      String userVersion, String parentEdgeId, ProcessNodeDb travelerRoot) 
-      throws SQLException {
+      String userVersion, String htype, String parentEdgeId, 
+      ProcessNodeDb travelerRoot) throws SQLException {
     m_connect = connect;
     m_parentEdgeId = parentEdgeId;
-    init(processName, userVersion, travelerRoot);
+    init(processName, userVersion, htype, travelerRoot);
   }
   public ProcessNodeDb(DbConnection connect, String processName, int version,
-      String parentEdgeId, ProcessNodeDb travelerRoot) 
+      String htype, String parentEdgeId, ProcessNodeDb travelerRoot) 
       throws SQLException {
     m_connect = connect;
     m_parentEdgeId = parentEdgeId;
-    init(processName, version, travelerRoot);
+    init(processName, version, htype, travelerRoot);
   }
   private static String[] s_initCols = {"name", "hardwareTypeId",
     "hardwareRelationshipTypeId", "version", "userVersionString",
@@ -82,12 +82,14 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
    * @param userVersion   "userVersionString"  field in db
    * @return 
    */
-  private void init(String processName, String userVersion, 
+  private void init(String processName, String userVersion, String htype, 
       ProcessNodeDb travelerRoot) throws SQLException {
     // fetch id, then call the other init
-    String where = " WHERE name=" + processName + " and userVersionString=" 
-            + userVersion;
-    String id = m_connect.fetchColumn("Process", "id", where);
+    String where = " WHERE Process.name=" + processName + " and userVersionString=" 
+            + userVersion + " and HardwareType.name='" + htype 
+        + "' and Process.hardwareTypeId=HardwareType.id";
+    String id = m_connect.fetchColumn("Process join HardwareType", "Process.id", 
+        where);
     if (id == null)  {
       SQLException ex = new SQLException("Fetch column failure");
       throw ex;
@@ -101,12 +103,13 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
    * @param version          "version" field in db
    * @return 
    */
-  private void init(String processName, int version, 
+  private void init(String processName, int version, String htype,
       ProcessNodeDb travelerRoot) throws SQLException {
     // fetch id, then call the other init
-    String where = " WHERE name='" + processName + "' and version=" 
-            + version;
-    String id = m_connect.fetchColumn("Process", "id", where);
+    String where = " WHERE Process.name='" + processName + "' and version=" 
+            + version  + " and HardwareType.name='" + htype 
+        + "' and Process.hardwareTypeId=HardwareType.id";
+    String id = m_connect.fetchColumn("Process join HardwareType", "Process.id", where);
     if (id == null) { 
       SQLException ex = new SQLException("fetch column failure");
       throw ex;
@@ -478,11 +481,12 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
         throw new EtravelerException("Process definition refers to wrong db");
       }
       String where = " where name='" + m_name + "' and version='" 
-          + m_version + "'";
+          + m_version + "' and hardwareTypeId='" + m_hardwareTypeId + "'";
       m_id = m_connect.fetchColumn("Process", "id", where);
       if (m_id == null) {
         throw new EtravelerException("Process " + m_name + ", version " 
-            + m_version + " does not exist for dbType " + m_sourceDb);
+            + m_version + ", hardware type " + m_hardwareTypeId 
+            + "does not exist for dbType " + m_sourceDb);
       } 
       m_verified = true;
       return;

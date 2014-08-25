@@ -28,6 +28,7 @@
     <c:otherwise>
         <local:displayTravelerForm traveler="${param.traveler_name}"
                                  version="${param.traveler_version}"
+                                 htype="${param.traveler_htype}"
                                  oformat="${param.ostyle}" />
     </c:otherwise>
       

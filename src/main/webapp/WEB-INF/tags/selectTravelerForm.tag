@@ -25,6 +25,9 @@
      <tr><td> <b>Version:</b></td>
          <td> <input type="text" name="traveler_version" value="1" /> </td>
      </tr>
+     <tr><td> <b>Hardware type:</b></td>
+         <td> <input type="text" name="traveler_htype" value="" /> </td>
+     </tr>
        </c:if>
       <c:if test="${! empty param.traveler_name}" >
        <td> <input type="text" name="traveler_name" 
@@ -33,6 +36,10 @@
       <tr><td> <b>Version:</b></td>
          <td> <input type="text" name="traveler_version" 
                      value="${param.traveler_version}" /> </td>
+      </tr>
+      <tr><td> <b>Hardware type:</b></td>
+        <td><input type="text" name="traveler_htype" 
+                      value="${param.traveler_htype}" /> </td>
       </tr>
       </c:if>
    </table>

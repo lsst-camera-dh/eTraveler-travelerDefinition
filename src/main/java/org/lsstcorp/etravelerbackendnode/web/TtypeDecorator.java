@@ -30,7 +30,9 @@ public class TtypeDecorator extends org.displaytag.decorator.TableDecorator {
     hrefArgs = "?traveler_name=" +
         (row.get("name")).toString()
         + "&traveler_version=" + 
-        (row.get("version")).toString();
+        (row.get("version")).toString()
+           + "&traveler_htype=" + 
+        (row.get("hname")).toString();
     
     return null;  
   }
