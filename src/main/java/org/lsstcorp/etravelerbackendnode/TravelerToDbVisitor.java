@@ -43,7 +43,7 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
         m_processNodeDb.writeToDb(m_connect, null);
         m_processNodeDb.registerTraveler();
         if (m_useTransactions) m_connect.commit();
-      } catch (SQLException ex) {
+      } catch (Exception ex) {
         if (m_useTransactions) {
           try {
             m_connect.rollback();
