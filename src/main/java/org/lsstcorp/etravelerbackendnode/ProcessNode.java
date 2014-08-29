@@ -57,6 +57,7 @@ public class ProcessNode implements  TravelerElement
     }  else {
       copyFrom(orig);
     }
+    m_hasClones = orig.m_hasClones;
     m_sequenceCount = orig.m_sequenceCount;
     m_optionCount = orig.m_optionCount;
     
@@ -239,7 +240,10 @@ public class ProcessNode implements  TravelerElement
     ProcessNode val = m_nodeMap.putIfAbsent(makeKey(), this);
     if (val == null) return false;
     boolean isCloned = (val != this);
-    if (isCloned) m_clonedFrom = val;
+    if (isCloned) {
+      m_clonedFrom = val;
+      m_clonedFrom.m_hasClones = true;
+    }
     return isCloned;
   }
   private String makeKey() {
@@ -251,10 +255,14 @@ public class ProcessNode implements  TravelerElement
     pList.add(new Attribute("version", m_version));
     if (m_userVersionString != null) {
       pList.add(new Attribute("user version string", m_userVersionString));
+    } else {
+      pList.add(new Attribute("user version string", ""));
     }
     pList.add(new Attribute("hardware type", m_hardwareType));
     if (m_hardwareRelationshipType != null) {
       pList.add(new Attribute("hardware relationship type", m_hardwareRelationshipType));
+    } else {
+      pList.add(new Attribute("hardware relationship type", ""));
     }
     pList.add(new Attribute("description", m_description));
     pList.add(new Attribute("max iterations", m_maxIteration));
@@ -339,6 +347,7 @@ public class ProcessNode implements  TravelerElement
     String provideEdgeCondition();
     int provideEdgeStep();
     boolean provideIsCloned();
+    boolean provideHasClones();
     boolean provideIsRef();
     String provideSourceDb();
     ProcessNode provideChild(ProcessNode parent, int n) throws Exception;
@@ -377,6 +386,7 @@ public class ProcessNode implements  TravelerElement
     // Following is to transmit condition assoc. with parent edge
     void acceptCondition(String condition); 
     void acceptClonedFrom(ProcessNode process);
+    void acceptHasClones(boolean hasClones);
     void acceptIsCloned(boolean isCloned);
     void acceptIsRef(boolean isRef);
     void acceptEdited(boolean edited);
@@ -481,6 +491,7 @@ public class ProcessNode implements  TravelerElement
     m_description = src.m_description;
     m_instructionsURL = src.m_instructionsURL;
     m_maxIteration = src.m_maxIteration;
+    m_userVersionString = src.m_userVersionString;
     // For now, do not handle recurs==true, so leave option count and seq count
     // alone
     if (src.getPrerequisiteCount() > 0) {
@@ -560,12 +571,13 @@ public class ProcessNode implements  TravelerElement
   private ArrayList<PrescribedResult> m_resultNodes=null;
   private String m_name=null;
   private boolean m_isCloned=false;
+  private boolean m_hasClones=false;
   private boolean m_isRef=false;
   private String m_hardwareType=null;
   private String m_hardwareRelationshipType=null;
   private String m_processId=null;
   private String m_version=null;
-  private String m_userVersionString=null;
+  private String m_userVersionString="";
   private String m_description=null;
   private String m_instructionsURL= "";
   private String m_maxIteration=null;

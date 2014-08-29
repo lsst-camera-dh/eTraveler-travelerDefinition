@@ -171,6 +171,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         throw new UnknownReferent(m_name, m_version);
       }
       m_clonedFrom = referent;
+      referent.m_hasClones = true; 
       ProcessNodeYaml ancestor = m_parent;
       while (ancestor != null) {
         if (referent == ancestor) {
@@ -402,6 +403,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   public int provideNPrerequisites() {return m_nPrerequisites;}
   public int provideNPrescribedResults() {return m_nPrescribedResults;}
   public boolean provideIsCloned() {return (m_clonedFrom != null); }
+  public boolean provideHasClones() {return m_hasClones; }
   public boolean provideIsRef() {return m_isRef; }
   public String provideSourceDb() {return m_sourceDb;}
   public int provideEdgeStep() {return m_edgeStep;}
@@ -445,6 +447,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private int m_nPrerequisites = 0;
   private int m_nPrescribedResults = 0;
   private boolean m_isClone=false;
+  private boolean m_hasClones=false;
   private boolean m_isRef=false;
   /*   private int m_nInputs = 0;  same as above?? */
 

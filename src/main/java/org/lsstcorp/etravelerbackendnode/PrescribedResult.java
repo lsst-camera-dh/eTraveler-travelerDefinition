@@ -96,31 +96,35 @@ public class PrescribedResult  implements TravelerElement {
   public String getMaxValue() {return m_maxValue;}
   public boolean setDescription(String desc) 
   {
-    if (!desc.equals(m_description)) {
-      m_description = desc;
+    String arg = (desc == null) ? "" : desc;
+    if (!arg.equals(m_description)) {
+      m_description = arg;
       return true;
     }
     return false;
   }
   public boolean setUnits(String u) {
-    if (!u.equals(m_units)) {
-      m_units = u;
+    String arg = (u == null) ? "" : u;
+    if (!arg.equals(m_units)) {
+      m_units = arg;
       return true;
     }
     return false;
   }
   public boolean setMinValue(String minV) {
-    if (!minV.equals(m_minValue)) {
-      if (numericEquals(m_minValue, minV)) return false;
-      m_minValue = minV;
+    String arg = (minV == null) ? "" : minV;
+    if (!arg.equals(m_minValue)) {
+      if (numericEquals(m_minValue, arg)) return false;
+      m_minValue = arg;
       return true;
     }
     return false;
   }
   public boolean setMaxValue(String maxV) {
-    if (!maxV.equals(m_maxValue)) {
-      if (numericEquals(m_maxValue, maxV)) return false;
-      m_maxValue = maxV;
+    String arg = (maxV == null) ? "" : maxV;
+    if (!arg.equals(m_maxValue)) {
+      if (numericEquals(m_maxValue, arg)) return false;
+      m_maxValue = arg;
       return true;
     }
     return false;

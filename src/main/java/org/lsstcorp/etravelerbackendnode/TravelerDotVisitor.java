@@ -166,6 +166,9 @@ public class TravelerDotVisitor implements TravelerVisitor,
   public void acceptIsCloned(boolean isCloned)  {
     m_isCloned = isCloned;
   }
+  public void acceptHasClones(boolean hasClones) {
+    m_hasClones = hasClones;
+  }
   // Dot visitor never deals with ref nodes
   public void acceptIsRef(boolean isRef) {}  
   public void acceptPrereqParent(ProcessNode process) { }
@@ -216,6 +219,7 @@ public class TravelerDotVisitor implements TravelerVisitor,
   private String m_originalId=null;
   private ProcessNode m_clonedFrom = null;
   private boolean m_isCloned = false;
+  private boolean m_hasClones = false;
   private ArrayList<ProcessNode> m_children=null;
   private ArrayList<Prerequisite> m_prerequisites=null;
   private ArrayList<PrescribedResult> m_results=null;

@@ -189,6 +189,11 @@ public class TravelerTreeVisitor implements TravelerVisitor {
     return edited;
   }
   
+  public int getNEdited() {
+    if (m_editedNodes == null) return 0;
+    return m_editedNodes.size();
+  }
+  
   public boolean clearModified() {
     if (!m_editable) return false;
     /* Really should be

@@ -505,6 +505,11 @@ public class DbImporter {
       selected.setInstructionsURL(newVal);
       changed = true;
     }
+    newVal = context.getRequest().getParameter("userVersionString");
+    if (!newVal.equals(selected.getUserVersionString()) ) {
+      selected.setUserVersionString(newVal);
+      changed = true;
+    }
     for (int iPre=0; iPre < selected.getPrerequisiteCount(); iPre++ ) {
       changed |= savePrereq(context.getRequest(), 
                             selected.getPrerequisites().get(iPre), iPre);
@@ -548,6 +553,14 @@ public class DbImporter {
       (TravelerTreeVisitor) jspContext.getAttribute("treeVisitor", 
                                                     PageContext.SESSION_SCOPE);
     ProcessNode travelerRoot = vis.getTravelerRoot();
+    if (vis.getNEdited() == 0) {
+      try {
+        context.getOut().println("Traveler has not been modified. Will not ingest");
+        return;
+      } catch (IOException ex) {
+        System.out.println("DbImporter.ingestEdited: JspWriter failed to write");
+      }
+    }
     String msg = 
       WriteToDb.writeToDb(travelerRoot, 
                          context.getSession().getAttribute("userName").toString(),
@@ -701,7 +714,9 @@ public class DbImporter {
       for (int i=0; i < selected.getResultCount(); i++) {
         if (selected.getResults().get(i).numberSemantics()) {
           String minValue = context.getRequest().getParameter(genId("min", i));
+          if (minValue == null) minValue="";
           String maxValue = context.getRequest().getParameter(genId("max", i));
+          if (maxValue == null) maxValue="";
           if (minValue.isEmpty() && maxValue.isEmpty()) continue;
           boolean haveBoth = !(minValue.isEmpty() || maxValue.isEmpty());
           String ok="";

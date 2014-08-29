@@ -225,6 +225,9 @@ public class TravelerPrintVisitor implements TravelerVisitor,
   public void acceptIsCloned(boolean isCloned)  {
     m_isCloned = isCloned;
   }
+   public void acceptHasClones(boolean hasClones)  {
+    m_hasClones = hasClones;
+  }
   public void acceptIsRef(boolean isRef) {
     m_isRef = isRef;
   }
@@ -281,6 +284,7 @@ public class TravelerPrintVisitor implements TravelerVisitor,
   private String m_originalId=null;
   private ProcessNode m_clonedFrom = null;
   private boolean m_isCloned = false;
+  private boolean m_hasClones = false;
   private boolean m_isRef = false;
   private ArrayList<ProcessNode> m_children=null;
   private ArrayList<Prerequisite> m_prerequisites=null;

@@ -179,6 +179,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       }
       m_version = rs.getString(++ix);
       m_userVersionString = rs.getString(++ix);
+      if (m_userVersionString  == null) m_userVersionString = "";
       m_description = rs.getString(++ix);
       m_instructionsURL = rs.getString(++ix);
       m_substeps = rs.getString(++ix);
@@ -329,6 +330,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     return new PrescribedResult(parent, new PrescribedResultDb(m_connect, m_resultIds[n]));
   }
   public boolean provideIsCloned() {return m_isCloned;}
+  public boolean provideHasClones() {return m_isCloned;}
   public boolean provideIsRef() { return m_isRef;}  // does this make any sense?
   public String provideSourceDb() { return m_sourceDb;}
 
@@ -439,6 +441,9 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   }
   public void acceptIsCloned(boolean isCloned) {
     m_isCloned = isCloned;
+  }
+  public void acceptHasClones(boolean hasClones) {
+    m_hasClones = hasClones;
   }
   public void acceptIsRef(boolean isRef) {
     m_isRef = isRef;
@@ -796,7 +801,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private String m_hardwareRelationshipType=null;
   private String m_hardwareRelationshipTypeId=null;
   private String m_version=null;
-  private String m_userVersionString=null;
+  private String m_userVersionString="";
   private String m_description=null;
   private String m_instructionsURL=null;
   private String m_substeps=null;
@@ -815,6 +820,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private String[] m_resultIds; // save these to make assoc prescribed results
   private DbConnection m_connect;
   private boolean m_isCloned=false;
+  private boolean m_hasClones = false;
   private boolean m_isRef=false;
   private boolean m_edited=false;
   private String m_sourceDb=null;
