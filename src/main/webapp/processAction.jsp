@@ -5,6 +5,7 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <%@taglib prefix="tree" uri="http://java.freehep.org/tree-taglib" %>
+<%@taglib prefix="backweb"  uri="WEB-INF/BackendWebTags.tld" %>
 <%@taglib prefix="display" uri="http://displaytag.sf.net" %>
 <%@taglib prefix="local" tagdir="/WEB-INF/tags/" %>
 <%@page import="java.util.ArrayList" %>
@@ -42,7 +43,47 @@
     </c:when>
   
     <c:when test="${param.action == 'Edit' }">
-      <%@include file="editProcessFragment.jspf" %>    
+      <script type="text/javascript">
+  <!--
+      function isInt(id, resetValue) {
+        node = document.getElementById(id);
+        if ( (node.value == null) ||
+          (Math.floor(node.value) != node.value) ) {
+          alert("Not an integer!");
+          node.value = resetValue;
+          window.setTimeout("node.focus()", 100);
+         } else return true;}
+      function isPosInt(id, resetValue) {
+        node = document.getElementById(id);
+        if  (!(Math.floor(node.value) == node.value) ) {
+          node.value = resetValue;
+          alert("Value must be an integer!");
+          window.setTimeout("node.focus()", 100);
+        } else if (node.value <= 0) {
+          node.value = resetValue;
+          alert("Value must be a positive integer!");
+          window.setTimeout("node.focus()", 100);
+        } else return true;
+      }
+      function isNumber(id, type, resetValue) {
+        if (type == "int") {
+         return isInt(id, resetValue);
+        }
+        node = document.getElementById(id);
+        if ( (node.value == null) ||           
+          (Math.abs(node.value) != Math.abs(node.value) ) ) {
+          alert("Supplied value is not a number!");
+          node.value = resetValue;
+          window.setTimeout("node.focus(), 100");
+        } 
+        else {
+          return true;
+        }
+      }    
+  // -->    
+</script>
+     <%--  <%@include file="editProcessFragment.jspf" %> --%>
+     <backweb:EditProcessStep />
     </c:when>
    
     <c:otherwise>

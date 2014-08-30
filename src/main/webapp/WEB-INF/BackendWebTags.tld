@@ -20,4 +20,9 @@
      <function-signature>org.apache.commons.beanutils.RowSetDynaClass 
      getTravelerTypeInfo(javax.servlet.jsp.PageContext)</function-signature>
    </function>
+   <tag>
+     <name>EditProcessStep</name>
+     <tag-class>org.lsstcorp.etravelerbackendnode.web.EditProcessStep</tag-class>
+     <body-content>empty</body-content>
+   </tag>
 </taglib>

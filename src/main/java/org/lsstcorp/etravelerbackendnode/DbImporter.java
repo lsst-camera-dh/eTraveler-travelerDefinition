@@ -488,7 +488,7 @@ public class DbImporter {
     boolean changed = false;
     
     String valid = checkStep(context, selected);
-    if (!valid.isEmpty()) return valid;
+    if (!valid.isEmpty()) return "<p class='warning'" + valid + "</p>";
     
     String newVal = context.getRequest().getParameter("maxIt");
     if (!newVal.equals(selected.getMaxIteration()) ) { 
@@ -525,6 +525,8 @@ public class DbImporter {
                                                       PageContext.SESSION_SCOPE);
       vis.addEdited(selectedTreeNode, "modified");
       selected.newVersion();
+    } else {
+      return "<p class='warning'>Step unchanged; nothing to save</p>";
     }
     return null;
   }
@@ -555,7 +557,7 @@ public class DbImporter {
     ProcessNode travelerRoot = vis.getTravelerRoot();
     if (vis.getNEdited() == 0) {
       try {
-        context.getOut().println("Traveler has not been modified. Will not ingest");
+        context.getOut().println("<p class='warning'>Traveler has not been modified. Will not ingest</p>");
         return;
       } catch (IOException ex) {
         System.out.println("DbImporter.ingestEdited: JspWriter failed to write");
