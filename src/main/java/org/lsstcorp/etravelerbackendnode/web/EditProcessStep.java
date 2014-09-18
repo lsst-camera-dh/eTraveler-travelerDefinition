@@ -80,7 +80,7 @@ public class EditProcessStep extends SimpleTagSupport {
     wrt.println("value='" + (attsMap.get("version")).toString() + "' />");
     wrt.println("<input type='hidden' name='htype' id='htype' value='" 
         + (attsMap.get("hardware relationship type")).toString() + "' />");
-    wrt.println("<input type='hidden' name='childType' id='childType'" 
+    wrt.println("<input type='hidden' name='childType' id='childType' value='" 
         + (attsMap.get("child type")).toString() + "' />");      
     
     
@@ -127,17 +127,17 @@ public class EditProcessStep extends SimpleTagSupport {
        String idString = genId("count", ix);
        wrt.println("<tr class='" + rowclass + "'>");
        wrt.println("<td bgcolor='" + warning + "'>");
-       wrt.println("<input type='checkbox' name='" + genId("remove", ix) 
+       wrt.println("<input type='checkbox' name='" + genId("removePrereq", ix) 
            + "' id='" + genId("remove", ix) + "' /></td>"); 
-       wrt.println("<td class='left'>" + prereq.getName() + "</td>");
-       wrt.println("<td class='left'>" + prereq.getType() + "</td>");
-       wrt.println("<td><input type='number' min='1' step='1'");          
-       wrt.println("name='" +  genId("count", ix) +"' id='" 
-           + genId("count",ix) + "' size='3' value='"
+       wrt.println("<td align='left'>" + prereq.getName() + "</td>");
+       wrt.println("<td align='left'>" + prereq.getType() + "</td>");
+       wrt.println("<td align='right'><input type='number' min='1' step='1'");          
+       wrt.println("max='999' name='" +  genId("count", ix) +"' id='" 
+           + genId("count",ix) + "' value='"
            + prereq.getQuantity() + "' onblur='isPosInt(\"" + idString 
-           + "\",\"1\")' /></td>  <td>");
+           + "\",\"1\")' /></td>  <td align='left'>");
                           
-       wrt.println("<input type='text' name='" + genId("prereqDescrip",ix)  
+       wrt.println("<input type='text'  name='" + genId("prereqDescrip",ix)  
            + "'  id='" + genId("prereqDescrip", ix)
            + "' value='" + prereq.getDescription() + "' /></td>");
        if (haveProcessStep) { 
@@ -166,7 +166,7 @@ public class EditProcessStep extends SimpleTagSupport {
       }
     }
    
-    wrt.println("<h3> Write prescribed results here</h3>");
+    // wrt.println("<h3> Write prescribed results here</h3>");
     wrt.println("<fieldset><legend>Required operator inputs</legend>");
     wrt.println("<table cellpadding='2'  class='datatable' border='0'>"); 
     wrt.println("<thead>");
@@ -184,7 +184,7 @@ public class EditProcessStep extends SimpleTagSupport {
     int  ix = 0;                                          
     for (PrescribedResult result: results) {               
       wrt.println("<tr class='" + rowclass + "'>");
-      wrt.println("<td bgcolor='" + warning + "><input type='checkbox' name='" 
+      wrt.println("<td bgcolor='" + warning + "'><input type='checkbox' name='" 
           + genId("removeResult", ix) + "' id='"
           + genId("removeResult", ix) +"' /></td>"); 
       wrt.println("<td class='left'>" + result.getLabel() + "</td>");
