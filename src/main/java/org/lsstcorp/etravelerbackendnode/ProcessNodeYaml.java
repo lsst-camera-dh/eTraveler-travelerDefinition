@@ -191,8 +191,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       if (keyIx == -1) {
         throw new UnrecognizedYamlKey(foundKey, "Process");
       }
-      
-    
+        
       if (yamlMap.get(foundKey) == null)  {
         throw new NullYamlValue(foundKey, "Process", "");
       }
@@ -230,12 +229,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       case REFNAME:
       case REFVERSION:
         break;  /* all handled above */
-        /*
-          already dealt with Clone above
-      case CLONE:
-        System.out.println("Clone is not yet implemented");
-        throw new UnrecognizedYamlKey("Clone", "Process");
-        */
+       
       default: // remaining keys have list values
         // SequenceNode yamlSequence = (SequenceNode) yamlMap.get(foundKey);
         list = (List<Node>) yamlMap.get(foundKey);
@@ -354,9 +348,6 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       m_children = new ProcessNodeYaml[m_nChildren];
       boolean hasSelection = (m_substeps.equals("SELECTION"));
       for (int iC = 0; iC < m_nChildren; iC++) {
-        //MappingNode yMap = (MappingNode) list.get(iC);
-        //Map<String, Object> processMap = 
-        //  (Map<String, Object>) yMap;
         Map<String, Object> processMap = (Map<String, Object>) list.get(iC);
         m_children[iC] = new ProcessNodeYaml();
         m_children[iC].readYaml(processMap, this, hasSelection, iC, m_processes);
@@ -380,10 +371,6 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       throws NullYamlValue {
     return getStringVal(yamlMap, keyName, null);
   }
-
-/*
-  private static String[] s_edgeCols = {"step", "cond"};
-*/
 
   // ProcessNode.Importer interface implementation
   public String provideId() {return null;}
@@ -415,11 +402,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     return parentEdge;
   }
   public ProcessNode provideChild(ProcessNode parent, int n) throws Exception {
-    return new ProcessNode(parent, m_children[n]);
-                           // ProcessNodeDb(m_connect, m_childIds[n],
-                           //        m_childEdgeIds[n]) );
-
-
+    return new ProcessNode(parent, m_children[n]);                      
   }
  
   
@@ -464,12 +447,5 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private PrescribedResultYaml[] m_prescribedResults;
   
   // Keep track of process name/version pairs we've seen
-  private HashMap<String, ProcessNodeYaml> m_processes = null;
- 
-  // probably don't need these
-  //  private String m_id=null;
-  // private String m_originalId=null;
-  // private String m_parentEdgeId = null;
-  // private String[] m_childIds;   // save these to make children if asked
-  // private String[] m_childEdgeIds;
+  private HashMap<String, ProcessNodeYaml> m_processes = null; 
 }
