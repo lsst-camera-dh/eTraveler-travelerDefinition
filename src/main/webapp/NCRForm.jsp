@@ -73,7 +73,8 @@
   <form action="NCRForm.jsp" target="NCR" >
    
     <c:choose>
-      <c:when test="${! empty sessionScope.nodePath}" >
+      <c:when test="${(! empty sessionScope.nodePath) and 
+                      (! import:selectedIsRoot(pageContext))}" >
         <p>Selected step:<b> ${sessionScope.nodePath}</p>
         <table>
           <tr>
@@ -88,7 +89,8 @@
       </c:when>
         <c:otherwise>
           <p>Use process tree to left to select steps for exit from traveler to NCR, 
-            return from NCR to traveler</p>
+            return from NCR to traveler.</p>
+          <p>Root step not allowed for either exit or return.</p>
        
         </c:otherwise>
     </c:choose>
