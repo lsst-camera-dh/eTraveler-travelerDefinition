@@ -101,6 +101,12 @@
     <function-signature>int getResultCount(javax.servlet.jsp.PageContext)
     </function-signature>
   </function>
+  
+  <function>
+    <name>selectedIsRoot</name>
+    <function-class>org.lsstcorp.etravelerbackendnode.DbImporter</function-class>
+    <function-signature>boolean selectedIsRoot(javax.servlet.jsp.PageContext)</function-signature>
+  </function>
 
   <function>
     <name>saveStep</name>

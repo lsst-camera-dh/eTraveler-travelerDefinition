@@ -448,37 +448,39 @@ public class DbImporter {
       System.out.println("Failed to write from DbImporter:doAction");
     }
   }
-
-  static public AttributeList selectedNodeAttributes(PageContext context) {
-    JspContext jspContext = (JspContext) context;
-    ProcessTreeNode selectedTreeNode = getTreeNode(jspContext);
-    ProcessNode selected = selectedTreeNode.getProcessNode();
-    
+  
+    static public AttributeList selectedNodeAttributes(PageContext context) {
+    ProcessNode selected = getSelected(context);
     return selected.getAttributes();
   }
    
   static public int getPrerequisiteCount(PageContext context) {
-    JspContext jspContext = (JspContext) context;
-    ProcessNode selected = getTreeNode(jspContext).getProcessNode();
+    ProcessNode selected = getSelected(context);
     return selected.getPrerequisiteCount();
   }
 
   static public ArrayList<Prerequisite> getPrerequisites(PageContext context) {
-    JspContext jspContext = (JspContext) context;
-    ProcessNode selected = getTreeNode(jspContext).getProcessNode();
+    ProcessNode selected = getSelected(context);
     return selected.getPrerequisites();
   }
    
   static public int getResultCount(PageContext context) {
-    JspContext jspContext = (JspContext) context;
-    ProcessNode selected = getTreeNode(jspContext).getProcessNode();
+    ProcessNode selected = getSelected(context);
     return selected.getResultCount();
   }
   
   static public ArrayList<PrescribedResult> getResults(PageContext context) {
-    JspContext jspContext = (JspContext) context;
-    ProcessNode selected = getTreeNode(jspContext).getProcessNode();
+    ProcessNode selected = getSelected(context);
     return selected.getResults();
+  }
+  
+  static public boolean selectedIsRoot(PageContext context) {
+    return (getSelected(context).getParent() == null);
+  }
+  
+  static private ProcessNode getSelected(PageContext context) {
+    JspContext jspContext = (JspContext) context;
+    return getTreeNode(jspContext).getProcessNode();
   }
    
   static public String saveStep(PageContext context)  {
@@ -490,10 +492,13 @@ public class DbImporter {
     String valid = checkStep(context, selected);
     if (!valid.isEmpty()) return "<p class='warning'" + valid + "</p>";
     
-    String newVal = context.getRequest().getParameter("maxIt");
-    if (!newVal.equals(selected.getMaxIteration()) ) { 
-      selected.setMaxIteration(newVal);          
-      changed = true;
+    String newVal;
+    if (!selectedIsRoot(context)) {
+      newVal = context.getRequest().getParameter("maxIt");
+      if (!newVal.equals(selected.getMaxIteration()) ) { 
+        selected.setMaxIteration(newVal);          
+        changed = true;
+      }
     }
     newVal = context.getRequest().getParameter("description");
     if (!newVal.equals(selected.getDescription()) ) {
@@ -696,11 +701,14 @@ public class DbImporter {
   }
     
   static private String checkStep(PageContext context, ProcessNode selected) {
-    String newVal = context.getRequest().getParameter("maxIt");
+    String newVal = null;
     String ret="";
-    if (!newVal.equals(selected.getMaxIteration()) ) {
-      ret = Verify.isPosInt(newVal);
-      if (!ret.isEmpty()) return ret;
+    if (selected.getParent() != null)  {
+      newVal = context.getRequest().getParameter("maxIt");
+      if (!newVal.equals(selected.getMaxIteration()) ) {
+        ret = Verify.isPosInt(newVal);
+        if (!ret.isEmpty()) return ret;
+      }
     }
     // Validate Prerequisites if any
     if (selected.getPrerequisiteCount() > 0) {

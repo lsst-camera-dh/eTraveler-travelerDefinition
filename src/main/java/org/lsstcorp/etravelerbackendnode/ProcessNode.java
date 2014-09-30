@@ -151,6 +151,8 @@ public class ProcessNode implements  TravelerElement
       }
     }
     m_hardwareRelationshipType = imp.provideHardwareRelationshipType();
+    
+    /*
     try {
       checkNonempty("hardware relationship type", m_hardwareRelationshipType);
     } catch (Exception ex) {
@@ -158,11 +160,16 @@ public class ProcessNode implements  TravelerElement
         m_hardwareRelationshipType = parent.m_hardwareRelationshipType;
       }
     }
-
+    */
+    
     m_userVersionString = imp.provideUserVersionString();
     m_description = imp.provideDescription();
     m_instructionsURL = imp.provideInstructionsURL();
     m_maxIteration = imp.provideMaxIteration();
+    if ((m_parent == null) && (!m_maxIteration.equals("1"))) {
+      throw new EtravelerException("Root step must have max iteration = 1");
+    }
+
     m_substeps = imp.provideSubsteps();
     m_sourceDb = imp.provideSourceDb();
     m_processId = imp.provideId();

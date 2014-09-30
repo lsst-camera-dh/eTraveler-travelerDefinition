@@ -69,10 +69,12 @@ public class EditProcessStep extends SimpleTagSupport {
     wrt.println("<tr><td class='bold'><label for='instructionsURL'>Instructions URL</label></td>");
     wrt.println("<td><input name='instructionsURL' id='instructionsURL' size='50'");
     wrt.println("value='" + (attsMap.get("instructions URL")).toString() + "' /></td></tr>");
-    wrt.println("<tr><td class='bold'><label for='maxIt'>Max iteration</label></td>");
-    wrt.println("<td><input name='maxIt' id='maxIt' size='3'");
-    wrt.println("value='" + (attsMap.get("max iterations")).toString() 
-        + "' onblur='isPosInt(\"maxIt\",\"1\")' /></td></tr>");
+    if (!imp.selectedIsRoot(pageContext)) {
+      wrt.println("<tr><td class='bold'><label for='maxIt'>Max iteration</label></td>");
+      wrt.println("<td><input name='maxIt' id='maxIt' size='3'");
+      wrt.println("value='" + (attsMap.get("max iterations")).toString() 
+          + "' onblur='isPosInt(\"maxIt\",\"1\")' /></td></tr>");
+    }
     wrt.println("</tbody></table>");
     wrt.println("<input type='hidden' name='name' id='name' value='" 
         + (attsMap.get("name")).toString() + "' />");
