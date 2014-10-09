@@ -63,6 +63,8 @@ public class Prerequisite implements TravelerElement {
       ptarget.acceptPrereqParent(m_parent);
       ptarget.acceptPrerequisiteType(m_prerequisiteType);
       ptarget.acceptPrereqName(m_name);
+      ptarget.acceptPrereqQuantity(m_quantity);
+      ptarget.acceptPrereqDescription(m_description);
       // ptarget.acceptPrereqId(m_prereqId);
       if (m_prerequisiteType.equals("PROCESS_STEP")) {
         ptarget.acceptPrereqProcessVersion(m_version);
