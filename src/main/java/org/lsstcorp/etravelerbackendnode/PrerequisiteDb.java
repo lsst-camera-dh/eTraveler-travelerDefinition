@@ -23,7 +23,7 @@ public class PrerequisiteDb implements Prerequisite.Importer, Prerequisite.Expor
   }
   private static String[] 
     s_prereqCols = {"name", "description", "prerequisiteTypeId", "processId", 
-                    "prereqProcessId", "hardwareTypeId", "quantity"};
+                    "prereqProcessId", "hardwareTypeId", "quantity", "description"};
   private static String[] s_processCols = {"version", "userVersionString"};
   // private static ConcurrentHashMap<String, String> s_prereqIdMap;
  
@@ -76,7 +76,7 @@ public class PrerequisiteDb implements Prerequisite.Importer, Prerequisite.Expor
   
   private static String[] s_insertPrerequisiteCols=
   {"name", "prerequisiteTypeId", "processId", "prereqProcessId",
-   "hardwareTypeId", "quantity", "createdBy"   };
+   "hardwareTypeId", "quantity", "description", "createdBy"   };
 
   void writeToDb(DbConnection connect, ProcessNodeDb parent, String user) 
     throws    SQLException, EtravelerException {
@@ -111,7 +111,8 @@ public class PrerequisiteDb implements Prerequisite.Importer, Prerequisite.Expor
     vals[3] = m_prereqProcessId;
     vals[4] = m_hardwareTypeId;
     vals[5] = String.valueOf(m_quantity);
-    vals[6] = user;                      // for the time being
+    vals[6] = m_description;
+    vals[7] = user;                      // for the time being
 
     // Do the write to db
     try {
@@ -163,6 +164,7 @@ public class PrerequisiteDb implements Prerequisite.Importer, Prerequisite.Expor
       m_prereqProcessId = rs.getString(++ix);
       m_hardwareTypeId = rs.getString(++ix);
       m_quantity = rs.getInt(++ix);
+      m_description = rs.getString(++ix);
       rs.close();
     }  catch (SQLException ex)   {
       throw ex;
