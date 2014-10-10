@@ -477,7 +477,7 @@ public class DbImporter {
   static public boolean selectedIsRoot(PageContext context) {
     return (getSelected(context).getParent() == null);
   }
-  
+
   static private ProcessNode getSelected(PageContext context) {
     JspContext jspContext = (JspContext) context;
     return getTreeNode(jspContext).getProcessNode();
@@ -606,13 +606,14 @@ public class DbImporter {
     String exitPath = context.getSession().getAttribute("exitStep").toString();
     String returnPath = 
       context.getSession().getAttribute("returnStep").toString();
-    String treeNodeId = context.getSession().getAttribute("treeNodeId").toString();
+    String exitTreeNodeId = context.getSession().getAttribute("exitTreeNodeId").toString();
+    String returnTreeNodeId = context.getSession().getAttribute("returnTreeNodeId").toString();
     String ncrCondition = 
       context.getSession().getAttribute("NCRCondition").toString();
     ProcessNode exitProcess = 
-        (vis.findNodeFromPath(exitPath, treeNodeId)).getProcessNode();
+        (vis.findNodeFromPath(exitPath, exitTreeNodeId)).getProcessNode();
     ProcessNode returnProcess = 
-      (vis.findNodeFromPath(returnPath, treeNodeId)).getProcessNode();
+      (vis.findNodeFromPath(returnPath, returnTreeNodeId)).getProcessNode();
 
     /* Get a suitable (write) db connection */
     String dbType = ModeSwitcherFilter.getVariable(context.getSession(), 

@@ -75,7 +75,7 @@ public class WriteToDb {
       System.out.println("failed to process yaml with exception " + ex.getMessage());
       return null;
     }
-    System.out.println("Loaded file into Map of size  " + yamlMap.size());
+    // System.out.println("Loaded file into Map of size  " + yamlMap.size());
     ProcessNode traveler;
     try {
       traveler = new ProcessNode(null, topYaml);

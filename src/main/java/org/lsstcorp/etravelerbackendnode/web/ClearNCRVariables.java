@@ -20,5 +20,7 @@ public class ClearNCRVariables extends SimpleTagSupport {
     cxt.removeAttribute("exitStep", PageContext.SESSION_SCOPE);
     cxt.removeAttribute("returnStep", PageContext.SESSION_SCOPE);
     cxt.removeAttribute("exitOrReturn", PageContext.SESSION_SCOPE);
+    cxt.removeAttribute("exitTreeNodeId", PageContext.SESSION_SCOPE);
+    cxt.removeAttribute("returnTreeNodeId", PageContext.SESSION_SCOPE);
   }
 }

@@ -31,9 +31,13 @@
 
         <c:if test="${param.exitOrReturn == 'exit to NCR'}" >
           <c:set var="exitStep" value="${sessionScope.nodePath}" scope="session" />
+          <c:set var="exitTreeNodeId" value="${sessionScope.treeNodeId}" 
+                 scope="session" />
         </c:if>
         <c:if test="${param.exitOrReturn == 'return from NCR'}" >
           <c:set var="returnStep" value="${sessionScope.nodePath}" scope="session" />
+          <c:set var="returnTreeNodeId" value="${sessionScope.treeNodeId}" 
+                 scope="session" />
         </c:if>
       </c:if>
       <c:if test="${! empty param.NCRCondition}" >
