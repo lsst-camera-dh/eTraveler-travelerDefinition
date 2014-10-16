@@ -170,7 +170,12 @@ public class TravelerTreeVisitor implements TravelerVisitor {
     for (ProcessTreeNode node: nodes) {
       if (node.getPath().equals(path)) {
         theNode=node;
-        ok = theNode.getProcessNode().recover(false);
+        String how = m_editedNodes.get(node);
+        if (how.equals("modified")) {
+          ok = theNode.getProcessNode().recover(false);
+        } else if (how.equals("modified all")) {
+          ok = theNode.getProcessNode().recoverAll(false);
+        }
         if (ok) m_editedNodes.remove(theNode);
         return ok;
       }

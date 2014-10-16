@@ -100,7 +100,19 @@ public class EditProcessStep extends SimpleTagSupport {
     if (results != null) {
       outputResults(results, wrt);
     }
-    wrt.println("<p><input type='submit' value='Save edit' />");
+    if  (imp.selectedClone(pageContext)) { 
+      wrt.println("<p><b>There are multiple instances of selected step</b></p>");
+      wrt.println("<p><input type='submit' name='save' value='Save edit, all instances' />");
+      /*  Not supported for the time being
+      if (!imp.selectedHasChildren(pageContext)) {  // give option to save all or just this node
+        wrt.println("<input type='submit' name='save' value='Save edit, this instance' />");
+      }
+      */
+    } else {
+      wrt.println("<p><input type='submit' name='save' value='Save edit' />");
+    }
+
+    //wrt.println("<p><input type='submit' value='Save edit' />");
     wrt.println("<input type='reset' value='Reset form' />");
     wrt.println("</p></form>");
   }
