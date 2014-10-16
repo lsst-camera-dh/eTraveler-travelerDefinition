@@ -48,7 +48,7 @@ public class Prerequisite implements TravelerElement {
     m_parent = parent;
     m_prerequisiteType = new String(orig.m_prerequisiteType);
     m_name = new String(orig.m_name);
-    m_description = new String(orig.m_description);
+    if (orig.m_description != null) m_description = new String(orig.m_description);
     m_quantity = orig.m_quantity;
     if (orig.m_version != null) m_version = new String(orig.m_version);
     if (orig.m_userVersionString != null) 
