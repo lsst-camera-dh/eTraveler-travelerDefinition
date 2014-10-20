@@ -581,7 +581,11 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
         m_version = nextAvailableVersion(m_originalId);
       }
       vals[2] = m_version;
-      vals[3] = m_userVersionString;
+      if ((m_userVersionString != null) && m_userVersionString.isEmpty()) {
+        vals[3] = null;
+      } else {
+        vals[3] = m_userVersionString;
+      }
       vals[4] = m_description;
       vals[5] = m_instructionsURL;
       vals[6] = m_substeps;
