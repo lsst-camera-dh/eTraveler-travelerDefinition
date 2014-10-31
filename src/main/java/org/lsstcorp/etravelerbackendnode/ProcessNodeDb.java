@@ -525,7 +525,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
           EtravelerException("Unacceptable Process version: " + m_version);
       }
       /* Look up id of version 1 */
-      String where = " where version=1 and name='" + m_name + "'";
+      String where = " where version=1 and name='" + m_name 
+          + "' and hardwareTypeId='" + m_hardwareTypeId +"'";
       m_originalId = m_connect.fetchColumn("Process", "id", where);
       if (m_originalId == null)  {
         /* If "next" then need not have been prior version with this name.
@@ -580,7 +581,11 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
         m_version = nextAvailableVersion(m_originalId);
       }
       vals[2] = m_version;
-      vals[3] = m_userVersionString;
+      if ((m_userVersionString != null) && m_userVersionString.isEmpty()) {
+        vals[3] = null;
+      } else {
+        vals[3] = m_userVersionString;
+      }
       vals[4] = m_description;
       vals[5] = m_instructionsURL;
       vals[6] = m_substeps;

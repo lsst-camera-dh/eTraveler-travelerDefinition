@@ -35,7 +35,7 @@ public class ProcessNode implements  TravelerElement
     initNodeMap(parent);
     m_copiedFrom = orig;
     /* handle m_parentEdge a bit further down */
-    /* m_clonedFrom is a tricky one! */
+    /* m_clonedFrom is a tricky one!  */
     if (orig.m_originalId != null) m_originalId = new String(orig.m_originalId);
     if (orig.m_processId != null) {
       m_processId = new String(orig.m_processId);
@@ -48,6 +48,7 @@ public class ProcessNode implements  TravelerElement
       m_parentEdge = new ProcessEdge(m_parent, this, step, 
           orig.getCondition());
     }
+    /* For cloned nodes, storeToNodeMap sets m_clonedFrom as side effect */
     if (m_isCloned != storeToNodeMap()) {
       throw new EtravelerException("Inconsistent clone information");
     }
@@ -167,7 +168,7 @@ public class ProcessNode implements  TravelerElement
     m_instructionsURL = imp.provideInstructionsURL();
     m_maxIteration = imp.provideMaxIteration();
     if ((m_parent == null) && (!m_maxIteration.equals("1"))) {
-      throw new EtravelerException("Root step must have max iteration = 1");
+      throw new EtravelerException("Root step may not have max iteration > 1");
     }
 
     m_substeps = imp.provideSubsteps();
@@ -243,6 +244,11 @@ public class ProcessNode implements  TravelerElement
       m_nodeMap = m_parent.m_nodeMap;
     }
   }
+  /**
+   * 
+   * @return true if we're cloned from another node 
+   */
+
   private boolean storeToNodeMap() {
     ProcessNode val = m_nodeMap.putIfAbsent(makeKey(), this);
     if (val == null) return false;
@@ -250,9 +256,16 @@ public class ProcessNode implements  TravelerElement
     if (isCloned) {
       m_clonedFrom = val;
       m_clonedFrom.m_hasClones = true;
+      m_clonedFrom.addBuddy(this);
+
     }
     return isCloned;
   }
+  private void addBuddy(ProcessNode buddy)  {
+    if (m_buddies == null) m_buddies = new ArrayList<ProcessNode>();
+    m_buddies.add(m_buddies.size(), buddy);
+  }
+
   private String makeKey() {
     return m_name + '%' + m_version;
   }
@@ -299,6 +312,31 @@ public class ProcessNode implements  TravelerElement
     if (ix >= m_resultNodes.size()) return null;
     return m_resultNodes.get(ix).getAttributes();
   }
+  /**
+   * Remove prerequisites as directed by changedPrereq array
+   * @param changedPrereq Entry for each prerequisite.  0 means unchanged,
+   * 1 means modified, 2 means should be removed
+   */
+  public void rmPrereqs(ArrayList<Integer> changedPrereq)  {
+    /* Remove from back so indices are all good */
+    int ix = changedPrereq.size() - 1;
+    for (;  ix >= 0; ix--) {
+      if (changedPrereq.get(ix) == 2) {
+        m_prerequisites.remove(ix);
+      }
+    }
+  }
+  public void rmResults(ArrayList<Integer> changedResult)  {
+    /* Remove from back so indices are all good */
+    int ix = changedResult.size() - 1;
+    for (;  ix >= 0; ix--) {
+      if (changedResult.get(ix) == 2) {
+        m_resultNodes.remove(ix);
+      }
+    }
+  }
+
+  
   public int writeDb() {
         return 0;  // for now
   }
@@ -449,6 +487,38 @@ public class ProcessNode implements  TravelerElement
       m_parentEdge.setCondition(condition);
     }
   }
+
+  /**
+   * Undo edit on ourself, making use of stashed m_copiedFrom
+   */
+  public boolean recover(boolean recurse) {
+    if (m_copiedFrom.m_isCloned) {
+      copyFrom(m_clonedFrom);
+      m_isCloned = true;
+    } else {
+      copyFrom(m_copiedFrom, recurse);
+    }
+    return true;
+  }
+
+  /**
+   * Undo edit on ourself and all clones.
+   */
+  public boolean recoverAll(boolean recurse) {
+    if (m_isCloned) return m_clonedFrom.recoverAll(recurse);
+    
+    recover(recurse);
+    // now do all buddies
+    updateBuddies(recurse);
+    return true;
+  }
+
+  public void updateBuddies(boolean recurse) {
+    for (ProcessNode node:  m_buddies) {
+      node.recover(recurse);
+    }
+  }
+
   /**
    * Undo edit on descendent ProcessNode. Called on root of traveler containing
    *   edited node
@@ -457,10 +527,6 @@ public class ProcessNode implements  TravelerElement
    * @param orig    Original traveler from which we were cloned
    * @return 
    */
-  public boolean recover(boolean recurse) {
-    copyFrom(m_copiedFrom, recurse);
-    return true;
-  }
   boolean recover(ProcessNode theNode, String path, String editType, 
       ProcessNode origRoot) {
     // For now just handling "modify"
@@ -566,6 +632,15 @@ public class ProcessNode implements  TravelerElement
   public ArrayList<PrescribedResult> getResults() {
     return m_resultNodes;
   }
+  public boolean isCloned() { return m_isCloned; }
+  public boolean hasClones() { return m_hasClones; }
+  public ProcessNode clonedFrom() { return m_clonedFrom;}
+  public boolean hasChildren() {
+    if (m_isCloned) return m_clonedFrom.hasChildren();
+    if (m_children == null) return false;
+    return (m_children.size() > 0);
+  }
+
   private ProcessNode m_parent=null;
   private ProcessEdge m_parentEdge=null;
   // If m_clonedFrom set to non-null, most other properties are ignored
@@ -595,5 +670,14 @@ public class ProcessNode implements  TravelerElement
   private String m_originalId=null;
   private boolean m_edited=false;
   private ProcessNode m_root=null;
+ /*
+   * Use the following data structures to deal with clones.  Hash map
+   * has an entry for each unique (name, version) encountered with
+   * value = first ProcessNode encountered which matches (call it big brother)
+   * If there are others, each of these has m_clonedFrom set to big brother.
+   * And m_buddies for big brother keeps track of all the clones it has.
+   * So any node in such an affinity group can find all the others.
+   */
   private ConcurrentHashMap<String, ProcessNode> m_nodeMap=null;
+  private ArrayList<ProcessNode> m_buddies=null;
 }

@@ -14,6 +14,7 @@ public class EditedTreeNode {
     path = p;
     editType = e;
     if (e.equals("modified")) undo = "revert";
+    if (e.equals("modified all")) undo = "revert all";
     if (e.equals("deleted")) undo = "restore";
     if (e.equals("added")) undo = "remove";
   }

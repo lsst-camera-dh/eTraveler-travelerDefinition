@@ -477,6 +477,17 @@ public class DbImporter {
   static public boolean selectedIsRoot(PageContext context) {
     return (getSelected(context).getParent() == null);
   }
+  static public boolean selectedHasChildren(PageContext context) {
+    return (getSelected(context).hasChildren());
+  }
+  /**
+   * 
+   * @return true if selected node is a clone or has clones, else false 
+   */
+  static public boolean selectedClone(PageContext context) {
+    ProcessNode selected = getSelected(context);
+    return (selected.isCloned() || selected.hasClones());
+  }
 
   static private ProcessNode getSelected(PageContext context) {
     JspContext jspContext = (JspContext) context;
@@ -486,50 +497,38 @@ public class DbImporter {
   static public String saveStep(PageContext context)  {
     JspContext jspContext = (JspContext) context;
     ProcessTreeNode selectedTreeNode = getTreeNode(jspContext);
-    ProcessNode selected = selectedTreeNode.getProcessNode();
-    boolean changed = false;
-    
-    String valid = checkStep(context, selected);
-    if (!valid.isEmpty()) return "<p class='warning'" + valid + "</p>";
-    
-    String newVal;
-    if (!selectedIsRoot(context)) {
-      newVal = context.getRequest().getParameter("maxIt");
-      if (!newVal.equals(selected.getMaxIteration()) ) { 
-        selected.setMaxIteration(newVal);          
-        changed = true;
+    ProcessNode selected = getSelected(context);
+
+    boolean changeAll = false;
+    String submitValue =context.getRequest().getParameter("save");
+    if (submitValue.endsWith("all instances")) {
+      changeAll = true;
+      if (selected.isCloned())  { //modify the big brother node first
+        selected = selected.clonedFrom();
       }
     }
-    newVal = context.getRequest().getParameter("description");
-    if (!newVal.equals(selected.getDescription()) ) {
-      selected.setDescription(newVal);
-      changed = true;
-    }
-    newVal = context.getRequest().getParameter("instructionsURL");
-    if (!newVal.equals(selected.getInstructionsURL()) ) {
-      selected.setInstructionsURL(newVal);
-      changed = true;
-    }
-    newVal = context.getRequest().getParameter("userVersionString");
-    if (!newVal.equals(selected.getUserVersionString()) ) {
-      selected.setUserVersionString(newVal);
-      changed = true;
-    }
-    for (int iPre=0; iPre < selected.getPrerequisiteCount(); iPre++ ) {
-      changed |= savePrereq(context.getRequest(), 
-                            selected.getPrerequisites().get(iPre), iPre);
-    }
-    for (int iRes=0; iRes < selected.getResultCount(); iRes++ ) {
-      changed |= saveResult(context.getRequest(), 
-                            selected.getResults().get(iRes), iRes);
-    }   
-    
+
+    // check validity of proposed changes
+    String valid = checkStep(context, selected);
+    if (!valid.isEmpty()) return "<p class='warning'" + valid + "</p>";
+
+    // See if there actually *are* any changes and, if so, make them to selected
+    boolean changed = makeChanges(context, selected);
+
     if (changed) {
       TravelerTreeVisitor vis = 
         (TravelerTreeVisitor) jspContext.getAttribute("treeVisitor", 
                                                       PageContext.SESSION_SCOPE);
-      vis.addEdited(selectedTreeNode, "modified");
-      selected.newVersion();
+      if (submitValue.equals("Save edit")) {
+        vis.addEdited(selectedTreeNode, "modified");
+        selected.newVersion();
+      } else       if (submitValue.endsWith("all instances")) {
+        vis.addEdited(selectedTreeNode, "modified all");
+        selected.newVersion();
+        selected.updateBuddies(false);
+      } else       if (submitValue.endsWith("this instance")) {
+         // not yet supported
+      }
     } else {
       return "<p class='warning'>Step unchanged; nothing to save</p>";
     }
@@ -607,7 +606,7 @@ public class DbImporter {
     String returnPath = 
       context.getSession().getAttribute("returnStep").toString();
     String exitTreeNodeId = context.getSession().getAttribute("exitTreeNodeId").toString();
-    String returnTreeNodeId = context.getSession().getAttribute("returnTreeNodeId").toString();
+      String returnTreeNodeId = context.getSession().getAttribute("returnTreeNodeId").toString();
     String ncrCondition = 
       context.getSession().getAttribute("NCRCondition").toString();
     ProcessNode exitProcess = 
@@ -755,17 +754,80 @@ public class DbImporter {
     }
     return "";
   }
+
+  private static boolean makeChanges(PageContext context, 
+                                     ProcessNode selected)  {
+    String newVal;
+    boolean changed = false;
+
+    if (!selectedIsRoot(context)) {
+      newVal = context.getRequest().getParameter("maxIt");
+      if (!newVal.equals(selected.getMaxIteration()) ) { 
+        selected.setMaxIteration(newVal);          
+        changed = true;
+      }
+    }
+    newVal = context.getRequest().getParameter("description");
+    if (!newVal.equals(selected.getDescription()) ) {
+      selected.setDescription(newVal);
+      changed = true;
+    }
+    newVal = context.getRequest().getParameter("instructionsURL");
+    if (!newVal.equals(selected.getInstructionsURL()) ) {
+      selected.setInstructionsURL(newVal);
+      changed = true;
+    }
+    newVal = context.getRequest().getParameter("userVersionString");
+    if (!newVal.equals(selected.getUserVersionString()) ) {
+      selected.setUserVersionString(newVal);
+      changed = true;
+    }
+  
+    int cnt = selected.getPrerequisiteCount();
+    boolean rmPrereq = false;
+    ArrayList<Integer> changedPrereq =
+        new ArrayList<Integer>(cnt);
+    for (int iPre=0; iPre < cnt; iPre++ ) {
+      changedPrereq.add(iPre, 
+          savePrereq(context.getRequest(), selected.getPrerequisites().get(iPre), iPre));
+      changed |= (changedPrereq.get(iPre) > 0);
+      rmPrereq |= (changedPrereq.get(iPre) > 1);
+    }
+    cnt = selected.getResultCount();
+    boolean rmResult = false;
+    ArrayList<Integer> changedResult =
+        new ArrayList<Integer>(cnt);
+    for (int iRes=0; iRes < cnt; iRes++ ) {
+      changedResult.add(iRes, 
+          saveResult(context.getRequest(),selected.getResults().get(iRes),iRes));
+      changed |= (changedResult.get(iRes) > 0);
+      rmResult |= (changedResult.get(iRes) > 1);
+    }   
+
+    if (rmPrereq) {
+      selected.rmPrereqs(changedPrereq);
+    }
+    if (rmResult) {
+      selected.rmResults(changedResult);
+    }
+    return changed;
+  }
+
   /**
    * Update stored Prerequisite according to form input 
    * @param req   servlet request 
    * @param pre   Prerequisite to be updated
    * @param iPre  prerequisite number, needed to form ids for form fields
-   * @return   true if Prerequisite object was changed by request input
+   * @return   0 if prereq not changed; 1 if modified; 2 if deleted 
    */
-  static private boolean savePrereq(ServletRequest req, Prerequisite pre, int iPre)  {
+  static private int savePrereq(ServletRequest req, Prerequisite pre, int iPre)  {
     boolean changed = false;
-    
-    String newVal = req.getParameter(genId("prereqDescrip", iPre));
+     
+    String newVal = req.getParameter(genId("removePrereq", iPre));
+    if (newVal != null) {
+      if (!newVal.isEmpty()) return 2;
+    }  
+    newVal = req.getParameter(genId("prereqDescrip", iPre));
     changed |= pre.setDescription(newVal);
     
     newVal = req.getParameter(genId("count", iPre));
@@ -775,12 +837,17 @@ public class DbImporter {
       newVal = req.getParameter(genId("userVersion", iPre));
       changed |= pre.setUserVersionString(newVal);
     }
-    return changed;
+    return (changed ? 1 : 0);
   }
-  static private boolean saveResult(ServletRequest req, 
-                                    PrescribedResult result, int iRes)  {
+  static private int saveResult(ServletRequest req, PrescribedResult result, 
+      int iRes)  {
     boolean changed = false;
-    String newVal = req.getParameter(genId("resultDescrip", iRes));
+    
+    String newVal = req.getParameter(genId("removeResult", iRes));
+    if (newVal != null) {
+      if (!newVal.isEmpty()) return 2;
+    }
+    newVal = req.getParameter(genId("resultDescrip", iRes));
     changed |= result.setDescription(newVal);
     
     if (result.numberSemantics()) {
@@ -793,7 +860,7 @@ public class DbImporter {
       newVal = req.getParameter(genId("max", iRes));
       changed |= result.setMaxValue(newVal);
     }
-    return changed;
+    return (changed ? 1 : 0);
   }
   static private String genId(String nm, int i) {
     return nm + "_" + Integer.toString(i);
