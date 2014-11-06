@@ -300,6 +300,7 @@ public class MysqlDbConnection implements DbConnection {
     if (vals[0] == null) {
       sql += "=DEFAULT ";
     }  else {
+      vals[0] = escapeSingle(vals[0]);
       sql += "='" + vals[0] + "' ";
     }
     for (int i = 1; i < Array.getLength(cols); i++) {
@@ -307,7 +308,7 @@ public class MysqlDbConnection implements DbConnection {
       if (vals[i] == null) {
         sql += "=DEFAULT ";
       }  else {
-        sql += "='" + vals[i] + "' ";
+        sql += "='" + escapeSingle(vals[i]) + "' ";
       }
     }
     if ((extras & DbConnection.ADD_CREATION_TIMESTAMP) != 0)  {
@@ -316,6 +317,24 @@ public class MysqlDbConnection implements DbConnection {
     }
     sql += " " + where;
     return sql;
+  }
+  /**
+   * Replace all occurrences of singe quote (') with escaped version (\')
+   * @param str
+   * @return 
+   */
+  private static String escapeSingle(String str)  {
+    String ret="";
+    int startIx = 0;
+    int ix = str.indexOf("'", startIx);
+    while (ix != -1) {
+      ret = ret + str.substring(startIx, ix) + "\\" +"'";
+      startIx = ix+1;
+      ix = str.indexOf("'", startIx);
+    }
+    ret = ret + str.substring(startIx);
+    
+    return ret;
   }
 
 }
