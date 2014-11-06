@@ -23,6 +23,16 @@
         </param-value>
     </context-param>
     
+     <context-param>
+        <param-name>
+            version
+        </param-name>
+        <param-value>
+            ${pom.version}
+        </param-value>
+    </context-param>
+
+    
     <!-- Default database connection -->
     <context-param>
       <param-name>

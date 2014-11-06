@@ -51,7 +51,7 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
             
           }
         }
-        throw new EtravelerException("SQL failure");
+        throw new EtravelerException(ex.getMessage());
       }
     }
     

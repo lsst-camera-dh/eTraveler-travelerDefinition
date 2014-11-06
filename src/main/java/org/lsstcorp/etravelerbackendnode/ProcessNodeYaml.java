@@ -11,6 +11,7 @@ import org.lsstcorp.etravelerbackendexceptions.WrongTypeYamlValue;
 import org.lsstcorp.etravelerbackendexceptions.YamlIncompatibleKeys;
 import org.lsstcorp.etravelerbackendexceptions.NullYamlValue;
 import org.lsstcorp.etravelerbackendexceptions.EtravelerException;
+import org.lsstcorp.etravelerbackendutil.Verify;
 import  org.yaml.snakeyaml.Yaml;
 import  org.yaml.snakeyaml.nodes.MappingNode;
 import  org.yaml.snakeyaml.nodes.Node;
@@ -145,6 +146,10 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       m_name = getStringVal(yamlMap, "RefName");
       m_isRef = true;
       m_version = getStringVal(yamlMap, "RefVersion", m_version);
+      // Check that version is a positive integer
+      if (!(Verify.isPosInt(m_version)).isEmpty()) {
+        throw new WrongTypeYamlValue("version", m_version, "Process");
+      }
       m_edgeCondition = getStringVal(yamlMap, "Condition" );
       return;
     }
@@ -205,7 +210,11 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       case HARDWARERELATIONSHIPTYPE:
         m_hardwareRelationshipType =v; break;
       case VERSION:
-        m_version = v; break;
+        m_version = v; 
+        if (!(Verify.isPosInt(m_version)).isEmpty()) {
+          throw new WrongTypeYamlValue("version", m_version, "Process");
+        }
+        break;
       case USERVERSIONSTRING:
         m_userVersionString = v; break;
       case DESCRIPTION:

@@ -604,9 +604,11 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
               " where id='" + m_id + "'", 0);
         }
       } catch (SQLException ex)  {
-        System.out.println("Failed to create entry for process " + m_name + "with exception");
+        System.out.println("Failed to create entry for process " + m_name + " with exception");
         System.out.println(ex.getMessage());
-        throw ex;
+        throw new EtravelerException("Failed to create entry for process " 
+                                     + m_name + " with SQL exception "
+                                     + ex.getMessage());
       }
       String key = formProcessKey(m_name, m_version);
       String oldValue  = m_processNameIdMap.putIfAbsent(key, m_id);

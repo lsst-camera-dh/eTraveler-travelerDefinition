@@ -16,7 +16,7 @@ public class WrongTypeYamlValue extends EtravelerException {
   public String m_nodeType;
   
   public WrongTypeYamlValue(String key, String value, String nodeType)  {
-    super("Illegal value 'value' for key " + key + " for node of type " + nodeType);
+    super("Illegal value " + value + " for key " + key + " for node of type " + nodeType);
     m_key = key;
     m_value = value;
     m_nodeType = nodeType;

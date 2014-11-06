@@ -8,6 +8,7 @@ import java.util.Map;
 import org.lsstcorp.etravelerbackenddb.DbInfo;
 import org.lsstcorp.etravelerbackenddb.DbConnection;
 import org.lsstcorp.etravelerbackenddb.MysqlDbConnection;
+import org.lsstcorp.etravelerbackendexceptions.EtravelerException;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.JspWriter;
@@ -31,57 +32,58 @@ public class WriteToDb {
       String datasource = ModeSwitcherFilter.getVariable(context.getSession(),
           "etravelerDb");
       JspWriter writer = context.getOut();
-      // String dbType = context.getRequest().getParameter("db");
+
       String action = context.getRequest().getParameter("fileAction");
-      ProcessNode ingested = parse(fileContents);
-      if (ingested ==  null) {
+      ProcessNode ingested;
+      try {
+        ingested = parse(fileContents);
+        if (ingested == null) return "Could not parse yaml input";
+      }  catch (Exception ex)  {
+        //if (ingested ==  null) {
         /*
         try {
-          writer.println("<p>Could not parse yaml input</p>");
+          writer.println("<p>Could not parse yaml input.  Failed with exception</br>");
+          writer.println(ex.getMsg() + "</p>");
         } catch (IOException ex)  {}
-        * */
-        return "Could not parse yaml input";
+        */
+        return  "<b>" + ex.getMessage() + "</b>";
       }
       if (action.equals("Check")) {
-        /*
-        try {
-          writer.println("<p>File successfully parsed</p>");
-        } catch  (IOException ex) {}
-        */
         return "File successfully parsed";
       }
       String writeRet =
           writeToDb(ingested, context.getSession().getAttribute("userName").toString(),
           useTransactions.equals("true"), dbType, datasource);
-      /* try {
-        writer.println("<p>" + writeRet + "</p>");
-      }  catch (IOException ex) {}    */
       return writeRet;
   }
 
-  private static ProcessNode parse(String fileContents)  {    
+  private static ProcessNode parse(String fileContents) throws Exception  {    
     Yaml yaml = new Yaml();
     Map yamlMap = null;
     try {
       yamlMap = (Map<String, Object>) yaml.load(fileContents);
     } catch (Exception ex) {
-      System.out.println("failed to load yaml with exception " + ex.getMessage());
-      return null;
+      System.out.println("Failed to load yaml with exception " + ex.getMessage());
+      throw new EtravelerException("Failed to load yaml with exception " 
+          + ex.getMessage());
     }
     ProcessNodeYaml topYaml = new ProcessNodeYaml();
     try {
       topYaml.readYaml(yamlMap, null, false, 0, null);
     } catch (Exception ex) {
-      System.out.println("failed to process yaml with exception " + ex.getMessage());
-      return null;
+      System.out.println("Failed to process yaml with exception " + ex.getMessage());
+      throw new EtravelerException("Failed to load yaml with exception " 
+          + ex.getMessage());  
     }
     // System.out.println("Loaded file into Map of size  " + yamlMap.size());
     ProcessNode traveler;
     try {
       traveler = new ProcessNode(null, topYaml);
     } catch (Exception ex) {
-      System.out.println("failed to import from yaml with exception " + ex.getMessage());
-      return null;
+      System.out.println("Failed to import from yaml with exception " + ex.getMessage());
+      // return null;
+      throw new EtravelerException("Failed to import from yaml with exception "
+          + ex.getMessage());
     }
     return traveler;
   }
