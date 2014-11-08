@@ -217,13 +217,15 @@ public class ProcessNode implements  TravelerElement
         m_children.add(imp.provideChild(this, iChild));
       }
     }  
-    if (automatable)  { // check all children are harnessed jobs or are
+    if (automatable)  { // check all non-ref children are harnessed jobs or are
       // themselves automatable
       for (ProcessNode child: m_children) {
-        if (((child.m_travelerActionMask & 
-            (TravelerActionBits.HARNESSED | TravelerActionBits.AUTOMATABLE)) == 0)) {
-          throw new EtravelerException("Step " + m_name +
-              " is not automatable due to non-harnessed or non-automated child step");
+        if (!child.m_isRef) {
+          if (((child.m_travelerActionMask & 
+              (TravelerActionBits.HARNESSED | TravelerActionBits.AUTOMATABLE)) == 0)) {
+            throw new EtravelerException("Step " + m_name +
+                " is not automatable due to non-harnessed or non-automated child step");
+          }
         }
       }
     }
