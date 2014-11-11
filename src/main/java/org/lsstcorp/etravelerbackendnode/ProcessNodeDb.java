@@ -480,7 +480,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       m_hardwareTypeId = m_dbParent.m_hardwareTypeId;
     }
     // If ref, verify we have the right db and that the node we need really is.
-    // there. No need to check anything else.
+    // there. Also fetch travelerActionMask
     if (m_isRef)   {
       if (!m_sourceDb.equals(connect.getSourceDb() ) ){
         throw new EtravelerException("Process definition refers to wrong db");
@@ -493,6 +493,14 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
             + m_version + ", hardware type " + m_hardwareTypeId 
             + "does not exist for dbType " + m_sourceDb);
       } 
+      String actionMaskString = m_connect.fetchColumn("Process", 
+          "travelerActionMask", where);
+      try {
+        m_travelerActionMask = Integer.parseInt(actionMaskString);
+      } catch (NumberFormatException ex) {
+        throw new EtravelerException("Ref process has bad travelerActionMask");
+      }
+      
       m_verified = true;
       return;
     }
@@ -543,6 +551,13 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     if (m_childrenDb != null) {
       for (int ic=0; ic < m_childrenDb.length; ic++) {
         m_childrenDb[ic].verify(connect);
+      
+        if ((m_travelerActionMask & TravelerActionBits.AUTOMATABLE) != 0) {
+          if ((m_childrenDb[ic].m_travelerActionMask & 
+              (TravelerActionBits.AUTOMATABLE + TravelerActionBits.HARNESSED)) == 0) {
+            throw new EtravelerException("Step " + m_name + " not automatable ");
+          }
+        }
       }
     }
     m_verified = true;

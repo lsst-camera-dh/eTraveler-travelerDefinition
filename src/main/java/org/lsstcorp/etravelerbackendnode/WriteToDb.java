@@ -23,6 +23,10 @@ public class WriteToDb {
   // public static String ingest(String fileContents, boolean useTransactions) {
     public static String ingest(PageContext context) {
       String fileContents = context.getRequest().getParameter("importYamlFile");
+      if (fileContents == null || fileContents.isEmpty())  {
+        return "No file selected or stale reference. <br /> "
+            + "Please hit back button, refresh page, reselect file and try again";
+      }
       String useTransactions = "true";
       if (context.getAttribute("useTransaction") != null) {
         useTransactions = (context.getAttribute("useTransactions")).toString();
