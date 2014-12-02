@@ -147,8 +147,10 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       m_isRef = true;
       m_version = getStringVal(yamlMap, "RefVersion", m_version);
       // Check that version is a positive integer
-      if (!(Verify.isPosInt(m_version)).isEmpty()) {
-        throw new WrongTypeYamlValue("version", m_version, "Process");
+      if (! m_version.equals("last")) {
+        if (!(Verify.isPosInt(m_version)).isEmpty()) {
+          throw new WrongTypeYamlValue("version", m_version, "Process");
+        }
       }
       m_edgeCondition = getStringVal(yamlMap, "Condition" );
       return;
@@ -211,8 +213,10 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         m_hardwareRelationshipType =v; break;
       case VERSION:
         m_version = v; 
-        if (!(Verify.isPosInt(m_version)).isEmpty()) {
-          throw new WrongTypeYamlValue("version", m_version, "Process");
+        if (!m_version.equals("next")) {
+          if (!(Verify.isPosInt(m_version)).isEmpty()) {
+            throw new WrongTypeYamlValue("version", m_version, "Process");
+          }
         }
         break;
       case USERVERSIONSTRING:

@@ -485,8 +485,12 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       if (!m_sourceDb.equals(connect.getSourceDb() ) ){
         throw new EtravelerException("Process definition refers to wrong db");
       }
+      String searchVersion = m_version;
+      // In case "last" has been specified for ref, we only insist that there
+      // be at least a version 1
+      if (searchVersion.equals("last")) searchVersion = "1";
       String where = " where name='" + m_name + "' and version='" 
-          + m_version + "' and hardwareTypeId='" + m_hardwareTypeId + "'";
+          + searchVersion + "' and hardwareTypeId='" + m_hardwareTypeId + "'";
       m_id = m_connect.fetchColumn("Process", "id", where);
       if (m_id == null) {
         throw new EtravelerException("Process " + m_name + ", version " 
@@ -500,7 +504,10 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       } catch (NumberFormatException ex) {
         throw new EtravelerException("Ref process has bad travelerActionMask");
       }
-      
+      if (m_version.equals("last")) {
+        m_originalId = m_id;
+        m_id = null;
+      }
       m_verified = true;
       return;
     }
@@ -564,6 +571,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   }
   private boolean acceptableVersion(String v) {
     if (v.equals("next") || v.equals("modified") ) return true;
+    if (v.equals("last") && m_isRef) return true;
     try {
       int iv = Integer.parseInt(v);
       return true;
@@ -584,6 +592,12 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       throw new EtravelerException("Unverified ProcessNodeDb cannot be written");
     }
     if (m_isRef) {
+      if (m_version.equals("last")) {
+        m_version = findLastVersion(m_originalId);
+        String where = " where version='" + m_version + "' and originalId='" 
+            + m_originalId + "'";
+        m_id = m_connect.fetchColumn("Process", "id", where);
+      }
       insertEdge();
       return;
     }
@@ -689,11 +703,17 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   }
   private String nextAvailableVersion(String originalId) 
     throws SQLException, EtravelerException {
-    String where = " where originalId='" + originalId + 
-      "' order by version desc limit 1";
-    String old = m_connect.fetchColumn("Process", "version", where);
+   
+    String old = findLastVersion(originalId);
     int intNext = Integer.parseInt(old) + 1;
     return Integer.toString(intNext);
+  }
+  private String findLastVersion(String originalId)
+      throws SQLException, EtravelerException {
+       String where = " where originalId='" + originalId + 
+      "' order by version desc limit 1";
+    String last = m_connect.fetchColumn("Process", "version", where);
+    return last;
   }
   private void insertEdge() throws SQLException {
     if (m_dbParent != null)  {
