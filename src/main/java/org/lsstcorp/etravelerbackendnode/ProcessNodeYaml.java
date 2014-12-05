@@ -145,7 +145,8 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       }
       m_name = getStringVal(yamlMap, "RefName");
       m_isRef = true;
-      m_version = getStringVal(yamlMap, "RefVersion", m_version);
+      // For refs, version defaults to "last"
+      m_version = getStringVal(yamlMap, "RefVersion", "last");
       // Check that version is a positive integer
       if (! m_version.equals("last")) {
         if (!(Verify.isPosInt(m_version)).isEmpty()) {
