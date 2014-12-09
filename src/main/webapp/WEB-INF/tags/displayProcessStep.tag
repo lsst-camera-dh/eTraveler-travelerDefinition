@@ -6,6 +6,10 @@
                  process step needs to be displayed
 --%>
 
+<link href="http://srs.slac.stanford.edu/Commons/css/srsCommons.jsp?experimentName=${appVariables.experiment}" rel="stylesheet" type="text/css">
+
+
+
 <%@tag description="display attributes of process step, assoc. prereq, results"
        pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>

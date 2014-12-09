@@ -1,21 +1,20 @@
 <decorators defaultdir="/decorators">
 
-   
-   <excludes>
-        <pattern>/actionTraveler.jsp*</pattern>
-   </excludes>
-   
-   <decorator name="noDecorator" page ="noDecorator.jsp">
-        <pattern>/showTree.jsp</pattern>
-        <pattern>/processAction.jsp</pattern>  
-        <pattern>/updateStep.jsp</pattern>
-        <pattern>/globalActions.jsp</pattern>
-        <pattern>/updateEditedList.jsp</pattern>
-        <pattern>/NCRForm.jsp*</pattern>
-   </decorator>
 
+   <excludes>
+        <pattern>*/actionTraveler.jsp*</pattern>
+        <pattern>*/showTree.jsp*</pattern> 
+        <pattern>*/updateStep.jsp*</pattern>
+        <pattern>*/globalActions.jsp*</pattern>
+        <pattern>*/processAction.jsp*</pattern>
+        <pattern>*/updateEditedList.jsp*</pattern>
+        <pattern>*/NCRForm.jsp*</pattern>
+   </excludes>
+
+   
+ 
+   
   <decorator name="basicDecorator" page="basicDecorator.jsp">
        <pattern>/*</pattern>
   </decorator>
-
 </decorators>

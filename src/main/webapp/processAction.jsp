@@ -22,7 +22,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Traveler Action in Progress</title>
-    <link href="http://srs.slac.stanford.edu/Commons/css/srsCommons.jsp?experimantName=LSST-CAMERA"
+    <link href="http://srs.slac.stanford.edu/Commons/css/srsCommons.jsp?experimantName=${appVariables.experiment}"
           rel="stylesheet" type="text/css" />
     <link href="css/backendStyle.css" type="text/css" rel="stylesheet" /> 
   </head>
