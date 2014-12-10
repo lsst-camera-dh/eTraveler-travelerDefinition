@@ -11,9 +11,17 @@
         <pattern>*/NCRForm.jsp*</pattern>
    </excludes>
 
-   
- 
-   
+ <!--  
+   <decorator name="noDecorator" page ="noDecorator.jsp">
+       <pattern>*/actionTraveler.jsp*</pattern>
+        <pattern>*/showTree.jsp*</pattern>
+        <pattern>*/processAction.jsp*</pattern>  
+        <pattern>*/updateStep.jsp*</pattern>
+        <pattern>*/globalActions.jsp*</pattern>
+        <pattern>*/updateEditedList.jsp*</pattern>
+        <pattern>*/NCRForm.jsp*</pattern>
+   </decorator>
+   -->
   <decorator name="basicDecorator" page="basicDecorator.jsp">
        <pattern>/*</pattern>
   </decorator>
