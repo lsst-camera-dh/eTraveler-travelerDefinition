@@ -22,6 +22,7 @@ public class BackendWeb {
     DbConnection conn;
      try {
       conn = DbWebUtil.makeConnection(cxt, true);
+      conn.setReadOnly(true);
     } catch (Exception ex) {
       System.out.println("Db connection exception " + ex.getMessage());
       return null;
@@ -37,13 +38,14 @@ public class BackendWeb {
         conn.prepareQuery("TravelerType join Process join HardwareType", cols, 
         where);
     ResultSet ttypes;
-    RowSetDynaClass rowSetDyna;
+    RowSetDynaClass rowSetDyna = null;
     try {
       ttypes = qry.executeQuery();
       rowSetDyna = new RowSetDynaClass(ttypes, false, -1, true);
     } catch (SQLException ex) {
       System.out.println("SQL Exception " + ex.getMessage());
-      return null;
+    } finally {
+      conn.close();
     }
     return rowSetDyna;
   }

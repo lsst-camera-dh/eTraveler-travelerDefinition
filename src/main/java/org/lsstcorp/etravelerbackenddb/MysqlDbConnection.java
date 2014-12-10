@@ -27,6 +27,7 @@ public class MysqlDbConnection implements DbConnection {
   private Connection m_connect = null;
   /* Give caller a place to store identifying string */
   private String m_sourceDb = null;
+  private boolean m_readOnly = false;
 
   public boolean setOption(int option, String value) {
     return true;
@@ -209,6 +210,7 @@ public class MysqlDbConnection implements DbConnection {
       return true;
     }
     try {
+      if (m_readOnly) setReadOnly(false);
       m_connect.close();
       m_connect = null;
     } catch (SQLException ex) {
@@ -257,10 +259,12 @@ public class MysqlDbConnection implements DbConnection {
     m_connect.rollback();
   }
   public boolean isReadOnly() throws SQLException {
-    return m_connect.isReadOnly();
+    m_readOnly = m_connect.isReadOnly();
+    return m_readOnly;
   }
   public void setReadOnly(boolean readOnly) throws SQLException {
     m_connect.setReadOnly(readOnly);
+    m_readOnly = readOnly;
   }
    /**
    * Utility to do most of the work of buildInsert. Throw
