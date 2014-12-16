@@ -5,7 +5,7 @@
   <uri>http://lsstcorp.org/etravelerbackend/DbTest</uri>
   <function>
     <name>mainFromJsp</name>
-    <function-class>org.lsstcorp.etravelerbackenddb.DbTest</function-class>
+    <function-class>org.lsstcorp.etravelerbackend.db.DbTest</function-class>
     <function-signature>java.lang.Void mainFromJsp()</function-signature>
   </function>
 </taglib>

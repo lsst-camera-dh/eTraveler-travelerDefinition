@@ -11,9 +11,9 @@
 <%@page import="java.util.ArrayList" %>
 <%@page import="javax.management.AttributeList" %>
 <%@page import="javax.management.Attribute" %>
-<%@page import="org.lsstcorp.etravelerbackendnode.DbImporter" %>
-<%@page import="org.lsstcorp.etravelerbackendnode.Prerequisite" %>
-<%@page import="org.lsstcorp.etravelerbackendnode.PrescribedResult" %>
+<%@page import="org.lsstcorp.etravelerbackend.node.DbImporter" %>
+<%@page import="org.lsstcorp.etravelerbackend.node.Prerequisite" %>
+<%@page import="org.lsstcorp.etravelerbackend.node.PrescribedResult" %>
 
 <!DOCTYPE html>
 

@@ -23,7 +23,7 @@
         <c:set var="result" value="${backweb:getTravelerTypeInfo(pageContext)}"/>
 
         <display:table   name="${result.rows}"   uid="ttypes" class="datatable"
-                         decorator="org.lsstcorp.etravelerbackendnode.web.TtypeDecorator">
+                         decorator="org.lsstcorp.etravelerbackend.node.web.TtypeDecorator">
            <display:column property="name" 
                           sortable="true" style="text-align:left" />
            <display:column property="version" sortable="true" style="text-align:right" />

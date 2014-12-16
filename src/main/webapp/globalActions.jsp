@@ -9,8 +9,8 @@
           uri="http://lsstcorp.org/etravelerbackend/DbImporter" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="display" uri="http://displaytag.sf.net" %>
-<%@page import="org.lsstcorp.etravelerbackendnode.DbImporter" %>
-<%@page import="org.lsstcorp.etravelerbackendnode.EditedTreeNode" %>
+<%@page import="org.lsstcorp.etravelerbackend.node.DbImporter" %>
+<%@page import="org.lsstcorp.etravelerbackend.node.EditedTreeNode" %>
 <%@page import="javax.management.Attribute" %>
 <%@page import="javax.management.AttributeList" %>
 <%@page import="java.util.ArrayList"%>
