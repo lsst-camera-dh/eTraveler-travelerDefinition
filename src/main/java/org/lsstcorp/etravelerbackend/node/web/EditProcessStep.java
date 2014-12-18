@@ -75,6 +75,11 @@ public class EditProcessStep extends SimpleTagSupport {
       wrt.println("value='" + (attsMap.get("max iterations")).toString() 
           + "' onblur='isPosInt(\"maxIt\",\"1\")' /></td></tr>");
     }
+    if ((attsMap.containsKey("condition")) ) {
+      wrt.println("<tr><td class='bold'><label for='condition'>Condition</label></td>");
+      wrt.println("<td><input name='condition' id='condition' size='50'");
+      wrt.println("value='" + (attsMap.get("condition")).toString() + "' /></td></tr>");
+    }
     wrt.println("</tbody></table>");
     wrt.println("<input type='hidden' name='name' id='name' value='" 
         + (attsMap.get("name")).toString() + "' />");
@@ -83,7 +88,8 @@ public class EditProcessStep extends SimpleTagSupport {
     wrt.println("<input type='hidden' name='htype' id='htype' value='" 
         + (attsMap.get("hardware relationship type")).toString() + "' />");
     wrt.println("<input type='hidden' name='childType' id='childType' value='" 
-        + (attsMap.get("child type")).toString() + "' />");      
+        + (attsMap.get("child type")).toString() + "' />");   
+    
     
     
     String nodestring;

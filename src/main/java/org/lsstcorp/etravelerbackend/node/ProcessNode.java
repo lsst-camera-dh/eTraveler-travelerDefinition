@@ -229,8 +229,9 @@ public class ProcessNode implements  TravelerElement
         }
       }
     }
-    
-    m_isOption = (m_optionCount > 0);
+    if (m_parent != null) {
+      m_isOption = m_parent.m_substeps.equals("SELECTION");
+    }
   }
   /**
    *  When making a new traveler, set up map to associate (name, version) with
@@ -301,6 +302,10 @@ public class ProcessNode implements  TravelerElement
     if (m_resultNodes != null) nResults = m_resultNodes.size();
     pList.add(new Attribute("# solicited results", Integer.toString(nResults)));
     pList.add(new Attribute("instructions URL", m_instructionsURL));
+   
+    if (m_isOption) {
+      pList.add(new Attribute("condition", m_parentEdge.getCondition()));
+    }
     pList.add(new Attribute("Edited", Boolean.toString(m_edited)));
     return pList;
   }
