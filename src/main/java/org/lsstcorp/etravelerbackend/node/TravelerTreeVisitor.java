@@ -98,7 +98,7 @@ public class TravelerTreeVisitor implements TravelerVisitor {
   }
 
   // Implementation of TravelerVisitor
-  public void visit(ProcessNode process, String activity) throws EtravelerException {
+  public void visit(ProcessNode process, String activity, Object cxt) throws EtravelerException {
     
     ProcessTreeNode treeNode = new ProcessTreeNode(this, process, null);
     if (m_treeRenderer == null) {
@@ -121,9 +121,11 @@ public class TravelerTreeVisitor implements TravelerVisitor {
    
   }
   // For the time being ignore prerequisites and results; just draw nodes & edges
-  public void visit(PrescribedResult result, String activity) throws EtravelerException {
+  public void visit(PrescribedResult result, String activity, Object cxt) 
+      throws EtravelerException {
   }
-  public void visit(Prerequisite prerequisite, String activity) throws EtravelerException {
+  public void visit(Prerequisite prerequisite, String activity, Object cxt) 
+      throws EtravelerException {
   }
   public void render(PageContext context) {
     JspWriter outWriter = context.getOut();

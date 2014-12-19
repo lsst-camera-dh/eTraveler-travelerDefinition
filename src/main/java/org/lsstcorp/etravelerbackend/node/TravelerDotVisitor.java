@@ -61,7 +61,7 @@ public class TravelerDotVisitor implements TravelerVisitor,
   static String s_edgeDefault="edge [color=black style=solid]";
   
   // Implementation of TravelerVisitor
-  public void visit(ProcessNode process, String activity) throws EtravelerException {
+  public void visit(ProcessNode process, String activity, Object cxt) throws EtravelerException {
     if (m_dotWriter == null) {
       m_dotWriter = new StringWriter();
     }
@@ -92,7 +92,7 @@ public class TravelerDotVisitor implements TravelerVisitor,
       childVisitor.setIndentEol(m_indent + "  ", m_eol);
       childVisitor.setDotWriter(m_dotWriter);
       for (int i=0; i < m_children.size(); i++) {
-        m_children.get(i).accept(childVisitor, activity);
+        m_children.get(i).accept(childVisitor, activity, cxt);
         m_dotWriter.write(m_indent +"\"" + m_name + "\"->\"" + m_children.get(i).getName() + "\" ");
         if (seq) {
           m_dotWriter.write(edgeAtts + String.valueOf(i+1));
@@ -114,9 +114,11 @@ public class TravelerDotVisitor implements TravelerVisitor,
    
   }
   // For the time being ignore prerequisites and results; just draw nodes & edges
-  public void visit(PrescribedResult result, String activity) throws EtravelerException {
+  public void visit(PrescribedResult result, String activity, Object cxt) 
+      throws EtravelerException {
   }
-  public void visit(Prerequisite prerequisite, String activity) throws EtravelerException {
+  public void visit(Prerequisite prerequisite, String activity, Object cxt) 
+      throws EtravelerException {
   }
   
    // Implementation of ProcessNode.ExportTarget

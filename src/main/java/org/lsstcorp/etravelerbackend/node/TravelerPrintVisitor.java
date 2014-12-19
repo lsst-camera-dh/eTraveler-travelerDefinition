@@ -18,7 +18,7 @@ public class TravelerPrintVisitor implements TravelerVisitor,
   private static String s_eol = "\n";
   public static void setEol(String eol)  {s_eol = eol;}
   public static void setIndent(String indent) {s_indent = indent;}
-  public void visit(ProcessNode process, String activity) throws EtravelerException {
+  public void visit(ProcessNode process, String activity, Object cxt) throws EtravelerException {
     resetProcessScalars();
     process.exportTo(this);
     String leadingBlanks="";
@@ -76,7 +76,7 @@ public class TravelerPrintVisitor implements TravelerVisitor,
       s_nIndent++;
       //for (int i = 0; i < m_prerequisites.length; i++) {
       for (Prerequisite prereq: m_prerequisites) {
-        prereq.accept(this, activity);
+        prereq.accept(this, activity, cxt);
       }
       m_prerequisites = null;  
       s_nIndent--;
@@ -92,7 +92,7 @@ public class TravelerPrintVisitor implements TravelerVisitor,
       s_nIndent++;
 //      for (int i=0; i < m_results.length; i++) {
       for (PrescribedResult res: m_results) {
-        res.accept(this, activity);
+        res.accept(this, activity, cxt);
       }
       m_results = null;
       s_nIndent--;
@@ -110,7 +110,7 @@ public class TravelerPrintVisitor implements TravelerVisitor,
       TravelerVisitor childVisitor = new TravelerPrintVisitor();
       for (ProcessNode child: m_children) {
           //(int i=0; i < m_children.size(); i++) {
-        child.accept(childVisitor, activity);
+        child.accept(childVisitor, activity, cxt);
         //childVisitor.visit(m_children[i]);
       }
       s_nIndent--;
@@ -118,7 +118,7 @@ public class TravelerPrintVisitor implements TravelerVisitor,
     
  
   }
-  public void visit(Prerequisite prerequisite, String activity) {
+  public void visit(Prerequisite prerequisite, String activity, Object cxt) {
     // Gets prereq info, prints it, using static values s_indent, s_writer
     resetPrereq();
     prerequisite.exportTo(this);
@@ -136,7 +136,7 @@ public class TravelerPrintVisitor implements TravelerVisitor,
       System.out.println(ex.getMessage());
     }
   }
-  public void visit(PrescribedResult result, String activity) {
+  public void visit(PrescribedResult result, String activity, Object cxt) {
     // prints out prescribed result info, using s_indent, s_writer
     resetResult();
     result.exportTo(this);

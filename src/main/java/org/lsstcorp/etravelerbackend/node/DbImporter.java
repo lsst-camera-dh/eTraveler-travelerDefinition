@@ -129,7 +129,7 @@ public class DbImporter {
       vis.setWriter(wrt);
       vis.setIndent("&nbsp;&nbsp");
       try {
-        vis.visit(trav, "Print Html");
+        vis.visit(trav, "Print Html", null);
       }  catch (EtravelerException ex)  {
         System.out.println("Print to Html failed with exception");
         System.out.println(ex.getMessage());
@@ -167,7 +167,7 @@ public class DbImporter {
     try {
       vis.initOutput(writer, "\n");
       // vis.initOutput(writer, "\n", context.getRequest().getParameter("db"));
-      vis.visit(travelerRoot, "dot file");
+      vis.visit(travelerRoot, "dot file", null);
       vis.endOutput();
     } catch (EtravelerException ex) {
       return(ex.getMessage());
@@ -293,7 +293,7 @@ public class DbImporter {
       if (reason.equals("edit"))  { /* make a copy */
         traveler = new ProcessNode(null, originalTraveler, 0);
       }
-      vis.visit(traveler, "build");
+      vis.visit(traveler, "build", null);
     } catch (EtravelerException ex) {
       System.out.println("Failed to build tree: " + ex.getMessage() );
       return;
@@ -329,7 +329,7 @@ public class DbImporter {
     
     try {
       vis.initOutput(dotWriter, "\n");
-      vis.visit(traveler, "dot file");
+      vis.visit(traveler, "dot file", null);
       vis.endOutput();
     } catch (EtravelerException ex) {
       System.out.println("Failed to make dot file: " + ex.getMessage());

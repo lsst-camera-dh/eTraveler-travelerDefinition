@@ -54,8 +54,9 @@ public class Prerequisite implements TravelerElement {
     if (orig.m_userVersionString != null) 
       m_userVersionString = new String(orig.m_userVersionString);
   }
-  public void accept(TravelerVisitor visitor, String activity) throws EtravelerException {
-    visitor.visit(this, activity);
+  public void accept(TravelerVisitor visitor, String activity, Object cxt) 
+      throws EtravelerException {
+    visitor.visit(this, activity, cxt);
   }
   public void exportTo(TravelerElement.ExportTarget target) {
     if (target instanceof Prerequisite.ExportTarget) {

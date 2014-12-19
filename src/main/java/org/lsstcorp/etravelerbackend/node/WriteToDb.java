@@ -107,20 +107,20 @@ public class WriteToDb {
     // Convert to db-like classes, e.g. ProcessNodeDb   
     // next visit with activity "verify", then "write".
     try {
-      vis.visit(travelerRoot, "new");
+      vis.visit(travelerRoot, "new", null);
     }  catch (Exception ex)  {
       conn.close();
       return "Failed to create xxDb classes with exception " + ex.getMessage();
     }
     try {
-      vis.visit(travelerRoot, "verify");
+      vis.visit(travelerRoot, "verify", null);
     }  catch (Exception ex)  {
       conn.close();
       return "Failed to verify against " + dbType + 
           " db with exception " + ex.getMessage();
     }
     try {
-      vis.visit(travelerRoot, "write");
+      vis.visit(travelerRoot, "write", null);
     }  catch (Exception ex) {
       conn.close();
       return "Failed to write to " + dbType + 

@@ -12,6 +12,6 @@ import org.lsstcorp.etravelerbackend.exceptions.EtravelerException;
  */
 public interface TravelerElement {
   public interface ExportTarget { }
-  void accept(TravelerVisitor visitor, String activity) throws EtravelerException;
+  void accept(TravelerVisitor visitor, String activity, Object cxt) throws EtravelerException;
   void exportTo(TravelerElement.ExportTarget target);
 }

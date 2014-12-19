@@ -367,9 +367,9 @@ public class ProcessNode implements  TravelerElement
   static public ProcessNode findProcess(String name) {
       return null;
   }
-  public void accept(TravelerVisitor visitor, String activity) 
+  public void accept(TravelerVisitor visitor, String activity, Object cxt) 
       throws EtravelerException {
-    visitor.visit(this, activity);
+    visitor.visit(this, activity, cxt);
   }
   
  
@@ -412,7 +412,7 @@ public class ProcessNode implements  TravelerElement
   public void makeDot(Writer writer) throws EtravelerException {
     TravelerDotVisitor vis = new TravelerDotVisitor();
     vis.initOutput(writer, "\n");
-    vis.visit(this, "dot file");
+    vis.visit(this, "dot file", null);
     vis.endOutput();
   }
   /**
@@ -464,7 +464,12 @@ public class ProcessNode implements  TravelerElement
       if (m_parentEdge != null) {
         ptarget.acceptCondition(m_parentEdge.getCondition());
       }
+      ptarget.acceptIsCloned(m_isCloned);
       ptarget.acceptName(m_name);
+      /* Some targets, in particular yaml, need to know early on if the
+       * node is a clone
+       */
+  
       ptarget.acceptHardwareType(m_hardwareType);
       ptarget.acceptHardwareRelationshipType(m_hardwareRelationshipType);
       ptarget.acceptVersion(m_version);
@@ -478,7 +483,7 @@ public class ProcessNode implements  TravelerElement
       ptarget.acceptPrerequisites(m_prerequisites);
       ptarget.acceptPrescribedResults(m_resultNodes);
       ptarget.acceptChildren(m_children);
-      ptarget.acceptIsCloned(m_isCloned);
+  
       ptarget.acceptIsRef(m_isRef);
       ptarget.acceptEdited(m_edited);
       ptarget.exportDone();

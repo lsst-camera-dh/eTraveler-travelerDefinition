@@ -19,7 +19,7 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
     m_user = user;
   }
   public String getUser() { return m_user; }
-  public void visit(ProcessNode process, String activity)  
+  public void visit(ProcessNode process, String activity, Object cxt)  
       throws EtravelerException  {
     if (activity.equals("new") )  {
       m_process = process;
@@ -57,10 +57,10 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
     
   }
   // leave these empty.  Easier to do everything from ProcessNode visit
-  public void visit(PrescribedResult result, String activity) {
+  public void visit(PrescribedResult result, String activity, Object cxt) {
     
   }
-  public void visit(Prerequisite prerequisite, String activity) {
+  public void visit(Prerequisite prerequisite, String activity, Object cxt) {
     
   }
   

@@ -14,9 +14,9 @@ import javax.management.AttributeList;
  * @author jrb
  */
 public class PrescribedResult  implements TravelerElement {
-  public void accept(TravelerVisitor visitor, String activity) 
+  public void accept(TravelerVisitor visitor, String activity, Object cxt) 
       throws EtravelerException {
-    visitor.visit(this, activity);
+    visitor.visit(this, activity, cxt);
   }
   public void exportTo(TravelerElement.ExportTarget target) {
     if (target instanceof PrescribedResult.ExportTarget) {
