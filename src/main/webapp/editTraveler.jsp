@@ -27,12 +27,18 @@
     <tr width="100%">
       <td colspan="2">
     <local:selectTravelerForm formAction="editTraveler.jsp" />  
+     <form method="post" action="${import:outputYaml(pageContext)}">
+     <input type="submit" name="outputType" 
+         target="yaml_window" value="Yaml" />
+     </form>
 
     <c:if test="${! empty param.traveler_name}" >
     
       <c:set var="traveler_name" value="${param.traveler_name}" scope="session" />
       <c:set var="traveler_version" value="${param.traveler_version}" scope="session"/>
       <c:set var="traveler_htype" value="${param.traveler_htype}" scope="session" />
+      
+      <%--  Return from retrieveProcess is empty string for success; else error string  --%>
       <c:set var="retrieveReturn" value="${import:retrieveProcess(pageContext, false)}" /> 
       <%! ModeSwitcherFilter msf;
               String dbtype; %>

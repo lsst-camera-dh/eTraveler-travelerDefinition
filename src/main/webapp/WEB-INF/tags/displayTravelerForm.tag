@@ -39,6 +39,7 @@
 <fieldset >
   <legend>Output style</legend>
    <input type="submit" name="ostyle" value="Pretty print" />
+      <input type="submit" name="ostyle" value="Yaml" />
   <input type="submit" name="ostyle" value="Dot file" />
   <input type="submit" name="ostyle" value="Image" />
   <input type="submit" name="ostyle" value="Image map" />

@@ -33,6 +33,11 @@
     <function-class>org.lsstcorp.etravelerbackend.node.DbImporter</function-class>
     <function-signature>java.lang.String displayTraveler(javax.servlet.jsp.PageContext)</function-signature>
   </function>
+   <function>
+    <name>outputYaml</name>
+    <function-class>org.lsstcorp.etravelerbackend.node.DbImporter</function-class>
+    <function-signature>java.lang.String outputYaml(javax.servlet.jsp.PageContext)</function-signature>
+  </function>
   <function>
     <name>dotSource</name>
     <function-class>org.lsstcorp.etravelerbackend.node.DbImporter</function-class>

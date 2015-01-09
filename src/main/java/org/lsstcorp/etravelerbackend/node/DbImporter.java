@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.ArrayList;
@@ -241,9 +242,30 @@ public class DbImporter {
       case "Tree":
         makeTree(context);
         break;
+      case "Yaml":
+        outputYaml(context);
       default:
         break;
     }
+  }
+  
+  static public String outputYaml(PageContext context) {
+    JspWriter writer = context.getOut();
+    retrieveProcess(context, false);
+    Traveler trav = getTraveler(context);
+    return outputYaml(writer, trav);
+  }
+  
+  static public String outputYaml(Writer writer, Traveler trav)  {
+     TravelerToYamlVisitor vis = new TravelerToYamlVisitor(trav.getSourceDb());
+    try {
+      vis.visit(trav.getRoot(), "", null);
+    } catch (EtravelerException ex) {
+      return("outputYaml failed with exception" + ex.getMessage());
+    }
+    //StringWriter strWrt = new StringWriter();
+    //return vis.dump(strWrt);
+    return vis.dump(writer);
   }
 
   static public void makeTree(PageContext context)  {
