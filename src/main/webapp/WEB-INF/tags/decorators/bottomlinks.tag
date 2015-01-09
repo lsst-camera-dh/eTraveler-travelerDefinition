@@ -15,7 +15,9 @@
        <srs_utils:conditionalLink name="Add NCR"
                                   url="addNCR.jsp" /> |
        <srs_utils:conditionalLink name="Upload" 
-                                 url="uploadTraveler.jsp" />
+                                 url="uploadTraveler.jsp" /> |
+       <srs_utils:conditionalLink name="Job data"
+                                url="getSummary.jsp" />
     </td>
 </tr>
 </table>
