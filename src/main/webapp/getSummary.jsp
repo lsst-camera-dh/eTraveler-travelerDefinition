@@ -14,6 +14,7 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+     <link href="css/backendStyle.css" type="text/css" rel="stylesheet" /> 
     <title>Result Summary Data</title>
   </head>
   <body>
@@ -30,6 +31,7 @@
                           sortable="true" style="text-align:left" />
            <display:column property="jobname" sortable="true" style="text-align:right" />
            <display:column property="userVersion" sortable="true" style="text-align:left" />
+           <display:column property="hardwareType" sortable="true" style="text-align:left" />
       
            <display:column property="closedBy" sortable="true" title="Closer"  style="text-align:left" />
            <display:column title="ending TS" property="endTS" sortable="true" 
