@@ -21,7 +21,7 @@
     <h1>Result Summary Data</h1>
 
     <p>Select job to view by clicking on its id</p>
-    <c:set var="htype" value="CCD" />    
+
     <c:set var="result" 
            value="${client:getHarnessed(pageContext)}" />
     

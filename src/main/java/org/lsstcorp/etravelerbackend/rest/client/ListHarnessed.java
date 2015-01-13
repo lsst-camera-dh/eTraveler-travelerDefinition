@@ -33,15 +33,8 @@ throws JspException  {
     } catch (Exception ex) {
       throw new JspException(ex);
     }
-    // may need to add arg. for session scope
    
-    String htype = (String) context.getRequest().getAttribute("htype");
-    if ((htype == null) || (htype.isEmpty()) ) htype = "CCD";
-    // Cheating for now to avoid another join
-    String htid = "1";
-    
-    String where = " where Process.hardwareTypeId='" + htid + "' and ";
-    //where += " Process.id = Activity.processId and ";
+    String where = " where ";
     where += " ((Process.travelerActionMask & 1) != 0) ";
     where += " and (closedBy is not null)";
     where += " order by Process.name, Activity.id desc";

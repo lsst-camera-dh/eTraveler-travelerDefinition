@@ -47,7 +47,10 @@ public class DisplayJob extends SimpleTagSupport {
         "dataSourceMode");
     JspWriter wrt = page.getOut();
     String jobId = (String) page.getAttribute("jobId", PageContext.SESSION_SCOPE);
-    String targetUrl = "http://localhost:8080/eTravelerRestful/rest/harnessOutput/" + jobId
+    String targetPrefix = "http://" + page.getRequest().getServerName() + ":" 
+        + page.getRequest().getServerPort();
+    // String targetUrl = "http://localhost:8080/eTravelerRestful/rest/harnessOutput/" + jobId
+    String targetUrl = targetPrefix + "/eTravelerRestful/rest/harnessOutput/" + jobId
         + "?db=" + dbType;
     try {
       Client client = ClientBuilder.newBuilder()
@@ -56,8 +59,6 @@ public class DisplayJob extends SimpleTagSupport {
           .build();
       WebTarget target = client.target(targetUrl);
       
-      // Need to set query parameter "db" ... to value dbType
-      
       List<TableData> tables =
           target.request()
           .header("accept", "application/json")
@@ -65,29 +66,17 @@ public class DisplayJob extends SimpleTagSupport {
       
       wrt.println("<h1>Data for Activity " + jobId + "</h1>");
       HashMap<String, ArrayList<Map<String, String> > >  forDisplay  =
-          new HashMap<String, ArrayList<Map<String,String>>>();
-      
+          new HashMap<String, ArrayList<Map<String,String>>>();  
      
       for (TableData table : tables) {
         ArrayList<Map<String, String>> ourRows = table.getRows();
         forDisplay.put(table.getTitle(), ourRows);
         // outputTable(table, wrt);  
-      }
-     
+      }   
       
       // Set session variable so jsp can pull this back out 
       getJspContext().setAttribute("forDisplay", forDisplay, PageContext.SESSION_SCOPE);
      
-      //  and some more for testing
-      /*
-      Iterator it = forDisplay.keySet().iterator();
-      Object theKey = it.next();
-      Object another = it.next();
-      if (another != null) theKey = another;
-      
-      getJspContext().setAttribute("Title", theKey.toString(), PageContext.SESSION_SCOPE);
-      getJspContext().setAttribute("TableContents", forDisplay.get(theKey), PageContext.SESSION_SCOPE);
-       */
     } catch (Exception ex)  {
       System.out.println(ex.getMessage());
     }
