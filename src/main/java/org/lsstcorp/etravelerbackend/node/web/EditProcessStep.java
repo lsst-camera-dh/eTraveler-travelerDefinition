@@ -59,6 +59,15 @@ public class EditProcessStep extends SimpleTagSupport {
         + (attsMap.get("hardware type")).toString() + "</td></tr>");
     wrt.println("<tr><td class='bold'>Child type</td><td>"
         + (attsMap.get("child type")).toString() + "</td></tr>");
+    if (attsMap.containsKey("hardware relationship type")) {
+      if (!(attsMap.get("hardware relationship type").toString().isEmpty())) {
+        wrt.println("<tr><td class='bold'>Hardware relationship type</td><td>"
+            + (attsMap.get("hardware relationship type")).toString() + "</td></tr>");
+         wrt.println("<tr><td class='bold'>Hardware relationship slot</td><td>"
+            + (attsMap.get("hardware relationship slot")).toString() + "</td></tr>");
+      }     
+    } 
+   
     wrt.println("<tr><td class='bold'><label for='description'>Description</label></td>");
     
     wrt.println("<td><input name='description' id='description' size='50'");
@@ -75,6 +84,7 @@ public class EditProcessStep extends SimpleTagSupport {
       wrt.println("value='" + (attsMap.get("max iterations")).toString() 
           + "' onblur='isPosInt(\"maxIt\",\"1\")' /></td></tr>");
     }
+  
     if ((attsMap.containsKey("condition")) ) {
       wrt.println("<tr><td class='bold'><label for='condition'>Condition</label></td>");
       wrt.println("<td><input name='condition' id='condition' size='50'");
@@ -86,9 +96,15 @@ public class EditProcessStep extends SimpleTagSupport {
     wrt.println("<input type='hidden' name='oldVersion' id='oldVersion'"); 
     wrt.println("value='" + (attsMap.get("version")).toString() + "' />");
     wrt.println("<input type='hidden' name='htype' id='htype' value='" 
-        + (attsMap.get("hardware relationship type")).toString() + "' />");
+        + (attsMap.get("hardware type")).toString() + "' />");
     wrt.println("<input type='hidden' name='childType' id='childType' value='" 
-        + (attsMap.get("child type")).toString() + "' />");   
+        + (attsMap.get("child type")).toString() + "' />");  
+    if (attsMap.containsKey("hardware relationship type")) {
+      wrt.println("<input type='hidden' name='hrtype' id='hrtype' value='"
+          + attsMap.get("hardware relationship type").toString() + "' />");
+      wrt.println("<input type='hidden' name='hrslot' id='hrslot' value='"
+          + attsMap.get("hardware relationship slot").toString() + "' />");
+    }
     
     
     

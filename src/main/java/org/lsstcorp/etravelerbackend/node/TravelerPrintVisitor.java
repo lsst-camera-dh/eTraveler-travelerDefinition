@@ -183,6 +183,9 @@ public class TravelerPrintVisitor implements TravelerVisitor,
   public void acceptHardwareRelationshipType(String hardwareRelationshipType ) {
     m_hardwareRelationshipType  = hardwareRelationshipType;
   }
+   public void acceptHardwareRelationshipSlot(String hardwareRelationshipSlot ) {
+    m_hardwareRelationshipSlot  = hardwareRelationshipSlot;
+  }
   public void acceptVersion(String version) {m_version = version;}
   public void acceptUserVersionString(String userVersionString) {
     m_userVersionString = userVersionString;}
@@ -272,6 +275,7 @@ public class TravelerPrintVisitor implements TravelerVisitor,
   private String m_name=null;
   private String m_hardwareType=null;
   private String m_hardwareRelationshipType=null;
+  private String m_hardwareRelationshipSlot="1";
   private String m_version=null;
   private String m_userVersionString=null;
   private String m_description=null;

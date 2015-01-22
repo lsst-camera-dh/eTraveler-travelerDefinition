@@ -80,8 +80,10 @@ public class ProcessNode implements  TravelerElement
    */
   private void copyFrom(ProcessNode model) {
     m_hardwareType = new String(model.m_hardwareType);
-    if (model.m_hardwareRelationshipType != null)
+    if (model.m_hardwareRelationshipType != null)  {
       m_hardwareRelationshipType = new String(model.m_hardwareRelationshipType);
+      m_hardwareRelationshipSlot = new String(model.m_hardwareRelationshipSlot);
+    }
 
     if (model.m_userVersionString != null) 
       m_userVersionString = new String(model.m_userVersionString);
@@ -152,6 +154,7 @@ public class ProcessNode implements  TravelerElement
       }
     }
     m_hardwareRelationshipType = imp.provideHardwareRelationshipType();
+    m_hardwareRelationshipSlot = imp.provideHardwareRelationshipSlot();
     
     /*
     try {
@@ -284,9 +287,10 @@ public class ProcessNode implements  TravelerElement
     pList.add(new Attribute("hardware type", m_hardwareType));
     if (m_hardwareRelationshipType != null) {
       pList.add(new Attribute("hardware relationship type", m_hardwareRelationshipType));
-    } else {
+      pList.add(new Attribute("hardware relationship slot", m_hardwareRelationshipSlot));
+    } /* else {
       pList.add(new Attribute("hardware relationship type", ""));
-    }
+    } */
     pList.add(new Attribute("description", m_description));
     pList.add(new Attribute("max iterations", m_maxIteration));
     pList.add(new Attribute("child type", m_substeps));
@@ -382,6 +386,7 @@ public class ProcessNode implements  TravelerElement
     String provideName();
     String provideHardwareType();
     String provideHardwareRelationshipType();
+    String provideHardwareRelationshipSlot();
     String provideVersion();
     String provideUserVersionString();
     String provideDescription();
@@ -424,6 +429,7 @@ public class ProcessNode implements  TravelerElement
     void acceptName(String name);
     void acceptHardwareType(String hardwareType);
     void acceptHardwareRelationshipType(String hardwareRelationshipType);
+    void acceptHardwareRelationshipSlot(String hardwareRelationshipSlot);
     void acceptVersion(String version);
     void acceptUserVersionString(String userVersionString);
     void acceptDescription(String description);
@@ -472,6 +478,7 @@ public class ProcessNode implements  TravelerElement
   
       ptarget.acceptHardwareType(m_hardwareType);
       ptarget.acceptHardwareRelationshipType(m_hardwareRelationshipType);
+      ptarget.acceptHardwareRelationshipSlot(m_hardwareRelationshipSlot);
       ptarget.acceptVersion(m_version);
       ptarget.acceptUserVersionString(m_userVersionString);
       ptarget.acceptDescription(m_description);
@@ -669,6 +676,7 @@ public class ProcessNode implements  TravelerElement
   private boolean m_isRef=false;
   private String m_hardwareType=null;
   private String m_hardwareRelationshipType=null;
+  private String m_hardwareRelationshipSlot="1";
   private String m_processId=null;
   private String m_version=null;
   private String m_userVersionString="";
