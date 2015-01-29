@@ -64,6 +64,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     s_knownKeys.add("Name");
     s_knownKeys.add("HardwareType");
     s_knownKeys.add("HardwareRelationshipType");
+    s_knownKeys.add("HardwareRelationshipSlot");
     s_knownKeys.add("Version");
     s_knownKeys.add("UserVersionString");
     s_knownKeys.add("Description");
@@ -83,21 +84,23 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   static final int NAME=0;
   static final int HARDWARETYPE=1;
   static final int HARDWARERELATIONSHIPTYPE=2;
-  static final int VERSION=3;
-  static final int USERVERSIONSTRING=4;
-  static final int DESCRIPTION=5;
-  static final int INSTRUCTIONSURL=6;
-  static final int MAXITERATION=7;
-  static final int CONDITION=8;
-  static final int CLONE=9;
-  static final int SEQUENCE=10;
-  static final int SELECTION=11;
-  static final int PREREQUISITES=12;
-  static final int REQUIREDINPUTS=13;
-  static final int TRAVELERACTIONS=14;
-  static final int REFNAME=15;
-  static final int REFVERSION=16;
-  static final int SOURCEDB=17;
+  static final int HARDWARERELATIONSHIPSLOT=3;
+  static final int VERSION=4;
+  static final int USERVERSIONSTRING=5;
+  static final int DESCRIPTION=6;
+  static final int INSTRUCTIONSURL=7;
+  static final int MAXITERATION=8;
+  static final int CONDITION=9;
+  static final int CLONE=10;
+  static final int SEQUENCE=11;
+  static final int SELECTION=12;
+  static final int PREREQUISITES=13;
+  static final int REQUIREDINPUTS=14;
+  static final int TRAVELERACTIONS=15;
+  static final int REFNAME=16;
+  static final int REFVERSION=17;
+  static final int SOURCEDB=18;
+  
 
  
   /**
@@ -212,6 +215,12 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         break;
       case HARDWARERELATIONSHIPTYPE:
         m_hardwareRelationshipType =v; break;
+      case HARDWARERELATIONSHIPSLOT:
+        m_hardwareRelationshipSlot = v;
+        if (!(Verify.isPosInt(v)).isEmpty()) {
+          throw new WrongTypeYamlValue("hardwareRelationshipSlot", v, "Process");
+        }
+        break;
       case VERSION:
         m_version = v; 
         if (!m_version.equals("next")) {
@@ -392,6 +401,9 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   public String provideHardwareType() {return m_hardwareType;}
   public String provideHardwareRelationshipType()  {
     return m_hardwareRelationshipType; }
+  public String provideHardwareRelationshipSlot() {
+    return m_hardwareRelationshipSlot;
+  }
   public String provideVersion() {return m_version;}
   public String provideUserVersionString() {return m_userVersionString;}
   public String provideDescription() {return m_description;}
@@ -432,6 +444,8 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private String m_name=null;
   private String m_hardwareType=null;
   private String m_hardwareRelationshipType=null;
+  // relationship slot is ignored if type is null
+  private String  m_hardwareRelationshipSlot="1"; 
   private String m_version="1";
   private String m_userVersionString=null;
   private String m_instructionsURL=null;
