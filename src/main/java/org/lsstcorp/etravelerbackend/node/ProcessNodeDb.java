@@ -174,8 +174,11 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       m_hardwareType = m_hardwareTypeNameMap.get(m_hardwareTypeId);
       m_hardwareRelationshipTypeId = rs.getString(++ix);
       if (m_hardwareRelationshipTypeId != null) {
-        m_hardwareRelationshipType = 
+        String relationshipKey =
           m_relationshipTypeMap.get(m_hardwareRelationshipTypeId);
+        String parts[] = parseKey(relationshipKey);
+        m_hardwareRelationshipType = parts[0];
+        m_hardwareRelationshipSlot = parts[1];
       }
       m_version = rs.getString(++ix);
       m_userVersionString = rs.getString(++ix);
@@ -290,6 +293,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public String provideHardwareType() {return m_hardwareType;}
   public String provideHardwareRelationshipType()  {
     return m_hardwareRelationshipType; }
+  public String provideHardwareRelationshipSlot()  {
+    return m_hardwareRelationshipSlot; }
   public String provideVersion() {return m_version;}
   public String provideUserVersionString() {return m_userVersionString;}
   public String provideDescription() {
@@ -346,6 +351,9 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public void acceptHardwareType(String hardwareType) {m_hardwareType = hardwareType;}
   public void acceptHardwareRelationshipType(String hardwareRelationshipType) {
     m_hardwareRelationshipType = hardwareRelationshipType;
+  }
+  public void acceptHardwareRelationshipSlot(String hardwareRelationshipSlot) {
+    m_hardwareRelationshipSlot = hardwareRelationshipSlot;
   }
   public void acceptVersion(String version) { m_version = version; }
   public void acceptUserVersionString(String userVersionString) {
@@ -514,17 +522,25 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
         
     // Verify relationship type if not null
     if (m_hardwareRelationshipType != null) {
-      if (m_relationshipTypeMap.containsKey(m_hardwareRelationshipType) ) {
-        m_hardwareRelationshipTypeId = 
-          m_relationshipTypeMap.get(m_hardwareRelationshipType);
+      String key = formUniqueKey(m_hardwareRelationshipType, 
+          m_hardwareRelationshipSlot);
+      if (m_relationshipTypeMap.containsKey(key) ) {
+        m_hardwareRelationshipTypeId = m_relationshipTypeMap.get(key);
       } else {
-        throw new EtravelerException("No such hardware relationship type " 
-                                     + m_hardwareRelationshipType);
+        throw new EtravelerException("No such hardware relationship type, slot " 
+                                     + m_hardwareRelationshipType
+            + ", " + m_hardwareRelationshipSlot);
       }
     }
 
     if (m_prerequisitesDb != null) {
       for (int ip=0; ip < m_prerequisitesDb.length; ip++) {
+        /* there are circumstances where there are extra null entries
+         * at the end of the array.
+         */
+        if (m_prerequisitesDb[ip] == null) {
+          break;
+        }
         m_prerequisitesDb[ip].verify(m_prerequisiteTypeMap, 
                                      m_hardwareTypeNameMap);
       }
@@ -660,7 +676,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
         // Get hardware types associated with this relationship
         String cmp1id;
         String cmp2id;
-        String where = " where id='" + m_hardwareRelationshipType + "'";
+        String where = " where id='" + m_hardwareRelationshipTypeId + "'";
         cmp1id = m_connect.fetchColumn("HardwareRelationshipType", 
                                        "hardwareTypeId", where);
         cmp2id = m_connect.fetchColumn("HardwareRelationshipType", 
@@ -784,7 +800,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   }
   private void initIdMaps() throws SQLException {
     m_relationshipTypeMap = new ConcurrentHashMap<String, String>();
-    fillIdMap("HardwareRelationshipType", "name", m_relationshipTypeMap);
+    fillRelationshipMap("HardwareRelationshipType", "name", "slot", 
+        m_relationshipTypeMap);
     m_semanticsTypeMap = new ConcurrentHashMap<String, String>();
     fillIdMap("InputSemantics", "name", m_semanticsTypeMap);
     m_prerequisiteTypeMap = new ConcurrentHashMap<String, String>();
@@ -835,12 +852,61 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       throw ex;
     }
   }
+  /**
+   *  Relationship type takes some special handling since the uniqueness constraint 
+   * is on (name, slot), not just name
+   * @param table
+   * @param nameCol1
+   * @param nameCol2
+   * @param map 
+   */
+  private void fillRelationshipMap(String table, String nameCol1, String nameCol2,
+      ConcurrentHashMap<String, String> map)  throws SQLException {
+    String[] getCols = { "id", nameCol1, nameCol2};
+    PreparedStatement idNameQuery;
+    ResultSet rs;
+    try {
+      idNameQuery = m_connect.prepareQuery(table, getCols, "");
+      rs = idNameQuery.executeQuery();
+      boolean more = rs.next();
+      while (more) {  
+        String oldValue;
+        String key = formUniqueKey(rs.getString(2), rs.getString(3));
+        oldValue = map.putIfAbsent(key, rs.getString(1));
+        if (oldValue == null) {
+          // and also use id as key 
+          // id is always string rep. of an integer; name never will be
+          oldValue = map.putIfAbsent(rs.getString(1), key);
+        }
+        if (oldValue != null) {
+          throw new DbContentException("id or " + key + "duplicate in "
+                                       + table); 
+        }
+        more = rs.next();
+      }
+    }      catch (SQLException ex) {
+      System.out.println("Exception reading table " + table + ": " +
+                         ex.getMessage());
+      throw ex;
+    }
+  }
+  /* Pick a separator string unlikely to appear in any actual db entry */
+  private static final String GLUE = "%&*";
+  private static final String GLUE_QUOTED = "\\Q" + GLUE + "\\E";
+  private static String formUniqueKey(String val1, String val2)  {
+    return (val1 + GLUE + val2);
+  }
+  private static String[] parseKey(String key) {
+    
+    return key.split(GLUE_QUOTED);
+  }
  
   private String m_id=null;  
   private String m_name=null;
   private String m_hardwareType=null;
   private String m_hardwareTypeId = null;
   private String m_hardwareRelationshipType=null;
+  private String m_hardwareRelationshipSlot="1";
   private String m_hardwareRelationshipTypeId=null;
   private String m_version=null;
   private String m_userVersionString="";
