@@ -145,7 +145,7 @@
     <!-- Locally defined servlet needed for creating circle-and-arrow images -->
     <servlet>
       <servlet-name>TravelerImageServlet</servlet-name>
-      <servlet-class>org.lsstcorp.etravelerbackendnode.TravelerImageServlet</servlet-class>
+      <servlet-class>org.lsstcorp.etravelerbackend.node.TravelerImageServlet</servlet-class>
     </servlet>
     
     <servlet-mapping>

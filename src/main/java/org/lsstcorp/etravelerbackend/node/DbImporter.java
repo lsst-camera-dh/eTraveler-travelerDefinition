@@ -306,6 +306,25 @@ public class DbImporter {
     //}
     vis.render(context);
   }
+  /**
+   * In order to display traveler after yaml loading but before writing to db
+   * For now, no editing allowed
+   */
+  static public void makePreviewTree(PageContext context, ProcessNode traveler) {
+    TravelerTreeVisitor vis = 
+        new TravelerTreeVisitor(false, "view");
+    HttpServletRequest request = (HttpServletRequest) context.getRequest();
+    vis.setPath(request.getContextPath());
+    try {
+      vis.visit(traveler, "build", null);
+    } catch (EtravelerException ex) {
+      System.out.println("Failed to build tree: " + ex.getMessage() );
+      return;
+    }
+    ((JspContext)context).setAttribute("treeVisitor", vis, 
+        PageContext.SESSION_SCOPE);
+    vis.render(context);
+  }
   static public void dotImgMap(PageContext context) {
     JspWriter outWriter = context.getOut();
     /* Make the map */

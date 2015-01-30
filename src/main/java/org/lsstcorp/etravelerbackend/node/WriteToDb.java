@@ -53,6 +53,7 @@ public class WriteToDb {
         return  "<b>" + ex.getMessage() + "</b>";
       }
       if (action.equals("Check")) {
+        DbImporter.makePreviewTree(context, ingested);
         return "File successfully parsed";
       }
       String writeRet =
