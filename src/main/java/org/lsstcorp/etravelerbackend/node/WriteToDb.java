@@ -63,7 +63,7 @@ public class WriteToDb {
   }
 
   private static ProcessNode parse(String fileContents) throws Exception  {    
-    Yaml yaml = new Yaml();
+    Yaml yaml = new Yaml(true);
     Map yamlMap = null;
     try {
       yamlMap = (Map<String, Object>) yaml.load(fileContents);
