@@ -68,13 +68,13 @@
           <artifactId>org-srs-groupmanager-web</artifactId>
           <version>1.19</version>
       </dependency>
-
+<!--   Use local src instead
       <dependency>
           <groupId>org.yaml</groupId>
           <artifactId>snakeyaml</artifactId>
           <version>1.15-SNAPSHOT</version>
       </dependency>
-
+-->
       <dependency>
         <groupId>commons-beanutils</groupId>
         <artifactId>commons-beanutils</artifactId>
