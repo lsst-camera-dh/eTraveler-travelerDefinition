@@ -80,6 +80,7 @@ public class ProcessNode implements  TravelerElement
    */
   private void copyFrom(ProcessNode model) {
     m_hardwareType = new String(model.m_hardwareType);
+    m_hardwareGroup = new String(model.m_hardwareGroup);
     if (model.m_hardwareRelationshipType != null)  {
       m_hardwareRelationshipType = new String(model.m_hardwareRelationshipType);
       m_hardwareRelationshipSlot = new String(model.m_hardwareRelationshipSlot);
@@ -140,6 +141,7 @@ public class ProcessNode implements  TravelerElement
     if (m_isRef) return;
     
     m_hardwareType = imp.provideHardwareType();
+    
     try {
       checkNonempty("hardware type", m_hardwareType);
       if ((parent != null) && (m_hardwareType != m_parent.m_hardwareType)) {
@@ -153,18 +155,24 @@ public class ProcessNode implements  TravelerElement
         throw ex;
       }
     }
+    m_hardwareGroup = imp.provideHardwareGroup();
+    try {
+      checkNonempty("hardware group", m_hardwareGroup);
+      if ((parent != null) && (m_hardwareGroup != m_parent.m_hardwareGroup)) {
+        throw new IncompatibleChild(m_name, parent.m_name, 
+            "hardware group mismatch");
+      }
+    } catch (Exception ex) {
+      if (parent != null) {
+        m_hardwareGroup = parent.m_hardwareGroup;
+      } else if (m_hardwareType != null) {
+        m_hardwareGroup = m_hardwareType;
+      } else {
+        throw ex;
+      }
+    }    
     m_hardwareRelationshipType = imp.provideHardwareRelationshipType();
     m_hardwareRelationshipSlot = imp.provideHardwareRelationshipSlot();
-    
-    /*
-    try {
-      checkNonempty("hardware relationship type", m_hardwareRelationshipType);
-    } catch (Exception ex) {
-      if (parent != null) {  // child steps inherit relationship type
-        m_hardwareRelationshipType = parent.m_hardwareRelationshipType;
-      }
-    }
-    */
     
     m_userVersionString = imp.provideUserVersionString();
     m_description = imp.provideDescription();
@@ -284,7 +292,10 @@ public class ProcessNode implements  TravelerElement
     } else {
       pList.add(new Attribute("user version string", ""));
     }
-    pList.add(new Attribute("hardware type", m_hardwareType));
+    if (m_hardwareType != null) 
+      pList.add(new Attribute("hardware type", m_hardwareType));
+    if (m_hardwareGroup != null)
+      pList.add(new Attribute("hardware group", m_hardwareGroup));
     if (m_hardwareRelationshipType != null) {
       pList.add(new Attribute("hardware relationship type", m_hardwareRelationshipType));
       pList.add(new Attribute("hardware relationship slot", m_hardwareRelationshipSlot));
@@ -385,6 +396,7 @@ public class ProcessNode implements  TravelerElement
     String provideId();
     String provideName();
     String provideHardwareType();
+    String provideHardwareGroup();
     String provideHardwareRelationshipType();
     String provideHardwareRelationshipSlot();
     String provideVersion();
@@ -428,6 +440,7 @@ public class ProcessNode implements  TravelerElement
     void acceptId(String id);
     void acceptName(String name);
     void acceptHardwareType(String hardwareType);
+    void acceptHardwareGroup(String hardwareGroup);
     void acceptHardwareRelationshipType(String hardwareRelationshipType);
     void acceptHardwareRelationshipSlot(String hardwareRelationshipSlot);
     void acceptVersion(String version);
@@ -477,6 +490,7 @@ public class ProcessNode implements  TravelerElement
        */
   
       ptarget.acceptHardwareType(m_hardwareType);
+      ptarget.acceptHardwareGroup(m_hardwareGroup);
       ptarget.acceptHardwareRelationshipType(m_hardwareRelationshipType);
       ptarget.acceptHardwareRelationshipSlot(m_hardwareRelationshipSlot);
       ptarget.acceptVersion(m_version);
@@ -572,7 +586,7 @@ public class ProcessNode implements  TravelerElement
    */
   void copyFrom(ProcessNode src, boolean recurs)  {
     // some things can't have changed; name, hardwareType, userVersionString,
-    // hardwareRelationshipType, isOption, travelerActionMask,
+    // hardwareGorup, hardwareRelationshipType, isOption, travelerActionMask,
     // Don't bother copying those.
   
     m_isRef = src.m_isRef;
@@ -608,6 +622,7 @@ public class ProcessNode implements  TravelerElement
   public String getUserVersionString() {return m_userVersionString;}
   public String getProcessId() {return m_processId;}
   public String getHardwareType() {return m_hardwareType;}
+  public String getHardwareGroup() {return m_hardwareGroup;}
   public String getDescription() {return m_description;}
   public String getInstructionsURL() { return m_instructionsURL;}
   public String getMaxIteration() {return m_maxIteration;}
@@ -675,6 +690,7 @@ public class ProcessNode implements  TravelerElement
   private boolean m_hasClones=false;
   private boolean m_isRef=false;
   private String m_hardwareType=null;
+  private String m_hardwareGroup=null;
   private String m_hardwareRelationshipType=null;
   private String m_hardwareRelationshipSlot="1";
   private String m_processId=null;

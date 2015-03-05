@@ -31,6 +31,7 @@
       <legend>Actions</legend>
    
       <input type="submit" value="Check" name="fileAction" />
+      <input type="submit" value="Db validate" name="fileAction" />
      
       <input type="submit" value="Import" name="fileAction" />  
       

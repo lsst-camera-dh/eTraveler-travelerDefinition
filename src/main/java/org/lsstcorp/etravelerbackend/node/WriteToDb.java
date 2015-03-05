@@ -23,6 +23,7 @@ public class WriteToDb {
   // public static String ingest(String fileContents, boolean useTransactions) {
     public static String ingest(PageContext context) {
       String fileContents = context.getRequest().getParameter("importYamlFile");
+  
       if (fileContents == null || fileContents.isEmpty())  {
         return "No file selected or stale reference. <br /> "
             + "Please hit back button, refresh page, reselect file and try again";
@@ -56,9 +57,10 @@ public class WriteToDb {
         DbImporter.makePreviewTree(context, ingested);
         return "File successfully parsed";
       }
+      
       String writeRet =
           writeToDb(ingested, context.getSession().getAttribute("userName").toString(),
-          useTransactions.equals("true"), dbType, datasource);
+          useTransactions.equals("true"), dbType, datasource, action.equals("Import"));
       return writeRet;
   }
 
@@ -94,7 +96,7 @@ public class WriteToDb {
   }
 
   public static String writeToDb(ProcessNode travelerRoot, String user,
-      boolean useTransactions, String dbType, String datasource)  {
+      boolean useTransactions, String dbType, String datasource, boolean ingest)  {
 
     // Try connect
     DbConnection conn = makeConnection(dbType, datasource);
@@ -119,6 +121,10 @@ public class WriteToDb {
       conn.close();
       return "Failed to verify against " + dbType + 
           " db with exception " + ex.getMessage();
+    }
+    if (!ingest) {
+      conn.close();
+      return "Successfully verified against " + dbType;
     }
     try {
       vis.visit(travelerRoot, "write", null);

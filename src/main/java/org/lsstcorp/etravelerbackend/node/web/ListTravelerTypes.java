@@ -31,13 +31,13 @@ public class ListTravelerTypes extends SimpleTagSupport {
     } catch (Exception ex) {
       throw new JspException(ex);
     }
-    String where = " where (rootProcessId=Process.id) and (Process.hardwareTypeId=HardwareType.id)" ;
+    String where = " where (rootProcessId=Process.id) and (Process.hardwareGroupId=HardwareGroup.id)" ;
     where += " order by Process.name, Process.version desc";
     String[] cols = {"Process.name", "Process.version", 
-      "HardwareType.name as hname", "Process.description", "Process.createdBy",
+      "HardwareGroup.name as hname", "Process.description", "Process.createdBy",
       "Process.creationTS"};
     PreparedStatement qry = 
-        conn.prepareQuery("TravelerType join Process join HardwareType", cols, 
+        conn.prepareQuery("TravelerType join Process join HardwareGroup", cols, 
         where);
     ResultSet ttypes;
     try {

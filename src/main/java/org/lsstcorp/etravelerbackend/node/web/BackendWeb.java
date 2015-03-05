@@ -27,15 +27,15 @@ public class BackendWeb {
       System.out.println("Db connection exception " + ex.getMessage());
       return null;
     }
-    String where = " where (rootProcessId=Process.id) and (Process.hardwareTypeId=HardwareType.id)" ;
+    String where = " where (rootProcessId=Process.id) and (Process.hardwareGroupId=HardwareGroup.id)" ;
     where += " order by Process.name, Process.version desc";
     /* Include two fake columns, values to be overwritten by displayTable decorator */
     String[] cols = {"Process.name as name", "Process.version as version", 
-      "HardwareType.name as hname", "Process.description as description", 
+      "HardwareGroup.name as hname", "Process.description as description", 
       "Process.createdBy",
       "Process.creationTS", "'vw' as viewEdit", "'an' as addNCR"};
     PreparedStatement qry = 
-        conn.prepareQuery("TravelerType join Process join HardwareType", cols, 
+        conn.prepareQuery("TravelerType join Process join HardwareGroup", cols, 
         where);
     ResultSet ttypes;
     RowSetDynaClass rowSetDyna = null;

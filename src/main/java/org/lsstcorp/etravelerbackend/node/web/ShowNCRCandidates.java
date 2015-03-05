@@ -33,14 +33,14 @@ public class ShowNCRCandidates extends SimpleTagSupport {
       throw new JspException(ex);
     }
     String where = " where name='" + baseTraveler.getHardwareType() + "'";
-    String htypeId = conn.fetchColumn("HardwareType", "id", where);
-    if (htypeId == null) {
-      throw new JspException("Unknown base traveler hardware type");
+    String hgroupId = conn.fetchColumn("HardwareGroup", "id", where);
+    if (hgroupId == null) {
+      throw new JspException("Unknown base traveler hardware group");
     }
     String[] cols = {"Process.name", "Process.version", "Process.id"};
     PreparedStatement qry = 
         conn.prepareQuery("TravelerType join Process", cols, 
-        " where rootProcessId=Process.id and hardwareTypeId=" + htypeId);
+        " where rootProcessId=Process.id and hardwareGroupId=" + hgroupId);
     ResultSet candidates;
     try {
       candidates = qry.executeQuery();

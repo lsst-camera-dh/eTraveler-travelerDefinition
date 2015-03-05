@@ -33,7 +33,7 @@ public class TravelerImageServlet extends HttpServlet {
     }
     String decodedName = URLDecoder.decode(request.getParameter("name"), "UTF-8");
     Traveler trav = DbImporter.getTraveler(decodedName,
-        request.getParameter("version"), request.getParameter("htype"),
+        request.getParameter("version"), request.getParameter("hgroup"),
         request.getParameter("db"));
     ByteArrayOutputStream bytes = createTravelerImage(trav.getRoot());
     response.setContentType("image/png");

@@ -42,12 +42,12 @@ public class DbImporter {
     {return name + "_" + version;}
  // private static String makeKey(String name, String version, String dbType)
  // {return name+ "_" + version + "@" + dbType;}
-  private static String makeKey(String name, String version, String htype, 
+  private static String makeKey(String name, String version, String hgroup, 
       String dbType) {
-    return name + "_" + version + "_" + htype + "@" + dbType;
+    return name + "_" + version + "_" + hgroup + "@" + dbType;
   }
   public static ProcessNode getProcess(String name, String version, 
-      String htype, String dbType, String datasource) 
+      String hgroup, String dbType, String datasource) 
     throws EtravelerException {
     DbInfo info = new DbInfo();
     /*
@@ -59,7 +59,7 @@ public class DbImporter {
     ConcurrentHashMap<String, Traveler> travelers=s_travelers;
     ConcurrentHashMap<String, StringArrayWriter> writers=s_writers;
    
-    String key = makeKey(name, version, htype, dbType);
+    String key = makeKey(name, version, hgroup, dbType);
     ProcessNode travelerRoot = null;
     Traveler traveler = null;
     if (travelers.containsKey(key)) {
@@ -73,7 +73,7 @@ public class DbImporter {
         int intVersion = Integer.parseInt(version);
         conn.setReadOnly(true);
         ProcessNodeDb travelerDb = new ProcessNodeDb(conn, name, intVersion, 
-            htype, null, null);
+            hgroup, null, null);
         travelerRoot = new ProcessNode(null, travelerDb);
         traveler = new Traveler(travelerRoot, "db", dbType);
         travelers.putIfAbsent(key, traveler);
@@ -101,7 +101,7 @@ public class DbImporter {
     // return "retrieveProcess called with name=" + name ;
     String name = context.getRequest().getParameter("traveler_name");
     String version = context.getRequest().getParameter("traveler_version");
-    String htype = context.getRequest().getParameter("traveler_htype");
+    String hgroup = context.getRequest().getParameter("traveler_hgroup");
   
     String dbType = ModeSwitcherFilter.getVariable(context.getSession(), 
         "dataSourceMode");
@@ -109,21 +109,21 @@ public class DbImporter {
         "etravelerDb");
     ProcessNode traveler = null;
     try {
-      traveler = getProcess(name, version, htype, dbType, datasource);
+      traveler = getProcess(name, version, hgroup, dbType, datasource);
     } catch (EtravelerException ex) {
       return("Failed to retrieve process with exception: " + ex.getMessage() );
     }
     if (printIt)   {
-      collectOutput(name, version, htype, traveler, dbType);
+      collectOutput(name, version, hgroup, traveler, dbType);
     }
       return "";
   }
  
-  static private void collectOutput(String name, String version, String htype,
+  static private void collectOutput(String name, String version, String hgroup,
      ProcessNode trav, String dbType)  {
     StringArrayWriter wrt = new StringArrayWriter();
     TravelerPrintVisitor vis = new TravelerPrintVisitor();
-    String key = makeKey(name, version, htype, dbType);
+    String key = makeKey(name, version, hgroup, dbType);
     if (!s_writers.containsKey(key)) {
       vis.setEol("\n");
       vis.setWriter(wrt);
@@ -179,14 +179,14 @@ public class DbImporter {
   static public void dotImg(PageContext context) {
     String name = context.getRequest().getParameter("traveler_name");
     String version = context.getRequest().getParameter("traveler_version");
-    String htype = context.getRequest().getParameter("traveler_htype");
+    String hgroup = context.getRequest().getParameter("traveler_hgroup");
     String dbType = ModeSwitcherFilter.getVariable(context.getSession(), 
         "dataSourceMode");
     String datasource = ModeSwitcherFilter.getVariable(context.getSession(), 
         "etravelerDb");
     ProcessNode traveler = null;
     try {
-      traveler = getProcess(name, version, htype, dbType, datasource);
+      traveler = getProcess(name, version, hgroup, dbType, datasource);
     } catch (EtravelerException ex) {
       System.out.println("Failed to retrieve process with exception: " + ex.getMessage() );
       return;
@@ -202,7 +202,7 @@ public class DbImporter {
     }
     try {
       outWriter.println("<img src=\"TravelerImageServlet?name=" + name + "&version=" 
-          + version + "&htype=" + htype + "&db=" +dbType + "\" />");
+          + version + "&hgroup=" + hgroup + "&db=" +dbType + "\" />");
     } catch  (IOException ex) {
       System.out.println("Couldn't write img line");
     }
@@ -258,7 +258,7 @@ public class DbImporter {
     /* Make the map */
     String name;
     String version;
-    String htype;
+    String hgroup;
     JspContext jspContext=null;
     jspContext = (JspContext)context;
     String datasource = ModeSwitcherFilter.getVariable(context.getSession(), "etravelerDb");
@@ -266,16 +266,16 @@ public class DbImporter {
     if (reason.equals("edit") || reason.equals("NCR")) {
       name = (String)(jspContext.getAttribute("traveler_name", PageContext.SESSION_SCOPE));
       version = (String)(jspContext.getAttribute("traveler_version", PageContext.SESSION_SCOPE));
-      htype = (String)(jspContext.getAttribute("traveler_htype", PageContext.SESSION_SCOPE));
+      hgroup = (String)(jspContext.getAttribute("traveler_hgroup", PageContext.SESSION_SCOPE));
     } else {
       name = context.getRequest().getParameter("traveler_name");
       version = context.getRequest().getParameter("traveler_version");
-      htype = context.getRequest().getParameter("traveler_htype");
+      hgroup = context.getRequest().getParameter("traveler_hgroup");
     }
     ProcessNode originalTraveler = null;
    
     try {
-      originalTraveler = getProcess(name, version, htype, dbType, datasource);
+      originalTraveler = getProcess(name, version, hgroup, dbType, datasource);
     } catch (EtravelerException ex) {
       try {
         context.getOut().println("Failed to retreive process with exception: " 
@@ -330,14 +330,14 @@ public class DbImporter {
     /* Make the map */
     String name = context.getRequest().getParameter("traveler_name");
     String version = context.getRequest().getParameter("traveler_version");
-    String htype = context.getRequest().getParameter("traveler_htype");
+    String hgroup = context.getRequest().getParameter("traveler_hgroup");
     String dbType = ModeSwitcherFilter.getVariable(context.getSession(),
         "dataSourceMode");
     String datasource = ModeSwitcherFilter.getVariable(context.getSession(),
         "etravelerDb");
     ProcessNode traveler = null;
     try {
-      traveler = getProcess(name, version, htype, dbType, datasource);
+      traveler = getProcess(name, version, hgroup, dbType, datasource);
     } catch (EtravelerException ex) {
       System.out.println("Failed to retrieve process with exception: " + ex.getMessage() );
       return;
@@ -376,7 +376,7 @@ public class DbImporter {
  
     try {
       outWriter.println("<img src=\"TravelerImageServlet?name=" + name + "&version=" 
-          + version + "&htype=" + htype + "&db=" +dbType 
+          + version + "&hgroup=" + hgroup + "&db=" +dbType 
           + "\" usemap=\"#Traveler\"  />");
     } catch  (IOException ex) {
       System.out.println("Couldn't write img line");
@@ -386,10 +386,10 @@ public class DbImporter {
   static private StringArrayWriter getWriter(PageContext context)  {
     String name =  context.getRequest().getParameter("traveler_name");
     String version = context.getRequest().getParameter("traveler_version");
-    String htype = context.getRequest().getParameter("traveler_htype");
+    String hgroup = context.getRequest().getParameter("traveler_hgroup");
     String dbType = ModeSwitcherFilter.getVariable(context.getSession(),
                                                    "dataSourceMode");
-    String key = makeKey(name, version, htype, dbType);
+    String key = makeKey(name, version, hgroup, dbType);
      
     return s_writers.get(key);
   }
@@ -402,9 +402,9 @@ public class DbImporter {
    * @param db
    * @return 
    */
-  static public Traveler getTraveler(String name, String version, String htype,
+  static public Traveler getTraveler(String name, String version, String hgroup,
       String db) {
-    String key = makeKey(name, version, htype, db);
+    String key = makeKey(name, version, hgroup, db);
     return s_travelers.get(key);
   }
   /**
@@ -589,7 +589,7 @@ public class DbImporter {
     String msg = 
       WriteToDb.writeToDb(travelerRoot, 
                          context.getSession().getAttribute("userName").toString(),
-                         true, dbType, datasource);
+                         true, dbType, datasource, true);
     try {
       context.getOut().println(msg);
     } catch (IOException ex) {
@@ -712,11 +712,11 @@ public class DbImporter {
   static private Traveler getTraveler(PageContext context)  {
     String name =  context.getRequest().getParameter("traveler_name");
     String version = context.getRequest().getParameter("traveler_version");
-    String htype = context.getRequest().getParameter("traveler_htype");
+    String hgroup = context.getRequest().getParameter("traveler_hgroup");
     
     String dbType = ModeSwitcherFilter.getVariable(context.getSession(), 
                                                    "dataSourceMode");
-    return getTraveler(name, version, htype, dbType);
+    return getTraveler(name, version, hgroup, dbType);
   }
     
   static private String checkStep(PageContext context, ProcessNode selected) {
