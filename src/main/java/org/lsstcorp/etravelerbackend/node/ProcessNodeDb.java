@@ -487,8 +487,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       }
     }  else {  copyIdMaps();  }
     
-    // Verify m_hardwareType against db for top node.  For others just check
-    // it matches parent
+    // Verify m_hardwareType or m_hardwareGroup against db for top node.  
+    // For children just check it matches parent
     if (m_dbParent == null) {
       if (m_hardwareType != null) {
         if (m_hardwareTypeNameMap.containsKey(m_hardwareType) ) {
@@ -562,6 +562,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
             + ", " + m_hardwareRelationshipSlot);
       }
     }
+    // Maybe should also check that one of the hardware types mentioned in 
+    // the relationship is in our hardware group??
 
     if (m_prerequisitesDb != null) {
       for (int ip=0; ip < m_prerequisitesDb.length; ip++) {
