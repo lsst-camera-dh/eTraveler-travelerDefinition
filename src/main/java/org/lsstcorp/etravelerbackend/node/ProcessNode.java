@@ -79,7 +79,9 @@ public class ProcessNode implements  TravelerElement
    * @param model 
    */
   private void copyFrom(ProcessNode model) {
-    m_hardwareType = new String(model.m_hardwareType);
+    if (model.m_hardwareType != null) {
+      m_hardwareType = new String(model.m_hardwareType);
+    }
     m_hardwareGroup = new String(model.m_hardwareGroup);
     if (model.m_hardwareRelationshipType != null)  {
       m_hardwareRelationshipType = new String(model.m_hardwareRelationshipType);
@@ -151,8 +153,6 @@ public class ProcessNode implements  TravelerElement
     } catch (Exception ex) {
       if (parent != null) {
         m_hardwareType = parent.m_hardwareType;
-      } else  {
-        throw ex;
       }
     }
     m_hardwareGroup = imp.provideHardwareGroup();

@@ -53,8 +53,9 @@ public class WriteToDb {
         */
         return  "<b>" + ex.getMessage() + "</b>";
       }
-      if (action.equals("Check")) {
-        DbImporter.makePreviewTree(context, ingested);
+      DbImporter.makePreviewTree(context, ingested);
+      if (action.equals("Check YAML")) {
+   
         return "File successfully parsed";
       }
       

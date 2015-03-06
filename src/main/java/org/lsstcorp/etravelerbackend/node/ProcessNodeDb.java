@@ -587,7 +587,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       }
       /* Look up id of version 1 */
       String where = " where version=1 and name='" + m_name 
-          + "' and hardwareTypeId='" + m_hardwareTypeId +"'";
+          + "' and hardwareGroupId='" + m_hardwareGroupId +"'";
       m_originalId = m_connect.fetchColumn("Process", "id", where);
       if (m_originalId == null)  {
         /* If "next" then need not have been prior version with this name.
@@ -718,12 +718,29 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
           throw new SQLException("Unable to retrieve relationship type info");
         }
 
+        /*
+         * Need more sophisticated check here.  See if cmp1id, cmp2id are
+         * in hardware group m_hardwareGroup
+         */
+        where = " where hardwareTypeId='" + cmp1id 
+            + "' and hardwareGroupId ='" + m_hardwareGroupId + "'";
+        String mapId = m_connect.fetchColumn("HardwareTypeGroupMapping", "id",
+            where);
+        if (mapId == null) addComponentPrerequisite(cmp1id);
+        where = " where hardwareTypeId='" + cmp2id 
+            + "' and hardwareGroupId ='" + m_hardwareGroupId + "'";
+        mapId = m_connect.fetchColumn("HardwareTypeGroupMapping", "id",
+            where);
+        if (mapId == null) addComponentPrerequisite(cmp2id);
+        
+        /*
         if (!cmp1id.equals(m_hardwareTypeId))  {
           addComponentPrerequisite(cmp1id);  
         }
         if (!cmp2id.equals(m_hardwareTypeId))  {
           addComponentPrerequisite(cmp2id);  
         }
+        */
       }
     
       if (m_prerequisitesDb != null) {

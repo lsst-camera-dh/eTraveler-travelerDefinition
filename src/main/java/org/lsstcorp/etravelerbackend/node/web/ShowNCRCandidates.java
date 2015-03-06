@@ -32,7 +32,7 @@ public class ShowNCRCandidates extends SimpleTagSupport {
     } catch (Exception ex) {
       throw new JspException(ex);
     }
-    String where = " where name='" + baseTraveler.getHardwareType() + "'";
+    String where = " where name='" + baseTraveler.getHardwareGroup() + "'";
     String hgroupId = conn.fetchColumn("HardwareGroup", "id", where);
     if (hgroupId == null) {
       throw new JspException("Unknown base traveler hardware group");

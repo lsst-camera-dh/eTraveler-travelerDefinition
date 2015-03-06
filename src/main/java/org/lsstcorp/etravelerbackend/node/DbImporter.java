@@ -313,6 +313,7 @@ public class DbImporter {
   static public void makePreviewTree(PageContext context, ProcessNode traveler) {
     TravelerTreeVisitor vis = 
         new TravelerTreeVisitor(false, "view");
+    vis.setTitle("Preview tree from YAML check");
     HttpServletRequest request = (HttpServletRequest) context.getRequest();
     vis.setPath(request.getContextPath());
     try {

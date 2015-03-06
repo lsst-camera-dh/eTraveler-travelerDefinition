@@ -231,6 +231,8 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         if (m_hardwareType != null)  {
           throw new YamlIncompatibleKeys("HardwareType", "HardwareGroup");
         }
+        m_hardwareGroup = v;
+        break;
       case HARDWARERELATIONSHIPTYPE:
         m_hardwareRelationshipType =v; break;
       case HARDWARERELATIONSHIPSLOT:
