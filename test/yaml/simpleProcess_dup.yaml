@@ -1,0 +1,21 @@
+ Name:  Prepare_dup
+ HardwareType: LCA-ASPIC
+ Description: Dummy procedure with process names unlikely to conflict
+ InstructionsURL:  No instructions 
+ Version: 1
+ Sequence:
+   - 
+      Name: Unpack_dup
+      Description:  unpack blah blah
+      InstructionsURL:   http://somewhere/unpackASPIC.html
+   -
+      Name: Clean_dup
+      Description:  clean blah blah blah
+      InstructionsURL:   http://somewhere/cleanASPIC.html
+
+   -
+      Name: Inspect_dup
+      Description:  inspect blah blah blah
+      InstructionsURL:   http://somewhere/inspectASPIC.html
+
+

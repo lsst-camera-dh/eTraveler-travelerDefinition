@@ -1,0 +1,35 @@
+%YAML  1.1
+---
+Name: Cryostat_integrate_raft_prepare
+HardwareType: Cryostat
+Description: Ready cryostat for installation
+Sequence:
+  - 
+    Name: Cryostat in integration gantry
+    Description: Multi-step procedure including a "locate" step
+    Sequence:
+      - 
+        Name: prepare move to gantry
+        Description:  whatever
+      -
+        Name: move cryostat to gantry
+        Description:  do it
+        TravelerActions:
+           - SetHardwareLocation
+  - 
+    Name: Z-stage above
+    Description: Install Z-stage above cryo.  In reality multi-step
+    Prerequisites:
+      -
+        Name: Z-stage
+        PrerequisiteType: TEST_EQUIPMENT
+  - 
+    Name: Z-stage align
+    Description: Align above RAFT bay. Placeholder for multi-step. 
+    Prerequisites:
+      -
+        Name: Alignment equipment
+        PrerequisiteType: TEST_EQUIPMENT
+  -
+    Name: Z-stage insert
+    Description: Insert Z-stage through cryostat. Placeholder for multi-step. 

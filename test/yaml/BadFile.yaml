@@ -1,0 +1,13 @@
+%YAML  1.1
+---
+ Name:  BadFile
+ HardwareType:  CCD
+ Description: Dup key example
+ Sequence:
+   -
+     Name: step_1
+     Description: a step
+
+     Name: step_2
+     Description: oops - no hyphen
+

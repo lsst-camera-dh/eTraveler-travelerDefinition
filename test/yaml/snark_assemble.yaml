@@ -1,0 +1,18 @@
+%YAML  1.1
+---
+Name: snark_assemble
+HardwareGroup: snark
+Description: assemble a widget onto a snark (but not a boojum)
+Sequence:
+   - Name: Get ready
+     Description: Dust off the boojum
+   - Name: Add widget
+     Description: The first assembly step; prerequisite implicit
+     HardwareRelationshipType: not_a_boojumandwidgetA
+   - Name: Add another widget
+     Description: Second assembly step; prerequisite explicit
+     HardwareRelationshipType: not_a_boojumandwidgetA
+     HardwareRelationshipSlot: 2
+     Prerequisites:
+       - PrerequisiteType: COMPONENT
+         Name: widgetA

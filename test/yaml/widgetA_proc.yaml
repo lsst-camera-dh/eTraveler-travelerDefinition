@@ -1,0 +1,9 @@
+%YAML  1.1
+---
+Name: widgetA_proc
+HardwareGroup: widgetA
+Description: New-style traveler where hardware group has single member
+Sequence:
+  - Name: widgetA_step1
+  - Name: widgetA_step2
+ 

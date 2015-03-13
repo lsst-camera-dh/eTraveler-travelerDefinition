@@ -1,0 +1,18 @@
+%YAML  1.1
+---
+# Call a nearly no-op jh job
+Name: jh_test
+HardwareType:  CCD
+Version:     3
+Description: Exercise JH, referring to pre-existing jh steps
+SourceDb: Raw
+TravelerActions:
+  - Automatable
+Sequence:
+  - 
+    RefName: example_station_A
+    RefVersion: 1
+  - 
+    RefName: example_station_B
+    Refversion: 1
+

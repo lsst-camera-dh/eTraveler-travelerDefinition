@@ -1,0 +1,17 @@
+%YAML  1.1
+---
+Name: NextLast
+Version: 2
+HardwareType: CCD
+Description: Test use of version=next and refVersion=last
+SourceDb: Raw
+Sequence:
+  -
+    Name: normalStep
+    Version: next
+    Description: still nothing special about it
+  -
+    RefName: seq2
+  -
+    RefName: jh_test
+    RefVersion: last

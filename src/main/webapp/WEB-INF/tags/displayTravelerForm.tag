@@ -10,7 +10,7 @@
 <%-- The list of normal or fragment attributes can be specified here: --%>
 <%@attribute name="traveler"%>
 <%@attribute name="version" %>
-<%@attribute name="htype" %>
+<%@attribute name="hgroup" %>
 <%@attribute name="oformat" %>
 
 <%-- any content can be specified here e.g.: --%>

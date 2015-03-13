@@ -1,0 +1,67 @@
+%YAML  1.1
+---
+Name: NontrivialStructure
+HardwareType: CCD
+Description: To be used for testing. Exemplifies most features (except JH)
+Sequence:
+  -
+    Name: seq1
+    Description: Just a non-descript step
+  -
+    Name: seq2
+    Description:  Has selection children
+    Selection:
+      -
+        Name: sel1
+        Condition: A < 0
+      -
+        Name: sel2
+        Description:  has sequence children
+        Condition: A = 0
+        Sequence:
+          -
+            Name: Aeq0_0
+          -
+            Name: Aeq0_1
+          -
+            Name: Aeq0_2
+      -
+        Name: sel3
+        Condition: A > 0
+  -
+    Name: seq3
+    Description: Has children with stuff
+    Sequence:
+      -
+        Name: hasPrereqs
+        Description: step with various prereqs
+        Prerequisites:
+          -
+            PrerequisiteType:  PROCESS_STEP
+            Name: seq2
+            Version: 1
+          -
+            PrerequisiteType: CONSUMABLE
+            Name: ice cream cone
+            Quantity: 3
+        ##-
+        ##  PrerequisiteType: COMPONENT
+        ##  Name: LCA-ASPIC
+      -
+        Clone: seq1
+      -
+        Name: stepWithInputs
+        RequiredInputs:
+          -
+            Label: Count ( no more than 10)
+            InputSemantics: int
+            MinValue: 0
+            MaxValue: 10
+          - 
+            Label: Displacement
+            Units: mm
+            InputSemantics: float
+          -
+            Label: Snapshot
+            Description:  Attach picture of measurement
+            InputSemantics: filepath

@@ -1,0 +1,27 @@
+%YAML  1.1
+---
+Name: Prepare_raft_for_insertion
+HardwareType: LCA-Raft_2
+Description: Final preparation before raft is installed in cryostat
+Sequence:
+  - 
+   Name: Prepare_for_positioning_assembly
+   Description:  In reality this step would have several substeps
+  -
+   Name: Raft_in_positioning_assembly
+   Description:  Another procedure in its own right with several substeps
+   Prerequisites:
+      - 
+       Name: Positioning_assembly
+       Description: 
+       PrerequisiteType: TEST_EQUIPMENT
+  -
+   Name: Align below bay
+   Description: Yet another multi-step procedure
+  -
+   Name: Mark raft aligned
+   Description: Set status
+   #TravelerActions:
+   #   - 
+   #     setHardwareStatus
+  

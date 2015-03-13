@@ -1,0 +1,17 @@
+%YAML 1.1 
+---
+Name:  Prepare3
+HardwareType: LCA-ASPIC
+Description: Blah blah
+InstructionsURL: 
+Sequence:
+   -
+      Name: AnyOldStep
+      Description:  Do something
+   -
+      Clone: AnyOldStep
+   - 
+      Name: AnotherStep
+      Description: Do something else
+
+

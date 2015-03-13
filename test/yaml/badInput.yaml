@@ -1,0 +1,53 @@
+%YAML 1.1 
+---
+Name:  InputTraveler
+HardwareType: LCA-Raft_2
+Description: Blah blah
+InstructionsURL: 
+Sequence:
+   - 
+      Name: hasInputs
+      Description: Do something else
+      PromptedInputs:
+        -
+          Label: Count ( no more than 10)
+          InputSemantics: int
+          MinValue: 0
+          MaxValue: 10
+        - 
+          Label: Displacement
+          InputSemantics: float
+          Units: mm
+          MinValue: 2.3
+          MaxValue: 2.2
+        -
+          Label: Snapshot
+          Description:  Attach picture of measurement
+          InputSemantics: filepath
+   -
+      Name: stepWhichIsPrereq
+      Description: Part of PrereqTraveler example; a step used as prereq
+      UserVersionString: 1.2X
+   -
+      Name: hasPrereqs
+      Description:  Do something
+      UserVersionString:  user version 123.2B
+      Prerequisites:
+        -
+          PrerequisiteType:  PROCESS_STEP
+          Name: stepWhichIsPrereq
+          UserVersionString: 1.2X
+        -
+          PrerequisiteType:  CONSUMABLE
+          Name: ice cream
+        -
+          PrerequisiteType:  COMPONENT
+          Name: DRAWING_ASPIC
+        -
+          PrerequisiteType:  COMPONENT
+          Name: ASPIC chip
+   -
+      Clone: hasPrereqs
+
+
+

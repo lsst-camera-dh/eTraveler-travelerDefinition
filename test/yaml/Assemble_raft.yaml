@@ -1,0 +1,54 @@
+%YAML  1.1
+---
+ Name:  Assemble Raft
+ HardwareType: LCA-Raft_1
+ Description: Blah blah
+ Version: 1
+ Sequence:
+   -
+      Name: Install_1
+      HardwareRelationshipType: LCA-Raft_1andCCD
+      Description:  Install a CCD
+      InstructionsURL:   http://somewhere/Install_CCD
+      Prerequisites:
+        -
+          PrerequisiteType: CONSUMABLE
+          Name: Glue
+        - 
+          PrerequisiteType: COMPONENT
+          Name: CCD        
+   - 
+      Name: Install_2
+      HardwareRelationshipType: LCA-Raft_1andCCD
+      HardwareRelationshipSlot: 2
+      Description:  Install second CCD
+      InstructionsURL:   http://somewhere/Install_CCD
+      TravelerActions: 
+        -
+          MakeHardwareRelationship
+      Prerequisites:
+        -
+          PrerequisiteType: CONSUMABLE
+          Name: Glue
+   -
+      Name: Install_3
+      HardwareRelationshipType: LCA-Raft_1andCCD
+      HardwareRelationshipSlot: 3
+      Description:  Install ccd in raft slot 02
+      InstructionsURL:   http://somewhere/Install_CCD
+   -
+      Name: Remove_1
+      HardwareRelationshipType: Raft_CCD_2_2
+      HardwareRelationshipSlot: 1
+      Description:  Remove ccd from first slot
+      InstructionsURL:   http://somewhere/Remove_CCD
+      TravelerActions: 
+        -
+          BreakHardwareRelationship
+      Prerequisites:
+        -
+          PrerequisiteType: TEST_EQUIPMENT
+          Name: CCD_remover
+        
+
+

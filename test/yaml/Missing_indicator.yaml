@@ -1,0 +1,24 @@
+%YAML 1.1
+---
+ Name: Missing_indicator
+ HardwareType: CCD
+ Description:  Leave out hyphen for a list element
+ Sequence:
+     -
+       Name: Normal_child_1
+     - 
+       Name: Normal_child_2
+       Description:  Ok so far
+       Prerequisites:
+         -
+           PrerequisiteType: CONSUMABLE
+           Name: ice cream
+
+       Name: Missing_hyphen
+       Description: Does this generate duplicate key error?
+       Prerequisites:
+         -
+           PrerequisiteType: CONSUMABLE
+           Name: coffee
+
+       Name: Still_no_hyphen

@@ -1,0 +1,40 @@
+%YAML 1.1 
+---
+Name:  PrereqTraveler
+HardwareType: LCA-Raft_1
+Description: Blah blah
+InstructionsURL:  No instructions
+Sequence:
+   -
+      Name: stepWhichIsPrereq
+      Description: Part of PrereqTraveler example; a step used as prereq
+      UserVersionString: 1.2X
+   -
+      Name: hasPrereqs
+      Description:  Do something
+      UserVersionString:  user version 123.2B
+      Prerequisites:
+        -
+          PrerequisiteType:  PROCESS_STEP
+          Name: stepWhichIsPrereq
+          Description: Redundant since prereq must have been executed
+          UserVersionString: 1.2X
+        -
+          PrerequisiteType:  CONSUMABLE
+          Description: coffee, peach and chocolate chip cookie dough
+          Name: ice cream
+          Quantity: 3
+        -
+          PrerequisiteType:  COMPONENT
+          Name: LCA-ASPIC
+        -
+          PrerequisiteType:  COMPONENT
+          Name: LCA-Filter
+   -
+      Clone: hasPrereqs
+
+   - 
+      Name: Noprereqs
+      Description: Do something else
+
+
