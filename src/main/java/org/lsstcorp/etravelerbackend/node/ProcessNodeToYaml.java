@@ -48,9 +48,15 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
   public void acceptHardwareType(String hardwareType) {
      if (m_isRoot) m_data.put("HardwareType", hardwareType);
   }
+  public void acceptHardwareGroup(String hardwareGroup) {
+     if (m_isRoot) m_data.put("HardwareGroup", hardwareGroup);
+  }
   public void acceptHardwareRelationshipType(String hardwareRelationshipType) {
     if (!m_isCloned) putIfPresent("HardwareRelationshipType", hardwareRelationshipType);
   
+  }
+  public void acceptHardwareRelationshipSlot(String hardwareRelationshipSlot) {
+    if (!m_isCloned) putIfPresent("HardwareRelationshipSlot", hardwareRelationshipSlot); 
   }
   public void acceptVersion(String version) {
     if (!m_isCloned) m_data.put("Version", version);
