@@ -1,0 +1,13 @@
+%YAML  1.1
+---
+ Name:  Bad_indentation
+ Description: Test for malformed yaml
+ Sequence:
+     - 
+       Name: Bad_indent_child1
+  -
+    Name: Bad_indent_child2
+    Description: This step should trigger an error
+  -
+    Name: Bad_indent_child3
+    Description: To see which children we end up with

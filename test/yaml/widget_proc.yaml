@@ -1,0 +1,9 @@
+%YAML  1.1
+---
+Name: widget_proc
+HardwareGroup: widget
+Description: New-style traveler where hw group takes in multiple hw types
+Sequence:
+  - Name: widget_step1
+  - Name: widget_step2
+ 

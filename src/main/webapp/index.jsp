@@ -17,9 +17,8 @@
     <body>
       
         <h1>View and Edit Traveler Definitions</h1>
-        
-          
-        <c:set var="ttype_action" value="editTraveler.jsp" />
+           
+        <c:set var="ttype_action" value="displayTraveler.jsp" />
         <c:set var="result" value="${backweb:getTravelerTypeInfo(pageContext)}"/>
 
         <display:table   name="${result.rows}"   uid="ttypes" class="datatable"

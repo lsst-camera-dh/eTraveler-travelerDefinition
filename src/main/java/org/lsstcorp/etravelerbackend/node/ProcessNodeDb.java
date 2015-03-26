@@ -51,23 +51,23 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
    init(id, travelerRoot);
   }
   public ProcessNodeDb(DbConnection connect, String processName, 
-      String userVersion, String htype, String parentEdgeId, 
+      String userVersion, String hgroup, String parentEdgeId, 
       ProcessNodeDb travelerRoot) throws SQLException {
     m_connect = connect;
     m_parentEdgeId = parentEdgeId;
-    init(processName, userVersion, htype, travelerRoot);
+    init(processName, userVersion, hgroup, travelerRoot);
   }
   public ProcessNodeDb(DbConnection connect, String processName, int version,
-      String htype, String parentEdgeId, ProcessNodeDb travelerRoot) 
+      String hgroup, String parentEdgeId, ProcessNodeDb travelerRoot) 
       throws SQLException {
     m_connect = connect;
     m_parentEdgeId = parentEdgeId;
-    init(processName, version, htype, travelerRoot);
+    init(processName, version, hgroup, travelerRoot);
   }
-  private static String[] s_initCols = {"name", "hardwareTypeId",
-    "hardwareRelationshipTypeId", "version", "userVersionString",
-    "description", "instructionsURL", "substeps", "maxIteration", "travelerActionMask",
-    "originalId"};
+  private static String[] s_initCols = {"name", "hardwareTypeId", 
+    "hardwareGroupId", "hardwareRelationshipTypeId", "version", 
+    "userVersionString", "description", "instructionsURL", "substeps", 
+    "maxIteration", "travelerActionMask", "originalId"};
   private static String[] s_edgeCols = {"step", "cond"};
   private static PreparedStatement s_processQuery = null;
   private static PreparedStatement s_edgeQuery = null;
@@ -80,15 +80,17 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
    * input parameters
    * @param processName   "name" field in db
    * @param userVersion   "userVersionString"  field in db
+   * @param hgroup         name for hardware group
+   * @param travelerRoot
    * @return 
    */
-  private void init(String processName, String userVersion, String htype, 
+  private void init(String processName, String userVersion, String hgroup, 
       ProcessNodeDb travelerRoot) throws SQLException {
     // fetch id, then call the other init
     String where = " WHERE Process.name=" + processName + " and userVersionString=" 
-            + userVersion + " and HardwareType.name='" + htype 
-        + "' and Process.hardwareTypeId=HardwareType.id";
-    String id = m_connect.fetchColumn("Process join HardwareType", "Process.id", 
+            + userVersion + " and HardwareGroup.name='" + hgroup 
+        + "' and Process.hardwareGroupId=HardwareGroup.id";
+    String id = m_connect.fetchColumn("Process join HardwareGroup", "Process.id", 
         where);
     if (id == null)  {
       SQLException ex = new SQLException("Fetch column failure");
@@ -103,13 +105,13 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
    * @param version          "version" field in db
    * @return 
    */
-  private void init(String processName, int version, String htype,
+  private void init(String processName, int version, String hgroup,
       ProcessNodeDb travelerRoot) throws SQLException {
     // fetch id, then call the other init
     String where = " WHERE Process.name='" + processName + "' and version=" 
-            + version  + " and HardwareType.name='" + htype 
-        + "' and Process.hardwareTypeId=HardwareType.id";
-    String id = m_connect.fetchColumn("Process join HardwareType", "Process.id", where);
+            + version  + " and HardwareGroup.name='" + hgroup 
+        + "' and Process.hardwareGroupId=HardwareGroup.id";
+    String id = m_connect.fetchColumn("Process join HardwareGroup", "Process.id", where);
     if (id == null) { 
       SQLException ex = new SQLException("fetch column failure");
       throw ex;
@@ -171,7 +173,12 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       int ix = 0;
       m_name = rs.getString(++ix);
       m_hardwareTypeId = rs.getString(++ix);
-      m_hardwareType = m_hardwareTypeNameMap.get(m_hardwareTypeId);
+      m_hardwareGroupId = rs.getString(++ix);
+      if (m_hardwareTypeId != null) {
+        if (m_hardwareTypeId.isEmpty()) m_hardwareTypeId = null;
+        else m_hardwareType = m_hardwareTypeNameMap.get(m_hardwareTypeId);
+      }
+      m_hardwareGroup = m_hardwareGroupNameMap.get(m_hardwareGroupId);
       m_hardwareRelationshipTypeId = rs.getString(++ix);
       if (m_hardwareRelationshipTypeId != null) {
         String relationshipKey =
@@ -291,6 +298,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public String provideId() {return m_id;}
   public String provideName()  {return m_name;}
   public String provideHardwareType() {return m_hardwareType;}
+  public String provideHardwareGroup() {return m_hardwareGroup;}
   public String provideHardwareRelationshipType()  {
     return m_hardwareRelationshipType; }
   public String provideHardwareRelationshipSlot()  {
@@ -349,6 +357,9 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public void acceptId(String id) {   m_id = id; }
   public void acceptName(String name) {  m_name = name; }
   public void acceptHardwareType(String hardwareType) {m_hardwareType = hardwareType;}
+  public void acceptHardwareGroup(String hardwareGroup) {
+    m_hardwareGroup=hardwareGroup;
+  }
   public void acceptHardwareRelationshipType(String hardwareRelationshipType) {
     m_hardwareRelationshipType = hardwareRelationshipType;
   }
@@ -476,16 +487,35 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       }
     }  else {  copyIdMaps();  }
     
-    // Verify m_hardwareType against db for top node.  For others just check
-    // it matches parent
+    // Verify m_hardwareType or m_hardwareGroup against db for top node.  
+    // For children just check it matches parent
     if (m_dbParent == null) {
-      if (m_hardwareTypeNameMap.containsKey(m_hardwareType) ) {
-        m_hardwareTypeId = m_hardwareTypeNameMap.get(m_hardwareType);
-      }  else {
-        throw new EtravelerException("No such hardware type " + m_hardwareType);
+      if (m_hardwareType != null) {
+        if (m_hardwareTypeNameMap.containsKey(m_hardwareType) ) {
+          m_hardwareTypeId = m_hardwareTypeNameMap.get(m_hardwareType);
+        }  else {
+          throw new EtravelerException("No such hardware type " + m_hardwareType);
+        }
+        // Should also be entry for this name in the group map 
+        if (m_hardwareGroupNameMap.containsKey(m_hardwareType) ) {
+          m_hardwareGroupId = m_hardwareGroupNameMap.get(m_hardwareType);
+          m_hardwareGroup = m_hardwareType;
+        } else {
+          throw new EtravelerException("No hardware group entry for " + m_hardwareType);
+        } 
+      } else if (m_hardwareGroup == null) {
+        throw new EtravelerException("No hardware type or group specified");
+      } else  {   // hardware group has been specified
+        if (m_hardwareGroupNameMap.containsKey(m_hardwareGroup)) {
+          m_hardwareGroupId = m_hardwareGroupNameMap.get(m_hardwareGroup);
+        } else {
+          throw new EtravelerException("No hardware group entry for " + m_hardwareGroup);
+        }
       }
+        
     }   else { // assuming we checked compatibility of child earlier
       m_hardwareTypeId = m_dbParent.m_hardwareTypeId;
+      m_hardwareGroupId = m_dbParent.m_hardwareGroupId;
     }
     // If ref, verify we have the right db and that the node we need really is.
     // there. Also fetch travelerActionMask
@@ -532,6 +562,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
             + ", " + m_hardwareRelationshipSlot);
       }
     }
+    // Maybe should also check that one of the hardware types mentioned in 
+    // the relationship is in our hardware group??
 
     if (m_prerequisitesDb != null) {
       for (int ip=0; ip < m_prerequisitesDb.length; ip++) {
@@ -557,7 +589,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       }
       /* Look up id of version 1 */
       String where = " where version=1 and name='" + m_name 
-          + "' and hardwareTypeId='" + m_hardwareTypeId +"'";
+          + "' and hardwareGroupId='" + m_hardwareGroupId +"'";
       m_originalId = m_connect.fetchColumn("Process", "id", where);
       if (m_originalId == null)  {
         /* If "next" then need not have been prior version with this name.
@@ -597,8 +629,9 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   }
   // NOTE:  Can use keyword DEFAULT for columns not always set to user-supplied,
   //         value, e.g. hardwareRelationshipType
-  private static   String[] s_insertProcessCols={"name", "hardwareTypeId", "version",
-    "userVersionString", "description", "instructionsURL", "substeps", "maxIteration", "originalId",
+  private static   String[] s_insertProcessCols={"name", "hardwareTypeId", 
+    "hardwareGroupId", "version", "userVersionString", "description", 
+    "instructionsURL", "substeps", "maxIteration", "originalId",
     "travelerActionMask", "hardwareRelationshipTypeId", "createdBy"};
   private static   String[] s_insertEdgeCols={"parent", "child", "step", "cond", "createdBy"};
   private static   String[] s_insertTravTypeCols={"rootProcessId", "createdBy"};
@@ -622,24 +655,26 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       String[] vals = new String[s_insertProcessCols.length];
       vals[0] = m_name;
       vals[1] = m_hardwareTypeId;
+    
+      vals[2] = m_hardwareGroupId;
       if (m_version.equals("next") || m_version.equals("modified")) {
         m_version = nextAvailableVersion(m_originalId);
       }
-      vals[2] = m_version;
+      vals[3] = m_version;
       if ((m_userVersionString != null) && m_userVersionString.isEmpty()) {
-        vals[3] = null;
+        vals[4] = null;
       } else {
-        vals[3] = m_userVersionString;
+        vals[4] = m_userVersionString;
       }
-      vals[4] = m_description;
-      vals[5] = m_instructionsURL;
-      vals[6] = m_substeps;
-      vals[7] = m_maxIteration;
-      vals[8] = m_originalId;
-      vals[9] = String.valueOf(m_travelerActionMask);
-      vals[10] = m_hardwareRelationshipTypeId;
+      vals[5] = m_description;
+      vals[6] = m_instructionsURL;
+      vals[7] = m_substeps;
+      vals[8] = m_maxIteration;
+      vals[9] = m_originalId;
+      vals[10] = String.valueOf(m_travelerActionMask);
+      vals[11] = m_hardwareRelationshipTypeId;
       //  Value for user should come from Confluence log-in
-      vals[11] = m_vis.getUser();
+      vals[12] = m_vis.getUser();
       try {
         m_id = m_connect.doInsert("Process", s_insertProcessCols, vals, "", 
                                   DbConnection.ADD_CREATION_TIMESTAMP);
@@ -685,12 +720,29 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
           throw new SQLException("Unable to retrieve relationship type info");
         }
 
+        /*
+         * Need more sophisticated check here.  See if cmp1id, cmp2id are
+         * in hardware group m_hardwareGroup
+         */
+        where = " where hardwareTypeId='" + cmp1id 
+            + "' and hardwareGroupId ='" + m_hardwareGroupId + "'";
+        String mapId = m_connect.fetchColumn("HardwareTypeGroupMapping", "id",
+            where);
+        if (mapId == null) addComponentPrerequisite(cmp1id);
+        where = " where hardwareTypeId='" + cmp2id 
+            + "' and hardwareGroupId ='" + m_hardwareGroupId + "'";
+        mapId = m_connect.fetchColumn("HardwareTypeGroupMapping", "id",
+            where);
+        if (mapId == null) addComponentPrerequisite(cmp2id);
+        
+        /*
         if (!cmp1id.equals(m_hardwareTypeId))  {
           addComponentPrerequisite(cmp1id);  
         }
         if (!cmp2id.equals(m_hardwareTypeId))  {
           addComponentPrerequisite(cmp2id);  
         }
+        */
       }
     
       if (m_prerequisitesDb != null) {
@@ -808,6 +860,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     fillIdMap("PrerequisiteType", "name", m_prerequisiteTypeMap);
     m_hardwareTypeNameMap = new ConcurrentHashMap<String, String>();
     fillIdMap("HardwareType", "name", m_hardwareTypeNameMap);
+    m_hardwareGroupNameMap = new ConcurrentHashMap<String, String>();
+    fillIdMap("HardwareGroup", "name", m_hardwareGroupNameMap);
     m_processNameIdMap = new ConcurrentHashMap<String, String>();
 
   }
@@ -817,6 +871,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     m_semanticsTypeMap = m_travelerRoot.m_semanticsTypeMap;
     m_prerequisiteTypeMap = m_travelerRoot.m_prerequisiteTypeMap;
     m_hardwareTypeNameMap = m_travelerRoot.m_hardwareTypeNameMap;
+    m_hardwareGroupNameMap = m_travelerRoot.m_hardwareGroupNameMap;
     m_processNameIdMap = m_travelerRoot.m_processNameIdMap;
 
   }
@@ -904,7 +959,9 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private String m_id=null;  
   private String m_name=null;
   private String m_hardwareType=null;
+  private String m_hardwareGroup=null;
   private String m_hardwareTypeId = null;
+  private String m_hardwareGroupId = null;
   private String m_hardwareRelationshipType=null;
   private String m_hardwareRelationshipSlot="1";
   private String m_hardwareRelationshipTypeId=null;
@@ -951,6 +1008,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private ConcurrentHashMap<String, String> m_prerequisiteTypeMap = null;
 
   private ConcurrentHashMap<String, String> m_hardwareTypeNameMap = null;
+  private ConcurrentHashMap<String, String> m_hardwareGroupNameMap = null;
   private ConcurrentHashMap<String, String> m_processNameIdMap = null;
 
   private boolean m_verified=false;

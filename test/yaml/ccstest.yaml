@@ -1,0 +1,16 @@
+%YAML  1.1
+---
+Name: ccstest
+Version: 3
+HardwareType: CCD
+Description: Test invocation of CCS from job harness
+TravelerActions:
+  - Automatable
+Sequence:
+  -
+    Name: ccstest_acq
+    UserVersionString: v2
+    Version: 3
+    Description: Indirectly invokes ccsacqtest.py
+    TravelerActions:
+      - HarnessedJob

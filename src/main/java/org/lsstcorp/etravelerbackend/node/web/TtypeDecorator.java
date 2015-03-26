@@ -31,7 +31,7 @@ public class TtypeDecorator extends org.displaytag.decorator.TableDecorator {
         (row.get("name")).toString()
         + "&traveler_version=" + 
         (row.get("version")).toString()
-           + "&traveler_htype=" + 
+           + "&traveler_hgroup=" + 
         (row.get("hname")).toString();
     
     return null;  

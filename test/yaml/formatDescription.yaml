@@ -1,0 +1,21 @@
+%YAML 1.1
+---
+Name: formatDescription
+HardwareType: boojum
+Description: try various styles of step descriptions; see what they look like
+Sequence:
+  - Name: multi-line unquoted 
+    Description:   The value of this string
+       was spread across two lines
+    MaxIteration: 4
+  - Name: multi-line quoted
+    Description: "Split among
+several lines
+but quoted. 
+Can we do without indent?"
+    Version: next
+  - Name: htmlInQuotes
+    Description:  "<p>Put some <b>formatting</b> in <br /> the string, 
+including line <br /> breaks"
+
+

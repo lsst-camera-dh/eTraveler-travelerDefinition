@@ -55,8 +55,12 @@ public class EditProcessStep extends SimpleTagSupport {
     wrt.println("<tr><td class='bold'>Name</td><td>" + (attsMap.get("name")).toString() + "</td></tr>");
     wrt.println("<tr><td class='bold'>Original version</td><td>" 
         + (attsMap.get("version")).toString() +"</td></tr>");
-    wrt.println("<tr><td class='bold'>Hardware type</td><td>"
-        + (attsMap.get("hardware type")).toString() + "</td></tr>");
+    wrt.println("<tr><td class='bold'>Hardware group</td><td>"
+          + (attsMap.get("hardware group")).toString() + "</td></tr>");
+    if (attsMap.containsKey("hardware type")) {
+      wrt.println("<tr><td class='bold'>Hardware type</td><td>"
+          + (attsMap.get("hardware type")).toString() + "</td></tr>");
+    }
     wrt.println("<tr><td class='bold'>Child type</td><td>"
         + (attsMap.get("child type")).toString() + "</td></tr>");
     if (attsMap.containsKey("hardware relationship type")) {
@@ -95,8 +99,8 @@ public class EditProcessStep extends SimpleTagSupport {
         + (attsMap.get("name")).toString() + "' />");
     wrt.println("<input type='hidden' name='oldVersion' id='oldVersion'"); 
     wrt.println("value='" + (attsMap.get("version")).toString() + "' />");
-    wrt.println("<input type='hidden' name='htype' id='htype' value='" 
-        + (attsMap.get("hardware type")).toString() + "' />");
+    wrt.println("<input type='hidden' name='hgroup' id='hgroup' value='" 
+        + (attsMap.get("hardware group")).toString() + "' />");
     wrt.println("<input type='hidden' name='childType' id='childType' value='" 
         + (attsMap.get("child type")).toString() + "' />");  
     if (attsMap.containsKey("hardware relationship type")) {

@@ -10,6 +10,7 @@ import org.lsstcorp.etravelerbackend.exceptions.UnrecognizedYamlKey;
 import org.lsstcorp.etravelerbackend.exceptions.WrongTypeYamlValue;
 import org.lsstcorp.etravelerbackend.exceptions.YamlIncompatibleKeys;
 import org.lsstcorp.etravelerbackend.exceptions.NullYamlValue;
+import org.lsstcorp.etravelerbackend.exceptions.IncompatibleChild;
 import org.lsstcorp.etravelerbackend.exceptions.EtravelerException;
 import org.lsstcorp.etravelerbackend.util.Verify;
 import  org.yaml.snakeyaml.Yaml;
@@ -62,7 +63,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   static void initKnownKeys() {
     s_knownKeys = new ArrayList<String>();
     s_knownKeys.add("Name");
-    s_knownKeys.add("HardwareType");
+    s_knownKeys.add("HardwareGroup");
     s_knownKeys.add("HardwareRelationshipType");
     s_knownKeys.add("HardwareRelationshipSlot");
     s_knownKeys.add("Version");
@@ -80,9 +81,10 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     s_knownKeys.add("RefName");
     s_knownKeys.add("RefVersion");
     s_knownKeys.add("SourceDb");
+    s_knownKeys.add("HardwareType");
   }
   static final int NAME=0;
-  static final int HARDWARETYPE=1;
+  static final int HARDWAREGROUP=1;
   static final int HARDWARERELATIONSHIPTYPE=2;
   static final int HARDWARERELATIONSHIPSLOT=3;
   static final int VERSION=4;
@@ -100,6 +102,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   static final int REFNAME=16;
   static final int REFVERSION=17;
   static final int SOURCEDB=18;
+  static final int HARDWARETYPE=19;
   
 
  
@@ -211,7 +214,24 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       case NAME:
         m_name = v; break;
       case HARDWARETYPE:
+        if (m_parent != null)  {
+          throw new IncompatibleChild(m_parent.m_name, "this child", 
+              "child may not specify hardware type");
+        }
+        if (m_hardwareGroup != null) {
+          throw new YamlIncompatibleKeys("HardwareType", "HardwareGroup");
+        }
         m_hardwareType = v;
+        break;
+      case HARDWAREGROUP:
+        if (m_parent != null)  {
+          throw new IncompatibleChild(m_parent.m_name, "this child", 
+              "child may not specify hardware group");
+        }
+        if (m_hardwareType != null)  {
+          throw new YamlIncompatibleKeys("HardwareType", "HardwareGroup");
+        }
+        m_hardwareGroup = v;
         break;
       case HARDWARERELATIONSHIPTYPE:
         m_hardwareRelationshipType =v; break;
@@ -353,9 +373,8 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     }
     // Hardware type is inherited from parent
     if (m_parent != null) {
-      if (m_hardwareType == "") {
-        m_hardwareType = m_parent.m_hardwareType;
-      }
+      m_hardwareType = m_parent.m_hardwareType;
+      m_hardwareGroup = m_parent.m_hardwareGroup;  
     }
     if (!m_isClone) {
       String processKey = formProcessKey(m_name, m_version);
@@ -399,6 +418,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   public String provideId() {return null;}
   public String provideName()  {return m_name;}
   public String provideHardwareType() {return m_hardwareType;}
+  public String provideHardwareGroup() {return m_hardwareGroup;}
   public String provideHardwareRelationshipType()  {
     return m_hardwareRelationshipType; }
   public String provideHardwareRelationshipSlot() {
@@ -443,6 +463,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   // Properties read in directly from yaml
   private String m_name=null;
   private String m_hardwareType=null;
+  private String m_hardwareGroup=null;
   private String m_hardwareRelationshipType=null;
   // relationship slot is ignored if type is null
   private String  m_hardwareRelationshipSlot="1"; 

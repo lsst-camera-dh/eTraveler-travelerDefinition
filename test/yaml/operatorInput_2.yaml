@@ -1,0 +1,14 @@
+%YAML 1.1 
+---
+Name:  InputTraveler
+HardwareType: LCA-Raft_1
+Description: This is version 2, refers to step from version 1
+InstructionsURL:   No instructions
+Version:  2
+SourceDb: test
+Sequence:
+   - 
+      RefName: hasInputs
+   -  
+      Name: hasNoInputs
+      Description: Garden variety step

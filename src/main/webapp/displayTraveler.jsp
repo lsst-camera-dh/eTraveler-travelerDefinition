@@ -22,27 +22,34 @@
     <h1>Display Traveler</h1>
   
     <c:choose>
-    <c:when test="${ (empty param.traveler_name) || (empty param.ostyle)}">
+    <c:when test="${ (empty param.traveler_name)}">
         <local:displayTravelerForm />
+    </c:when>
+    <c:when test="${ (!empty param.traveler_name) && (empty param.ostyle)}">
+         <local:displayTravelerForm traveler="${param.traveler_name}"
+                                 version="${param.traveler_version}"
+                                 hgroup="${param.traveler_hgroup}"
+                                 oformat="" />
     </c:when>
     <c:otherwise>
         <local:displayTravelerForm traveler="${param.traveler_name}"
                                  version="${param.traveler_version}"
-                                 htype="${param.traveler_htype}"
+                                 hgroup="${param.traveler_hgroup}"
                                  oformat="${param.ostyle}" />
     </c:otherwise>
       
     </c:choose>
-        <c:if test="${! empty param.traveler_name}" >
+    <c:if test="${(! empty param.traveler_name) && (!empty param.ostyle)}" >
     <p>
     Displaying traveler <b>${param.traveler_name}</b>, version <b>${param.traveler_version}</b>,
     from db <b>${appVariables.dataSourceMode}</b></p>
 
+    
     <p>
     ${import:retrieveProcessPrint(pageContext)} 
     </p>
     ${import:displayTraveler(pageContext)}
    
-        </c:if>
+    </c:if>
 </body>
 </html>

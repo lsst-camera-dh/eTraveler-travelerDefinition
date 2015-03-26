@@ -10,7 +10,7 @@
 <%-- The list of normal or fragment attributes can be specified here: --%>
 <%@attribute name="traveler"%>
 <%@attribute name="version" %>
-<%@attribute name="htype" %>
+<%@attribute name="hgroup" %>
 <%@attribute name="oformat" %>
 
 <%-- any content can be specified here e.g.: --%>
@@ -32,8 +32,8 @@
 <td> <input type="text" name="traveler_name" value="" /> </td></tr>
 <tr><td> <b>Version:</b></td>
 <td> <input type="text" name="traveler_version" value="1" /> </td></tr>
-<tr><td> <b>Hardware type:</b></td>
-<td> <input type="text" name="traveler_htype" value="" /> </td></tr>
+<tr><td> <b>Hardware group:</b></td>
+<td> <input type="text" name="traveler_hgroup" value="" /> </td></tr>
 </table>
 
 <fieldset >
@@ -58,7 +58,7 @@
 <tr><td> <b>Version:</b></td>
 <td> <input type="text" name="traveler_version" value="${version}" /> </td></tr>
 <tr><td> <b>Hardware type:</b></td>
-<td> <input type="text" name="traveler_htype" value="${htype}" /> </td></tr>
+<td> <input type="text" name="traveler_hgroup" value="${hgroup}" /> </td></tr>
 </table>
 
 <fieldset >

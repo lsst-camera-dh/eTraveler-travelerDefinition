@@ -1,0 +1,15 @@
+%YAML  1.1
+---
+ Name:  testMaxIter
+ HardwareType: CCD
+ Description: Dummy procedure with process names unlikely to conflict
+ InstructionsURL:  No instructions 
+ Version: 1
+ MaxIteration: 1
+ Sequence:
+   - 
+      Name: substep
+      Description:  unpack blah blah
+      MaxIteration: 4
+
+

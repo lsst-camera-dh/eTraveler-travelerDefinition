@@ -1,0 +1,27 @@
+%YAML 1.1 
+---
+Name:  InputTraveler
+HardwareType: LCA-Raft_1
+Description: Blah blah
+InstructionsURL:   "http://www.slac.stanford.edu/~jrb/etraveler/instr/operatorinput.html"
+Sequence:
+   - 
+      Name: hasInputs
+      Description: Do something else
+      RequiredInputs:
+        -
+          Label: Count ( no more than 10)
+          InputSemantics: int
+          MinValue: 0
+          MaxValue: 10
+        - 
+          Label: Displacement
+          Units: mm
+          InputSemantics: float
+        -
+          Label: Snapshot
+          Description:  Attach picture of measurement
+          InputSemantics: filepath
+
+
+

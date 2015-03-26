@@ -1,0 +1,348 @@
+%YAML  1.1
+---
+# Parts of T03 to test various eTraveler features and interface to JH.
+# Anything requiring real hardware, test equipment, etc. is faked
+#
+# Assumes sensor has already been registered: that is, has an entry
+# in the Hardware table and has at least one HardwareIdentifier (otherwise
+# would not have gotten through T01)
+Name: Sensor_T03_partial
+HardwareType: CCD
+Description: Sensor EO characterization
+Sequence:
+   -
+     Name: TS3 cryostat prepare
+     Description:  Get cryostat ready for sensor jig install
+     Prerequisites: 
+       -  
+         Name: Cryostat
+         PrerequisiteType: TEST_EQUIPMENT
+     InstructionsURL: "http://www.stanford.edu/~jrb/eTraveler/instr/sensor/T03/prepare_cryostat.html"
+   -
+     Name: Access and install jig
+     Description:  Fetch coffin from storage; remove covered jig; install in cryo; remove cover from jig
+     Prerequisites:
+        -
+         Name: ESD station ready
+         PrerequisiteType: TEST_EQUIPMENT
+   - 
+     Name: TS3 ready controller
+     Description: Close window flange; connect controller
+     InstructionsURL: "http://www.stanford.edu/~jrb/eTraveler/instr/sensor/T03/ready_controller.html"
+     Prerequisites:
+        -
+         Name: CCD Controller
+         PrerequisiteType: TEST_EQUIPMENT
+   -
+     Name: TS3 pump down
+     Description: TS3 pump down
+     InstructionsURL: "http://www.stanford.edu/~jrb/eTraveler/instr/sensor/T03/pump_down_cryostat.html"
+     Prerequisites:
+        -
+         Name: Turbo pump station
+         PrerequisiteType:  TEST_EQUIPMENT
+   -
+     Name: TS3 cooldown
+     Description: Cool down cryostat; monitor
+     InstructionsURL: "http://www.stanford.edu/~jrb/eTraveler/instr/sensor/T03/cool_down_cryostat.html"
+     Prerequisites:
+        -
+         Name: LN2 fill station
+         PrerequisiteType: TEST_EQUIPMENT
+        - 
+         Name: Thermal controller
+         PrerequisiteType: TEST_EQUIPMENT
+     RequiredInputs:
+        -
+         Label: Cooldown log (filepath)
+         InputSemantics: filepath
+   -
+     Name: TS3_initialize_electronics
+     #  Is the script run via job harness?  If so, value of Name above is the
+     #  job harness "cannonical job name"; there must be a UserVersionString
+     #  key and the HarnessedJob flag must be set (normally clear)
+     #  See example of job harnessed step description below
+     Description: Start lamp and initialize electronics via script
+   -
+     Name: TS3 Set up cryostat at dark box
+     Prerequisites:
+        -
+         Name: dark box
+         PrerequisiteType: TEST_EQUIPMENT
+        -
+         Name: tunnel
+         PrerequisiteType: TEST_EQUIPMENT
+   -
+     Name: TS3 Record pattern images
+     #  Is this a harnessed job?
+     Description: Set up pattern projector; record images
+     Prerequisites:
+        -
+         Name: pattern projector
+         PrerequisiteType: TEST_EQUIPMENT
+     RequiredInputs:
+        -
+         Label: directory path for pattern images
+         InputSemantics: filepath
+   -
+     Name: TS3 Prepare for EO test scripts
+     Description: Remove pattern projector, set up monochromator
+     Prerequisites:
+       -
+         Name: monochromator
+         PrerequisiteType: TEST_EQUIPMENT
+   -
+     Name: run full EO test scripts
+     Sequence:      # each test script is a separate harnessed step
+       -
+          Name: ccd250_mask_generation
+          UserVersionString: v0
+          TravelerActions:
+            - HarnessedJob
+            # operator is told to paste job harness cmd into console window
+       -
+          Name: ts3_system_noise
+          UserVersionString: v0
+          TravelerActions:
+            - HarnessedJob
+       -
+          Name: ts3_system_xtalk
+          UserVersionString: v0
+          TravelerActions:
+            - HarnessedJob
+       -
+          Name: ts3_fe55_data
+          UserVersionString: v0
+          TravelerActions:
+            - HarnessedJob
+       -
+          Name: ts3_dark_files
+          UserVersionString: v0
+          TravelerActions:
+            - HarnessedJob
+       -
+          Name: ts3_spot
+          UserVersionString: v0
+          TravelerActions:
+            - HarnessedJob
+       -
+          Name: ts3_superflat
+          UserVersionString: v0
+          TravelerActions:
+            - HarnessedJob
+       -
+          Name: ts3_lambda
+          UserVersionString: v0
+          TravelerActions:
+            - HarnessedJob
+       -
+          Name: ts3_ppump
+          UserVersionString: v0
+          TravelerActions:
+            - HarnessedJob
+   -
+     Name: TS3 offline analysis
+     # substeps are harnessed analysis jobs. 
+     Sequence:
+       -
+          Name: fe55_analysis
+          UserVersionString: v0
+          TravelerActions:
+            - HarnessedJob
+          Prerequisites:
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ccd250_mask_generation
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ts3_fe55_data
+              UserVersionString: v0
+       -  
+          Name: bright_pixels
+          UserVersionString: v0
+          TravelerActions:
+            - HarnessedJob
+          Prerequisites:
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ccd250_mask_generation
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ts3_dark_files
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: fe55_analysis
+              UserVersionString: v0
+       -  
+          Name: read_noise
+          UserVersionString: v1r0
+          TravelerActions:
+            - HarnessedJob
+          Prerequisites:
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ccd250_mask_generation
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ts3_system_noise
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ts3_fe55_data
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: fe55_analysis
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: bright_pixels
+              UserVersionString: v0
+       -  
+          Name: dark_current
+          UserVersionString: v1r0
+          TravelerActions:
+            - HarnessedJob
+          Prerequisites:
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ccd250_mask_generation
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ts3_dark_files
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: fe55_analysis
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: bright_pixels
+              UserVersionString: v0
+       -  
+          Name: crosstalk
+          UserVersionString: v0
+          TravelerActions:
+            - HarnessedJob
+          Prerequisites:
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ccd250_mask_generation
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ts3_system_xtalk
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ts3_spot
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: bright_pixels
+              UserVersionString: v0
+       -  
+          Name: cte
+          UserVersionString: v0
+          TravelerActions:
+            - HarnessedJob
+          Prerequisites:
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ccd250_mask_generation
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ts3_superflat
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: bright_pixels
+              UserVersionString: v0
+       -  
+          Name: prnu
+          UserVersionString: v0
+          TravelerActions:
+            - HarnessedJob
+          Prerequisites:
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ccd250_mask_generation
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ts3_superflat
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ts3_lambda
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: fe55_analysis
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: bright_pixels
+              UserVersionString: v0
+       -  
+          Name: trap
+          UserVersionString: v0
+          TravelerActions:
+            - HarnessedJob
+          Prerequisites:
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ccd250_mask_generation
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ts3_ppump
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: fe55_analysis
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: bright_pixels
+              UserVersionString: v0
+       -  
+          Name: qe
+          UserVersionString: v0
+          TravelerActions:
+            - HarnessedJob
+          Prerequisites:
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ccd250_mask_generation
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: ts3_lambda
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: fe55_analysis
+              UserVersionString: v0
+            -
+              PrerequisiteType:  PROCESS_STEP
+              Name: bright_pixels
+              UserVersionString: v0
+          
+   -
+     Name: TS3 cryostat warmup
+     Description:  Controlled warmup of cryostat; monitor thermal cycle
+     RequiredInputs:
+        -
+         Label: Warmup log (filepath)
+         InputSemantics: filepath
+   -
+     Name: TS3 cryostat done
+     Description: Move cryostat to TS5 s
+

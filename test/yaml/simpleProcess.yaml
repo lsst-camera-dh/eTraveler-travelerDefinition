@@ -1,0 +1,24 @@
+%YAML 1.1
+---
+
+ Name:  simpleProcess Prepare
+ HardwareType: LCA-ASPIC
+ Description: Blah blah
+ Version: 1
+ Sequence:
+   - 
+      Name: Unpack
+      Description:  unpack blah blah
+      InstructionsURL:   http://somewhere/unpackASPIC.html
+      Version: 1                         # this is the default
+   -
+      Name: Clean
+      Description:  clean blah blah blah
+      InstructionsURL:   http://somewhere/cleanASPIC.html
+
+   -
+      Name: Inspect
+      Description:  inspect blah blah blah
+      InstructionsURL:   http://somewhere/inspectASPIC.html
+
+

@@ -1,0 +1,29 @@
+ Name:  Prepare
+ HardwareType: LCA-ASPIC
+ Description: Blah blah
+ InstructionsURL: 
+ Version: 1
+ Sequence:
+   -
+      Name: Clean
+      Description:  Clean.  Procedure depends on supplier
+      Selection:
+        - Condition: from supplier X
+          Name:  Clean_X
+          Description: Clean procedure for supplier X
+          Sequence:
+            - Name: Assemble Clean_X materials
+              InstructionsURL:   http://somewhere/materialsASPIC_X.html
+            - Name:  Apply Clean_X
+              InstructionsURL:   http://somewhere/cleanASPIC_X.html
+        - Condition: default
+          Name: Clean_default
+          Description: Non-specific clean procedure
+          InstructionsURL:   http://somewhere/generic_cleanASPIC.html     
+
+   -
+      Name: Inspect
+      Description:  inspect blah blah blah
+      InstructionsURL:   http://somewhere/inspectASPIC.html
+
+

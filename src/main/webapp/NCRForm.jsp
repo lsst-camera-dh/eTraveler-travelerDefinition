@@ -50,7 +50,7 @@
      <c:choose>
        <c:when test="${ empty param.ncrTraveler }" >
          <p>Missing required field <b>NCR traveler</b>. No travelers of
-           appropriate hardware type found.</p>
+           appropriate hardware group found.</p>
        </c:when>
        <c:when test="${ empty sessionScope.NCRCondition || empty sessionScope.exitStep || empty sessionScope.returnStep}" >
          <c:if test="${ empty sessionScope.NCRCondition}">

@@ -10,7 +10,9 @@
 
   <groupId>lsst</groupId>
   <artifactId>org-lsstcorp-eTravelerBackend</artifactId>
-  <version>1.11-SNAPSHOT</version>
+
+  <version>1.13</version>
+
   <packaging>war</packaging>
 
   <name>eTravelerBackend</name>
@@ -67,12 +69,6 @@
           <groupId>srs</groupId>
           <artifactId>org-srs-groupmanager-web</artifactId>
           <version>1.19</version>
-      </dependency>
-
-      <dependency>
-          <groupId>org.yaml</groupId>
-          <artifactId>snakeyaml</artifactId>
-          <version>1.11</version>
       </dependency>
 
       <dependency>

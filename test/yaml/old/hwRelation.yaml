@@ -1,0 +1,52 @@
+ Name:  Assemble_Raft
+ HardwareType: LCA-Raft_1
+ Description: Blah blah
+ InstructionsURL: 
+ Version: 1
+ Sequence:
+   -
+      Name: Install_01
+      HardwareRelationshipType: Raft_CCD_0_1
+      Description:  Install ccd in raft slot 01
+      InstructionsURL:   http://somewhere/Install_CCD
+      Prerequisites:
+        -
+          PrerequisiteType: CONSUMABLE
+          Name: Glue
+        - 
+          PrerequisiteType: COMPONENT
+          Name: CCD
+        
+
+   - 
+      Name: Install_00
+      HardwareRelationshipType: Raft_CCD_0_0
+      Description:  Install ccd in raft slot 0 0
+      InstructionsURL:   http://somewhere/Install_CCD
+      TravelerActions: 
+        -
+          MakeHardwareRelationship
+      Prerequisites:
+        -
+          PrerequisiteType: CONSUMABLE
+          Name: Glue
+   -
+      Name: Install_02
+      HardwareRelationshipType: Raft_CCD_0_2
+      Description:  Install ccd in raft slot 02
+      InstructionsURL:   http://somewhere/Install_CCD
+   -
+      Name: Remove_22
+      HardwareRelationshipType: Raft_CCD_2_2
+      Description:  Remove ccd from raft slot 22
+      InstructionsURL:   http://somewhere/Remove_CCD
+      TravelerActions: 
+        -
+          BreakHardwareRelationship
+      Prerequisites:
+        -
+          PrerequisiteType: TEST_EQUIPMENT
+          Name: CCD_remover
+        
+
+

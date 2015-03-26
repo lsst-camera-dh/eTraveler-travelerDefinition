@@ -1,0 +1,9 @@
+%YAML  1.1
+---
+Name: boojum_proc
+HardwareGroup: boojum
+Description: New-style traveler where hardware group has single member
+Sequence:
+  - Name: boojum_step1
+  - Name: boojum_step2
+ 

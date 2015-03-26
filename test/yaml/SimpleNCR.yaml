@@ -1,0 +1,10 @@
+%YAML  1.1
+---
+Name: SimpleNCR
+HardwareType:  CCD
+Description:  Use for testing
+Sequence:
+  - 
+    Name: SimpleNCR_1
+  -
+    Name: SimpleNCR_2

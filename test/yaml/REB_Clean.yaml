@@ -1,0 +1,97 @@
+%YAML  1.1
+---
+Name: REB_Clean
+HardwareType: REB
+Description: Covers sending of REB to vendor for cleaning and recording results
+Sequence:
+  -
+    Name: Document REB initial state
+    Description: Record state of component before shipping
+    RequiredInputs:
+      -
+        Label: Front photo
+        Description: Attach picture of front of board
+        InputSemantics: filepath
+      - 
+        Label: Back photo
+        Description: Attach picture of back of board
+        InputSemantics: filepath
+      - 
+        Label: History
+        Description: Describe board history, anomalies, etc.
+        InputSemantics: string
+  -
+    Name: Prepare REB for shipping
+    Description:   Describe handling required to package board
+    Prerequisites:
+      -
+        Name: box
+        PrequisiteType: CONSUMABLE
+        Description:  (could describe size or other characteristics)
+        
+    Name: Ship REB to vendor
+    Description: Ship REB from one destination to another
+    Sequence:
+      -
+         Name: Initiate ship REB
+         RequiredInputs:
+           -
+             Label: Origin
+             Description: Name and address
+             InputSemantics: string
+           -
+             Label: Destination
+             Description:  Name and address
+             InputSemantics: string
+           - 
+             Label: Shipping method
+             Description:  e.g. USPS, Fedex, etc.
+             InputSemantics: string
+           -
+             Label: Tracking number
+             InputSemantics: string
+           -
+             Label: Timestamp
+             Description: Date/time item left origin
+             InputSemantics: timestamp
+      -  
+         Name: Receive REB
+         Description:  Record arrival
+         RequiredInputs:
+           -
+             Label: Timestamp
+             Description: Date/time item was received at destination
+             InputSemantics: timestamp
+
+    Name: Ship REB from vendor
+    Description: Describe return trip.  May be in one or two hops
+    MaxIteration: 2
+    Sequence:
+       - 
+          Clone: Initiate ship REB
+       -
+          Clone: Receive REB
+  -
+    Name: Archive output from cleaning vendor
+    # Probably this step has several RequiredInputs for different 
+    # files (may be scanned hardcopy) received from vendor
+    # Any information from vendor beyond expected items can be
+    # attached to an eLog entry
+  -
+    Name: Unpack REB after cleaning
+    Description:  "Note condition of container exterior before opening, then of
+                   interior.  Make eLog entry to record and anomalies;
+                   attach photos if necessary.  Extract board"
+    RequiredInputs:
+      -
+         Label: Container exterior ok
+         InputSemantics: boolean
+      -
+         Label: Container interior ok
+         InputSemantics: boolean
+    Prerequisites:
+      - 
+         Name: gloves
+         PrerequisiteType: CONSUMABLE
+
+   
