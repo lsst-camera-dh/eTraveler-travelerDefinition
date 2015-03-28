@@ -29,4 +29,5 @@ public class Traveler {
   public String getSourceDb() {return m_sourceDb;}
   public String getName() {return m_root.getName();}
   public String getVersion() {return m_root.getVersion();}
+  public String getHgroup() {return m_root.getHardwareGroup(); }
 }

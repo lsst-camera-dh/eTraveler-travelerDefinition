@@ -493,6 +493,7 @@ public class ProcessNode implements  TravelerElement
       ptarget.acceptHardwareGroup(m_hardwareGroup);
       ptarget.acceptHardwareRelationshipType(m_hardwareRelationshipType);
       ptarget.acceptHardwareRelationshipSlot(m_hardwareRelationshipSlot);
+      if (m_hardwareRelationshipType == null) m_hardwareRelationshipSlot = null;
       ptarget.acceptVersion(m_version);
       ptarget.acceptUserVersionString(m_userVersionString);
       ptarget.acceptDescription(m_description);

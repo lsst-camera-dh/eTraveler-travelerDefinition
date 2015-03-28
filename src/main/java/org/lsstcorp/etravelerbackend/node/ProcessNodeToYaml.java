@@ -36,8 +36,12 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
   public void setIsRoot(boolean isRoot) {
     m_isRoot = isRoot;
   }    
-  /* Ignore id; it doesn't go in the yaml */
-  public void acceptId(String id) { }
+  /* Ignore id unless we were asked to keep track of internal stuff */
+  public void acceptId(String id) { 
+    if (m_vis.getIncludeDbInternal() ) {
+      m_data.put("FromSourceId", id);
+    }
+  }
   public void acceptName(String name) {
     if (m_isCloned) {
      m_data.put("Clone", name); 
@@ -46,7 +50,7 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
     }
   }
   public void acceptHardwareType(String hardwareType) {
-     if (m_isRoot) m_data.put("HardwareType", hardwareType);
+    /* Obsolete field */
   }
   public void acceptHardwareGroup(String hardwareGroup) {
      if (m_isRoot) m_data.put("HardwareGroup", hardwareGroup);
@@ -59,8 +63,12 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
     if (!m_isCloned) putIfPresent("HardwareRelationshipSlot", hardwareRelationshipSlot); 
   }
   public void acceptVersion(String version) {
-    if (!m_isCloned) m_data.put("Version", version);
-     
+    m_data.put("Version", "next");
+    if (!m_isCloned) {
+      if (m_vis.getIncludeDbInternal() ) {
+        m_data.put("FromSourceVersion", version);
+      }
+    }
   }
   public void acceptUserVersionString(String userVersionString) {
     if (!m_isCloned) putIfPresent("UserVersionString", userVersionString);
@@ -84,8 +92,12 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
         */
      }
   }
-  /* Don't keep track of original id in yaml */
-  public void acceptOriginalId(String originalId) {   }
+  /* Don't keep track of original id in yaml unless requested to */
+  public void acceptOriginalId(String originalId) { 
+   if (m_vis.getIncludeDbInternal() ) {
+      m_data.put("FromSourceOriginalId", originalId);
+    }
+  }
   public void acceptChildren(ArrayList<ProcessNode> childNodes)  {
     if (childNodes == null) return;
     if (childNodes.size() == 0) return;
@@ -118,14 +130,41 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
     } 
   }
   public void acceptPrerequisites(ArrayList<Prerequisite> prerequisites) {
+    if (prerequisites == null) return;
+    if (prerequisites.size() == 0) return;
     if (!m_isCloned) {
+      ArrayList<HashMap<String, Object> > prereqList = new ArrayList<HashMap<String, Object> >();
+      try {
+        for (Prerequisite prereq : prerequisites) {
+          m_vis.addPrerequisite(prereqList, prereq, "add");
+        }
+      } catch (EtravelerException ex)  {
+        System.out.println("Got exception in ProcessNodeToYaml.acceptPrerequisites:");
+        System.out.println(ex.getMessage());
+        return;
+      }
+      m_data.put("Prerequisites", prereqList);
      /* Ultimately need to do something similar to what is done for
       * children, after PrerequisiteToYaml class is defined
       */
     }
   }
   public void acceptPrescribedResults(ArrayList<PrescribedResult> prescribedResults) {
+    if (prescribedResults == null) return;
+    if (prescribedResults.size() == 0) return;
     if (!m_isCloned) {
+      ArrayList<HashMap<String, Object> > resultList = 
+          new ArrayList<HashMap<String, Object> > ();
+      try { 
+        for (PrescribedResult pres : prescribedResults) {
+          m_vis.addPrescribedResult(resultList, pres, "add");
+        }
+      } catch (EtravelerException ex)  {
+        System.out.println("Got exception in ProcessNodeToYaml.acceptPrescribedResults:");
+        System.out.println(ex.getMessage());
+        return;
+      }
+      m_data.put("RequiredInputs", resultList);
      /* Ultimately need to do something similar to what is done for
       * children, after PrescribedResultToYaml class is defined
       */
@@ -152,6 +191,18 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
   }
   public void acceptEdited(boolean edited) {
      
+  }
+  /**
+   * Not part of ExportTarget interface.  Normally only called for top
+   * node
+   * @param db 
+   */
+  public void acceptSourceDb(String db)  {
+    if (m_vis.getIncludeDbInternal() ) {
+      if (db != null) {
+        m_data.put("FromSourceSourceDb", db);
+      }
+    }
   }
   // Do we need anything more having to do with edges?
   // What about acceptChild ?

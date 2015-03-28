@@ -20,19 +20,27 @@ public class TravelerToYamlVisitor implements TravelerVisitor {
   private Yaml m_yaml;
   private String m_dbSource;
   private Map<String, Object> data;
+  private boolean m_includeDbInternal = false;
   
   public TravelerToYamlVisitor(String dbSource)  {
     m_dbSource = dbSource;
     m_yaml = new Yaml();
   }
+  public boolean getIncludeDbInternal() {return m_includeDbInternal;}
   public void visit(ProcessNode process, String activity, Object cxt) throws EtravelerException {
     Object cxtToPass = cxt;
+    boolean topNode = false;
     if (cxtToPass == null) {
       data = new HashMap<String, Object>();
       cxtToPass = data;
+      topNode = true;
     }
     ProcessNodeToYaml yamlChild = new ProcessNodeToYaml(this, (HashMap<String, Object>) cxtToPass);
+    yamlChild.setIsRoot(topNode);
     process.exportTo(yamlChild);
+    if (topNode)  {
+      yamlChild.acceptSourceDb(m_dbSource);
+    }
   }
   public void addChild(ArrayList< HashMap<String, Object> > children, ProcessNode process,
       String activity) throws EtravelerException {
@@ -42,11 +50,27 @@ public class TravelerToYamlVisitor implements TravelerVisitor {
   }
   public void visit(PrescribedResult result, String activity, Object cxt) 
       throws EtravelerException {
-    
+    ResultToYaml yamlResult = new ResultToYaml(this, (Map<String, Object> )cxt);
+    result.exportTo(yamlResult); 
+  }
+  
+   public void addPrescribedResult(ArrayList< HashMap<String, Object> > prescribedList, 
+       PrescribedResult pre,  String activity) throws EtravelerException {
+    HashMap<String, Object> prescribedMap = new HashMap<String, Object>();
+    visit(pre, "", prescribedMap);
+    prescribedList.add(prescribedMap);
   }
   public void visit(Prerequisite prerequisite, String activity, Object cxt) 
       throws EtravelerException {
-    
+    PrerequisiteToYaml yamlPrereq = new PrerequisiteToYaml(this, (Map<String, Object> )cxt);
+    prerequisite.exportTo(yamlPrereq);
+  }
+  
+  public void addPrerequisite(ArrayList< HashMap<String, Object> > prereqList, Prerequisite pre,
+      String activity) throws EtravelerException {
+    HashMap<String, Object> prereqMap = new HashMap<String, Object>();
+    visit(pre, "", prereqMap);
+    prereqList.add(prereqMap);
   }
   public String dump(Writer wrt)  {
     if (data != null) {
