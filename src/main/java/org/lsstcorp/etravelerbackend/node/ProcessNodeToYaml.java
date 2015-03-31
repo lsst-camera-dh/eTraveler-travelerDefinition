@@ -87,9 +87,17 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
   }
   public void acceptTravelerActionMask(int travelerActionMask) {
      if (!m_isCloned) {
-       /* Have to make a new ArrayList; 
-        * go to some trouble to translate bits in mask to strings 
-        */
+       if (travelerActionMask == 0) return;
+       ArrayList<String> actions = new ArrayList<String>();
+       for (int iBit = 0; iBit < 32; iBit++) {
+         int val = 1 << iBit;
+         if ((travelerActionMask &  1 << iBit) != 0)  {
+           actions.add(TravelerActionBits.getYamlKey(val));
+           travelerActionMask -= val;
+           if (travelerActionMask == 0) break;
+         }
+       }
+       m_data.put("TravelerActions", actions);
      }
   }
   /* Don't keep track of original id in yaml unless requested to */

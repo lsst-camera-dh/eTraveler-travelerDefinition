@@ -82,6 +82,10 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     s_knownKeys.add("RefVersion");
     s_knownKeys.add("SourceDb");
     s_knownKeys.add("HardwareType");
+    /* Following are written by yaml export; informational only */
+    s_knownKeys.add("FromSourceVersion");
+    s_knownKeys.add("FromSourceId");
+    s_knownKeys.add("FromSourceSourceDb");
   }
   static final int NAME=0;
   static final int HARDWAREGROUP=1;
@@ -103,6 +107,9 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   static final int REFVERSION=17;
   static final int SOURCEDB=18;
   static final int HARDWARETYPE=19;
+  static final int FROMSOURCEVERSION=20;
+  static final int FROMSOURCEID=21;
+  static final int FROMSOURCESOURCEDB=22;
   
 
  
@@ -272,6 +279,10 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       case REFNAME:
       case REFVERSION:
         break;  /* all handled above */
+      case FROMSOURCEVERSION:
+      case FROMSOURCEID:
+      case FROMSOURCESOURCEDB:
+        break;   /* Informational only; nothing to do */
        
       default: // remaining keys have list values
         // SequenceNode yamlSequence = (SequenceNode) yamlMap.get(foundKey);

@@ -17,6 +17,7 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.io.FileWriter;
+import java.io.File;
 import java.net.URLEncoder;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.ArrayList;
@@ -253,13 +254,21 @@ public class DbImporter {
   static public String outputYaml(PageContext context) {
     JspWriter writer = context.getOut();
     FileWriter fileOut = null;
-   
+    HttpServletRequest request = (HttpServletRequest) context.getRequest();
+    String url = (request.getRequestURL()).toString();
     retrieveProcess(context, false);
     Traveler trav = getTraveler(context);
-    String fname = "/home/jrb/" + trav.getName() + "_" +
-        trav.getVersion() + "_" + trav.getHgroup() + "_retrieved.yaml";
+    String dbType = ModeSwitcherFilter.getVariable(context.getSession(), "dataSourceMode");
+    String dirname ="/nfs/farm/g/lsst/u1/ET/yaml/";
+    if (url.contains("localhost")) dirname = "/u1/jrb/localET/yaml/";
+    dirname += dbType;
+    String fname =  dirname + "/" + trav.getName() + "_" +
+        trav.getVersion() + "_" + trav.getHgroup() + "_exported.yaml";
     try {
-
+      File dir = new File(dirname);
+      if (!dir.isDirectory())  {
+        dir.mkdirs();
+      }
       fileOut = new FileWriter(fname);
     } catch (Exception ex)  {
       return ("unable to open file outputYaml.yaml");

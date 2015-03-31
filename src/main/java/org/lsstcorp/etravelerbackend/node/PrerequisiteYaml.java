@@ -26,6 +26,7 @@ public class PrerequisiteYaml implements Prerequisite.Importer {
   static final int VERSION=3;
   static final int DESCRIPTION=4;
   static final int QUANTITY=5;
+  static final int FROMSOURCEPREREQID=6;
     
   public void readYaml(Map<String, Object> yamlMap, ProcessNodeYaml parent, int iPre)
       throws EtravelerException {
@@ -37,6 +38,7 @@ public class PrerequisiteYaml implements Prerequisite.Importer {
       s_knownKeys.add(VERSION, "Version");   
       s_knownKeys.add(DESCRIPTION, "Description");
       s_knownKeys.add(QUANTITY, "Quantity");
+      s_knownKeys.add(FROMSOURCEPREREQID, "FromSourcePrereqId");
     }
     m_parent = parent;
     
@@ -49,7 +51,8 @@ public class PrerequisiteYaml implements Prerequisite.Importer {
         throw new UnrecognizedYamlKey(foundKey, "Prerequisite");
       }
       
-    
+     
+      
       if (yamlMap.get(foundKey) == null)  {
         throw new NullYamlValue(foundKey, "Prerequisite", "");
       }
@@ -78,6 +81,10 @@ public class PrerequisiteYaml implements Prerequisite.Importer {
         break;
       case USERVERSIONSTRING:
         m_userVersionString = v; break;
+       
+       /* Ignore informational keys written by export */
+      case FROMSOURCEPREREQID:
+        break;
       }
     } 
   }
