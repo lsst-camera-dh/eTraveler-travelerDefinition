@@ -264,6 +264,8 @@ public class DbImporter {
     dirname += dbType;
     String fname =  dirname + "/" + trav.getName() + "_" +
         trav.getVersion() + "_" + trav.getHgroup() + "_exported.yaml";
+    String results = "<p>File written to " + fname + "</p>";
+    boolean okStatus = true;
     try {
       File dir = new File(dirname);
       if (!dir.isDirectory())  {
@@ -271,9 +273,18 @@ public class DbImporter {
       }
       fileOut = new FileWriter(fname);
     } catch (Exception ex)  {
-      return ("unable to open file outputYaml.yaml");
+      results = "unable to open output file" + fname;
+      System.out.println(results);
+      okStatus = false;
     }
-    return outputYaml(fileOut, trav);
+    if (okStatus) outputYaml(fileOut, trav);
+    try {
+      writer.write(results);
+    } catch (Exception ex) {
+      System.out.println("exception " + ex.getMessage() 
+          + " attempting to write " + results);
+    }
+    return results;
   }
   
   static public String outputYaml(Writer writer, Traveler trav)  {

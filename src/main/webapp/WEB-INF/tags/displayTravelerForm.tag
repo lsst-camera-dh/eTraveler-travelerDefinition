@@ -15,11 +15,8 @@
 
 <%-- any content can be specified here e.g.: --%>
 <style type="text/css">
-  fieldset { border-color: black; width: 50%}
+  fieldset { border-color: black; width: 30%}
 </style>
-
-<c:set var="boo" value="jum" >
-</c:set>
 
 <%-- Leave-it-alone form --%>
 <%-- Initial state form --%>
@@ -36,15 +33,22 @@
 <td> <input type="text" name="traveler_hgroup" value="" /> </td></tr>
 </table>
 
+<table><tr><td>
 <fieldset >
   <legend>Output style</legend>
+   <input type="submit" name="ostyle" value="Tree" />
+   <input type="submit" name="ostyle" value="Yaml" />  
+</fieldset> </td>
+<td>&nbsp;</td>
+<td>
+  <fieldset>
+    <legend> additional styles</legend>
    <input type="submit" name="ostyle" value="Pretty print" />
-   <input type="submit" name="ostyle" value="Yaml" />
   <input type="submit" name="ostyle" value="Dot file" />
   <input type="submit" name="ostyle" value="Image" />
   <input type="submit" name="ostyle" value="Image map" />
-  <input type="submit" name="ostyle" value="Tree" />
 </fieldset>
+</td></tr></table>
   </form>
 
 </c:if>
@@ -60,18 +64,23 @@
 <tr><td> <b>Hardware type:</b></td>
 <td> <input type="text" name="traveler_hgroup" value="${hgroup}" /> </td></tr>
 </table>
-
+<table><tr><td valign="top">
 <fieldset >
-  <legend>Output style</legend>
-   
-  <input type="submit" name="ostyle" value="Pretty print" />
-   <input type="submit" name="ostyle" value="Yaml" />
+  <legend>Output&nbsp;style</legend>
+
+   <input type="submit" name="ostyle" value="Tree" />
+   <input type="submit" name="ostyle" value="Yaml" />  
+</fieldset>
+</td><td>&nbsp;</td>
+<td>
+  <fieldset>
+    <legend> more&nbsp;styles</legend>
+   <input type="submit" name="ostyle" value="Pretty print" />
   <input type="submit" name="ostyle" value="Dot file" />
   <input type="submit" name="ostyle" value="Image" />
   <input type="submit" name="ostyle" value="Image map" />
-  <input type="submit" name="ostyle" value="Tree" />
- 
 </fieldset>
-  </form>
+</td></tr></table>
+     </form>
 </c:if>
 

@@ -41,7 +41,7 @@
     </c:choose>
     <c:if test="${(! empty param.traveler_name) && (!empty param.ostyle)}" >
     <p>
-    Displaying traveler <b>${param.traveler_name}</b>, version <b>${param.traveler_version}</b>,
+    Traveler <b>${param.traveler_name}</b>, version <b>${param.traveler_version}</b>,
     from db <b>${appVariables.dataSourceMode}</b></p>
 
     
@@ -51,5 +51,5 @@
     ${import:displayTraveler(pageContext)}
    
     </c:if>
-</body>
+  </body>
 </html>
