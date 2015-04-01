@@ -293,10 +293,16 @@ public class DbImporter {
       vis.visit(trav.getRoot(), "", null);
     } catch (EtravelerException ex) {
       return("outputYaml failed with exception" + ex.getMessage());
-    }
+    } 
     //StringWriter strWrt = new StringWriter();
     //return vis.dump(strWrt);
-    return vis.dump(writer);
+    String msg = vis.dump(writer);
+    try {
+      writer.close();
+    } catch (IOException ioEx) {
+      return ("outputYaml unable to close file with exception " + ioEx.getMessage());
+    }
+    return msg;
   }
 
   static public void makeTree(PageContext context)  {

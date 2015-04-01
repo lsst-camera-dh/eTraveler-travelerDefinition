@@ -71,6 +71,8 @@ public class TravelerDotVisitor implements TravelerVisitor,
     // in page context
     try {
       String encodedName = URLEncoder.encode(m_name, "UTF-8");
+     
+      if (m_isCloned) m_displayName += " (cloned)"; 
       m_dotWriter.write(m_indent + "\""+ m_name + "\" [URL=\"DisplayProcess.jsp?process="
           + encodedName + "&version=" + m_version +  
           "\" tooltip=\"" + m_name + "\" ]" + m_eol);
@@ -78,7 +80,11 @@ public class TravelerDotVisitor implements TravelerVisitor,
     } catch (IOException ex) {
       throw new EtravelerException("Failed to write node to dot file: "+ex.getMessage());
     }
-    
+    /* temporary solution.  Would be better to traverse cloned-from node or
+     at least indicate somehow, e.g. use different font style for name */
+    if (m_isCloned) {
+      return;
+    }
     if (m_substeps.equals("NONE")) return;
   
     String edgeAtts = " [color=black style=solid label=\"";
@@ -93,7 +99,9 @@ public class TravelerDotVisitor implements TravelerVisitor,
       childVisitor.setDotWriter(m_dotWriter);
       for (int i=0; i < m_children.size(); i++) {
         m_children.get(i).accept(childVisitor, activity, cxt);
-        m_dotWriter.write(m_indent +"\"" + m_name + "\"->\"" + m_children.get(i).getName() + "\" ");
+        String childName = m_children.get(i).getName();
+        if (m_children.get(i).isCloned()) childName += "(cloned)";
+        m_dotWriter.write(m_indent +"\"" + m_name + "\"->\"" + childName + "\" ");
         if (seq) {
           m_dotWriter.write(edgeAtts + String.valueOf(i+1));
         } else {
@@ -123,7 +131,7 @@ public class TravelerDotVisitor implements TravelerVisitor,
   
    // Implementation of ProcessNode.ExportTarget
   public void acceptId(String id) {m_id = id;}
-  public void acceptName(String name) {m_name = name;}
+  public void acceptName(String name) {m_name = name; m_displayName = name;}
   public void acceptHardwareType(String hardwareType ) {m_hardwareType  = hardwareType ;}
   public void acceptHardwareGroup(String hardwareGroup) {m_hardwareGroup = hardwareGroup;}
   public void acceptHardwareRelationshipType(String hardwareRelationshipType ) {
@@ -208,10 +216,12 @@ public class TravelerDotVisitor implements TravelerVisitor,
   public void acceptEdited(boolean edited) {}
   public void exportDone() {}
   public String getName() {return m_name;}
+  public String getDisplayName() {return m_displayName;}
   
      // Store process contents until we're ready to write
   private String m_id=null;
   private String m_name=null;
+  private String m_displayName=null;
   private String m_hardwareType=null;
   private String m_hardwareGroup=null;
   private String m_hardwareRelationshipType=null;

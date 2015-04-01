@@ -78,7 +78,9 @@
    <input type="submit" name="ostyle" value="Pretty print" />
   <input type="submit" name="ostyle" value="Dot file" />
   <input type="submit" name="ostyle" value="Image" />
+  <%--  Doesn't work so comment out for now
   <input type="submit" name="ostyle" value="Image map" />
+  --%>
 </fieldset>
 </td></tr></table>
      </form>
