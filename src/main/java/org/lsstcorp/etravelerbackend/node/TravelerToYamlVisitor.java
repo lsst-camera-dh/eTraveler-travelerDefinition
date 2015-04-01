@@ -26,6 +26,7 @@ public class TravelerToYamlVisitor implements TravelerVisitor {
     m_dbSource = dbSource;
     m_yaml = new Yaml();
   }
+  public void setIncludeDbInternal(boolean val)  {m_includeDbInternal = val;}
   public boolean getIncludeDbInternal() {return m_includeDbInternal;}
   public void visit(ProcessNode process, String activity, Object cxt) throws EtravelerException {
     Object cxtToPass = cxt;

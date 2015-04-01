@@ -85,6 +85,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     /* Following are written by yaml export; informational only */
     s_knownKeys.add("FromSourceVersion");
     s_knownKeys.add("FromSourceId");
+    s_knownKeys.add("FromSourceOriginalId");
     s_knownKeys.add("FromSourceSourceDb");
   }
   static final int NAME=0;
@@ -109,7 +110,9 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   static final int HARDWARETYPE=19;
   static final int FROMSOURCEVERSION=20;
   static final int FROMSOURCEID=21;
-  static final int FROMSOURCESOURCEDB=22;
+  static final int FROMSOURCEORIGINALID=22;
+  static final int FROMSOURCESOURCEDB=23;
+ 
   
 
  
@@ -281,6 +284,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         break;  /* all handled above */
       case FROMSOURCEVERSION:
       case FROMSOURCEID:
+      case FROMSOURCEORIGINALID:
       case FROMSOURCESOURCEDB:
         break;   /* Informational only; nothing to do */
        

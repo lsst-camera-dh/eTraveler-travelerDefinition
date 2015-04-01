@@ -245,13 +245,17 @@ public class DbImporter {
         makeTree(context);
         break;
       case "Yaml":
-        outputYaml(context);
+        outputYaml(context, false);
+        break;
+      case "Yaml-debug":
+        outputYaml(context, true );
+        break;
       default:
         break;
     }
   }
   
-  static public String outputYaml(PageContext context) {
+  static public String outputYaml(PageContext context, boolean includeDebug) {
     JspWriter writer = context.getOut();
     FileWriter fileOut = null;
     HttpServletRequest request = (HttpServletRequest) context.getRequest();
@@ -263,7 +267,12 @@ public class DbImporter {
     if (url.contains("localhost")) dirname = "/u1/jrb/localET/yaml/";
     dirname += dbType;
     String fname =  dirname + "/" + trav.getName() + "_" +
-        trav.getVersion() + "_" + trav.getHgroup() + "_exported.yaml";
+        trav.getVersion() + "_" + trav.getHgroup();
+    if (includeDebug) {
+      fname += "_debugExported.yaml";
+    } else {
+      fname += "_exported.yaml";
+    }
     String results = "<p>File written to " + fname + "</p>";
     boolean okStatus = true;
     try {
@@ -277,7 +286,7 @@ public class DbImporter {
       System.out.println(results);
       okStatus = false;
     }
-    if (okStatus) outputYaml(fileOut, trav);
+    if (okStatus) outputYaml(fileOut, trav, includeDebug);
     try {
       writer.write(results);
     } catch (Exception ex) {
@@ -287,8 +296,9 @@ public class DbImporter {
     return results;
   }
   
-  static public String outputYaml(Writer writer, Traveler trav)  {
-     TravelerToYamlVisitor vis = new TravelerToYamlVisitor(trav.getSourceDb());
+  static public String outputYaml(Writer writer, Traveler trav, boolean includeDebug)  {
+    TravelerToYamlVisitor vis = new TravelerToYamlVisitor(trav.getSourceDb());
+    vis.setIncludeDbInternal(includeDebug);
     try {
       vis.visit(trav.getRoot(), "", null);
     } catch (EtravelerException ex) {

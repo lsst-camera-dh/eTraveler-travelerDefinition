@@ -76,6 +76,7 @@
   <fieldset>
     <legend> more&nbsp;styles</legend>
    <input type="submit" name="ostyle" value="Pretty print" />
+   <input type="submit" name="ostyle" value="Yaml-debug" />
   <input type="submit" name="ostyle" value="Dot file" />
   <input type="submit" name="ostyle" value="Image" />
   <%--  Doesn't work so comment out for now
