@@ -289,10 +289,15 @@ public class DbImporter {
     if (okStatus) outputYaml(fileOut, trav, includeDebug);
     try {
       writer.write(results);
+      //if (includeDebug) {
+        // writer.write("<p><a href='file://"+fname+"' type='text/plain' >view</a> </p>");
+        //writer.write("<p><a href='printDir.jsp' type='text/plain' >view</a> </p>");
+      //}
     } catch (Exception ex) {
       System.out.println("exception " + ex.getMessage() 
           + " attempting to write " + results);
     }
+   
     return results;
   }
   
