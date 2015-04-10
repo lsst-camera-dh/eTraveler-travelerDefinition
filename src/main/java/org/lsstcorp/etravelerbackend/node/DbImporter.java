@@ -27,6 +27,7 @@ import javax.servlet.jsp.JspContext;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
 
 /**
@@ -45,7 +46,7 @@ public class DbImporter {
     {return name + "_" + version;}
  // private static String makeKey(String name, String version, String dbType)
  // {return name+ "_" + version + "@" + dbType;}
-  private static String makeKey(String name, String version, String hgroup, 
+  public static String makeKey(String name, String version, String hgroup, 
       String dbType) {
     return name + "_" + version + "_" + hgroup + "@" + dbType;
   }
@@ -267,9 +268,24 @@ public class DbImporter {
     if (url.contains("localhost")) dirname = "/u1/jrb/localET/yaml/";
     dirname += dbType;
     String fname =  dirname + "/" + trav.getName() + "_" +
-        trav.getVersion() + "_" + trav.getHgroup();
+      trav.getVersion() + "_" + trav.getHgroup();
     if (includeDebug) {
-      fname += "_debugExported.yaml";
+      String key = makeKey(trav.getName(), trav.getVersion(),
+                           trav.getHgroup(), trav.getSourceDb());
+      HttpServletResponse response = (HttpServletResponse) context.getResponse();
+      /*
+       redirect to DownloadYamlServlet, passing key formed out of
+       traveler name, hgroup, etc.  as argument
+      */
+      try {
+        String fullpath = request.getContextPath() + 
+            "/servlet/DownloadYamlServlet?key=" + key;
+        response.sendRedirect(fullpath);       
+        return "";
+      } catch (Exception ex) {
+        System.out.println("could not redirect");
+        return ("could not redirect");
+      }
     } else {
       fname += "_exported.yaml";
     }
@@ -289,10 +305,7 @@ public class DbImporter {
     if (okStatus) outputYaml(fileOut, trav, includeDebug);
     try {
       writer.write(results);
-      //if (includeDebug) {
-        // writer.write("<p><a href='file://"+fname+"' type='text/plain' >view</a> </p>");
-        //writer.write("<p><a href='printDir.jsp' type='text/plain' >view</a> </p>");
-      //}
+   
     } catch (Exception ex) {
       System.out.println("exception " + ex.getMessage() 
           + " attempting to write " + results);
@@ -309,8 +322,7 @@ public class DbImporter {
     } catch (EtravelerException ex) {
       return("outputYaml failed with exception" + ex.getMessage());
     } 
-    //StringWriter strWrt = new StringWriter();
-    //return vis.dump(strWrt);
+ 
     String msg = vis.dump(writer);
     try {
       writer.close();
@@ -481,6 +493,10 @@ public class DbImporter {
       String db) {
     String key = makeKey(name, version, hgroup, db);
     return s_travelers.get(key);
+  }
+  static public Traveler getTravelerFromKey(String key) {
+    Traveler trav = s_travelers.get(key);
+    return trav;
   }
   /**
     * Do selected action on current traveler/process step. 
@@ -714,14 +730,6 @@ public class DbImporter {
     String datasource = ModeSwitcherFilter.getVariable(context.getSession(), 
         "etravelerDb");
     
-    /* Have to get ncrProcessId from context somehow */
-    /*
-    ServletRequest rqst = context.getRequest();
-    Object ncrIdObj = rqst.getAttribute("ncrTraveler");
-    if (ncrIdObj == null) {
-      return;    // rats!
-    }
-    */
     NCRSpecification ncrSpec = NCRSpecification.makeNCRSpecification(
      treeRoot.getProcessNode(), exitProcess, returnProcess, ncrId, 
      ncrCondition, dbType);
@@ -965,27 +973,11 @@ public class DbImporter {
       jspContext.getAttribute("treeVisitor", 
                               PageContext.SESSION_SCOPE);
 
-     /*
-     String nodePath = (String) jspContext.getAttribute("leafPath", PageContext.SESSION_SCOPE);
-     if (nodePath.equals("") ) {
-       nodePath = (String) jspContext.getAttribute("folderPath", PageContext.SESSION_SCOPE);
-     }
-     if (nodePath.equals("") ) { */
     String nodePath=(String) jspContext.getAttribute("nodePath", 
                                                      PageContext.SESSION_SCOPE);
     String treeNodeId = (String) jspContext.getAttribute("treeNodeId", 
         PageContext.SESSION_SCOPE);
-    /* } */
-     /*
-    ProcessTreeNode rootTreeNode = vis.getTreeRoot();
-    int secondSlash = nodePath.indexOf("/", 1);
-    if (secondSlash == -1) return rootTreeNode;
-    */
-    /* Otherwise strip off root path at the front */
-    /*
-    nodePath = nodePath.substring(secondSlash);
-    return (ProcessTreeNode) rootTreeNode.findNode(nodePath, false);
-    */
+
     return vis.findNodeFromPath(nodePath, treeNodeId);
   }
 }

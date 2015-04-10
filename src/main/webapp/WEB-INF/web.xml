@@ -153,6 +153,16 @@
       <url-pattern>/TravelerImageServlet</url-pattern>
     </servlet-mapping>
     
+    <!-- Generate yaml for download -->
+    <servlet>
+       <servlet-name>DownloadYamlServlet</servlet-name>
+       <servlet-class>org.lsstcorp.etravelerbackend.node.web.DownloadYamlServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+       <servlet-name>DownloadYamlServlet</servlet-name>
+       <url-pattern>/servlet/DownloadYamlServlet</url-pattern>
+    </servlet-mapping>
+
     <!-- Icons for tree display -->
     <servlet>
        <servlet-name>fhicon</servlet-name>
