@@ -528,11 +528,11 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       // be at least a version 1
       if (searchVersion.equals("last")) searchVersion = "1";
       String where = " where name='" + m_name + "' and version='" 
-          + searchVersion + "' and hardwareTypeId='" + m_hardwareTypeId + "'";
+          + searchVersion + "' and hardwareGroupId='" + m_hardwareGroupId + "'";
       m_id = m_connect.fetchColumn("Process", "id", where);
       if (m_id == null) {
         throw new EtravelerException("Process " + m_name + ", version " 
-            + m_version + ", hardware type " + m_hardwareTypeId 
+            + m_version + ", hardware group " + m_hardwareGroupId 
             + "does not exist for dbType " + m_sourceDb);
       } 
       String actionMaskString = m_connect.fetchColumn("Process", 
@@ -635,6 +635,9 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     "travelerActionMask", "hardwareRelationshipTypeId", "createdBy"};
   private static   String[] s_insertEdgeCols={"parent", "child", "step", "cond", "createdBy"};
   private static   String[] s_insertTravTypeCols={"rootProcessId", "createdBy"};
+  private static   String[] s_insertTravTypeHistoryCols={"reason", "createdBy", "travelerTypeId",
+    "travelerTypeStateId"};
+  
   public void writeToDb(DbConnection connect, ProcessNodeDb parent) 
     throws    SQLException, EtravelerException {
     if (!m_verified) {
@@ -809,11 +812,19 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     String[] vals = new String[s_insertTravTypeCols.length];
     vals[0] = m_id;
     vals[1] = m_vis.getUser();
+    String [] valsHist = new String[s_insertTravTypeHistoryCols.length];
+    valsHist[0] = "new traveler";
+    valsHist[1] = m_vis.getUser();
+    valsHist[3] = "1";    /* cheating here.  This is TravelerTypeState value for "new" */
     try {
       String travTypeId = m_connect.doInsert("TravelerType", s_insertTravTypeCols,
           vals, "", DbConnection.ADD_CREATION_TIMESTAMP);
+      valsHist[2] = travTypeId;
+      String travTypeHistoryId = m_connect.doInsert("TravelerTypeStateHistory",
+          s_insertTravTypeHistoryCols, valsHist, "", DbConnection.ADD_CREATION_TIMESTAMP);
     }  catch (SQLException ex) {
-        System.out.println("Failed to create edge leading to process " + m_name + "with exception");
+        System.out.println("Failed to create TravelerType or TravelerTypeStateHistory entry for " 
+            + m_name + "with exception");
         System.out.println(ex.getMessage());
         throw ex;
     }
