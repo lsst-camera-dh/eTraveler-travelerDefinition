@@ -38,10 +38,13 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
       }
       m_processNodeDb.verify(m_connect);
     }  else if (activity.equals("write"))  {
+      /* Perhaps pass reason string in cxt argument.  Then
+       * pass as argument to registerTraveler
+       */
       try {
         if (m_useTransactions) m_connect.setAutoCommit(false);
         m_processNodeDb.writeToDb(m_connect, null);
-        m_processNodeDb.registerTraveler();
+        m_processNodeDb.registerTraveler(m_owner, m_reason);
         if (m_useTransactions) m_connect.commit();
       } catch (Exception ex) {
         if (m_useTransactions) {
@@ -83,10 +86,16 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
   public void setUseTransactions(boolean setting) {
     m_useTransactions = setting;
   }
+  public void setOwner(String owner) {m_owner = owner;}
+  public void setReason(String reason) {m_reason = reason;}
+  //public String getOwner() {return m_owner;}
+  //public String getReason() {return m_reason;}
   private ProcessNode m_process = null;
   private ProcessNodeDb m_processNodeDb=null;
   private DbConnection m_connect = null;
   private boolean m_useTransactions = true;
   private String m_user = null;
   private NCRSpecificationDb m_specDb = null;
+  private String m_owner = null;
+  private String m_reason = null;
 }

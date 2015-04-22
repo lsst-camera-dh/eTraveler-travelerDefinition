@@ -12,6 +12,7 @@ import org.lsstcorp.etravelerbackend.exceptions.EtravelerException;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.JspWriter;
+import javax.servlet.http.HttpSession;
 import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
 /**
  * Used from jsp to ingest Yaml, export to Db
@@ -22,12 +23,23 @@ public class WriteToDb {
 
   // public static String ingest(String fileContents, boolean useTransactions) {
     public static String ingest(PageContext context) {
-      String fileContents = context.getRequest().getParameter("importYamlFile");
+      //String fileContents = context.getRequest().getParameter("importYamlFile");
+      String redoInstructions =
+" Please click on 'Upload' link in upper right, reselect file and try again"; 
+      HttpSession session = context.getSession();
+      if (session == null) return "Could not get HttpSession<br />"
+                             + redoInstructions;
+      Object fileContentsObj = session.getAttribute("fileContents");
+      //      String fileContents = 
+      //        context.getSession().getAttribute("fileContents").toString();
   
-      if (fileContents == null || fileContents.isEmpty())  {
+      if (fileContentsObj == null)  {
         return "No file selected or stale reference. <br /> "
-            + "Please hit back button, refresh page, reselect file and try again";
+          + redoInstructions;
       }
+      String fileContents = fileContentsObj.toString();
+      if (fileContents.isEmpty()) return "empty file contents string<br />"
+                                    + redoInstructions;
       String useTransactions = "true";
       if (context.getAttribute("useTransaction") != null) {
         useTransactions = (context.getAttribute("useTransactions")).toString();
@@ -38,7 +50,8 @@ public class WriteToDb {
           "etravelerDb");
       JspWriter writer = context.getOut();
 
-      String action = context.getRequest().getParameter("fileAction");
+      //String action = context.getRequest().getParameter("fileAction");
+      String action = context.getSession().getAttribute("action").toString();
       ProcessNode ingested;
       try {
         ingested = parse(fileContents);
@@ -61,7 +74,9 @@ public class WriteToDb {
       
       String writeRet =
           writeToDb(ingested, context.getSession().getAttribute("userName").toString(),
-          useTransactions.equals("true"), dbType, datasource, action.equals("Import"));
+          useTransactions.equals("true"), dbType, datasource, action.equals("Import"),
+                    context.getSession().getAttribute("owner").toString(), 
+                    context.getSession().getAttribute("reason").toString());
       return writeRet;
   }
 
@@ -97,7 +112,8 @@ public class WriteToDb {
   }
 
   public static String writeToDb(ProcessNode travelerRoot, String user,
-      boolean useTransactions, String dbType, String datasource, boolean ingest)  {
+      boolean useTransactions, String dbType, String datasource, boolean ingest,
+      String owner, String reason)  {
 
     // Try connect
     DbConnection conn = makeConnection(dbType, datasource);
@@ -128,6 +144,8 @@ public class WriteToDb {
       return "Successfully verified against " + dbType;
     }
     try {
+      vis.setReason(reason);
+      vis.setOwner(owner);
       vis.visit(travelerRoot, "write", null);
     }  catch (Exception ex) {
       conn.close();

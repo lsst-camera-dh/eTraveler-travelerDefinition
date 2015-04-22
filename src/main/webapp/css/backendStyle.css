@@ -19,3 +19,5 @@ fieldset { border-color: black; width: 90%}
  .bold {font-weight: bold}
  .left {text-align: left;}
  .redError {color: red;}
+ .form {background-color: lightgray;}
+ 

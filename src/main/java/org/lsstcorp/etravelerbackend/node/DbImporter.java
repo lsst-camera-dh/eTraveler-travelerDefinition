@@ -680,7 +680,9 @@ public class DbImporter {
     String msg = 
       WriteToDb.writeToDb(travelerRoot, 
                          context.getSession().getAttribute("userName").toString(),
-                         true, dbType, datasource, true);
+                         true, dbType, datasource, true, 
+                         context.getRequest().getParameter("owner"),
+                         context.getRequest().getParameter("reason"));
     try {
       context.getOut().println(msg);
     } catch (IOException ex) {

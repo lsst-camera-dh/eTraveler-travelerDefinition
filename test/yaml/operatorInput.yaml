@@ -1,9 +1,8 @@
 %YAML 1.1 
 ---
 Name:  InputTraveler
-HardwareType: LCA-Raft_1
+HardwareGroup: boojum
 Description: Blah blah
-InstructionsURL:   "http://www.slac.stanford.edu/~jrb/etraveler/instr/operatorinput.html"
 Sequence:
    - 
       Name: hasInputs

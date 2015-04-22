@@ -17,6 +17,15 @@
   </head>
   <body>
     <h2>Results of ${param.fileAction}</h2>
+    <%-- Save parameters in session variables --%>
+    <c:set var="fileContents" value="${param.importYamlFile}" scope="session" />
+    <c:set var="action" value="${param.fileAction}" scope="session" />
+    <c:set var="reason" value="" scope="session" />
+    <c:set var="owner" value="" scope="session" />
+    <c:if test="${param.fileAction == 'Import' }">
+      <c:set var="reason" value="${param.reason}" scope="session" />
+      <c:set var="owner" value="${param.owner}" scope="session" />
+    </c:if>
      ${yamltodb:ingest(pageContext)}
   </body>
 </html>

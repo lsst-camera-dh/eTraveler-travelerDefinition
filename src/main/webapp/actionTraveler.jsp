@@ -16,6 +16,11 @@
     <title>Traveler Actions</title>
     <link href="http://srs.slac.stanford.edu/Commons/css/srsCommons.jsp?experimentName=LSST-CAMERA" rel="stylesheet" type="text/css">
     <link href="css/backendStyle.css" type="text/css" rel="stylesheet" /> 
+      <style type="text/css">
+     
+      form.wide {width: 600px; background-color: lightgray; border-width: 1}
+    
+    </style>
 
    <script type="text/javascript">
   <!--    
@@ -107,8 +112,33 @@
     <a href="globalActions.jsp?action=revert" target="doAction">Undo step modifications</a><br />
       </td></tr>   --%>
       <tr><td>
-    <a href="globalActions.jsp?action=ingest" target="doAction">Ingest modified traveler</a></p>
-      </td></tr>  </table>
+          <form  "action="globalActions.jsp" target="doAction">
+            
+            
+             <table ><tr>
+        <td><label for="reason"><b> Description of new process traveler: </b>
+          </label></td>
+          <td><textarea  rows="2" cols="60" id="reason"  name="reason" >
+ 
+            </textarea> 
+          </td></tr>
+      <tr><td>
+          <label for="owner">
+    <b>Responsible person:</b> </label></td>
+    <td><input type="text" name="owner" cols="30" id="owner" value=""/>
+    </td></tr></table>
+      <fieldset>
+      <legend>Actions</legend>
+   
+      <input type="submit" value="ingest" name="action" />  
+      </fieldset>
+            
+            
+          </form>
+          
+   <%-- <a href="globalActions.jsp?action=ingest" target="doAction">Ingest modified traveler</a></p>
+--%>   
+</td></tr>  </table>
     </c:when>
     <c:when test="${param.action == 'view' }">
        <local:displayProcessStep />

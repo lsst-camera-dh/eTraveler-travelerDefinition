@@ -14,13 +14,18 @@
     <title>Upload traveler</title>
     <link href="css/backendStyle.css" type="text/css" rel="stylesheet" /> 
     <style type="text/css">
-      form    {width: 320px}
+      form    {width: 320px; background-color: lightgray; 
+                border-color: black; border-width: 1}
+      form.wide {width: 600px; background-color: lightgray; border-width: 1}
+      h3 {color: forestgreen}
     </style>
   </head>
   <body>
-    <h3 > Ingest a File</h3>
+    <h2 > Ingest a File</h2>
+    <table width="100%"><tr><td valign="top">
+    <h3> Check/validate only</h3>
      
-<form  name="YamlToDbForm" enctype="multipart/form-data" method="post"
+<form  name="YamlToDbTestForm" enctype="multipart/form-data" method="post"
       action="ingestOutput.jsp" >
      
  
@@ -32,12 +37,43 @@
    
       <input type="submit" value="Check YAML" name="fileAction" />
       <input type="submit" value="Db validate" name="fileAction" />
-     
-      <input type="submit" value="Import" name="fileAction" />  
       
      </fieldset>
   
 </form>
+    
+        </td><td>&nbsp;</td><td valign="top">
+    
+    <h3>Full ingest</h3>
+    
+     <form class="wide" name="YamlToDbForm" enctype="multipart/form-data" method="post"
+      action="ingestOutput.jsp" >
      
+ 
+    <p> <b> Yaml file: </b>
+      <input type="file" name="importYamlFile" 
+      value=""  /></p>
+   
+    <table ><tr>
+        <td><label for="reason"><b> Description of new process traveler: </b>
+          </label></td>
+          <td><textarea  rows="2" cols="60" id="reason"  name="reason" >
+ 
+            </textarea> 
+          </td></tr>
+      <tr><td>
+          <label for="owner">
+    <b>Responsible person:</b> </label></td>
+    <td><input type="text" name="owner" cols="50" id="owner" value=""/>
+    </td></tr></table>
+      <fieldset>
+      <legend>Actions</legend>
+   
+      <input type="submit" value="Import" name="fileAction" />  
+      </fieldset>
+    
+  
+</form>
+        </td></tr></table>
   </body>
 </html>

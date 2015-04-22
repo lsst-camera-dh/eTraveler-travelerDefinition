@@ -634,9 +634,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     "instructionsURL", "substeps", "maxIteration", "originalId",
     "travelerActionMask", "hardwareRelationshipTypeId", "createdBy"};
   private static   String[] s_insertEdgeCols={"parent", "child", "step", "cond", "createdBy"};
-  private static   String[] s_insertTravTypeCols={"rootProcessId", "createdBy"};
-  private static   String[] s_insertTravTypeHistoryCols={"reason", "createdBy", "travelerTypeId",
-    "travelerTypeStateId"};
+ 
   
   public void writeToDb(DbConnection connect, ProcessNodeDb parent) 
     throws    SQLException, EtravelerException {
@@ -806,12 +804,17 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     } 
   }
   /*
-   * Add new row to TravelerType table
+   * Add new row to TravelerType and TravelerTypeStateHistory tables
    */
-  public  void registerTraveler() throws SQLException, EtravelerException {
+   private static   String[] s_insertTravTypeCols={"rootProcessId", "owner", "reason","createdBy"};
+   private static   String[] s_insertTravTypeHistoryCols={"reason", "createdBy", "travelerTypeId",
+    "travelerTypeStateId"};
+  public  void registerTraveler(String owner, String reason) throws SQLException, EtravelerException {
     String[] vals = new String[s_insertTravTypeCols.length];
     vals[0] = m_id;
-    vals[1] = m_vis.getUser();
+    vals[1] = owner.trim();
+    vals[2] = reason.trim();
+    vals[3] = m_vis.getUser();
     String [] valsHist = new String[s_insertTravTypeHistoryCols.length];
     valsHist[0] = "new traveler";
     valsHist[1] = m_vis.getUser();
