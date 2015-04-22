@@ -35,6 +35,7 @@ Sequence:
 
    -
       Name: Inspect
+      Version: next
       Description:  inspect blah blah blah
       InstructionsURL:   http://somewhere/inspectASPIC.html
 

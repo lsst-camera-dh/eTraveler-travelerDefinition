@@ -21,10 +21,10 @@ Sequence:
       Prerequisites:
        - 
          Name: MF01
-         PrererequisiteType:  TEST_EQUIPMENT
+         PrerequisiteType:  TEST_EQUIPMENT
        - 
          Name: MF02
-         PrererequisiteType:  TEST_EQUIPMENT
+         PrerequisiteType:  TEST_EQUIPMENT
    -
       Name: T02 ready for measurements
       Description: Attach height gauge blocks to MF01; remove sensor jig cover
@@ -32,7 +32,7 @@ Sequence:
        -
          Name: 13.00 mm gauge blocks
          PrerequisiteType:    TEST_EQUIPMENT
-         Quantity: ??
+         Quantity: 2
    -
       Name: T02_surface_dimensions
       Description: Run OGP script for this function
@@ -52,7 +52,7 @@ Sequence:
         - HarnessedJob
       Prerequisites:
         -
-	  Name: T02_surface_dimensions
+          Name: T02_surface_dimensions
           PrerequisiteType: PROCESS_STEP
           UserVersionString: v0
         -

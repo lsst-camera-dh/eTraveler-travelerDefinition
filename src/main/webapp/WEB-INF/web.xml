@@ -81,6 +81,11 @@
             <param-name>configDb</param-name>
             <param-value>${experiment.configuration.database}</param-value>
         </init-param>
+        
+        <init-param>
+            <param-name>skipPages</param-name>
+            <param-value>*ingestOutput.jsp*</param-value>
+        </init-param> 
 
         <init-param>
             <param-name>requireLogin</param-name>
