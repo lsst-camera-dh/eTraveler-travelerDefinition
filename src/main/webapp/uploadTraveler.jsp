@@ -5,8 +5,9 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>  
-<%-- <%@taglib prefix="yamltodb" 
-   uri="http://lsstcorp.org/etravelerbackend/WriteToDb" %>  --%>
+ <%@taglib prefix="yamltodb" 
+   uri="http://lsstcorp.org/etravelerbackend/WriteToDb" %> 
+ <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
   <head>
@@ -21,17 +22,16 @@
     </style>
   </head>
   <body>
+  
+   
     <h2 > Ingest a File</h2>
     <table width="100%"><tr><td valign="top">
     <h3> Check/validate only</h3>
      
-<form  name="YamlToDbTestForm" enctype="multipart/form-data" method="post"
-      action="ingestOutput.jsp" >
-     
+    <form  name="YamlToDbTestForm" enctype="multipart/form-data" method="post" >    
  
     <p> <b> Yaml file: </b>
-      <input type="file" name="importYamlFile" 
-      value=""  /></p>
+      <input type="file" name="importYamlFile" value="" /></p>
     <fieldset >
       <legend>Actions</legend>
    
@@ -40,31 +40,31 @@
       
      </fieldset>
   
-</form>
+    </form>
     
         </td><td>&nbsp;</td><td valign="top">
     
     <h3>Full ingest</h3>
     
-     <form class="wide" name="YamlToDbForm" enctype="multipart/form-data" method="post"
-      action="ingestOutput.jsp" >
-     
+     <form class="wide" name="YamlToDbForm" enctype="multipart/form-data" 
+           method="post">   
  
     <p> <b> Yaml file: </b>
-      <input type="file" name="importYamlFile" 
-      value=""  /></p>
+      <input type="file" name="importYamlFile" value="" /></p>
    
     <table ><tr>
         <td><label for="reason"><b> Description of new process traveler: </b>
           </label></td>
-          <td><textarea  rows="2" cols="60" id="reason"  name="reason" >
+          <td><textarea  rows="2" cols="60" id="reason"  name="reason"
+                         value="">
  
             </textarea> 
           </td></tr>
       <tr><td>
           <label for="owner">
     <b>Responsible person:</b> </label></td>
-    <td><input type="text" name="owner" cols="50" id="owner" value=""/>
+    <td><input type="text" name="owner" cols="50" id="owner" 
+               value=""/>
     </td></tr></table>
       <fieldset>
       <legend>Actions</legend>
@@ -74,6 +74,14 @@
     
   
 </form>
-        </td></tr></table>
+   </td></tr></table>
+    <c:if test ="${! empty param.fileAction}" >
+      <hr />
+      <h2>Results of ${param.fileAction}</h2>
+      
+      ${yamltodb:ingest(pageContext)}
+               
+               
+     </c:if> 
   </body>
 </html>

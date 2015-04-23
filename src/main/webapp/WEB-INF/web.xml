@@ -84,7 +84,7 @@
         
         <init-param>
             <param-name>skipPages</param-name>
-            <param-value>*ingestOutput.jsp*</param-value>
+            <param-value>*uploadTraveler.jsp*</param-value>
         </init-param> 
 
         <init-param>

@@ -23,15 +23,10 @@ public class WriteToDb {
 
   // public static String ingest(String fileContents, boolean useTransactions) {
     public static String ingest(PageContext context) {
-      //String fileContents = context.getRequest().getParameter("importYamlFile");
-      String redoInstructions =
-" Please click on 'Upload' link in upper right, reselect file and try again"; 
-      HttpSession session = context.getSession();
-      if (session == null) return "Could not get HttpSession<br />"
-                             + redoInstructions;
-      Object fileContentsObj = session.getAttribute("fileContents");
-      //      String fileContents = 
-      //        context.getSession().getAttribute("fileContents").toString();
+  
+      String redoInstructions = " Reselect file and try again"; 
+     
+      Object fileContentsObj = context.getRequest().getParameter("importYamlFile");
   
       if (fileContentsObj == null)  {
         return "No file selected or stale reference. <br /> "
@@ -51,7 +46,16 @@ public class WriteToDb {
       JspWriter writer = context.getOut();
 
       //String action = context.getRequest().getParameter("fileAction");
-      String action = context.getSession().getAttribute("action").toString();
+      String action = context.getRequest().getParameter("fileAction").toString();
+      
+      if (action.equals("Import"))   {
+        if (context.getRequest().getParameter("owner").trim().isEmpty() ||
+            context.getRequest().getParameter("reason").trim().isEmpty() ) {
+          return 
+              ("Must specify <b>Description</b> and <b>Responsible Person</b> "
+              + " to ingest!");
+        }
+      }
       ProcessNode ingested;
       try {
         ingested = parse(fileContents);
@@ -75,8 +79,8 @@ public class WriteToDb {
       String writeRet =
           writeToDb(ingested, context.getSession().getAttribute("userName").toString(),
           useTransactions.equals("true"), dbType, datasource, action.equals("Import"),
-                    context.getSession().getAttribute("owner").toString(), 
-                    context.getSession().getAttribute("reason").toString());
+                    context.getRequest().getParameter("owner").trim(), 
+                    context.getRequest().getParameter("reason").trim());
       return writeRet;
   }
 
