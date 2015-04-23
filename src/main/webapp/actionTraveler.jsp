@@ -18,7 +18,8 @@
     <link href="css/backendStyle.css" type="text/css" rel="stylesheet" /> 
       <style type="text/css">
      
-      form.wide {width: 600px; background-color: lightgray; border-width: 1}
+      form.wide {width: 600px; background-color: lightgray;}
+      form {background-color: lightgray;}
     
     </style>
 
@@ -112,13 +113,14 @@
     <a href="globalActions.jsp?action=revert" target="doAction">Undo step modifications</a><br />
       </td></tr>   --%>
       <tr><td>
+          <b> Ingest modified traveler</b>
           <form  "action="globalActions.jsp" target="doAction">
             
             
              <table ><tr>
         <td><label for="reason"><b> Description of new process traveler: </b>
           </label></td>
-          <td><textarea  rows="2" cols="60" id="reason"  name="reason" >
+          <td><textarea  rows="2" cols="40" id="reason"  name="reason" >
  
             </textarea> 
           </td></tr>

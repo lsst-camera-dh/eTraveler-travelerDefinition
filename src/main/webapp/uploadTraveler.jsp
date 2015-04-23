@@ -15,9 +15,8 @@
     <title>Upload traveler</title>
     <link href="css/backendStyle.css" type="text/css" rel="stylesheet" /> 
     <style type="text/css">
-      form    {width: 320px; background-color: lightgray; 
-                border-color: black; border-width: 1}
-      form.wide {width: 600px; background-color: lightgray; border-width: 1}
+      form.medium    {width: 320px; background-color: background; }
+      form.wide {width: 600px; background-color: background;}
       h3 {color: forestgreen}
     </style>
   </head>
@@ -28,7 +27,7 @@
     <table width="100%"><tr><td valign="top">
     <h3> Check/validate only</h3>
      
-    <form  name="YamlToDbTestForm" enctype="multipart/form-data" method="post" >    
+    <form class="medium" name="YamlToDbTestForm" enctype="multipart/form-data" method="post" >
  
     <p> <b> Yaml file: </b>
       <input type="file" name="importYamlFile" value="" /></p>
@@ -57,7 +56,6 @@
           </label></td>
           <td><textarea  rows="2" cols="60" id="reason"  name="reason"
                          value="">
- 
             </textarea> 
           </td></tr>
       <tr><td>
@@ -71,9 +69,8 @@
    
       <input type="submit" value="Import" name="fileAction" />  
       </fieldset>
-    
-  
 </form>
+
    </td></tr></table>
     <c:if test ="${! empty param.fileAction}" >
       <hr />
