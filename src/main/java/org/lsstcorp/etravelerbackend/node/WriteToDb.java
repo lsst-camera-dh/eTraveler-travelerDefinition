@@ -75,12 +75,18 @@ public class WriteToDb {
    
         return "File successfully parsed";
       }
-      
-      String writeRet =
+      String writeRet;
+      if (action.equals("Db validate")) {
+        writeRet=writeToDb(ingested, context.getSession().getAttribute("userName").toString(),
+          useTransactions.equals("true"), dbType, datasource, action.equals("Import"),
+                    "",""); 
+      } else {
+      writeRet =
           writeToDb(ingested, context.getSession().getAttribute("userName").toString(),
           useTransactions.equals("true"), dbType, datasource, action.equals("Import"),
                     context.getRequest().getParameter("owner").trim(), 
                     context.getRequest().getParameter("reason").trim());
+      }
       return writeRet;
   }
 

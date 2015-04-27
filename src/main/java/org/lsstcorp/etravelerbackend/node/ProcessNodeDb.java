@@ -67,7 +67,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private static String[] s_initCols = {"name", "hardwareTypeId", 
     "hardwareGroupId", "hardwareRelationshipTypeId", "version", 
     "userVersionString", "description", "instructionsURL", "substeps", 
-    "maxIteration", "travelerActionMask", "originalId"};
+    "maxIteration", "travelerActionMask", "originalId", "newLocation"};
   private static String[] s_edgeCols = {"step", "cond"};
   private static PreparedStatement s_processQuery = null;
   private static PreparedStatement s_edgeQuery = null;
@@ -196,6 +196,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       m_maxIteration = rs.getString(++ix);
       m_travelerActionMask = rs.getInt(++ix);
       m_originalId = rs.getString(++ix);
+      m_newLocation = rs.getString(++ix);
       rs.close();
     
       if (!m_substeps.equals("NONE")) { // can't use default m_nChildren=0 
@@ -314,6 +315,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     return m_instructionsURL;
   }
   public String provideMaxIteration() {return m_maxIteration;}
+  public String provideNewLocation() {return m_newLocation;}
   public String provideSubsteps() {return m_substeps;}
   public int provideTravelerActionMask() {return m_travelerActionMask;}
   public String provideOriginalId() {return m_originalId;}
@@ -373,6 +375,12 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public void acceptDescription(String description) {m_description=description;}
   public void acceptInstructionsURL(String url) {m_instructionsURL = url;}
   public void acceptMaxIteration(String maxIteration) {m_maxIteration=maxIteration;}
+  public void acceptNewLocation(String newLoc) {
+    m_newLocation=newLoc;
+    if (newLoc == null) return;
+    /* Canonical non-null representation for operator prompt is "(?)" */
+    if (newLoc.equals("(?)")) m_newLocation = null;
+  }
   public void acceptSubsteps(String substeps) {m_substeps = substeps; }
   public void acceptTravelerActionMask(int travelerActionMask) {
     m_travelerActionMask = travelerActionMask;
@@ -631,7 +639,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   //         value, e.g. hardwareRelationshipType
   private static   String[] s_insertProcessCols={"name", "hardwareTypeId", 
     "hardwareGroupId", "version", "userVersionString", "description", 
-    "instructionsURL", "substeps", "maxIteration", "originalId",
+    "instructionsURL", "substeps", "maxIteration", "newLocation",  "originalId",
     "travelerActionMask", "hardwareRelationshipTypeId", "createdBy"};
   private static   String[] s_insertEdgeCols={"parent", "child", "step", "cond", "createdBy"};
  
@@ -671,11 +679,12 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       vals[6] = m_instructionsURL;
       vals[7] = m_substeps;
       vals[8] = m_maxIteration;
-      vals[9] = m_originalId;
-      vals[10] = String.valueOf(m_travelerActionMask);
-      vals[11] = m_hardwareRelationshipTypeId;
+      vals[9] = m_newLocation;
+      vals[10] = m_originalId;
+      vals[11] = String.valueOf(m_travelerActionMask);
+      vals[12] = m_hardwareRelationshipTypeId;
       //  Value for user should come from Confluence log-in
-      vals[12] = m_vis.getUser();
+      vals[13] = m_vis.getUser();
       try {
         m_id = m_connect.doInsert("Process", s_insertProcessCols, vals, "", 
                                   DbConnection.ADD_CREATION_TIMESTAMP);
@@ -985,6 +994,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private String m_instructionsURL=null;
   private String m_substeps=null;
   private String m_maxIteration=null;
+  private String m_newLocation;
   private int m_travelerActionMask=0;
   private String m_originalId=null;
   private String m_parentEdgeId = null;

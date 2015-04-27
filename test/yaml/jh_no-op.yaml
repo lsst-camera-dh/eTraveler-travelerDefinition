@@ -1,0 +1,19 @@
+%YAML  1.1
+---
+Name: jh_no-op
+HardwareGroup:  CCD
+Description: Exercise JH
+#TravelerActions:
+#  - Automatable
+Sequence:
+  - 
+    Name: no-op
+    UserVersionString: v0
+    TravelerActions:
+      - HarnessedJob
+  #- 
+  #  Name: example_station_B
+  #  UserVersionString: v0
+  #  Version: next
+  #  TravelerActions:
+  #    - HarnessedJob

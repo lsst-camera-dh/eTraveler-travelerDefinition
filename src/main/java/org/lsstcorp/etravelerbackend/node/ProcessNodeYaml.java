@@ -82,6 +82,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     s_knownKeys.add("RefVersion");
     s_knownKeys.add("SourceDb");
     s_knownKeys.add("HardwareType");
+    s_knownKeys.add("NewLocation");
     /* Following are written by yaml export; informational only */
     s_knownKeys.add("FromSourceVersion");
     s_knownKeys.add("FromSourceId");
@@ -108,10 +109,11 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   static final int REFVERSION=17;
   static final int SOURCEDB=18;
   static final int HARDWARETYPE=19;
-  static final int FROMSOURCEVERSION=20;
-  static final int FROMSOURCEID=21;
-  static final int FROMSOURCEORIGINALID=22;
-  static final int FROMSOURCESOURCEDB=23;
+  static final int NEWLOCATION=20;
+  static final int FROMSOURCEVERSION=120;
+  static final int FROMSOURCEID=121;
+  static final int FROMSOURCEORIGINALID=122;
+  static final int FROMSOURCESOURCEDB=123;
  
   
 
@@ -274,6 +276,15 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
           }
         } catch (NumberFormatException e) {
           throw new WrongTypeYamlValue("maxIteration", v, "Process");
+        }
+        break;
+      case NEWLOCATION:
+        m_newLocation = v;
+        m_travelerActionMask |= TravelerActionBits.SET_HARDWARE_LOCATION;
+        /* several different aliases may be used for operator prompt */
+        if (v.equals("(TBD)") || v.equals("(tbd)") || v.equals("(operatorPrompt)")
+            || v.equals("(OPERATORPROMPT)") || v.equals("(prompt)") || v.equals("(PROMPT)") ) {
+          v = "(?)";
         }
         break;
       case CONDITION:
@@ -444,6 +455,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   public String provideDescription() {return m_description;}
   public String provideInstructionsURL() {return m_instructionsURL;}
   public String provideMaxIteration() {return m_maxIteration;}
+  public String provideNewLocation() {return m_newLocation;}
   public String provideSubsteps() {return m_substeps;}
   public int provideTravelerActionMask() {return m_travelerActionMask;}
   public String provideOriginalId() {return null;}
@@ -487,6 +499,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private String m_instructionsURL=null;
   private String m_description=null;
   private String m_maxIteration="1";
+  private String m_newLocation=null;
   private String m_edgeCondition = null;
   private String m_sourceDb = null;  // only of interest for top node
   

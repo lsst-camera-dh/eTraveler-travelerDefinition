@@ -82,6 +82,9 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
   public  void acceptMaxIteration(String maxIteration) {
     if (!m_isCloned) m_data.put("MaxIteration", maxIteration);
   }
+  public void acceptNewLocation(String newLoc) {
+    if (newLoc != null) m_data.put("NewLocation", newLoc);
+  }
   public void acceptSubsteps(String substeps) {
     m_substeps = substeps;
   }

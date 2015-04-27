@@ -52,7 +52,8 @@ public class ProcessNode implements  TravelerElement
     if (m_isCloned != storeToNodeMap()) {
       throw new EtravelerException("Inconsistent clone information");
     }
-    m_sourceDb = orig.m_sourceDb;
+    if (orig.m_sourceDb != null) m_sourceDb = new String(orig.m_sourceDb);
+     if (orig.m_newLocation != null) m_newLocation = new String(orig.m_newLocation);
     if (m_isCloned)   { // get remainder of fields from our big brother
       copyFrom(m_clonedFrom);
     }  else {
@@ -96,7 +97,8 @@ public class ProcessNode implements  TravelerElement
     m_substeps = new String(model.m_substeps);
     m_isOption = model.m_isOption;
     m_travelerActionMask = model.m_travelerActionMask;
-   
+    if (model.m_newLocation != null) 
+      m_newLocation = new String(model.m_newLocation);
 
     if (model.m_prerequisites != null) {
       int plen = model.m_prerequisites.size();
@@ -178,6 +180,7 @@ public class ProcessNode implements  TravelerElement
     m_description = imp.provideDescription();
     m_instructionsURL = imp.provideInstructionsURL();
     m_maxIteration = imp.provideMaxIteration();
+    m_newLocation = imp.provideNewLocation();
     if ((m_parent == null) && (!m_maxIteration.equals("1"))) {
       throw new EtravelerException("Root step may not have max iteration > 1");
     }
@@ -307,6 +310,9 @@ public class ProcessNode implements  TravelerElement
     pList.add(new Attribute("child type", m_substeps));
     pList.add(new Attribute("traveler action mask", Integer.toString(m_travelerActionMask)));
     int nChild = m_optionCount;
+    if (m_newLocation != null) {
+      pList.add(new Attribute("new location", m_newLocation));
+    }
 
     if (m_sequenceCount > nChild) nChild = m_sequenceCount;
     pList.add(new Attribute("# substeps", Integer.toString(nChild)));
@@ -404,6 +410,7 @@ public class ProcessNode implements  TravelerElement
     String provideDescription();
     String provideInstructionsURL();
     String provideMaxIteration();
+    String provideNewLocation();
     String provideSubsteps();
     int provideTravelerActionMask();
     String provideOriginalId();
@@ -448,6 +455,7 @@ public class ProcessNode implements  TravelerElement
     void acceptDescription(String description);
     void acceptInstructionsURL(String instructionsURL);
     void acceptMaxIteration(String maxIterations);
+    void acceptNewLocation(String newLoc);
     void acceptSubsteps(String substeps);
     void acceptTravelerActionMask(int travelerActionMask);
     void acceptOriginalId(String originalId);
@@ -499,6 +507,7 @@ public class ProcessNode implements  TravelerElement
       ptarget.acceptDescription(m_description);
       ptarget.acceptInstructionsURL(m_instructionsURL);
       ptarget.acceptMaxIteration(m_maxIteration);
+      ptarget.acceptNewLocation(m_newLocation);
       ptarget.acceptOriginalId(m_originalId);
       ptarget.acceptSubsteps(m_substeps);
       ptarget.acceptTravelerActionMask(m_travelerActionMask);
@@ -599,6 +608,7 @@ public class ProcessNode implements  TravelerElement
     m_instructionsURL = src.m_instructionsURL;
     m_maxIteration = src.m_maxIteration;
     m_userVersionString = src.m_userVersionString;
+    m_newLocation = src.m_newLocation;
     // For now, do not handle recurs==true, so leave option count and seq count
     // alone
     if (src.getPrerequisiteCount() > 0) {
@@ -627,6 +637,7 @@ public class ProcessNode implements  TravelerElement
   public String getDescription() {return m_description;}
   public String getInstructionsURL() { return m_instructionsURL;}
   public String getMaxIteration() {return m_maxIteration;}
+  public String getNewLocation() {return m_newLocation;}
   public String getCondition() {
     if (m_parentEdge == null) return null;
     return m_parentEdge.getCondition();
@@ -647,6 +658,7 @@ public class ProcessNode implements  TravelerElement
   public void setUserVersionString(String ustring) {m_userVersionString = ustring;}
   public void setInstructionsURL(String url) {m_instructionsURL = url;}
   public void setMaxIteration(String maxIt) {m_maxIteration = maxIt;}
+  public void setNewLocation(String newLoc) {m_newLocation = newLoc;}
   public void newVersion() {
     m_edited = true;
     m_isRef = false;
@@ -700,6 +712,7 @@ public class ProcessNode implements  TravelerElement
   private String m_description=null;
   private String m_instructionsURL= "";
   private String m_maxIteration=null;
+  private String m_newLocation=null;
   private String m_substeps=null;
   private String m_sourceDb=null;
   private boolean m_isOption=false;

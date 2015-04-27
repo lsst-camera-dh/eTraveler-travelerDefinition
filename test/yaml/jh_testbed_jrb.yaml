@@ -1,0 +1,19 @@
+%YAML  1.1
+---
+Name: jh_testbed_jrb
+HardwareGroup:  CCD
+Description: Exercise JH on CCS Testbed
+#TravelerActions:
+#  - Automatable
+Sequence:
+  - 
+    Name: ccsflat
+    UserVersionString: v0
+    TravelerActions:
+      - HarnessedJob
+  #- 
+  #  Name: example_station_B
+  #  UserVersionString: v0
+  #  Version: next
+  #  TravelerActions:
+  #    - HarnessedJob

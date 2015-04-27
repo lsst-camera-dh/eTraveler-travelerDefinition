@@ -57,6 +57,9 @@ public class TravelerPrintVisitor implements TravelerVisitor,
       if (m_userVersionString != null) {
         s_writer.write(leadingBlanks+"UserVersionString: " + m_userVersionString + s_eol);
       }
+      if (m_newLocation != null) {
+        s_writer.write(leadingBlanks + "NewLocation: " + m_newLocation + s_eol);
+      }
       if (m_condition != null) {
         s_writer.write(leadingBlanks + "Condition: " + m_condition + s_eol);
       }
@@ -164,7 +167,7 @@ public class TravelerPrintVisitor implements TravelerVisitor,
     m_id=null; m_name=null; m_hardwareType=null; m_hardwareRelationshipType=null;
     m_hardwareGroup=null; m_version=null; m_userVersionString=null; m_description=null;
     m_maxIteration=null; m_substeps=null; m_travelerActionMask=0;
-    m_originalId=null; m_condition=null; 
+    m_originalId=null; m_condition=null; m_newLocation=null;
   }
   
   private void resetPrereq() {
@@ -196,6 +199,7 @@ public class TravelerPrintVisitor implements TravelerVisitor,
    }
   public void acceptMaxIteration(String maxIteration) {
     m_maxIteration = maxIteration;}
+  public void acceptNewLocation(String newLoc) {m_newLocation=newLoc;}
   public void acceptSubsteps(String substeps) {m_substeps = substeps;}
   public void acceptTravelerActionMask(int travelerActionMask) {
     m_travelerActionMask = travelerActionMask;}
@@ -283,6 +287,7 @@ public class TravelerPrintVisitor implements TravelerVisitor,
   private String m_description=null;
   private String m_instructionsURL=null;
   private String m_maxIteration=null;
+  private String m_newLocation=null;
   private String m_substeps=null;
   private String m_condition=null;
   private int m_travelerActionMask=0;

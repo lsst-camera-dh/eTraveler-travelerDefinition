@@ -1,0 +1,13 @@
+%YAML  1.1
+---
+Name: newLocation
+HardwareGroup: boojum
+Description: try out setting location
+Sequence:
+  - Name: FixedMove
+    NewLocation: Cabinet2
+  - Name: MovePromptSpecified
+    NewLocation: (?)
+  - Name: MovePromptImplicit
+    TravelerActions:
+      - SetHardwareLocation
