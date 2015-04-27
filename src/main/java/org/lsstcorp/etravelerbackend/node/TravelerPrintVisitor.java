@@ -57,8 +57,15 @@ public class TravelerPrintVisitor implements TravelerVisitor,
       if (m_userVersionString != null) {
         s_writer.write(leadingBlanks+"UserVersionString: " + m_userVersionString + s_eol);
       }
-      if (m_newLocation != null) {
-        s_writer.write(leadingBlanks + "NewLocation: " + m_newLocation + s_eol);
+      if (m_travelerActionMask != 0) {
+        s_writer.write(leadingBlanks + "TravelerActionMask: " + m_travelerActionMask);
+        if ((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_LOCATION) != 0) {
+          if (m_newLocation != null) {
+            s_writer.write(leadingBlanks + "NewLocation: " + m_newLocation + s_eol);
+          }  else {
+            s_writer.write(leadingBlanks + "NewLocation: (?)" + s_eol);
+          }
+        }
       }
       if (m_condition != null) {
         s_writer.write(leadingBlanks + "Condition: " + m_condition + s_eol);

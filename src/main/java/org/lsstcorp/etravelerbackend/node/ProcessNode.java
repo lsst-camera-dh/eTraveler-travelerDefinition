@@ -499,6 +499,9 @@ public class ProcessNode implements  TravelerElement
   
       ptarget.acceptHardwareType(m_hardwareType);
       ptarget.acceptHardwareGroup(m_hardwareGroup);
+      /* Make sure target gets action mask early since it can affect
+         interpretation of some other fields */
+      ptarget.acceptTravelerActionMask(m_travelerActionMask);
       ptarget.acceptHardwareRelationshipType(m_hardwareRelationshipType);
       ptarget.acceptHardwareRelationshipSlot(m_hardwareRelationshipSlot);
       if (m_hardwareRelationshipType == null) m_hardwareRelationshipSlot = null;
@@ -507,10 +510,10 @@ public class ProcessNode implements  TravelerElement
       ptarget.acceptDescription(m_description);
       ptarget.acceptInstructionsURL(m_instructionsURL);
       ptarget.acceptMaxIteration(m_maxIteration);
+ 
       ptarget.acceptNewLocation(m_newLocation);
       ptarget.acceptOriginalId(m_originalId);
       ptarget.acceptSubsteps(m_substeps);
-      ptarget.acceptTravelerActionMask(m_travelerActionMask);
       ptarget.acceptPrerequisites(m_prerequisites);
       ptarget.acceptPrescribedResults(m_resultNodes);
       ptarget.acceptChildren(m_children);

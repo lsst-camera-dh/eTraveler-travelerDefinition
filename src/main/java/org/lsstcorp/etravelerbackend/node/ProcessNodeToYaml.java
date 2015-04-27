@@ -28,6 +28,7 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
   private boolean m_isRoot=false;
   private boolean m_isCloned=false;
   private String m_substeps="NONE";
+  private int m_travelerActionMask = 0;
   
   public ProcessNodeToYaml(TravelerToYamlVisitor vis, Map<String, Object> data)   {
     m_data = data;
@@ -83,7 +84,13 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
     if (!m_isCloned) m_data.put("MaxIteration", maxIteration);
   }
   public void acceptNewLocation(String newLoc) {
-    if (newLoc != null) m_data.put("NewLocation", newLoc);
+    if (newLoc != null) {
+      m_data.put("NewLocation", newLoc);
+    } else {
+      if ((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_LOCATION) != 0 ) {
+        m_data.put("NewLocation", "(?)");
+      }
+    }
   }
   public void acceptSubsteps(String substeps) {
     m_substeps = substeps;
@@ -91,6 +98,8 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
   public void acceptTravelerActionMask(int travelerActionMask) {
      if (!m_isCloned) {
        if (travelerActionMask == 0) return;
+       /* cache for use by acceptNewLocation */
+       m_travelerActionMask = travelerActionMask;
        ArrayList<String> actions = new ArrayList<String>();
        for (int iBit = 0; iBit < 32; iBit++) {
          int val = 1 << iBit;
