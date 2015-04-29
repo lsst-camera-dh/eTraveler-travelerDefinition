@@ -1,0 +1,13 @@
+%YAML  1.1
+---
+Name: newStatus
+HardwareGroup: boojum
+Description: try out setting status
+Sequence:
+  - Name: FixedNewStatus
+    NewStatus: READY
+  - Name: StatusPromptSpecified
+    NewStatus: (?)
+  - Name: StatusPromptImplicit
+    TravelerActions:
+      - SetHardwareStatus

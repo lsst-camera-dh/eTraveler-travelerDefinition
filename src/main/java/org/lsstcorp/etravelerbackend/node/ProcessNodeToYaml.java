@@ -92,6 +92,15 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
       }
     }
   }
+  public void acceptNewStatus(String newStatus) {
+    if (newStatus != null) {
+      m_data.put("NewStatus", newStatus);
+    } else {
+      if ((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_STATUS) != 0 ) {
+        m_data.put("NewStatus", "(?)");
+      }
+    }
+  }
   public void acceptSubsteps(String substeps) {
     m_substeps = substeps;
   }

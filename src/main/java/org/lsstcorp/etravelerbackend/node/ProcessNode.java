@@ -99,6 +99,10 @@ public class ProcessNode implements  TravelerElement
     m_travelerActionMask = model.m_travelerActionMask;
     if (model.m_newLocation != null) 
       m_newLocation = new String(model.m_newLocation);
+    if (model.m_newStatus != null)  
+      m_newStatus = new String(model.m_newStatus);
+    if (model.m_newStatusId != null)
+      m_newStatusId = new String(model.m_newStatusId);
 
     if (model.m_prerequisites != null) {
       int plen = model.m_prerequisites.size();
@@ -180,7 +184,22 @@ public class ProcessNode implements  TravelerElement
     m_description = imp.provideDescription();
     m_instructionsURL = imp.provideInstructionsURL();
     m_maxIteration = imp.provideMaxIteration();
+    m_travelerActionMask = imp.provideTravelerActionMask();
+    //m_originalId = imp.provideOriginalId();
+    if ( ( (m_travelerActionMask & TravelerActionBits.HARNESSED) != 0) &&
+        (!m_substeps.equals("NONE")) ) {
+        throw new EtravelerException("Harnessed steps may not have substeps");
+    }
+    boolean automatable = ((m_travelerActionMask & TravelerActionBits.AUTOMATABLE) != 0);
+    if (automatable && !(m_substeps.equals("SEQUENCE"))) {
+      throw new EtravelerException("Step " + m_name + " is not automatable!");
+    }
     m_newLocation = imp.provideNewLocation();
+    if (((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_LOCATION) !=0) &&
+        (m_newLocation == null)) m_newLocation = "(?)";
+    m_newStatus = imp.provideNewStatus();
+    if (((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_STATUS) !=0) &&
+        (m_newStatus == null)) m_newStatus = "(?)";
     if ((m_parent == null) && (!m_maxIteration.equals("1"))) {
       throw new EtravelerException("Root step may not have max iteration > 1");
     }
@@ -198,16 +217,7 @@ public class ProcessNode implements  TravelerElement
         && (!m_substeps.equals("SELECTION")) )  {
       throw new Exception("children type must be one of NONE/SEQUENCE/SELECTION");
     }
-    m_travelerActionMask = imp.provideTravelerActionMask();
-    //m_originalId = imp.provideOriginalId();
-    if ( ( (m_travelerActionMask & TravelerActionBits.HARNESSED) != 0) &&
-        (!m_substeps.equals("NONE")) ) {
-        throw new EtravelerException("Harnessed steps may not have substeps");
-    }
-    boolean automatable = ((m_travelerActionMask & TravelerActionBits.AUTOMATABLE) != 0);
-    if (automatable & !(m_substeps.equals("SEQUENCE"))) {
-      throw new EtravelerException("Step " + m_name + " is not automatable!");
-    }
+   
     int nPrereq = imp.provideNPrerequisites();
     if (nPrereq > 0) {
       m_prerequisites = new ArrayList<Prerequisite>(nPrereq);
@@ -313,6 +323,9 @@ public class ProcessNode implements  TravelerElement
     if (m_newLocation != null) {
       pList.add(new Attribute("new location", m_newLocation));
     }
+    if (m_newStatus != null)  {
+      pList.add(new Attribute("new status", m_newStatus));
+    }
 
     if (m_sequenceCount > nChild) nChild = m_sequenceCount;
     pList.add(new Attribute("# substeps", Integer.toString(nChild)));
@@ -411,6 +424,7 @@ public class ProcessNode implements  TravelerElement
     String provideInstructionsURL();
     String provideMaxIteration();
     String provideNewLocation();
+    String provideNewStatus();
     String provideSubsteps();
     int provideTravelerActionMask();
     String provideOriginalId();
@@ -456,6 +470,7 @@ public class ProcessNode implements  TravelerElement
     void acceptInstructionsURL(String instructionsURL);
     void acceptMaxIteration(String maxIterations);
     void acceptNewLocation(String newLoc);
+    void acceptNewStatus(String newStat);
     void acceptSubsteps(String substeps);
     void acceptTravelerActionMask(int travelerActionMask);
     void acceptOriginalId(String originalId);
@@ -512,6 +527,7 @@ public class ProcessNode implements  TravelerElement
       ptarget.acceptMaxIteration(m_maxIteration);
  
       ptarget.acceptNewLocation(m_newLocation);
+      ptarget.acceptNewStatus(m_newStatus);
       ptarget.acceptOriginalId(m_originalId);
       ptarget.acceptSubsteps(m_substeps);
       ptarget.acceptPrerequisites(m_prerequisites);
@@ -612,6 +628,7 @@ public class ProcessNode implements  TravelerElement
     m_maxIteration = src.m_maxIteration;
     m_userVersionString = src.m_userVersionString;
     m_newLocation = src.m_newLocation;
+    m_newStatus = src.m_newStatus;
     // For now, do not handle recurs==true, so leave option count and seq count
     // alone
     if (src.getPrerequisiteCount() > 0) {
@@ -641,6 +658,8 @@ public class ProcessNode implements  TravelerElement
   public String getInstructionsURL() { return m_instructionsURL;}
   public String getMaxIteration() {return m_maxIteration;}
   public String getNewLocation() {return m_newLocation;}
+  public String getNewStatus() {return m_newStatus;}
+  public String getNewStatusId() {return m_newStatusId;}
   public String getCondition() {
     if (m_parentEdge == null) return null;
     return m_parentEdge.getCondition();
@@ -662,6 +681,7 @@ public class ProcessNode implements  TravelerElement
   public void setInstructionsURL(String url) {m_instructionsURL = url;}
   public void setMaxIteration(String maxIt) {m_maxIteration = maxIt;}
   public void setNewLocation(String newLoc) {m_newLocation = newLoc;}
+  public void setNewStatus(String newStat) {m_newStatus = newStat;}
   public void newVersion() {
     m_edited = true;
     m_isRef = false;
@@ -716,6 +736,8 @@ public class ProcessNode implements  TravelerElement
   private String m_instructionsURL= "";
   private String m_maxIteration=null;
   private String m_newLocation=null;
+  private String m_newStatus=null;
+  private String m_newStatusId=null; /* Make accessible for export to YAML */
   private String m_substeps=null;
   private String m_sourceDb=null;
   private boolean m_isOption=false;

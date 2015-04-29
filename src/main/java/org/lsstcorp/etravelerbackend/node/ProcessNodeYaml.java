@@ -83,6 +83,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     s_knownKeys.add("SourceDb");
     s_knownKeys.add("HardwareType");
     s_knownKeys.add("NewLocation");
+    s_knownKeys.add("NewStatus");
     /* Following are written by yaml export; informational only */
     s_knownKeys.add("FromSourceVersion");
     s_knownKeys.add("FromSourceId");
@@ -110,10 +111,12 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   static final int SOURCEDB=18;
   static final int HARDWARETYPE=19;
   static final int NEWLOCATION=20;
-  static final int FROMSOURCEVERSION=120;
-  static final int FROMSOURCEID=121;
-  static final int FROMSOURCEORIGINALID=122;
-  static final int FROMSOURCESOURCEDB=123;
+  static final int NEWSTATUS=21;
+  
+  static final int FROMSOURCEVERSION=22;
+  static final int FROMSOURCEID=23;
+  static final int FROMSOURCEORIGINALID=24;
+  static final int FROMSOURCESOURCEDB=25;
  
   
 
@@ -278,14 +281,23 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
           throw new WrongTypeYamlValue("maxIteration", v, "Process");
         }
         break;
-      case NEWLOCATION:
-        m_newLocation = v;
+      case NEWLOCATION:      
         m_travelerActionMask |= TravelerActionBits.SET_HARDWARE_LOCATION;
         /* several different aliases may be used for operator prompt */
         if (v.equals("(TBD)") || v.equals("(tbd)") || v.equals("(operatorPrompt)")
             || v.equals("(OPERATORPROMPT)") || v.equals("(prompt)") || v.equals("(PROMPT)") ) {
           v = "(?)";
         }
+        m_newLocation = v;
+        break;
+      case NEWSTATUS:
+        m_travelerActionMask |= TravelerActionBits.SET_HARDWARE_STATUS;
+        /* several different aliases may be used for operator prompt */
+        if (v.equals("(TBD)") || v.equals("(tbd)") || v.equals("(operatorPrompt)")
+            || v.equals("(OPERATORPROMPT)") || v.equals("(prompt)") || v.equals("(PROMPT)") ) {
+          m_newStatus = "(?)";
+        }
+        m_newStatus = v;
         break;
       case CONDITION:
         m_edgeCondition = v; break;
@@ -456,6 +468,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   public String provideInstructionsURL() {return m_instructionsURL;}
   public String provideMaxIteration() {return m_maxIteration;}
   public String provideNewLocation() {return m_newLocation;}
+  public String provideNewStatus() {return m_newStatus;}
   public String provideSubsteps() {return m_substeps;}
   public int provideTravelerActionMask() {return m_travelerActionMask;}
   public String provideOriginalId() {return null;}
@@ -500,6 +513,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private String m_description=null;
   private String m_maxIteration="1";
   private String m_newLocation=null;
+  private String m_newStatus=null;
   private String m_edgeCondition = null;
   private String m_sourceDb = null;  // only of interest for top node
   

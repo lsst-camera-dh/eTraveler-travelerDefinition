@@ -148,6 +148,7 @@ public class TravelerDotVisitor implements TravelerVisitor,
   public void acceptMaxIteration(String maxIteration) {
     m_maxIteration = maxIteration;}
   public void acceptNewLocation(String newLocation) {m_newLocation=newLocation;}
+  public void acceptNewStatus(String newStatus) {m_newStatus = newStatus;}
   public void acceptSubsteps(String substeps) {m_substeps = substeps;}
   public void acceptTravelerActionMask(int travelerActionMask) {
     m_travelerActionMask = travelerActionMask;}
@@ -233,6 +234,7 @@ public class TravelerDotVisitor implements TravelerVisitor,
   private String m_instructionsURL=null;
   private String m_maxIteration=null;
   private String m_newLocation=null;
+  private String m_newStatus=null;
   private String m_substeps=null;
   private String m_condition=null;
   private int m_travelerActionMask=0;

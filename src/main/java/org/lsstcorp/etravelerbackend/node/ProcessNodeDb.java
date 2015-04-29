@@ -67,7 +67,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private static String[] s_initCols = {"name", "hardwareTypeId", 
     "hardwareGroupId", "hardwareRelationshipTypeId", "version", 
     "userVersionString", "description", "instructionsURL", "substeps", 
-    "maxIteration", "travelerActionMask", "originalId", "newLocation"};
+    "maxIteration", "travelerActionMask", "originalId", "newLocation",
+    "newHardwareStatusId"};
   private static String[] s_edgeCols = {"step", "cond"};
   private static PreparedStatement s_processQuery = null;
   private static PreparedStatement s_edgeQuery = null;
@@ -197,7 +198,12 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       m_travelerActionMask = rs.getInt(++ix);
       m_originalId = rs.getString(++ix);
       m_newLocation = rs.getString(++ix);
+      m_newStatusId = rs.getString(++ix);
       rs.close();
+      if (m_newStatusId != null)  { /* find corresponding string */
+        m_newStatus = m_connect.fetchColumn("HardwareStatus", "name",
+            " where id ='" + m_newStatusId + "'");
+      }
     
       if (!m_substeps.equals("NONE")) { // can't use default m_nChildren=0 
         s_edgeQuery.setString(1, m_id);
@@ -316,6 +322,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   }
   public String provideMaxIteration() {return m_maxIteration;}
   public String provideNewLocation() {return m_newLocation;}
+  public String provideNewStatus() {return m_newStatus;}
   public String provideSubsteps() {return m_substeps;}
   public int provideTravelerActionMask() {return m_travelerActionMask;}
   public String provideOriginalId() {return m_originalId;}
@@ -380,6 +387,12 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     if (newLoc == null) return;
     /* Canonical non-null representation for operator prompt is "(?)" */
     if (newLoc.equals("(?)")) m_newLocation = null;
+  }
+  public void acceptNewStatus(String newStat) {
+    m_newStatus=newStat;
+    if (newStat == null) return;
+    /* Canonical non-null representation for operator prompt is "(?)" */
+    if (newStat.equals("(?)")) m_newStatus = null;
   }
   public void acceptSubsteps(String substeps) {m_substeps = substeps; }
   public void acceptTravelerActionMask(int travelerActionMask) {
@@ -525,6 +538,14 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       m_hardwareTypeId = m_dbParent.m_hardwareTypeId;
       m_hardwareGroupId = m_dbParent.m_hardwareGroupId;
     }
+    if (m_newStatus != null) {
+      if (m_hardwareStatusIdMap.containsKey(m_newStatus)) {
+        m_newStatusId = m_hardwareStatusIdMap.get(m_newStatus);
+      }  else {
+        throw new EtravelerException("No hardware status entry for " + m_newStatus);
+      }
+      
+    }
     // If ref, verify we have the right db and that the node we need really is.
     // there. Also fetch travelerActionMask
     if (m_isRef)   {
@@ -639,7 +660,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   //         value, e.g. hardwareRelationshipType
   private static   String[] s_insertProcessCols={"name", "hardwareTypeId", 
     "hardwareGroupId", "version", "userVersionString", "description", 
-    "instructionsURL", "substeps", "maxIteration", "newLocation",  "originalId",
+    "instructionsURL", "substeps", "maxIteration", "newLocation", "newHardwareStatusId", "originalId",
     "travelerActionMask", "hardwareRelationshipTypeId", "createdBy"};
   private static   String[] s_insertEdgeCols={"parent", "child", "step", "cond", "createdBy"};
  
@@ -680,11 +701,12 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       vals[7] = m_substeps;
       vals[8] = m_maxIteration;
       vals[9] = m_newLocation;
-      vals[10] = m_originalId;
-      vals[11] = String.valueOf(m_travelerActionMask);
-      vals[12] = m_hardwareRelationshipTypeId;
+      vals[10] = m_newStatusId;
+      vals[11] = m_originalId;
+      vals[12] = String.valueOf(m_travelerActionMask);
+      vals[13] = m_hardwareRelationshipTypeId;
       //  Value for user should come from Confluence log-in
-      vals[13] = m_vis.getUser();
+      vals[14] = m_vis.getUser();
       try {
         m_id = m_connect.doInsert("Process", s_insertProcessCols, vals, "", 
                                   DbConnection.ADD_CREATION_TIMESTAMP);
@@ -885,8 +907,10 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     fillIdMap("HardwareType", "name", m_hardwareTypeNameMap);
     m_hardwareGroupNameMap = new ConcurrentHashMap<String, String>();
     fillIdMap("HardwareGroup", "name", m_hardwareGroupNameMap);
+    m_hardwareStatusIdMap = new ConcurrentHashMap<String, String>();
+    fillIdMap("HardwareStatus", "name", m_hardwareStatusIdMap);
     m_processNameIdMap = new ConcurrentHashMap<String, String>();
-
+ 
   }
 
   private void copyIdMaps() {
@@ -896,6 +920,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     m_hardwareTypeNameMap = m_travelerRoot.m_hardwareTypeNameMap;
     m_hardwareGroupNameMap = m_travelerRoot.m_hardwareGroupNameMap;
     m_processNameIdMap = m_travelerRoot.m_processNameIdMap;
+    m_hardwareStatusIdMap = m_travelerRoot.m_hardwareStatusIdMap;
 
   }
 
@@ -995,6 +1020,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private String m_substeps=null;
   private String m_maxIteration=null;
   private String m_newLocation;
+  private String m_newStatus;
+  private String m_newStatusId;
   private int m_travelerActionMask=0;
   private String m_originalId=null;
   private String m_parentEdgeId = null;
@@ -1033,6 +1060,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
 
   private ConcurrentHashMap<String, String> m_hardwareTypeNameMap = null;
   private ConcurrentHashMap<String, String> m_hardwareGroupNameMap = null;
+  private ConcurrentHashMap<String, String> m_hardwareStatusIdMap = null;
   private ConcurrentHashMap<String, String> m_processNameIdMap = null;
 
   private boolean m_verified=false;
