@@ -184,6 +184,7 @@ public class ProcessNode implements  TravelerElement
     m_description = imp.provideDescription();
     m_instructionsURL = imp.provideInstructionsURL();
     m_maxIteration = imp.provideMaxIteration();
+    m_substeps = imp.provideSubsteps();
     m_travelerActionMask = imp.provideTravelerActionMask();
     //m_originalId = imp.provideOriginalId();
     if ( ( (m_travelerActionMask & TravelerActionBits.HARNESSED) != 0) &&
@@ -204,7 +205,7 @@ public class ProcessNode implements  TravelerElement
       throw new EtravelerException("Root step may not have max iteration > 1");
     }
 
-    m_substeps = imp.provideSubsteps();
+  
     m_sourceDb = imp.provideSourceDb();
     m_processId = imp.provideId();
     m_originalId = imp.provideOriginalId();

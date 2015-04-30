@@ -11,6 +11,7 @@ import javax.naming.InitialContext;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
+import org.lsstcorp.etravelerbackend.exceptions.EtravelerException;
 
 import org.lsstcorp.etravelerbackend.util.GraphViz;
 /**
@@ -32,9 +33,14 @@ public class TravelerImageServlet extends HttpServlet {
       throw new ServletException("Images not implemented for db=NONE");
     }
     String decodedName = URLDecoder.decode(request.getParameter("name"), "UTF-8");
-    Traveler trav = DbImporter.getTraveler(decodedName,
-        request.getParameter("version"), request.getParameter("hgroup"),
-        request.getParameter("db"));
+    Traveler trav;
+    try {
+      trav = DbImporter.getTraveler(decodedName,
+          request.getParameter("version"), request.getParameter("hgroup"),
+          request.getParameter("db"));
+    } catch (EtravelerException ex) {
+      throw new ServletException(ex.getMessage());
+    }
     ByteArrayOutputStream bytes = createTravelerImage(trav.getRoot());
     response.setContentType("image/png");
     bytes.writeTo(response.getOutputStream());

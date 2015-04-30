@@ -165,7 +165,11 @@ public class DbImporter {
   }
   
   static public String dotSource(PageContext context) {
-    ProcessNode travelerRoot = getTraveler(context).getRoot();
+    Traveler trav;
+    try { trav = getTraveler(context); } catch (EtravelerException ex) {
+      return (ex.getMessage());
+    }
+    ProcessNode travelerRoot = trav.getRoot();
     TravelerDotVisitor vis = new TravelerDotVisitor();
     JspWriter writer = context.getOut();
     try {
@@ -262,7 +266,11 @@ public class DbImporter {
     HttpServletRequest request = (HttpServletRequest) context.getRequest();
     String url = (request.getRequestURL()).toString();
     retrieveProcess(context, false);
-    Traveler trav = getTraveler(context);
+    Traveler trav;
+    try {   trav = getTraveler(context); } catch (EtravelerException ex) {
+      System.out.println(ex.getMessage());
+      return ex.getMessage();
+    }
     String dbType = ModeSwitcherFilter.getVariable(context.getSession(), "dataSourceMode");
     String dirname ="/nfs/farm/g/lsst/u1/ET/yaml/";
     if (url.contains("localhost")) dirname = "/u1/jrb/localET/yaml/";
@@ -490,7 +498,10 @@ public class DbImporter {
    * @return 
    */
   static public Traveler getTraveler(String name, String version, String hgroup,
-      String db) {
+      String db) throws EtravelerException {
+    if ((name == null) || (version == null) || (hgroup == null) || (db == null)) {
+      throw new EtravelerException("Incomplete input to getTraveler(name, version, hgroup, db)");
+    }
     String key = makeKey(name, version, hgroup, db);
     return s_travelers.get(key);
   }
@@ -794,7 +805,7 @@ public class DbImporter {
     }
   }
   
-  static private Traveler getTraveler(PageContext context)  {
+  static private Traveler getTraveler(PageContext context) throws EtravelerException {
     String name =  context.getRequest().getParameter("traveler_name");
     String version = context.getRequest().getParameter("traveler_version");
     String hgroup = context.getRequest().getParameter("traveler_hgroup");

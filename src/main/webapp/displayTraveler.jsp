@@ -46,7 +46,14 @@
 
     
     <p>
-    ${import:retrieveProcessPrint(pageContext)} 
+      <c:choose>
+        <c:when test="${param.ostyle == \"Pretty print\" }">
+           ${import:retrieveProcessPrint(pageContext)} 
+        </c:when>
+        <c:otherwise>
+           ${import:retrieveProcess(pageContext, "false")}
+        </c:otherwise>
+      </c:choose>
     </p>
     ${import:displayTraveler(pageContext)}
    
