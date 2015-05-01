@@ -15,8 +15,8 @@
     <title>Upload traveler</title>
     <link href="css/backendStyle.css" type="text/css" rel="stylesheet" /> 
     <style type="text/css">
-      form.medium    {width: 320px; background-color: background; }
-      form.wide {width: 600px; background-color: background;}
+      form.medium    {width: 320px; background-color:  gainsboro }
+      form.wide {width: 600px; background-color: gainsboro}
       h3 {color: forestgreen}
     </style>
   </head>
@@ -34,8 +34,10 @@
     <fieldset >
       <legend>Actions</legend>
    
-      <input type="submit" value="Check YAML" name="fileAction" />
-      <input type="submit" value="Db validate" name="fileAction" />
+      <input type="submit" value="Check YAML" name="fileAction" 
+             title="See if YAML file conforms to eTraveler requirements.  Does not ingest into database"/>
+      <input type="submit" value="Db validate" name="fileAction"
+             title="See if YAML file conforms to eTraveler requirements and is compatible in some respects to selected databse. Does not ingest."/>
       
      </fieldset>
   
