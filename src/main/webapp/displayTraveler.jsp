@@ -47,7 +47,7 @@
     
     <p>
       <c:choose>
-        <c:when test="${param.ostyle == \"Pretty print\" }">
+        <c:when test="${param.ostyle == 'Pretty print' }">
            ${import:retrieveProcessPrint(pageContext)} 
         </c:when>
         <c:otherwise>
