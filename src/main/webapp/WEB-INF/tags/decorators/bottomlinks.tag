@@ -7,13 +7,14 @@
     <td valign="bottom" align="right">           
        <srs_utils:conditionalLink name="Welcome" url="index.jsp" 
                                  iswelcome="true"/> | 
-
+<%--
        <srs_utils:conditionalLink name="Display" 
                                  url="displayTraveler.jsp" /> |
        <srs_utils:conditionalLink name="Edit" 
                                  url="editTraveler.jsp" /> |
        <srs_utils:conditionalLink name="Add NCR"
                                   url="addNCR.jsp" /> |
+--%>
        <srs_utils:conditionalLink name="Upload" 
                                  url="uploadTraveler.jsp" />
     </td>

@@ -31,7 +31,7 @@
            <display:column property="createdBy" title="Creator"  style="text-align:left" />
            <display:column title="Creation TS" property="creationTS" sortable="true" 
                            style="text-align:left" />
-           <display:column property = "viewEdit" title="View/edit" style="text-align:left"  />                     
+           <display:column property = "viewEdit" title="Edit" style="text-align:left"  />                     
            <display:column property = "addNCR" title="Add NCR" style="text-align:left"  />                        
          </display:table>
         

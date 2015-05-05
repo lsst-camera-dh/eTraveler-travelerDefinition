@@ -39,11 +39,13 @@ public class TtypeDecorator extends org.displaytag.decorator.TableDecorator {
 
   public String getViewEdit() {
     setHrefArgs();
-    return "<a href='editTraveler.jsp" + hrefArgs + "'>View/Edit</a>";
+    String tooltip = " title='limited editing of this traveler; display of step details' ";
+    return "<a " + tooltip +" href='editTraveler.jsp" + hrefArgs + "'>Edit</a>";
   }
   public String getAddNCR() {
     setHrefArgs();
-    return "<a href='addNCR.jsp" + hrefArgs + "'>Add NCR</a>";
+    String tooltip = " title='Add option to branch to NCR procedure to this traveler' ";
+    return "<a " + tooltip + "href='addNCR.jsp" + hrefArgs + "'>Add NCR</a>";
   }
   public String getName() {
     Object curr = super.getCurrentRowObject();
@@ -56,8 +58,9 @@ public class TtypeDecorator extends org.displaytag.decorator.TableDecorator {
       }
     }
     if (ttype_action != null) {
+      String tooltip = " title='Display this traveler in variety of formats' ";
       setHrefArgs();
-      return "<a href='" + ttype_action + hrefArgs + "'>" + nameValue + "</a>";
+      return "<a " + tooltip + " href='" + ttype_action + hrefArgs +  "'>" + nameValue + "</a>";
     }
     else {
       return nameValue;
