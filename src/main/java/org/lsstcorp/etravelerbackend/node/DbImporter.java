@@ -261,29 +261,20 @@ public class DbImporter {
   }
   
   static public String outputYaml(PageContext context, boolean includeDebug) {
-    JspWriter writer = context.getOut();
-    FileWriter fileOut = null;
     HttpServletRequest request = (HttpServletRequest) context.getRequest();
-    String url = (request.getRequestURL()).toString();
     retrieveProcess(context, false);
     Traveler trav;
     try {   trav = getTraveler(context); } catch (EtravelerException ex) {
       System.out.println(ex.getMessage());
       return ex.getMessage();
     }
-    String dbType = ModeSwitcherFilter.getVariable(context.getSession(), "dataSourceMode");
-    String dirname ="/nfs/farm/g/lsst/u1/ET/yaml/";
-    if (url.contains("localhost")) dirname = "/u1/jrb/localET/yaml/";
-    dirname += dbType;
-    String fname =  dirname + "/" + trav.getName() + "_" +
-      trav.getVersion() + "_" + trav.getHgroup();
+ 
     if (includeDebug) {
       String key = makeKey(trav.getName(), trav.getVersion(),
                            trav.getHgroup(), trav.getSourceDb());
       HttpServletResponse response = (HttpServletResponse) context.getResponse();
       /*
-       redirect to DownloadYamlServlet, passing key formed out of
-       traveler name, hgroup, etc.  as argument
+       redirect to DownloadYamlServlet
       */
       try {
         String fullpath = request.getContextPath() + 
@@ -294,23 +285,44 @@ public class DbImporter {
         System.out.println("could not redirect");
         return ("could not redirect");
       }
-    } else {
-      fname += "_exported.yaml";
-    }
-    String results = "<p>File written to " + fname + "</p>";
+    } 
+    
+    /*
+     * Non-debug case.  Write both canonical and complete versions 
+     * to 'archive' area
+     */
+    JspWriter writer = context.getOut();
+    FileWriter fileOutCanon = null;
+    FileWriter fileOutDebug = null;
+    String url = (request.getRequestURL()).toString();
+    String dbType = ModeSwitcherFilter.getVariable(context.getSession(), "dataSourceMode");
+    String dirname ="/nfs/farm/g/lsst/u1/ET/yaml/";
+    if (url.contains("localhost")) dirname = "/u1/jrb/localET/yaml/";
+    dirname += dbType;
+    String fname =  dirname + "/" + trav.getName() + "_" +
+      trav.getVersion() + "_" + trav.getHgroup() + "_" + trav.getSourceDb();
+    String[ ] fnames = new String[2];
+    //else {
+    //  fname += "_exported.yaml";
+    //}
+    String results = "<p>Files written to " + fname + ".yaml, " + fname+ "_canonical.yaml</p>";
     boolean okStatus = true;
     try {
       File dir = new File(dirname);
       if (!dir.isDirectory())  {
         dir.mkdirs();
       }
-      fileOut = new FileWriter(fname);
+      fileOutDebug = new FileWriter(fname + ".yaml");
+      fileOutCanon = new FileWriter(fname + "_canonical.yaml");
     } catch (Exception ex)  {
-      results = "unable to open output file" + fname;
+      results = "unable to open output file" + fname + " or " + fname + "_canonical";
       System.out.println(results);
       okStatus = false;
     }
-    if (okStatus) outputYaml(fileOut, trav, includeDebug);
+    if (okStatus) {
+      outputYaml(fileOutDebug, trav, true);
+      outputYaml(fileOutCanon, trav, false);
+    }
     try {
       writer.write(results);
    
