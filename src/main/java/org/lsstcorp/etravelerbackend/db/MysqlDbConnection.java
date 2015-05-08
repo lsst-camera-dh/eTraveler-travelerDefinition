@@ -211,6 +211,7 @@ public class MysqlDbConnection implements DbConnection {
     }
     try {
       if (m_readOnly) setReadOnly(false);
+      setAutoCommit(true);
       m_connect.close();
       m_connect = null;
     } catch (SQLException ex) {
