@@ -16,7 +16,10 @@
                                   url="addNCR.jsp" /> |
 --%>
        <srs_utils:conditionalLink name="Upload" 
-                                 url="uploadTraveler.jsp" />
+                                 url="uploadTraveler.jsp" /> <b>|&nbsp;|</b>
+       
+       <srs_utils:conditionalLink url="/eTraveler/exp/${appVariables.experiment}/welcome.jsp?dataSourceMode=${appVariables.dataSourceMode}" 
+     name="eTraveler Front-end" />
     </td>
 </tr>
 </table>

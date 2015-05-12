@@ -11,6 +11,7 @@
 th, h4 { font-size: 10pt; font-weight: bold;}
 td, p, legend { font-size: 10pt;}
 
+
 fieldset { border-color: black; width: 90%}
  
 .warn {background-color: yellow;}
@@ -18,6 +19,7 @@ fieldset { border-color: black; width: 90%}
 .seriousWarn {background-color: orange;}
  .bold {font-weight: bold}
  .left {text-align: left;}
+ .right {text-align: right;}
  .redError {color: red;}
  .form {background-color: lightgray;}
  
