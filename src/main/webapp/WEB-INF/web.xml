@@ -19,7 +19,7 @@
             applicationTitle
         </param-name>
         <param-value>
-            eTraveler
+            eTraveler Backend
         </param-value>
     </context-param>
     
