@@ -1,7 +1,7 @@
 %YAML 1.1 
 ---
 Name:  PrereqTraveler
-HardwareType: LCA-Raft_1
+HardwareGroup: snark
 Description: Blah blah
 InstructionsURL:  No instructions
 Sequence:
@@ -28,8 +28,10 @@ Sequence:
           PrerequisiteType:  COMPONENT
           Name: LCA-ASPIC
         -
-          PrerequisiteType:  COMPONENT
-          Name: LCA-Filter
+          PrerequisiteType: PREPARATION
+          Name: Instructions
+          Description:  "Check that the snark is not a boojum.
+         <br /> Confirm these instructions have been read and understood"
    -
       Clone: hasPrereqs
 
