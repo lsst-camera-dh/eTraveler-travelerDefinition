@@ -7,19 +7,13 @@
     <td valign="bottom" align="right">           
        <srs_utils:conditionalLink name="Welcome" url="index.jsp" 
                                  iswelcome="true"/> | 
-<%--
-       <srs_utils:conditionalLink name="Display" 
-                                 url="displayTraveler.jsp" /> |
-       <srs_utils:conditionalLink name="Edit" 
-                                 url="editTraveler.jsp" /> |
-       <srs_utils:conditionalLink name="Add NCR"
-                                  url="addNCR.jsp" /> |
---%>
+
        <srs_utils:conditionalLink name="Upload" 
-                                 url="uploadTraveler.jsp" /> <b>|&nbsp;|</b>
-       
-       <srs_utils:conditionalLink url="/eTraveler/exp/${appVariables.experiment}/welcome.jsp?dataSourceMode=${appVariables.dataSourceMode}" 
-     name="eTraveler Front-end" />
+                                 url="uploadTraveler.jsp" />  
+       <br />
+       <srs_utils:conditionalLink 
+url="/eTraveler/welcome.jsp?dataSourceMode=${appVariables.dataSourceMode}&experiment=${appVariables.experiment}" 
+     name="eTraveler&nbsp;Front-end" />
     </td>
 </tr>
 </table>
