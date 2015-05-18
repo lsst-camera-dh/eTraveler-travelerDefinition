@@ -2,6 +2,15 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="backweb" uri="WEB-INF/BackendWebTags.tld" %>
 <%@taglib prefix="display" uri="http://displaytag.sf.net" %>
+<%@taglib prefix="sql" uri="http://java.sun.com/jsp/jstl/sql"%>
+<%@taglib prefix="filter" uri="http://srs.slac.stanford.edu/filter"%>
+
+<sql:query var="statesQ">
+   select name from TravelerTypeState order by name;
+</sql:query>
+   <sql:query var="groupsQ">
+     select name from HardwareGroup order by name;
+   </sql:query>
 
 <!DOCTYPE html>
 
@@ -16,8 +25,30 @@
     </head>
     <body>
       
-        <h1>View and Edit Traveler Definitions</h1>
-           
+    <h1>View and Edit Process Traveler Definitions</h1>
+    <table><tr><td class="vcenter">  <span class="vcenter"> <b>Filtering:</b> </span></td>
+        <td>
+     <filter:filterTable>
+     
+        <filter:filterInput var="name" title="Name (substring search)"/>
+        <filter:filterSelection title="State" var="state" defaultValue='any'>
+            <filter:filterOption value="any">Any</filter:filterOption>
+            <c:forEach var="stateName" items="${statesQ.rows}">
+                <filter:filterOption value="${stateName.name}"><c:out value="${stateName.name}"/></filter:filterOption>
+            </c:forEach>
+        </filter:filterSelection>
+        <filter:filterSelection title="Version" var="version" defaultValue='all'>
+            <filter:filterOption value="latest">Latest</filter:filterOption>
+            <filter:filterOption value="all">All</filter:filterOption>
+        </filter:filterSelection>
+    <filter:filterSelection title="Hardware group" var="group" defaultValue='all'>
+      <filter:filterOption value="all" >All</filter:filterOption>
+      <c:forEach var="groupName" items="${groupsQ.rows}" >
+        <filter:filterOption value="${groupName.name}"><c:out value="${groupName.name}" /></filter:filterOption>
+      </c:forEach>
+    </filter:filterSelection>
+      </filter:filterTable>
+        </td></tr></table>  
         <c:set var="ttype_action" value="displayTraveler.jsp" />
         <c:set var="result" value="${backweb:getTravelerTypeInfo(pageContext)}"/>
 
@@ -27,6 +58,7 @@
                           sortable="true" style="text-align:left" />
            <display:column property="version" sortable="true" style="text-align:right" />
            <display:column property="hname" sortable="true" style="text-align:left" />
+           <display:column property="state" sortable="true" style="text-align:left" />
            <display:column property="description"  style="text-align:left" />
            <display:column property="createdBy" title="Creator"  style="text-align:left" />
            <display:column title="Creation TS" property="creationTS" sortable="true" 

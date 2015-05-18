@@ -22,4 +22,5 @@ fieldset { border-color: black; width: 90%}
  .right {text-align: right;}
  .redError {color: red;}
  .form {background-color: lightgray;}
+ .vcenter {vertical-align: middle}
  

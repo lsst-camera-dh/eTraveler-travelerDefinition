@@ -9,8 +9,7 @@
                                  iswelcome="true"/> | 
 
        <srs_utils:conditionalLink name="Upload" 
-                                 url="uploadTraveler.jsp" />  
-       <br />
+                                 url="uploadTraveler.jsp" />  | to
        <srs_utils:conditionalLink 
 url="/eTraveler/welcome.jsp?dataSourceMode=${appVariables.dataSourceMode}&experiment=${appVariables.experiment}" 
      name="eTraveler&nbsp;Front-end" />
