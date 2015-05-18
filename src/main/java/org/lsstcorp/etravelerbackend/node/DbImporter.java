@@ -250,6 +250,23 @@ public class DbImporter {
         makeTree(context);
         break;
       case "Yaml":
+        /*
+         * Non-debug case.  Write both canonical and complete versions 
+         * to 'archive' area, but only for LSST-CAMERA
+         */      
+        String experiment = ModeSwitcherFilter.getVariable(context.getSession(), 
+        "experiment");
+    
+        if (!(experiment.equals("LSST-CAMERA")) ) {
+          String msg = "Archive export of Yaml file only available for LSST-CAMERA experiment";
+          msg += "<br />Use Yaml-debug button to write local file";
+          try {
+             context.getOut().write("<p>" + msg + "</p>");
+          } catch (IOException ex) {
+            System.out.println("IOException writing results from DbImporter.displayTraveler");
+          }
+          return;
+        }
         outputYaml(context, false);
         break;
       case "Yaml-debug":
@@ -286,11 +303,7 @@ public class DbImporter {
         return ("could not redirect");
       }
     } 
-    
-    /*
-     * Non-debug case.  Write both canonical and complete versions 
-     * to 'archive' area
-     */
+   
     JspWriter writer = context.getOut();
     FileWriter fileOutCanon = null;
     FileWriter fileOutDebug = null;
