@@ -42,6 +42,25 @@
         jdbc/rd-lsst-cam-dev
       </param-value>
     </context-param>
+    
+    <context-param>
+      <param-name>
+        titleHeight
+      </param-name>
+      <param-value>
+        60
+      </param-value>
+    </context-param>
+    
+    <context-param>
+      <param-name>
+        imageHeight
+      </param-name>
+      <param-value>
+        100
+      </param-value>
+    </context-param>
+    
     <!--
     <context-param>
         <param-name>

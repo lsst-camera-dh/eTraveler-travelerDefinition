@@ -25,7 +25,7 @@
     </head>
     <body>
       
-    <h1>View and Edit Process Traveler Definitions</h1>
+    <h2>View and Edit Process Traveler Definitions</h2>
     <table><tr><td class="vcenter">  <span class="vcenter"> <b>Filtering:</b> </span></td>
         <td>
      <filter:filterTable>

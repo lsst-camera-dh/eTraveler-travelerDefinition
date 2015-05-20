@@ -11,13 +11,10 @@
 
 
 <%-- Allow user to choose default db --%>
-<table>
-    <tr valign="bottom" align="right">
-        <td align="right" valign="bottom">
+
+<span align="right" >
             Database: [ <srs_utils:modeChooser mode="dataSourceMode"
                                    href="index.jsp" />]
-        </td>
-    </tr>
-</table>
+</span>
 
  
