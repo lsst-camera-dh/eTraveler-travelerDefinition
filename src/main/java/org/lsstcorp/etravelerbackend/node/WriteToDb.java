@@ -97,16 +97,17 @@ public class WriteToDb {
       yamlMap = (Map<String, Object>) yaml.load(fileContents);
     } catch (Exception ex) {
       System.out.println("Failed to load yaml with exception " + ex.getMessage());
-      throw new EtravelerException("Failed to load yaml with exception " 
-          + ex.getMessage());
+      throw new EtravelerException("Failed to load yaml with exception '" 
+          + ex.getMessage() + "'");
     }
     ProcessNodeYaml topYaml = new ProcessNodeYaml();
     try {
       topYaml.readYaml(yamlMap, null, false, 0, null);
     } catch (Exception ex) {
-      System.out.println("Failed to process yaml with exception " + ex.getMessage());
-      throw new EtravelerException("Failed to load yaml with exception " 
-          + ex.getMessage());  
+      System.out.println("Failed to process yaml with exception '" 
+          + ex.getMessage() + "'");
+      throw new EtravelerException("Failed to load yaml with exception '" 
+          + ex.getMessage() + "'");  
     }
     // System.out.println("Loaded file into Map of size  " + yamlMap.size());
     ProcessNode traveler;
@@ -115,8 +116,8 @@ public class WriteToDb {
     } catch (Exception ex) {
       System.out.println("Failed to import from yaml with exception " + ex.getMessage());
       // return null;
-      throw new EtravelerException("Failed to import from yaml with exception "
-          + ex.getMessage());
+      throw new EtravelerException("Failed to import from yaml with exception '"
+          + ex.getMessage() +"'");
     }
     return traveler;
   }
@@ -140,14 +141,15 @@ public class WriteToDb {
       vis.visit(travelerRoot, "new", null);
     }  catch (Exception ex)  {
       conn.close();
-      return "Failed to create xxDb classes with exception " + ex.getMessage();
+      return "Failed to create xxDb classes with exception '" + 
+          ex.getMessage() +"'";
     }
     try {
       vis.visit(travelerRoot, "verify", null);
     }  catch (Exception ex)  {
       conn.close();
       return "Failed to verify against " + dbType + 
-          " db with exception " + ex.getMessage();
+          " db with exception '" + ex.getMessage() + "'";
     }
     if (!ingest) {
       conn.close();
@@ -160,7 +162,7 @@ public class WriteToDb {
     }  catch (Exception ex) {
       conn.close();
       return "Failed to write to " + dbType + 
-          " db with exception " + ex.getMessage();
+          " db with exception '" + ex.getMessage() + "'";
     }
     conn.close();
     return "successfully wrote traveler to " + dbType + " db";
@@ -180,21 +182,22 @@ public class WriteToDb {
       vis.visit(ncr, "new");
     }  catch (Exception ex)  {
       conn.close();
-      return "Failed to create xxDb classes with exception " + ex.getMessage();
+      return "Failed to create xxDb classes with exception '" 
+          + ex.getMessage() + "'";
     }
     try {
       vis.visit(ncr, "verify");
     }  catch (Exception ex)  {
       conn.close();
       return "Failed to verify against " + dbType + 
-          " db with exception " + ex.getMessage();
+          " db with exception '" + ex.getMessage() + "'";
     }
     try {
       vis.visit(ncr, "write");
     }  catch (Exception ex) {
       conn.close();
       return "Failed to write to " + dbType + 
-          " db with exception " + ex.getMessage();
+          " db with exception '" + ex.getMessage() + "'";
     }
     conn.close();
     

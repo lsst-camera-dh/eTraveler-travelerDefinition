@@ -81,7 +81,6 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     s_knownKeys.add("RefName");
     s_knownKeys.add("RefVersion");
     s_knownKeys.add("SourceDb");
-    s_knownKeys.add("HardwareType");
     s_knownKeys.add("NewLocation");
     s_knownKeys.add("NewStatus");
     /* Following are written by yaml export; informational only */
@@ -109,9 +108,8 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   static final int REFNAME=16;
   static final int REFVERSION=17;
   static final int SOURCEDB=18;
-  static final int HARDWARETYPE=19;
-  static final int NEWLOCATION=20;
-  static final int NEWSTATUS=21;
+  static final int NEWLOCATION=19;
+  static final int NEWSTATUS=20;
   
   static final int FROMSOURCEVERSION=22;
   static final int FROMSOURCEID=23;
@@ -228,23 +226,10 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       switch (keyIx)  {
       case NAME:
         m_name = v; break;
-      case HARDWARETYPE:
-        if (m_parent != null)  {
-          throw new IncompatibleChild(m_parent.m_name, "this child", 
-              "child may not specify hardware type");
-        }
-        if (m_hardwareGroup != null) {
-          throw new YamlIncompatibleKeys("HardwareType", "HardwareGroup");
-        }
-        m_hardwareType = v;
-        break;
       case HARDWAREGROUP:
         if (m_parent != null)  {
           throw new IncompatibleChild(m_parent.m_name, "this child", 
               "child may not specify hardware group");
-        }
-        if (m_hardwareType != null)  {
-          throw new YamlIncompatibleKeys("HardwareType", "HardwareGroup");
         }
         m_hardwareGroup = v;
         break;
@@ -411,7 +396,6 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     }
     // Hardware type is inherited from parent
     if (m_parent != null) {
-      m_hardwareType = m_parent.m_hardwareType;
       m_hardwareGroup = m_parent.m_hardwareGroup;  
     }
     if (!m_isClone) {
@@ -455,7 +439,6 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   // ProcessNode.Importer interface implementation
   public String provideId() {return null;}
   public String provideName()  {return m_name;}
-  public String provideHardwareType() {return m_hardwareType;}
   public String provideHardwareGroup() {return m_hardwareGroup;}
   public String provideHardwareRelationshipType()  {
     return m_hardwareRelationshipType; }
@@ -502,7 +485,6 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
 
   // Properties read in directly from yaml
   private String m_name=null;
-  private String m_hardwareType=null;
   private String m_hardwareGroup=null;
   private String m_hardwareRelationshipType=null;
   // relationship slot is ignored if type is null

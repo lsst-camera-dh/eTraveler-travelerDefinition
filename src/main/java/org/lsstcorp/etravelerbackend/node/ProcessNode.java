@@ -80,9 +80,6 @@ public class ProcessNode implements  TravelerElement
    * @param model 
    */
   private void copyFrom(ProcessNode model) {
-    if (model.m_hardwareType != null) {
-      m_hardwareType = new String(model.m_hardwareType);
-    }
     m_hardwareGroup = new String(model.m_hardwareGroup);
     if (model.m_hardwareRelationshipType != null)  {
       m_hardwareRelationshipType = new String(model.m_hardwareRelationshipType);
@@ -148,19 +145,6 @@ public class ProcessNode implements  TravelerElement
  
     if (m_isRef) return;
     
-    m_hardwareType = imp.provideHardwareType();
-    
-    try {
-      checkNonempty("hardware type", m_hardwareType);
-      if ((parent != null) && (m_hardwareType != m_parent.m_hardwareType)) {
-        throw new IncompatibleChild(m_name, parent.m_name, 
-            "hardware type mismatch");
-      }
-    } catch (Exception ex) {
-      if (parent != null) {
-        m_hardwareType = parent.m_hardwareType;
-      }
-    }
     m_hardwareGroup = imp.provideHardwareGroup();
     try {
       checkNonempty("hardware group", m_hardwareGroup);
@@ -171,8 +155,6 @@ public class ProcessNode implements  TravelerElement
     } catch (Exception ex) {
       if (parent != null) {
         m_hardwareGroup = parent.m_hardwareGroup;
-      } else if (m_hardwareType != null) {
-        m_hardwareGroup = m_hardwareType;
       } else {
         throw ex;
       }
@@ -306,8 +288,6 @@ public class ProcessNode implements  TravelerElement
     } else {
       pList.add(new Attribute("user version string", ""));
     }
-    if (m_hardwareType != null) 
-      pList.add(new Attribute("hardware type", m_hardwareType));
     if (m_hardwareGroup != null)
       pList.add(new Attribute("hardware group", m_hardwareGroup));
     if (m_hardwareRelationshipType != null) {
@@ -415,7 +395,6 @@ public class ProcessNode implements  TravelerElement
   public interface Importer {
     String provideId();
     String provideName();
-    String provideHardwareType();
     String provideHardwareGroup();
     String provideHardwareRelationshipType();
     String provideHardwareRelationshipSlot();
@@ -461,7 +440,6 @@ public class ProcessNode implements  TravelerElement
   public interface ExportTarget extends TravelerElement.ExportTarget {
     void acceptId(String id);
     void acceptName(String name);
-    void acceptHardwareType(String hardwareType);
     void acceptHardwareGroup(String hardwareGroup);
     void acceptHardwareRelationshipType(String hardwareRelationshipType);
     void acceptHardwareRelationshipSlot(String hardwareRelationshipSlot);
@@ -513,7 +491,6 @@ public class ProcessNode implements  TravelerElement
        * node is a clone
        */
   
-      ptarget.acceptHardwareType(m_hardwareType);
       ptarget.acceptHardwareGroup(m_hardwareGroup);
       /* Make sure target gets action mask early since it can affect
          interpretation of some other fields */
@@ -615,7 +592,7 @@ public class ProcessNode implements  TravelerElement
    * @param recurs
    */
   void copyFrom(ProcessNode src, boolean recurs)  {
-    // some things can't have changed; name, hardwareType, userVersionString,
+    // some things can't have changed; name, userVersionString,
     // hardwareGorup, hardwareRelationshipType, isOption, travelerActionMask,
     // Don't bother copying those.
   
@@ -653,7 +630,6 @@ public class ProcessNode implements  TravelerElement
   public String getVersion() {return m_version;}
   public String getUserVersionString() {return m_userVersionString;}
   public String getProcessId() {return m_processId;}
-  public String getHardwareType() {return m_hardwareType;}
   public String getHardwareGroup() {return m_hardwareGroup;}
   public String getDescription() {return m_description;}
   public String getInstructionsURL() { return m_instructionsURL;}
@@ -726,7 +702,6 @@ public class ProcessNode implements  TravelerElement
   private boolean m_isCloned=false;
   private boolean m_hasClones=false;
   private boolean m_isRef=false;
-  private String m_hardwareType=null;
   private String m_hardwareGroup=null;
   private String m_hardwareRelationshipType=null;
   private String m_hardwareRelationshipSlot="1";

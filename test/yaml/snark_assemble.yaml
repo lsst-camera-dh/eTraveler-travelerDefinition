@@ -2,17 +2,26 @@
 ---
 Name: snark_assemble
 HardwareGroup: snark
-Description: assemble a widget onto a snark (but not a boojum)
+Version: next
+Description: assemble a CCD onto a snark
 Sequence:
-   - Name: Get ready
-     Description: Dust off the boojum
-   - Name: Add widget
-     Description: The first assembly step; prerequisite implicit
-     HardwareRelationshipType: not_a_boojumandwidgetA
-   - Name: Add another widget
-     Description: Second assembly step; prerequisite explicit
-     HardwareRelationshipType: not_a_boojumandwidgetA
-     HardwareRelationshipSlot: 2
-     Prerequisites:
-       - PrerequisiteType: COMPONENT
-         Name: widgetA
+   - Name: Get_ready
+     Version: next
+     Description: Dust off the snark
+   - Name: Branch_on_our_type
+     Version: next
+     Description:  Can only assemble e2v-CCD on boojum; ITL-CCD on
+                   not_a_boojum
+     Selection:
+       - Name: boojum_branch
+         Version: next
+         Condition: We're a boojum
+         Description: Assemble appropriate CCD in case snark is a boojum
+         HardwareRelationshipType: boojum_e2v-CCD
+         HardwareRelationshipSlot: 2
+       - Name: not_a_boojum_branch
+         Version: next
+         Description: Assemble appropriate CCD in case snark is not a boojum
+         Condition: We're not a boojum
+         HardwareRelationshipType: not_a_boojum_ITL-CCD
+         HardwareRelationshipSlot: 2

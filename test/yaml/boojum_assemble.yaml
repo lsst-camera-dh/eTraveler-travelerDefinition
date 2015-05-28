@@ -1,0 +1,20 @@
+%YAML  1.1
+---
+Name: boojum_assemble
+HardwareGroup: boojum
+Description: assemble an e2v-CCD onto a boojum 
+Sequence:
+   - Name: Get_ready
+     Description: Dust off the boojum
+   - Name: Add_first
+     Description: The first assembly step; prerequisite implicit
+     HardwareRelationshipType: boojum_e2v-CCD
+   - Name: Add_another
+     Description: Second assembly step; prerequisite explicit
+     HardwareRelationshipType: boojum_e2v-CCD
+     HardwareRelationshipSlot: 2
+     Prerequisites:
+       - PrerequisiteType: COMPONENT
+         Name: e2v-CCD
+
+

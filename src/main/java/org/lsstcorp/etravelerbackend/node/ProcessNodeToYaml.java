@@ -50,9 +50,7 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
      m_data.put("Name", name);
     }
   }
-  public void acceptHardwareType(String hardwareType) {
-    /* Obsolete field */
-  }
+
   public void acceptHardwareGroup(String hardwareGroup) {
      if (m_isRoot) m_data.put("HardwareGroup", hardwareGroup);
   }

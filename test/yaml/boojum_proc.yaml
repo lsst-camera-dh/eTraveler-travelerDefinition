@@ -5,5 +5,6 @@ HardwareGroup: boojum
 Description: New-style traveler where hardware group has single member
 Sequence:
   - Name: boojum_step1
+    Version: next
   - Name: boojum_step2
- 
+    Version: next

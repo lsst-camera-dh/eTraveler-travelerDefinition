@@ -2,18 +2,23 @@
 ---
 # Call a nearly no-op jh job
 Name: jh_test
-HardwareType:  CCD
+Version: next
+HardwareGroup:  Generic-CCD
 Description: Exercise JH
-TravelerActions:
-  - Automatable
 Sequence:
-  - 
-    Name: example_station_A
-    UserVersionString: v0
+  - Name: automatableChild
     TravelerActions:
-      - HarnessedJob
-  - 
-    Name: example_station_B
-    UserVersionString: v0
-    TravelerActions:
-      - HarnessedJob
+        - Automatable
+    Sequence:
+      - 
+        Name: example_station_A
+        Version: next
+        UserVersionString: v0
+        TravelerActions:
+          - HarnessedJob
+      - 
+        Name: example_station_B
+        Version: next
+        UserVersionString: v0
+        TravelerActions:
+          - HarnessedJob

@@ -1,0 +1,12 @@
+%YAML  1.1
+---
+Name: jh_no-op-ITL
+HardwareGroup:  ITL-CCD
+Description: Exercise JH
+
+Sequence:
+  - 
+    Name: no-op-ITL
+    UserVersionString: v0
+    TravelerActions:
+      - HarnessedJob

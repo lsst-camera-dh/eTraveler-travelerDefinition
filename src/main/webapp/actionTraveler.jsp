@@ -114,7 +114,7 @@
       </td></tr>   --%>
       <tr><td>
           <b> Ingest modified traveler</b>
-          <form  "action="globalActions.jsp" target="doAction">
+          <form  action="globalActions.jsp" target="doAction">
             
             
              <table ><tr>

@@ -1,14 +1,14 @@
 %YAML  1.1
 ---
  Name:  testMaxIter
- HardwareType: CCD
+ HardwareGroup: Generic-CCD
  Description: Dummy procedure with process names unlikely to conflict
  InstructionsURL:  No instructions 
  Version: 1
  MaxIteration: 1
  Sequence:
    - 
-      Name: substep
+      Name: maxIterSubstep
       Description:  unpack blah blah
       MaxIteration: 4
 

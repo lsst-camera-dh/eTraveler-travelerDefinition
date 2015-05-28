@@ -132,7 +132,7 @@ public class TravelerDotVisitor implements TravelerVisitor,
    // Implementation of ProcessNode.ExportTarget
   public void acceptId(String id) {m_id = id;}
   public void acceptName(String name) {m_name = name; m_displayName = name;}
-  public void acceptHardwareType(String hardwareType ) {m_hardwareType  = hardwareType ;}
+
   public void acceptHardwareGroup(String hardwareGroup) {m_hardwareGroup = hardwareGroup;}
   public void acceptHardwareRelationshipType(String hardwareRelationshipType ) {
     m_hardwareRelationshipType  = hardwareRelationshipType;
@@ -224,7 +224,6 @@ public class TravelerDotVisitor implements TravelerVisitor,
   private String m_id=null;
   private String m_name=null;
   private String m_displayName=null;
-  private String m_hardwareType=null;
   private String m_hardwareGroup=null;
   private String m_hardwareRelationshipType=null;
   private String m_hardwareRelationshipSlot = "1";

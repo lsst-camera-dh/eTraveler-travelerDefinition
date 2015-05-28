@@ -1,7 +1,7 @@
 %YAML 1.1
 ---
 Name: formatDescription
-HardwareType: boojum
+HardwareGroup: snark
 Description: try various styles of step descriptions; see what they look like
 Sequence:
   - Name: multi-line unquoted 
