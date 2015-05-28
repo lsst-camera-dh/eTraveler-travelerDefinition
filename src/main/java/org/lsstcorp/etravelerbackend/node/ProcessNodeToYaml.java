@@ -56,10 +56,17 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
   }
   public void acceptHardwareRelationshipType(String hardwareRelationshipType) {
     if (!m_isCloned) putIfPresent("HardwareRelationshipType", hardwareRelationshipType);
-  
+    
   }
   public void acceptHardwareRelationshipSlot(String hardwareRelationshipSlot) {
-    if (!m_isCloned) putIfPresent("HardwareRelationshipSlot", hardwareRelationshipSlot); 
+    if (!m_isCloned) {
+      if (((m_travelerActionMask & 
+          TravelerActionBits.BREAK_HARDWARE_RELATIONSHIP)!=0)    || 
+          ((m_travelerActionMask &
+          TravelerActionBits.MAKE_HARDWARE_RELATIONSHIP) != 0) ){ 
+        putIfPresent("HardwareRelationshipSlot", hardwareRelationshipSlot);
+      }
+    }
   }
   public void acceptVersion(String version) {
     m_data.put("Version", "next");
