@@ -309,8 +309,10 @@ public class DbImporter {
     FileWriter fileOutDebug = null;
     String url = (request.getRequestURL()).toString();
     String dbType = ModeSwitcherFilter.getVariable(context.getSession(), "dataSourceMode");
-    String dirname ="/nfs/farm/g/lsst/u1/ET/yaml/";
-    if (url.contains("localhost")) dirname = "/u1/jrb/localET/yaml/";
+    String dirname = ModeSwitcherFilter.getVariable(context.getSession(),
+        "etravelerFileStore");
+    if (url.contains("localhost")) dirname = "/u1/jrb/localET";
+    dirname += "/yaml/";
     dirname += dbType;
     String fname =  dirname + "/" + trav.getName() + "_" +
       trav.getVersion() + "_" + trav.getHgroup() + "_" + trav.getSourceDb();
