@@ -53,6 +53,7 @@
           <display:column property="units" style="text-align:left" />
           <display:column property="minValue" title="Min" style="text-align:right" />
           <display:column property="maxValue" title="Max" style="text-align:right" />
+          <display:column property="isOptional" title="Optional" style="text-align:left" />
         </display:table>
       </c:if>
 

@@ -161,6 +161,11 @@ public class TravelerDotVisitor implements TravelerVisitor,
   public void acceptPrescribedResults(ArrayList<PrescribedResult> res) {
     m_results=res;
   }
+  /*
+   * Don't bother saving optional results.  We won't do anything with them
+   * anyway
+   */
+  public void acceptOptionalResults(ArrayList<PrescribedResult> res) {}
   // Implementation of Prerequisite.ExportTarget
   public void acceptPrerequisiteType(String prerequisiteType) {
     m_prereqType = prerequisiteType;
@@ -211,7 +216,7 @@ public class TravelerDotVisitor implements TravelerVisitor,
   public void acceptResultDescription(String description) {
     m_resultDescription = description;
   }
-  
+  public void acceptIsOptional(String isOptional) {}
   public void acceptChoiceField(String choiceField)  {
     m_choiceField = choiceField;
   }

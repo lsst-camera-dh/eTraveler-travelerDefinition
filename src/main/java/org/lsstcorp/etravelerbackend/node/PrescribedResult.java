@@ -27,6 +27,7 @@ public class PrescribedResult  implements TravelerElement {
       ptarget.acceptUnits(m_units);
       ptarget.acceptMinValue(m_minValue);
       ptarget.acceptMaxValue(m_maxValue);
+      ptarget.acceptIsOptional(m_isOptional);
       ptarget.acceptResultDescription(m_description);
     }
   }
@@ -39,6 +40,7 @@ public class PrescribedResult  implements TravelerElement {
     String provideMinValue();
     String provideMaxValue();
     String provideChoiceField();
+    String provideIsOptional();
   }
   public interface ExportTarget extends TravelerElement.ExportTarget {
     void acceptLabel(String label);
@@ -48,6 +50,7 @@ public class PrescribedResult  implements TravelerElement {
     void acceptMaxValue(String maxValue);
     void acceptResultDescription(String description);
     void acceptChoiceField(String choiceField);
+    void acceptIsOptional(String isOptional);
   }
   public PrescribedResult(ProcessNode parent, PrescribedResult.Importer imp) {
     m_parent = parent;
@@ -58,6 +61,7 @@ public class PrescribedResult  implements TravelerElement {
     m_minValue = imp.provideMinValue();
     m_maxValue = imp.provideMaxValue();
     m_choiceField = imp.provideChoiceField();
+    m_isOptional = imp.provideIsOptional();
   }
   // Copy constructor
   public PrescribedResult(ProcessNode parent, PrescribedResult orig) {
@@ -66,6 +70,7 @@ public class PrescribedResult  implements TravelerElement {
     m_semantics = new String(orig.m_semantics);
     m_description = new String(orig.m_description);
     m_units = new String(orig.m_units);
+    m_isOptional = new String(orig.m_isOptional);
     if (orig.m_minValue != null) m_minValue = new String(orig.m_minValue);
     if (orig.m_maxValue != null) m_maxValue = new String(orig.m_maxValue);
     if (orig.m_choiceField != null) m_choiceField = new String(orig.m_choiceField);
@@ -76,6 +81,7 @@ public class PrescribedResult  implements TravelerElement {
     atts.add(new Attribute("label", m_label));
     atts.add(new Attribute("type", m_semantics));
     atts.add(new Attribute("description", m_description));
+    atts.add(new Attribute("isOptional", m_isOptional));
     if (!m_units.equals("")) {
       atts.add(new Attribute("units", m_units));
     }
@@ -94,6 +100,8 @@ public class PrescribedResult  implements TravelerElement {
   public String getUnits() {return m_units;}
   public String getMinValue() {return m_minValue;}
   public String getMaxValue() {return m_maxValue;}
+  public String getIsOptional() {return m_isOptional;}
+  public void setIsOptional(String isOpt) {m_isOptional = isOpt;}
   public boolean setDescription(String desc) 
   {
     String arg = (desc == null) ? "" : desc;
@@ -150,6 +158,7 @@ public class PrescribedResult  implements TravelerElement {
   private String m_maxValue="";
   private String m_description="";
   private String m_choiceField="";
+  private String m_isOptional="0";
   private ProcessNode m_parent;
   
 }

@@ -233,7 +233,15 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
         }
       }
       rs.close();
+      /*
+       * This is the tricky part.  Need to look at each result and decide
+       * whether it's a regular prescribed result or an optional one.
+       * Maybe fetch isOptional at the same time we fetch id
+       * Or do two queries
+       */
       s_prescribedResultsQuery.setString(1, m_id);
+      // First get "regular" (required) results
+      s_prescribedResultsQuery.setString(2, "0");
       rs = s_prescribedResultsQuery.executeQuery();
       more = rs.next();
       while (more) {
@@ -248,6 +256,26 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
           m_resultIds[i] = rs.getString(1);
         }
       }
+      rs.close();
+      // Now do the same thing for optional results
+      s_prescribedResultsQuery.setString(1, m_id);
+      s_prescribedResultsQuery.setString(2, "1");
+      rs = s_prescribedResultsQuery.executeQuery();
+      more =rs.next();
+      while (more) {
+        m_nOptionalResults++;
+        more = rs.next();
+      }
+      if (m_nOptionalResults > 0) {
+        m_optionalResultIds = new String[m_nOptionalResults];
+        rs.beforeFirst();
+        for (int i=0; i < m_nOptionalResults; i++) {
+          rs.next();
+          m_optionalResultIds[i] = rs.getString(1);
+        }
+      }
+      rs.close();
+      //
       if (m_travelerRoot == this) {
       /*
        * Check for associated ExceptionType entries.  If found, invoke
@@ -288,6 +316,11 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     where = " WHERE processId=?"; 
     getCol[0] = "id";
     s_prereqQuery = m_connect.prepareQuery("PrerequisitePattern", getCol, where);
+    
+    /*
+     * For prescribed results distinguish based on setting of isOptional
+     */
+    where += " and isOptional=?";
     s_prescribedResultsQuery = m_connect.prepareQuery("InputPattern", getCol, where);
     
     if ((s_processQuery == null) || (s_edgeQuery == null) || 
@@ -323,6 +356,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public int provideNChildren() {return m_nChildren;}
   public int provideNPrerequisites() {return m_nPrerequisites;}
   public int provideNPrescribedResults() {return m_nPrescribedResults;}
+  public int provideNOptionalResults() {return m_nOptionalResults;}
   public int provideEdgeStep() {return m_edgeStep;}
   public String provideEdgeCondition() {return m_edgeCondition;}
   //public String provideParentEdgeId() {return m_parentEdgeId;}
@@ -341,9 +375,13 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
                    PrerequisiteDb(m_connect, m_prerequisiteIds[n],
                                   m_prerequisiteTypeMap, 
                                   m_hardwareTypeNameMap));
-   }
-   public PrescribedResult provideResult(ProcessNode parent, int n) throws Exception {
+  }
+  public PrescribedResult provideResult(ProcessNode parent, int n) throws Exception {
     return new PrescribedResult(parent, new PrescribedResultDb(m_connect, m_resultIds[n]));
+  }
+  public PrescribedResult provideOptionalResult(ProcessNode parent, int n) throws Exception {
+    return new PrescribedResult(parent, 
+        new PrescribedResultDb(m_connect, m_optionalResultIds[n]));
   }
   public boolean provideIsCloned() {return m_isCloned;}
   public boolean provideHasClones() {return m_isCloned;}
@@ -462,6 +500,23 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       for (int ir = 0; ir < prescribedResults.size(); ir++) {
         m_resultsDb[ir] = new PrescribedResultDb(m_connect);
         m_results.get(ir).exportTo(m_resultsDb[ir]);
+      }
+    }
+  }
+  public void acceptOptionalResults(ArrayList<PrescribedResult> prescribedResults) {
+    if (m_isCloned || m_isRef)  {
+      m_optionalResults = null;
+    } else {
+      m_optionalResults = prescribedResults;
+    }
+    if (m_optionalResults == null)  {
+      return;
+    }
+    if (prescribedResults.size() > 0) {
+      m_optionalResultsDb = new PrescribedResultDb[prescribedResults.size()];
+      for (int ir = 0; ir < prescribedResults.size(); ir++) {
+        m_optionalResultsDb[ir] = new PrescribedResultDb(m_connect);
+        m_optionalResults.get(ir).exportTo(m_optionalResultsDb[ir]);
       }
     }
   }
@@ -605,6 +660,11 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
         m_resultsDb[ir].verify(m_semanticsTypeMap);
       }
     }
+    if (m_optionalResultsDb != null) {
+      for (int ir=0; ir < m_optionalResultsDb.length; ir++) {
+        m_optionalResultsDb[ir].verify(m_semanticsTypeMap);
+      }
+    }
     if (!(m_version.equals("1"))) { 
       if (!acceptableVersion(m_version)) {
         throw new 
@@ -626,6 +686,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
           }
       }
     }
+    // Should check if REMOVELABEL bit is set that thing to be removed is
+    // a label and not a regular status     !!!!
     if (m_childrenDb != null) {
       for (int ic=0; ic < m_childrenDb.length; ic++) {
         m_childrenDb[ic].verify(connect);
@@ -725,6 +787,14 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
         if (m_resultsDb.length > 0) {
           for (int ir = 0; ir < m_resultsDb.length; ir++ ) {
             m_resultsDb[ir].writeToDb(connect, this, m_vis.getUser());
+          }
+        }
+      }
+      // And also optional results
+      if (m_optionalResultsDb != null) {
+        if (m_optionalResultsDb.length > 0) {
+          for (int ior = 0; ior < m_optionalResultsDb.length; ior++) {
+            m_optionalResultsDb[ior].writeToDb(connect, this, m_vis.getUser());
           }
         }
       }
@@ -996,10 +1066,12 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private int m_nChildren = 0;
   private int m_nPrerequisites = 0;
   private int m_nPrescribedResults = 0;
+  private int m_nOptionalResults = 0;
   private String[] m_childIds;   // save these to make children if asked
   private String[] m_childEdgeIds;
   private String[] m_prerequisiteIds; // save these to make assoc prereqs
   private String[] m_resultIds; // save these to make assoc prescribed results
+  private String[] m_optionalResultIds;
   private DbConnection m_connect;
   private boolean m_isCloned=false;
   private boolean m_hasClones = false;
@@ -1014,9 +1086,11 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private ArrayList<ProcessNode> m_children=null;
   private ArrayList<Prerequisite> m_prerequisites=null;
   private ArrayList<PrescribedResult> m_results=null;
+  private ArrayList<PrescribedResult> m_optionalResults=null;
   private ProcessNodeDb[] m_childrenDb=null;
   private PrerequisiteDb[] m_prerequisitesDb=null;
   private PrescribedResultDb[] m_resultsDb=null;
+  private PrescribedResultDb[] m_optionalResultsDb=null;
   private ArrayList<NCRSpecificationDb> m_ncrSpecsDb=null;
   private ProcessNodeDb m_dbParent = null;
   

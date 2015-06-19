@@ -183,26 +183,31 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
       */
     }
   }
-  public void acceptPrescribedResults(ArrayList<PrescribedResult> prescribedResults) {
-    if (prescribedResults == null) return;
-    if (prescribedResults.size() == 0) return;
-    if (!m_isCloned) {
-      ArrayList<HashMap<String, Object> > resultList = 
-          new ArrayList<HashMap<String, Object> > ();
-      try { 
-        for (PrescribedResult pres : prescribedResults) {
-          m_vis.addPrescribedResult(resultList, pres, "add");
-        }
-      } catch (EtravelerException ex)  {
-        System.out.println("Got exception in ProcessNodeToYaml.acceptPrescribedResults:");
-        System.out.println(ex.getMessage());
-        return;
+  public void acceptPrescribedResults(ArrayList<PrescribedResult> prescribedResults) {    
+    ArrayList<HashMap<String, Object> >  resultList = addResults(prescribedResults);
+    if (resultList != null) m_data.put("RequiredInputs", resultList);
+    
+  }
+  public void acceptOptionalResults(ArrayList <PrescribedResult> optionalResults) {
+    ArrayList<HashMap<String, Object> >  resultList = addResults(optionalResults);
+    if (resultList != null)  m_data.put("OptionalInputs", resultList);
+  }
+  private ArrayList<HashMap<String, Object> > addResults(ArrayList <PrescribedResult> results ) {
+    if (results == null) return null;
+    if (results.size() == 0) return null;
+    if (m_isCloned) return null;
+    ArrayList<HashMap<String, Object> > resultList = 
+        new ArrayList<HashMap<String, Object> > ();
+    try {
+      for (PrescribedResult pres : results) {
+        m_vis.addPrescribedResult(resultList, pres, "add");
       }
-      m_data.put("RequiredInputs", resultList);
-     /* Ultimately need to do something similar to what is done for
-      * children, after PrescribedResultToYaml class is defined
-      */
+    } catch (EtravelerException ex)  {
+      System.out.println("Got exception in ProcessNodeToYaml.addResults:");
+      System.out.println(ex.getMessage());
+      return null;
     }
+    return resultList;
   }
   /* Following is to transmit condition assoc. with parent edge. Need
    * this even if node is cloned

@@ -21,7 +21,7 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
     s_inputPatternQuery = null;
   }
   private static String[] s_patternCols = {"inputSemanticsId", "label",
-    "units", "description", "minV", "maxV", "choiceField"};
+    "units", "description", "isOptional", "minV", "maxV", "choiceField"};
   
   private static ConcurrentHashMap<String, String> s_semanticsIdMap;
     
@@ -65,7 +65,7 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
         }
         r.close();
       } catch (SQLException ex) {
-        System.out.println("query of prerequisite types failed with exception ");
+        System.out.println("query of result types failed with exception ");
         System.out.println(ex.getMessage());
         throw ex;
       }
@@ -84,6 +84,7 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
     m_label =  rs.getString(++ix);
     m_units =  rs.getString(++ix);
     m_description =  rs.getString(++ix);
+    m_isOptional = rs.getString(++ix);
     m_minV =  rs.getString(++ix);
     if (m_minV != null) {
       if (m_minV.isEmpty()) m_minV = null;
@@ -110,8 +111,8 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
   }
 
   private static String[] s_insertResultCols=
-  {"label", "inputSemanticsId", "processId", "description", "units", "createdBy",
-   "minV", "maxV"};
+  {"label", "inputSemanticsId", "processId", "description", "units", "isOptional",
+    "createdBy", "minV", "maxV"};
 
   void writeToDb(DbConnection connect, ProcessNodeDb parent, String user) 
     throws    SQLException {
@@ -121,15 +122,16 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
     vals[2] = parent.provideId();
     vals[3] = m_description;
     vals[4] = m_units;
-    vals[5] = user;
+    vals[5] = m_isOptional;
+    vals[6] = user;
     if (m_minV != null) {
       if (m_minV.isEmpty()) m_minV = null;
     }
-    vals[6] = m_minV;
+    vals[7] = m_minV;
     if (m_maxV != null) {
       if (m_maxV.isEmpty()) m_maxV = null;
     }
-    vals[7] = m_maxV;
+    vals[8] = m_maxV;
  
     try {
       m_id = m_connect.doInsert("InputPattern", s_insertResultCols, vals, "", 
@@ -150,6 +152,7 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
   public String provideMinValue() {return m_minV;}
   public String provideMaxValue() {return m_maxV;}
   public String provideChoiceField() {return m_choiceField;}
+  public String provideIsOptional() {return m_isOptional;}
   
   // ExportTarget interface
   public void acceptLabel(String label) { m_label = label;}
@@ -160,6 +163,7 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
   public void acceptResultDescription(String description) {
     m_description = description;
   }
+  public void acceptIsOptional(String isOpt) {m_isOptional=isOpt;}
   public void acceptChoiceField(String choiceField) {
     m_choiceField = choiceField;
   }
@@ -173,6 +177,7 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
   private String m_minV=null;
   private String m_maxV=null;
   private String m_choiceField=null;
+  private String m_isOptional="0";
   private DbConnection m_connect=null;
   private boolean m_verified=false;
  }

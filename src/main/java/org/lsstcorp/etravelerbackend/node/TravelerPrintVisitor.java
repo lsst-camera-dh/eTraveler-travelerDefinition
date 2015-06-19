@@ -114,6 +114,21 @@ public class TravelerPrintVisitor implements TravelerVisitor,
       m_results = null;
       s_nIndent--;
     }
+    if (m_optionalResults != null) {
+      try {
+        s_writer.write(leadingBlanks+"OptionalInputs:" + s_eol);
+      } catch (IOException ex) {
+        System.out.println("whoops!  " + ex.getMessage());
+        return;
+      }
+      s_nIndent++;
+//      for (int i=0; i < m_optionalResults.length; i++) {
+      for (PrescribedResult res: m_optionalResults) {
+        res.accept(this, activity, cxt);
+      }
+      m_optionalResults = null;
+      s_nIndent--; 
+    }
     // Children are more complicated.  Will need to instantiate
     // new TravelerPrintVisitor so we don't lose context
     if (m_children != null)  {
@@ -226,6 +241,9 @@ public class TravelerPrintVisitor implements TravelerVisitor,
   public void acceptPrescribedResults(ArrayList<PrescribedResult> res) {
     m_results=res;
   }
+  public void acceptOptionalResults(ArrayList<PrescribedResult> res) {
+    m_optionalResults=res;
+  }
   // Implementation of Prerequisite.ExportTarget
   public void acceptPrerequisiteType(String prerequisiteType) {
     m_prereqType = prerequisiteType;
@@ -281,7 +299,7 @@ public class TravelerPrintVisitor implements TravelerVisitor,
    public void acceptResultDescription(String description) {
      m_resultDescription = description;
    }
- 
+   public void acceptIsOptional(String isOptional) {}
    
    public void acceptChoiceField(String choiceField)  {
      m_choiceField = choiceField;
@@ -314,6 +332,7 @@ public class TravelerPrintVisitor implements TravelerVisitor,
   private ArrayList<ProcessNode> m_children=null;
   private ArrayList<Prerequisite> m_prerequisites=null;
   private ArrayList<PrescribedResult> m_results=null;
+  private ArrayList<PrescribedResult> m_optionalResults=null;
   
   // Store prereq. contents until we're ready to write
   private String m_prereqType=null;

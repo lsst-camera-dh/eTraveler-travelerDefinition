@@ -317,9 +317,7 @@ public class DbImporter {
     String fname =  dirname + "/" + trav.getName() + "_" +
       trav.getVersion() + "_" + trav.getHgroup() + "_" + trav.getSourceDb();
     String[ ] fnames = new String[2];
-    //else {
-    //  fname += "_exported.yaml";
-    //}
+
     String results = "<p>Files written to " + fname + ".yaml, " + fname+ "_canonical.yaml</p>";
     boolean okStatus = true;
     try {
@@ -614,12 +612,17 @@ public class DbImporter {
    
   static public int getResultCount(PageContext context) {
     ProcessNode selected = getSelected(context);
-    return selected.getResultCount();
+    return selected.getResultCount() + selected.getOptionalResultCount();
   }
   
   static public ArrayList<PrescribedResult> getResults(PageContext context) {
     ProcessNode selected = getSelected(context);
-    return selected.getResults();
+    ArrayList<PrescribedResult> toReturn = selected.getResults();
+    if (toReturn == null) return selected.getOptionalResults();
+    if (selected.getOptionalResults() != null) {
+      toReturn.addAll(selected.getOptionalResults());
+    }
+    return toReturn;
   }
   
   static public boolean selectedIsRoot(PageContext context) {

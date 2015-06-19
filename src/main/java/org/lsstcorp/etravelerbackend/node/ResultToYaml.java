@@ -31,6 +31,11 @@ public class ResultToYaml implements PrescribedResult.ExportTarget {
   public void acceptMaxValue(String maxValue) {
     if (maxValue != null) m_data.put("MaxValue", maxValue);
   }
+  /*
+   *  Assuming for now the container (RequiredInputs or OptionalInputs)
+   *  is used to determine if an input is optional or not
+   */
+  public void acceptIsOptional(String isOptional) {}
   
   public void acceptResultDescription(String description) {
     if (description != null) m_data.put("Description", description);

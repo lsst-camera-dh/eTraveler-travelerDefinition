@@ -77,6 +77,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     s_knownKeys.add("Selection");
     s_knownKeys.add("Prerequisites");
     s_knownKeys.add("RequiredInputs");
+    s_knownKeys.add("OptionalInputs");
     s_knownKeys.add("TravelerActions");
     s_knownKeys.add("RefName");
     s_knownKeys.add("RefVersion");
@@ -104,12 +105,13 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   static final int SELECTION=12;
   static final int PREREQUISITES=13;
   static final int REQUIREDINPUTS=14;
-  static final int TRAVELERACTIONS=15;
-  static final int REFNAME=16;
-  static final int REFVERSION=17;
-  static final int SOURCEDB=18;
-  static final int NEWLOCATION=19;
-  static final int NEWSTATUS=20;
+  static final int OPTIONALINPUTS=15;
+  static final int TRAVELERACTIONS=16;
+  static final int REFNAME=17;
+  static final int REFVERSION=18;
+  static final int SOURCEDB=19;
+  static final int NEWLOCATION=20;
+  static final int NEWSTATUS=21;
   
   static final int FROMSOURCEVERSION=22;
   static final int FROMSOURCEID=23;
@@ -382,7 +384,15 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
             m_prescribedResults[iR] = new PrescribedResultYaml();
             m_prescribedResults[iR].readYaml(reqInputsMap, this, iR);
           }
-      
+          break;
+        case OPTIONALINPUTS:
+          m_nOptionalResults = list.size();
+          m_optionalResults = new PrescribedResultYaml[list.size()];
+          for (int iR = 0; iR < m_nOptionalResults; iR++) {
+            Map<String, Object> optInputsMap = (Map<String, Object>) list.get(iR);
+            m_optionalResults[iR] = new PrescribedResultYaml();
+            m_optionalResults[iR].readYaml(optInputsMap, this, iR);
+          }
           // similar to prereq case
           break;
         }
@@ -458,6 +468,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   public int provideNChildren() {return m_nChildren;}
   public int provideNPrerequisites() {return m_nPrerequisites;}
   public int provideNPrescribedResults() {return m_nPrescribedResults;}
+  public int provideNOptionalResults() {return m_nOptionalResults;}
   public boolean provideIsCloned() {return (m_clonedFrom != null); }
   public boolean provideHasClones() {return m_hasClones; }
   public boolean provideIsRef() {return m_isRef; }
@@ -478,8 +489,13 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   public Prerequisite providePrerequisite(ProcessNode parent, int n) {
     return new Prerequisite(parent, m_prerequisites[n]);
   }
-   public PrescribedResult provideResult(ProcessNode parent, int n) {
+  public PrescribedResult provideResult(ProcessNode parent, int n) {
     return new PrescribedResult(parent, m_prescribedResults[n]);
+  }
+  public PrescribedResult provideOptionalResult(ProcessNode parent, int n) {
+    PrescribedResult pr = new PrescribedResult(parent, m_optionalResults[n]);
+    pr.setIsOptional("1");
+    return pr;
   }
   public void finishImport(ProcessNode process) {}
 
@@ -502,6 +518,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private int m_nChildren = 0;
   private int m_nPrerequisites = 0;
   private int m_nPrescribedResults = 0;
+  private int m_nOptionalResults = 0;
   private boolean m_isClone=false;
   private boolean m_hasClones=false;
   private boolean m_isRef=false;
@@ -518,6 +535,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private ProcessNodeYaml[] m_children;
   private PrerequisiteYaml[] m_prerequisites;
   private PrescribedResultYaml[] m_prescribedResults;
+  private PrescribedResultYaml[] m_optionalResults;
   
   // Keep track of process name/version pairs we've seen
   private HashMap<String, ProcessNodeYaml> m_processes = null; 

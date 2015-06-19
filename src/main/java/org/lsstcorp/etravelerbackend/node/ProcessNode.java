@@ -215,6 +215,13 @@ public class ProcessNode implements  TravelerElement
         m_resultNodes.add(imp.provideResult(parent, iResult));
       }
     }
+    int nOptionalResults = imp.provideNOptionalResults();
+    if (nOptionalResults > 0) {
+      m_optionalResultNodes = new ArrayList<PrescribedResult>(nResults);
+      for (int iOpt = 0; iOpt < nOptionalResults; iOpt++) {
+        m_optionalResultNodes.add(imp.provideOptionalResult(parent, iOpt));
+      }
+    }
     int nChildren = imp.provideNChildren();
     if (nChildren > 0)  {
       m_children = new ArrayList<ProcessNode>(nChildren);
@@ -315,7 +322,11 @@ public class ProcessNode implements  TravelerElement
     pList.add(new Attribute("# prerequisites", Integer.toString(nPrereq)));
     int nResults = 0;
     if (m_resultNodes != null) nResults = m_resultNodes.size();
-    pList.add(new Attribute("# solicited results", Integer.toString(nResults)));
+    pList.add(new Attribute("# rqd solicited results", Integer.toString(nResults)));
+    int nOptionalResults = 0;
+    if (m_optionalResultNodes != null) nOptionalResults = m_optionalResultNodes.size();
+    pList.add(new Attribute("# opt solicited results", 
+        Integer.toString(nOptionalResults)));
     pList.add(new Attribute("instructions URL", m_instructionsURL));
    
     if (m_isOption) {
@@ -330,9 +341,14 @@ public class ProcessNode implements  TravelerElement
     return m_prerequisites.get(ix).getAttributes();
   }
   
-  public AttributeList getResultAttributes(int ix) {
-    if (ix >= m_resultNodes.size()) return null;
-    return m_resultNodes.get(ix).getAttributes();
+  public AttributeList getResultAttributes(int ix, boolean rqd) {
+    if (rqd) {
+      if (ix >= m_resultNodes.size()) return null;
+      return m_resultNodes.get(ix).getAttributes();
+    } else {
+      if (ix >= m_optionalResultNodes.size()) return null;
+      return m_optionalResultNodes.get(ix).getAttributes();
+    }
   }
   /**
    * Remove prerequisites as directed by changedPrereq array
@@ -411,6 +427,7 @@ public class ProcessNode implements  TravelerElement
     int provideNChildren();
     int provideNPrerequisites();
     int provideNPrescribedResults();
+    int provideNOptionalResults();
     // More provides for parent edge:
     //String provideParentEdgeId();
     ProcessEdge provideParentEdge(ProcessNode parent, ProcessNode child);
@@ -423,6 +440,7 @@ public class ProcessNode implements  TravelerElement
     ProcessNode provideChild(ProcessNode parent, int n) throws Exception;
     Prerequisite providePrerequisite(ProcessNode parent, int n) throws Exception;
     PrescribedResult provideResult(ProcessNode parent, int n) throws Exception;
+    PrescribedResult provideOptionalResult(ProcessNode parent, int n) throws Exception;
     /* chance for source to do anything else it needs to do */
     void finishImport(ProcessNode process);
   }
@@ -456,6 +474,7 @@ public class ProcessNode implements  TravelerElement
     void acceptChildren(ArrayList<ProcessNode> children);
     void acceptPrerequisites(ArrayList<Prerequisite> prerequisites);
     void acceptPrescribedResults(ArrayList<PrescribedResult> prescribedResults);
+    void acceptOptionalResults(ArrayList<PrescribedResult> optionalResults);
     // Following is to transmit condition assoc. with parent edge
     void acceptCondition(String condition); 
     void acceptClonedFrom(ProcessNode process);
@@ -510,6 +529,7 @@ public class ProcessNode implements  TravelerElement
       ptarget.acceptSubsteps(m_substeps);
       ptarget.acceptPrerequisites(m_prerequisites);
       ptarget.acceptPrescribedResults(m_resultNodes);
+      ptarget.acceptOptionalResults(m_optionalResultNodes);
       ptarget.acceptChildren(m_children);
   
       ptarget.acceptIsRef(m_isRef);
@@ -621,6 +641,12 @@ public class ProcessNode implements  TravelerElement
         m_resultNodes.add(new PrescribedResult(this, srcRes));
       }
     }
+    if (src.getOptionalResultCount() > 0) {
+      m_optionalResultNodes = new ArrayList<PrescribedResult>(src.getOptionalResultCount());
+      for (PrescribedResult srcRes: src.m_optionalResultNodes) {
+        m_optionalResultNodes.add(new PrescribedResult(this, srcRes));
+      }
+    }
     
   }
   
@@ -647,6 +673,10 @@ public class ProcessNode implements  TravelerElement
   public int getResultCount() { 
     if (m_resultNodes == null) return 0;
     return m_resultNodes.size(); }
+  public int getOptionalResultCount() {
+    if (m_optionalResultNodes  == null) return 0;
+    return m_optionalResultNodes.size();
+  }
   public boolean getIsEdited() {return m_edited;}
   public String getSourceDb() {return m_sourceDb;}
   public boolean isRef() {return m_isRef; }
@@ -679,6 +709,9 @@ public class ProcessNode implements  TravelerElement
   public ArrayList<PrescribedResult> getResults() {
     return m_resultNodes;
   }
+  public ArrayList<PrescribedResult> getOptionalResults() {
+    return m_optionalResultNodes;
+  }
   public boolean isCloned() { return m_isCloned; }
   public boolean hasClones() { return m_hasClones; }
   public ProcessNode clonedFrom() { return m_clonedFrom;}
@@ -698,6 +731,7 @@ public class ProcessNode implements  TravelerElement
   private ArrayList<ProcessNode> m_children=null;
   private ArrayList<Prerequisite> m_prerequisites=null;
   private ArrayList<PrescribedResult> m_resultNodes=null;
+  private ArrayList<PrescribedResult> m_optionalResultNodes=null;
   private String m_name=null;
   private boolean m_isCloned=false;
   private boolean m_hasClones=false;

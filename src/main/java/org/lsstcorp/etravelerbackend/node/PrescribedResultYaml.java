@@ -77,6 +77,8 @@ public class PrescribedResultYaml implements PrescribedResult.Importer {
   public String provideMaxValue() {return m_maxValue;}
   public String provideDescription() {return m_description;}
   public String provideChoiceField() {return m_choiceField;}
+  public String provideIsOptional() {return m_isOptional;}
+  public void setIsOptional(String isOptional) {m_isOptional = isOptional;}
   private String m_label=null;
   private String m_semantics=null;
   private String m_units="";
@@ -84,6 +86,7 @@ public class PrescribedResultYaml implements PrescribedResult.Importer {
   private String m_maxValue="";
   private String m_description="";
   private String m_choiceField="";
+  private String m_isOptional="0";
   
   private ProcessNodeYaml m_parent=null;
 }
