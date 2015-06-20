@@ -84,6 +84,8 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     s_knownKeys.add("SourceDb");
     s_knownKeys.add("NewLocation");
     s_knownKeys.add("NewStatus");
+    s_knownKeys.add("AddLabel");
+    s_knownKeys.add("RemoveLabel");
     /* Following are written by yaml export; informational only */
     s_knownKeys.add("FromSourceVersion");
     s_knownKeys.add("FromSourceId");
@@ -112,11 +114,13 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   static final int SOURCEDB=19;
   static final int NEWLOCATION=20;
   static final int NEWSTATUS=21;
+  static final int ADDLABEL=22;
+  static final int REMOVELABEL=23;
   
-  static final int FROMSOURCEVERSION=22;
-  static final int FROMSOURCEID=23;
-  static final int FROMSOURCEORIGINALID=24;
-  static final int FROMSOURCESOURCEDB=25;
+  static final int FROMSOURCEVERSION=30;
+  static final int FROMSOURCEID=31;
+  static final int FROMSOURCEORIGINALID=32;
+  static final int FROMSOURCESOURCEDB=33;
  
   
 
@@ -282,8 +286,20 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         /* several different aliases may be used for operator prompt */
         if (v.equals("(TBD)") || v.equals("(tbd)") || v.equals("(operatorPrompt)")
             || v.equals("(OPERATORPROMPT)") || v.equals("(prompt)") || v.equals("(PROMPT)") ) {
-          m_newStatus = "(?)";
+          v = "(?)";
         }
+        m_newStatus = v;
+        break;
+      case ADDLABEL:
+        m_travelerActionMask |= TravelerActionBits.ADD_LABEL;
+        if (v.equals("(TBD)") || v.equals("(tbd)") || v.equals("(operatorPrompt)")
+            || v.equals("(OPERATORPROMPT)") || v.equals("(prompt)") || v.equals("(PROMPT)") ) {
+          v = "(?)";
+        }
+        m_newStatus = v;
+        break;
+      case REMOVELABEL:
+        m_travelerActionMask |= TravelerActionBits.REMOVE_LABEL;
         m_newStatus = v;
         break;
       case CONDITION:
@@ -331,8 +347,16 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
                       } else {
                         if (act.equals("Automatable")) {
                           m_travelerActionMask |= TravelerActionBits.AUTOMATABLE;
-                        } else    {
-                          throw new UnrecognizedYamlKey(act, "TravelerActions");
+                        } else  {
+                          if (act.equals("RemoveLabel")) {
+                           m_travelerActionMask |= TravelerActionBits.REMOVE_LABEL; 
+                          } else {
+                            if (act.equals("AddLabel")) {
+                              m_travelerActionMask |= TravelerActionBits.ADD_LABEL;
+                            } else {
+                              throw new UnrecognizedYamlKey(act, "TravelerActions");
+                            }
+                          }
                         }
                       }
                     }
@@ -398,6 +422,14 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         }
       }
     }
+    // May have at most one of newStatus, addLabel, removeLabel set
+    if ((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_STATUS) != 0) {
+      if ((m_travelerActionMask & (TravelerActionBits.ADD_LABEL + TravelerActionBits.REMOVE_LABEL )) != 0) 
+        throw new EtravelerException("Cannot set hardware status and manipulate label in same step");  
+    }
+    if ( ((m_travelerActionMask & TravelerActionBits.ADD_LABEL) != 0) &&
+        ((m_travelerActionMask & TravelerActionBits.REMOVE_LABEL) != 0) )
+      throw new EtravelerException("Cannot add and remove label in the same step");
     // If "break" is not explicitly specified, set "make" bit
     if ((m_hardwareRelationshipType != null)  && !m_hardwareRelationshipType.isEmpty()) {  
       if ((m_travelerActionMask & TravelerActionBits.BREAK_HARDWARE_RELATIONSHIP) == 0) {

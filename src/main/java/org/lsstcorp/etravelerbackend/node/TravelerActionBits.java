@@ -19,6 +19,8 @@ public class TravelerActionBits {
   public static final int SET_HARDWARE_LOCATION=16;
   public static final int ASYNC=32;
   public static final int AUTOMATABLE=64;
+  public static final int REMOVE_LABEL=128;
+  public static final int ADD_LABEL=256;
   
   public static String getYamlKey(int actionBit) {
     switch (actionBit) {
@@ -36,6 +38,10 @@ public class TravelerActionBits {
         return "Async";
       case AUTOMATABLE:
         return "Automatable";
+      case REMOVE_LABEL:
+        return "RemoveLabel";
+      case ADD_LABEL:
+        return "AddLabel";
       default:
         throw new IllegalArgumentException("Unknown traveler action bit");
     }
