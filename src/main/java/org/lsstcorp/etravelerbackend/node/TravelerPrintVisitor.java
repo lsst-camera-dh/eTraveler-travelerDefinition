@@ -73,6 +73,19 @@ public class TravelerPrintVisitor implements TravelerVisitor,
             s_writer.write(leadingBlanks + "NewStatus: (?)" + s_eol);
           }
         }
+        if ((m_travelerActionMask & TravelerActionBits.ADD_LABEL) !=0) {
+          if (m_newStatus != null) {
+            s_writer.write(leadingBlanks + "AddLabel: " + m_newStatus + s_eol);
+          }  else {
+            s_writer.write(leadingBlanks + "AddLabel: (?)" + s_eol);
+          }
+        }
+        // No wildcard allowed for remove label
+        if ((m_travelerActionMask & TravelerActionBits.REMOVE_LABEL) !=0) {
+          if (m_newStatus != null) {
+            s_writer.write(leadingBlanks + "REMOVE_LABEL: " + m_newStatus + s_eol);
+          } 
+        }
       }
       if (m_condition != null) {
         s_writer.write(leadingBlanks + "Condition: " + m_condition + s_eol);

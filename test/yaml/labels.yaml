@@ -1,0 +1,19 @@
+%YAML 1.1
+---
+Name: labels
+HardwareGroup: snark
+Description: Play with labels, new status
+Sequence:
+  - Name: addLabel
+    AddLabel: non-compliant
+    Description:   add a known label
+       was spread across two lines
+  - Name: promptForLabel
+    AddLabel: (?)
+  - Name: removeLabel
+    RemoveLabel: userLabel
+    Description: remove a label
+    Version: next
+
+
+

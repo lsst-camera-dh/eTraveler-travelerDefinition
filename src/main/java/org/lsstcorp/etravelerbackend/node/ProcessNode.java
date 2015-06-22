@@ -183,6 +183,8 @@ public class ProcessNode implements  TravelerElement
     m_newStatus = imp.provideNewStatus();
     if (((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_STATUS) !=0) &&
         (m_newStatus == null)) m_newStatus = "(?)";
+    if (((m_travelerActionMask & TravelerActionBits.ADD_LABEL) !=0) &&
+        (m_newStatus == null)) m_newStatus = "(?)";
     if ((m_parent == null) && (!m_maxIteration.equals("1"))) {
       throw new EtravelerException("Root step may not have max iteration > 1");
     }
@@ -312,7 +314,13 @@ public class ProcessNode implements  TravelerElement
       pList.add(new Attribute("new location", m_newLocation));
     }
     if (m_newStatus != null)  {
-      pList.add(new Attribute("new status", m_newStatus));
+      if ((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_STATUS) != 0) {
+        pList.add(new Attribute("new status", m_newStatus));
+      } else if ((m_travelerActionMask & TravelerActionBits.ADD_LABEL) != 0) {
+        pList.add(new Attribute("add label", m_newStatus));
+      } else if ((m_travelerActionMask & TravelerActionBits.REMOVE_LABEL) != 0) {
+        pList.add(new Attribute("remove label", m_newStatus));
+      }
     }
 
     if (m_sequenceCount > nChild) nChild = m_sequenceCount;

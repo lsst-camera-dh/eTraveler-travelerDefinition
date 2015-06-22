@@ -21,6 +21,8 @@ public class TravelerActionBits {
   public static final int AUTOMATABLE=64;
   public static final int REMOVE_LABEL=128;
   public static final int ADD_LABEL=256;
+  public static final int STATUS_OR_LABEL = SET_HARDWARE_STATUS +
+      ADD_LABEL + REMOVE_LABEL;
   
   public static String getYamlKey(int actionBit) {
     switch (actionBit) {

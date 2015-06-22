@@ -573,11 +573,20 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       m_hardwareGroupId = m_dbParent.m_hardwareGroupId;
     }
     if (m_newStatus != null) {
-      if (m_hardwareStatusIdMap.containsKey(m_newStatus)) {
-        m_newStatusId = m_hardwareStatusIdMap.get(m_newStatus);
-      }  else {
-        throw new EtravelerException("No hardware status entry for " 
-                                     + m_newStatus);
+      if ((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_STATUS) != 0) {
+        if (m_hardwareStatusIdMap.containsKey(m_newStatus)) {
+          m_newStatusId = m_hardwareStatusIdMap.get(m_newStatus);
+        }  else {
+          throw new EtravelerException("No hardware status entry for " 
+              + m_newStatus);
+        }
+      } else if ((m_travelerActionMask & 
+          (TravelerActionBits.ADD_LABEL + TravelerActionBits.REMOVE_LABEL)) != 0) {
+        if (m_hardwareLabelIdMap.containsKey(m_newStatus)) {
+          m_newStatusId = m_hardwareLabelIdMap.get(m_newStatus);
+        } else {
+          throw new EtravelerException("No hardware label entry for " + m_newStatus);
+        }
       }
     }
     // If ref, verify we have the right db and that the node we need really is.
@@ -938,15 +947,17 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     fillRelationshipMap("HardwareRelationshipType", "name", "slot", 
         m_relationshipTypeMap);
     m_semanticsTypeMap = new ConcurrentHashMap<String, String>();
-    fillIdMap("InputSemantics", "name", m_semanticsTypeMap);
+    fillIdMap("InputSemantics", "name", " where TRUE", m_semanticsTypeMap);
     m_prerequisiteTypeMap = new ConcurrentHashMap<String, String>();
-    fillIdMap("PrerequisiteType", "name", m_prerequisiteTypeMap);
+    fillIdMap("PrerequisiteType", "name", " where TRUE", m_prerequisiteTypeMap);
     m_hardwareTypeNameMap = new ConcurrentHashMap<String, String>();
-    fillIdMap("HardwareType", "name", m_hardwareTypeNameMap);
+    fillIdMap("HardwareType", "name", " where TRUE", m_hardwareTypeNameMap);
     m_hardwareGroupNameMap = new ConcurrentHashMap<String, String>();
-    fillIdMap("HardwareGroup", "name", m_hardwareGroupNameMap);
+    fillIdMap("HardwareGroup", "name", " where TRUE",  m_hardwareGroupNameMap);
     m_hardwareStatusIdMap = new ConcurrentHashMap<String, String>();
-    fillIdMap("HardwareStatus", "name", m_hardwareStatusIdMap);
+    fillIdMap("HardwareStatus", "name", " where isStatusValue='1'", m_hardwareStatusIdMap);
+    m_hardwareLabelIdMap = new ConcurrentHashMap<String, String>();
+    fillIdMap("HardwareStatus", "name", " where isStatusValue='0'", m_hardwareLabelIdMap);
     m_processNameIdMap = new ConcurrentHashMap<String, String>();
  
   }
@@ -959,17 +970,18 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     m_hardwareGroupNameMap = m_travelerRoot.m_hardwareGroupNameMap;
     m_processNameIdMap = m_travelerRoot.m_processNameIdMap;
     m_hardwareStatusIdMap = m_travelerRoot.m_hardwareStatusIdMap;
+    m_hardwareLabelIdMap = m_travelerRoot.m_hardwareLabelIdMap;
 
   }
 
-  private void fillIdMap(String table, String nameCol, 
+  private void fillIdMap(String table, String nameCol, String where,
                          ConcurrentHashMap<String, String> map) 
     throws SQLException {
     String[] getCols = { "id", nameCol};
     PreparedStatement idNameQuery;
     ResultSet rs;
     try {
-      idNameQuery = m_connect.prepareQuery(table, getCols, "");
+      idNameQuery = m_connect.prepareQuery(table, getCols, where);
       rs = idNameQuery.executeQuery();
       boolean more = rs.next();
       while (more) {  
@@ -1101,6 +1113,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private ConcurrentHashMap<String, String> m_hardwareTypeNameMap = null;
   private ConcurrentHashMap<String, String> m_hardwareGroupNameMap = null;
   private ConcurrentHashMap<String, String> m_hardwareStatusIdMap = null;
+  private ConcurrentHashMap<String, String> m_hardwareLabelIdMap = null;
   private ConcurrentHashMap<String, String> m_processNameIdMap = null;
 
   private boolean m_verified=false;
