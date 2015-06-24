@@ -21,7 +21,6 @@ import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
  */
 public class WriteToDb {
 
-  // public static String ingest(String fileContents, boolean useTransactions) {
     public static String ingest(PageContext context) {
   
       String redoInstructions = " Reselect file and try again"; 
@@ -45,7 +44,6 @@ public class WriteToDb {
           "etravelerDb");
       JspWriter writer = context.getOut();
 
-      //String action = context.getRequest().getParameter("fileAction");
       String action = context.getRequest().getParameter("fileAction").toString();
       
       if (action.equals("Import"))   {
@@ -61,13 +59,6 @@ public class WriteToDb {
         ingested = parse(fileContents);
         if (ingested == null) return "Could not parse yaml input";
       }  catch (Exception ex)  {
-        //if (ingested ==  null) {
-        /*
-        try {
-          writer.println("<p>Could not parse yaml input.  Failed with exception</br>");
-          writer.println(ex.getMsg() + "</p>");
-        } catch (IOException ex)  {}
-        */
         return  "<b>" + ex.getMessage() + "</b>";
       }
       DbImporter.makePreviewTree(context, ingested);
@@ -226,9 +217,6 @@ public class WriteToDb {
     }
   }
   static private DbConnection makeConnection(String dbType, String datasource)  {
-   //String datasource = ModeSwitcherFilter.getVariable(session or request, "etravelerDb");
- 
-
     DbConnection conn = new MysqlDbConnection();
     conn.setSourceDb(dbType);
     boolean isOpen = conn.openTomcat(datasource);

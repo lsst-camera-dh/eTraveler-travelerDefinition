@@ -77,7 +77,6 @@ public class TravelerToYamlVisitor implements TravelerVisitor {
     if (data != null) {
       m_yaml.dump(data, wrt);
     }
-    // return wrt.toString();
     return "";
   }
   

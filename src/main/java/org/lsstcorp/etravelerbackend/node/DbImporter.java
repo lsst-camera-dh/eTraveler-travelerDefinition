@@ -690,7 +690,6 @@ public class DbImporter {
    * being edited.
    * @param context 
    */
-  //  static public AttributeList listEdited(PageContext context) {
   static public ArrayList<EditedTreeNode>
     listEdited(PageContext context) {
     JspContext jspContext = (JspContext)context;

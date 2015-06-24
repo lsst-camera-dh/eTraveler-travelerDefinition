@@ -317,7 +317,6 @@ public class MysqlDbConnection implements DbConnection {
       }
     }
     if ((extras & DbConnection.ADD_CREATION_TIMESTAMP) != 0)  {
-      // Add field creationTS
       sql += ", creationTS=UTC_TIMESTAMP() ";
     }
     sql += " " + where;

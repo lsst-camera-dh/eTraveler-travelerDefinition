@@ -188,13 +188,10 @@ public class ProcessNode implements  TravelerElement
     if ((m_parent == null) && (!m_maxIteration.equals("1"))) {
       throw new EtravelerException("Root step may not have max iteration > 1");
     }
-
   
     m_sourceDb = imp.provideSourceDb();
     m_processId = imp.provideId();
     m_originalId = imp.provideOriginalId();
-    /* No more to do if we're a ref */
-
     
     checkNonempty("children type", m_substeps);
     if ((!m_substeps.equals("NONE")) 
@@ -267,7 +264,6 @@ public class ProcessNode implements  TravelerElement
    * 
    * @return true if we're cloned from another node 
    */
-
   private boolean storeToNodeMap() {
     ProcessNode val = m_nodeMap.putIfAbsent(makeKey(), this);
     if (val == null) return false;
@@ -276,7 +272,6 @@ public class ProcessNode implements  TravelerElement
       m_clonedFrom = val;
       m_clonedFrom.m_hasClones = true;
       m_clonedFrom.addBuddy(this);
-
     }
     return isCloned;
   }
@@ -382,9 +377,9 @@ public class ProcessNode implements  TravelerElement
     }
   }
 
-  
+  // Probably unused.  See instead ProcessNodeDb.writeToDb
   public int writeDb() {
-        return 0;  // for now
+    return 0;  // for now
   }
   /**
    * Verify that various values in the traveler are consistent with 
@@ -393,13 +388,8 @@ public class ProcessNode implements  TravelerElement
    * @return 
    */
   public boolean dbVerify(DbConnection db)  {
-    // If we're top node, check that hardware type is valid
-    // Check hardware relationship type (maybe cache known valid ones?)
-    
-    // Verify prerequisites (probably call a Prerequisite.verify(..) method ) 
-    //  Similarly for PrescribedResult
-    
-    // Then recurse on children
+    // this verification is handled elsewhere: see ProcessNodeDb.verify.
+    // Probably this routine should go
     return true;
   }
  

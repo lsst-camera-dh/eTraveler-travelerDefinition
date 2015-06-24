@@ -21,7 +21,6 @@ public class PrescribedResult  implements TravelerElement {
   public void exportTo(TravelerElement.ExportTarget target) {
     if (target instanceof PrescribedResult.ExportTarget) {
       PrescribedResult.ExportTarget ptarget = (PrescribedResult.ExportTarget) target;
-      //ptarget.acceptPrescribedResultParent(m_parent);
       ptarget.acceptLabel(m_label);
       ptarget.acceptSemantics(m_semantics);
       ptarget.acceptUnits(m_units);
@@ -159,6 +158,5 @@ public class PrescribedResult  implements TravelerElement {
   private String m_description="";
   private String m_choiceField="";
   private String m_isOptional="0";
-  private ProcessNode m_parent;
-  
+  private ProcessNode m_parent;  
 }
