@@ -38,17 +38,16 @@
   <legend>Output style</legend>
    <input type="submit" name="ostyle" value="Tree" 
           title="Collapsible/expandable tree. Click node for details "/>
-   <input type="submit" name="ostyle" value="Yaml" 
-          title="export canonical YAML representation to SLAC nfs" />  
+   <input type="submit" name="ostyle" value="Pretty print"
+          title="reasonably complete simple text version of the process traveler"/>
+  <input type="submit" name="ostyle" value="Yaml"
+         title="export YAML to local file"/>
 </fieldset> </td>
 <td>&nbsp;</td>
 <td>
   <fieldset>
-    <legend> additional styles</legend>
-   <input type="submit" name="ostyle" value="Pretty print"
-          title="reasonably complete simple text version of the process traveler"/>
-  <input type="submit" name="ostyle" value="Yaml-debug"
-         title="export YAML to local file"/>
+    <legend>deprecated&nbsp;styles</legend>
+ 
    <input type="submit" name="ostyle" value="Dot file" />
   <input type="submit" name="ostyle" value="Image" />
 
@@ -74,14 +73,14 @@
   <legend>Output&nbsp;style</legend>
 
    <input type="submit" name="ostyle" value="Tree" />
-   <input type="submit" name="ostyle" value="Yaml" />  
+  <input type="submit" name="ostyle" value="Pretty print" />
+   <input type="submit" name="ostyle" value="Yaml" />
 </fieldset>
 </td><td>&nbsp;</td>
 <td>
   <fieldset>
-    <legend> more&nbsp;styles</legend>
-   <input type="submit" name="ostyle" value="Pretty print" />
-   <input type="submit" name="ostyle" value="Yaml-debug" />
+    <legend> deprecated&nbsp;styles</legend>
+   
   <input type="submit" name="ostyle" value="Dot file" />
   <input type="submit" name="ostyle" value="Image" />
   <%--  Doesn't work so comment out for now

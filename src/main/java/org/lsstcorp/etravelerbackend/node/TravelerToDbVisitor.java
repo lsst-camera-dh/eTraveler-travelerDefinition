@@ -46,6 +46,11 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
         m_processNodeDb.writeToDb(m_connect, null);
         m_processNodeDb.registerTraveler(m_owner, m_reason);
         if (m_useTransactions) m_connect.commit();
+        if (m_processNodeDb.isRootNode() ) {
+          m_travelerName = m_processNodeDb.provideName();
+          m_travelerVersion = m_processNodeDb.provideVersion();
+          m_travelerHardwareGroup = m_processNodeDb.provideHardwareGroup();
+        }
       } catch (Exception ex) {
         if (m_useTransactions) {
           try {
@@ -83,6 +88,9 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
   public ProcessNode getProcess() {return m_process;}
   public DbConnection getConnection() {return m_connect;}
   public ProcessNodeDb getProcessNodeDb() {return m_processNodeDb; }
+  public String getTravelerName() {return m_travelerName;}
+  public String getTravelerVersion() {return m_travelerVersion;}
+  public String getTravelerHardwareGroup() {return m_travelerHardwareGroup;}
   public void setUseTransactions(boolean setting) {
     m_useTransactions = setting;
   }
@@ -98,4 +106,7 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
   private NCRSpecificationDb m_specDb = null;
   private String m_owner = null;
   private String m_reason = null;
+  private String m_travelerName = null;
+  private String m_travelerVersion= null;
+  private String m_travelerHardwareGroup=null;
 }

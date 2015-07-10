@@ -540,6 +540,9 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public void exportDone() {
     if (m_edited) {m_version = "modified";}
   }
+  public boolean isRootNode() {
+    return (m_travelerRoot == this);
+  }
   public void verify(DbConnection connect) throws EtravelerException {
    
     // For first time through (parentless node)  maybe look up some things,

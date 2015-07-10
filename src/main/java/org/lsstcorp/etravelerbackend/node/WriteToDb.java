@@ -70,13 +70,14 @@ public class WriteToDb {
       if (action.equals("Db validate")) {
         writeRet=writeToDb(ingested, context.getSession().getAttribute("userName").toString(),
           useTransactions.equals("true"), dbType, datasource, action.equals("Import"),
-                    "",""); 
+                    "","","", writer); 
       } else {
       writeRet =
           writeToDb(ingested, context.getSession().getAttribute("userName").toString(),
           useTransactions.equals("true"), dbType, datasource, action.equals("Import"),
                     context.getRequest().getParameter("owner").trim(), 
-                    context.getRequest().getParameter("reason").trim());
+                    context.getRequest().getParameter("reason").trim(),
+                    DbImporter.yamlArchiveDir(context), writer);
       }
       return writeRet;
   }
@@ -114,8 +115,10 @@ public class WriteToDb {
   }
 
   public static String writeToDb(ProcessNode travelerRoot, String user,
-      boolean useTransactions, String dbType, String datasource, boolean ingest,
-      String owner, String reason)  {
+                                 boolean useTransactions, String dbType, 
+                                 String datasource, boolean ingest,
+                                 String owner, String reason,
+                                 String yamlArchiveDir, JspWriter writer)  {
 
     // Try connect
     DbConnection conn = makeConnection(dbType, datasource);
@@ -156,6 +159,19 @@ public class WriteToDb {
           " db with exception '" + ex.getMessage() + "'";
     }
     conn.close();
+    Traveler trav=null;
+    try {
+      ProcessNode root = 
+          DbImporter.getProcess(vis.getTravelerName(), vis.getTravelerVersion(),
+          vis.getTravelerHardwareGroup(), dbType, datasource);
+      trav = new Traveler(root, "db", dbType);
+    } catch (Exception ex) {
+      return "Failed to retrieve traveler from db with exception" + ex.getMessage();
+      // add to message that file couldn't be archived
+    }
+   // Now have everything to call yamlArchive
+    DbImporter.archiveYaml(trav, yamlArchiveDir, dbType, writer);
+    
     return "successfully wrote traveler to " + dbType + " db";
   }
   

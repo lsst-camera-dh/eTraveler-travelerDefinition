@@ -277,7 +277,7 @@ public class DbImporter {
     }
   }
   
-  static public String outputYaml(PageContext context, boolean includeDebug) {
+  static public String outputYaml(PageContext context, boolean localOutput) {
     HttpServletRequest request = (HttpServletRequest) context.getRequest();
     retrieveProcess(context, false);
     Traveler trav;
@@ -286,7 +286,7 @@ public class DbImporter {
       return ex.getMessage();
     }
  
-    if (includeDebug) {
+    if (localOutput) {
       String key = makeKey(trav.getName(), trav.getVersion(),
                            trav.getHgroup(), trav.getSourceDb());
       HttpServletResponse response = (HttpServletResponse) context.getResponse();
@@ -305,18 +305,45 @@ public class DbImporter {
     } 
    
     JspWriter writer = context.getOut();
-    FileWriter fileOutCanon = null;
-    FileWriter fileOutDebug = null;
-    String url = (request.getRequestURL()).toString();
+    //String url = (request.getRequestURL()).toString();
     String dbType = ModeSwitcherFilter.getVariable(context.getSession(), "dataSourceMode");
+    //String dirname = ModeSwitcherFilter.getVariable(context.getSession(),
+    //    "etravelerFileStore");
+    //if (url.contains("localhost")) dirname = "/u1/jrb/localET";
+
+    int archiveStatus = archiveYaml(trav, yamlArchiveDir(context), dbType, writer);
+    if (archiveStatus == 1) return "Success!";
+    if (archiveStatus == 2) return "Wrong conditions for archiving";
+    return "something went wrong"; 
+  }
+  
+  static public String yamlArchiveDir(PageContext context) {
+    HttpServletRequest request = (HttpServletRequest) context.getRequest();
+    String url = (request.getRequestURL()).toString();
     String dirname = ModeSwitcherFilter.getVariable(context.getSession(),
         "etravelerFileStore");
     if (url.contains("localhost")) dirname = "/u1/jrb/localET";
+    return dirname;
+  }
+
+  static public int archiveYaml(Traveler trav, String archiveDir, 
+                                String dbType, JspWriter writer)  {
+    // Return 2 if it's inappropriate to write the files
+    if (trav == null) return 2;
+    if (archiveDir == null) return 2;
+    if (archiveDir.isEmpty()) return 2;
+    if ((!dbType.equals("Prod")) && (!dbType.equals("Raw")) ) return 2;
+
+    FileWriter fileOutCanon = null;
+    FileWriter fileOutDebug = null;
+
+    String dirname = archiveDir;
     dirname += "/yaml/";
     dirname += dbType;
     String fname =  dirname + "/" + trav.getName() + "_" +
       trav.getVersion() + "_" + trav.getHgroup() + "_" + trav.getSourceDb();
     String[ ] fnames = new String[2];
+
 
     String results = "<p>Files written to " + fname + ".yaml, " + fname+ "_canonical.yaml</p>";
     boolean okStatus = true;
@@ -342,11 +369,11 @@ public class DbImporter {
     } catch (Exception ex) {
       System.out.println("exception " + ex.getMessage() 
           + " attempting to write " + results);
+      return 0;
     }
-   
-    return results;
+    return 1;
   }
-  
+
   static public String outputYaml(Writer writer, Traveler trav, boolean includeDebug)  {
     TravelerToYamlVisitor vis = new TravelerToYamlVisitor(trav.getSourceDb());
     vis.setIncludeDbInternal(includeDebug);
@@ -722,7 +749,8 @@ public class DbImporter {
                          context.getSession().getAttribute("userName").toString(),
                          true, dbType, datasource, true, 
                          context.getRequest().getParameter("owner"),
-                         context.getRequest().getParameter("reason"));
+                         context.getRequest().getParameter("reason"),
+                         yamlArchiveDir(context), context.getOut());
     try {
       context.getOut().println(msg);
     } catch (IOException ex) {
