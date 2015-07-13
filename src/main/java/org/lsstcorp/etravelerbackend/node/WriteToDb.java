@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Map;
-import org.lsstcorp.etravelerbackend.db.DbInfo;
 import org.lsstcorp.etravelerbackend.db.DbConnection;
 import org.lsstcorp.etravelerbackend.db.MysqlDbConnection;
 import org.lsstcorp.etravelerbackend.exceptions.EtravelerException;

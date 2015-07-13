@@ -51,8 +51,6 @@ public class DbImporter {
   public static ProcessNode getProcess(String name, String version, 
       String hgroup, String dbType, String datasource) 
     throws EtravelerException {
-    DbInfo info = new DbInfo();
-
     ConcurrentHashMap<String, Traveler> travelers=s_travelers;
     ConcurrentHashMap<String, StringArrayWriter> writers=s_writers;
    
