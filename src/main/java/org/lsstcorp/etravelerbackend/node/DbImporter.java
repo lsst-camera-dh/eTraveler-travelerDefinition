@@ -40,12 +40,10 @@ public class DbImporter {
       new ConcurrentHashMap<String, Traveler>();
   static ConcurrentHashMap<String, StringArrayWriter> s_writers =
       new ConcurrentHashMap<String, StringArrayWriter>();
- /* static ArrayList<String> s_editActions = new ArrayList<String>(); */
  
   private static String makeKey(String name, String version) 
     {return name + "_" + version;}
- // private static String makeKey(String name, String version, String dbType)
- // {return name+ "_" + version + "@" + dbType;}
+
   public static String makeKey(String name, String version, String hgroup, 
       String dbType) {
     return name + "_" + version + "_" + hgroup + "@" + dbType;
@@ -54,11 +52,6 @@ public class DbImporter {
       String hgroup, String dbType, String datasource) 
     throws EtravelerException {
     DbInfo info = new DbInfo();
-    /*
-     * String[] args = {"rd_lsst_camt"};
-     * info.dbName = args[0];
-     * info.establish();
-     */
 
     ConcurrentHashMap<String, Traveler> travelers=s_travelers;
     ConcurrentHashMap<String, StringArrayWriter> writers=s_writers;
@@ -97,7 +90,6 @@ public class DbImporter {
     return travelerRoot;
   }
   public static String retrieveProcess(PageContext context)  {
-    // return "retrieveProcess called with name=" + name ;
     return retrieveProcess(context, true);
    
   }
@@ -161,7 +153,6 @@ public class DbImporter {
     StringArrayWriter wrt = getWriter(context);
     if (wrt == null) return 0;
     return wrt.fetchNUsed();
-    //return String.valueOf(wrt.fetchNUsed());
   }
   
   static public String dotSource(PageContext context) {
@@ -251,8 +242,12 @@ public class DbImporter {
         break;
       case "Yaml":
         /*
-         * Non-debug case.  Write both canonical and complete versions 
+         * Write both canonical and complete versions 
          * to 'archive' area, but only for LSST-CAMERA
+         * NOTE: This is deprecated; No way to get to this code any more
+         * from web form.
+         * Instead these files are written automatically upon ingest when
+         * archiving is appropriate
          */      
         String experiment = ModeSwitcherFilter.getVariable(context.getSession(), 
         "experiment");
@@ -269,7 +264,8 @@ public class DbImporter {
         }
         outputYaml(context, false);
         break;
-      case "Yaml-debug":
+    case "Yaml-canonical": 
+    case "Yaml-verbose":
         outputYaml(context, true );
         break;
       default:
@@ -295,7 +291,9 @@ public class DbImporter {
       */
       try {
         String fullpath = request.getContextPath() + 
-            "/servlet/DownloadYamlServlet?key=" + key;
+            "/servlet/DownloadYamlServlet?key=" + key +
+          "&ostyle=" + context.getRequest().getParameter("ostyle");
+
         response.sendRedirect(fullpath);       
         return "";
       } catch (Exception ex) {
@@ -305,11 +303,8 @@ public class DbImporter {
     } 
    
     JspWriter writer = context.getOut();
-    //String url = (request.getRequestURL()).toString();
+
     String dbType = ModeSwitcherFilter.getVariable(context.getSession(), "dataSourceMode");
-    //String dirname = ModeSwitcherFilter.getVariable(context.getSession(),
-    //    "etravelerFileStore");
-    //if (url.contains("localhost")) dirname = "/u1/jrb/localET";
 
     int archiveStatus = archiveYaml(trav, yamlArchiveDir(context), dbType, writer);
     if (archiveStatus == 1) return "Success!";
@@ -335,7 +330,7 @@ public class DbImporter {
     if ((!dbType.equals("Prod")) && (!dbType.equals("Raw")) ) return 2;
 
     FileWriter fileOutCanon = null;
-    FileWriter fileOutDebug = null;
+    FileWriter fileOutVerbose = null;
 
     String dirname = archiveDir;
     dirname += "/yaml/";
@@ -345,14 +340,14 @@ public class DbImporter {
     String[ ] fnames = new String[2];
 
 
-    String results = "<p>Files written to " + fname + ".yaml, " + fname+ "_canonical.yaml</p>";
+    String results = "<p>Files written to " + fname + "_verbose.yaml, " + fname+ "_canonical.yaml</p>";
     boolean okStatus = true;
     try {
       File dir = new File(dirname);
       if (!dir.isDirectory())  {
         dir.mkdirs();
       }
-      fileOutDebug = new FileWriter(fname + ".yaml");
+      fileOutVerbose = new FileWriter(fname + "_verbose.yaml");
       fileOutCanon = new FileWriter(fname + "_canonical.yaml");
     } catch (Exception ex)  {
       results = "unable to open output file" + fname + " or " + fname + "_canonical";
@@ -360,7 +355,7 @@ public class DbImporter {
       okStatus = false;
     }
     if (okStatus) {
-      outputYaml(fileOutDebug, trav, true);
+      outputYaml(fileOutVerbose, trav, true);
       outputYaml(fileOutCanon, trav, false);
     }
     try {

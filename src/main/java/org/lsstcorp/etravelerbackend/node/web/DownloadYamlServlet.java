@@ -24,15 +24,18 @@ public class DownloadYamlServlet extends HttpServlet {
   {
     // String db = request.getParameter("tdb");
     String travelerKey = request.getParameter("key");
-  
+    String ostyle = request.getParameter("ostyle");
+    String subtype="";
+    if (ostyle.contains("canonical")) {subtype="_canonical";}
+    else if (ostyle.contains("verbose")) subtype="_verbose";
     Traveler trav = DbImporter.getTravelerFromKey(travelerKey);
-    String fname = travelerKey.replace('@', '_') + ".yaml";
+    String fname = travelerKey.replace('@', '_') + subtype + ".yaml";
    
     response.setContentType("text/plain");
     PrintWriter out = response.getWriter();
     response.setHeader("Content-Disposition", 
                        "attachment; filename=\"" + fname + "\"");
-    DbImporter.outputYaml(out, trav, true);
+    DbImporter.outputYaml(out, trav, ostyle.equals("Yaml-verbose"));
     out.close();
   }
 

@@ -117,10 +117,10 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   static final int ADDLABEL=22;
   static final int REMOVELABEL=23;
   
-  static final int FROMSOURCEVERSION=30;
-  static final int FROMSOURCEID=31;
-  static final int FROMSOURCEORIGINALID=32;
-  static final int FROMSOURCESOURCEDB=33;
+  static final int FROMSOURCEVERSION=24;
+  static final int FROMSOURCEID=25;
+  static final int FROMSOURCEORIGINALID=26;
+  static final int FROMSOURCESOURCEDB=27;
  
   
 

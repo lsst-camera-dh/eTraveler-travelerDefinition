@@ -40,8 +40,10 @@
           title="Collapsible/expandable tree. Click node for details "/>
    <input type="submit" name="ostyle" value="Pretty print"
           title="reasonably complete simple text version of the process traveler"/>
-  <input type="submit" name="ostyle" value="Yaml"
-         title="export YAML to local file"/>
+  <input type="submit" name="ostyle" value="Yaml-canonical"
+         title="export canonical YAML to local file"/>
+  <input type="submit" name="ostyle" value="Yaml-verbose"
+         title="export verbose YAML to local file"/>
 </fieldset> </td>
 <td>&nbsp;</td>
 <td>
@@ -74,7 +76,10 @@
 
    <input type="submit" name="ostyle" value="Tree" />
   <input type="submit" name="ostyle" value="Pretty print" />
-   <input type="submit" name="ostyle" value="Yaml" />
+  <input type="submit" name="ostyle" value="Yaml-canonical"
+         title="export canonical YAML to local file"/>
+  <input type="submit" name="ostyle" value="Yaml-verbose"
+         title="export verbose YAML to local file"/>
 </fieldset>
 </td><td>&nbsp;</td>
 <td>
