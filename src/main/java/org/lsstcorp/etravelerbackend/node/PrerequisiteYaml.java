@@ -87,6 +87,10 @@ public class PrerequisiteYaml implements Prerequisite.Importer {
         break;
       }
     } 
+    /* Prerequisite type is required.  Maybe name should be, too */
+    if (m_prerequisiteType == null) {
+      throw new NullYamlValue("PrerequisiteType", "Prerequisite", "");
+    }
   }
   public String provideName() {return m_name;}
   public String provideType() {return m_prerequisiteType;}
@@ -97,8 +101,8 @@ public class PrerequisiteYaml implements Prerequisite.Importer {
   public String provideUserVersionString() {return m_userVersionString;}
   public String provideVersion() { return m_version;}
   
-  private String m_name;
-  private String m_prerequisiteType;
+  private String m_name="";
+  private String m_prerequisiteType=null;
   private String m_description="";
   private int m_quantity = 1;
   private String m_userVersionString="";
