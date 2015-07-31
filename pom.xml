@@ -10,7 +10,7 @@
 
   <groupId>lsst</groupId>
   <artifactId>org-lsstcorp-eTravelerBackend</artifactId>
-  <version>1.25</version>
+  <version>1.26-SNAPSHOT</version>
   <packaging>war</packaging>
 
   <name>eTravelerBackend</name>

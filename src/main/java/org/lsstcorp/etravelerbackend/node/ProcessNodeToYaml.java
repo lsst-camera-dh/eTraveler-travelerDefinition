@@ -54,6 +54,7 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
   public void acceptHardwareGroup(String hardwareGroup) {
      if (m_isRoot) m_data.put("HardwareGroup", hardwareGroup);
   }
+  /***  OBSOLETE
   public void acceptHardwareRelationshipType(String hardwareRelationshipType) {
     if (!m_isCloned) putIfPresent("HardwareRelationshipType", hardwareRelationshipType);
     
@@ -68,6 +69,7 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
       }
     }
   }
+  **/
   public void acceptVersion(String version) {
     m_data.put("Version", "next");
     if (!m_isCloned) {
@@ -190,9 +192,24 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
         return;
       }
       m_data.put("Prerequisites", prereqList);
-     /* Ultimately need to do something similar to what is done for
-      * children, after PrerequisiteToYaml class is defined
-      */
+    }
+  }
+  
+  public void acceptRelationshipTasks(ArrayList<RelationshipTask> rels) {
+    if (rels == null) return;
+    if (rels.size() == 0 ) return;
+    if (!m_isCloned) {
+      ArrayList<HashMap<String, Object> > relList = new ArrayList<HashMap<String, Object> >();
+      try {
+        for (RelationshipTask rel : rels) {
+          m_vis.addRelationshipTask(relList, rel, "add");
+        }
+      } catch (EtravelerException ex)  {
+        System.out.println("Got exception in ProcessNodeToYaml.acceptRelationshipTasks:");
+        System.out.println(ex.getMessage());
+        return;
+      }
+      m_data.put("RelationshipTasks", relList);
     }
   }
   public void acceptPrescribedResults(ArrayList<PrescribedResult> prescribedResults) {    

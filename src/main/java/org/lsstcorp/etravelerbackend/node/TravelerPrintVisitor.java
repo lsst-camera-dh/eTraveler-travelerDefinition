@@ -13,8 +13,10 @@ import java.util.ArrayList;
  *
  * @author jrb
  */
-public class TravelerPrintVisitor implements TravelerVisitor, 
-    ProcessNode.ExportTarget, Prerequisite.ExportTarget, PrescribedResult.ExportTarget {
+public class TravelerPrintVisitor 
+  implements TravelerVisitor, ProcessNode.ExportTarget, 
+             Prerequisite.ExportTarget, PrescribedResult.ExportTarget, 
+             RelationshipTask.ExportTarget {
   private static String s_eol = "\n";
   public static void setEol(String eol)  {s_eol = eol;}
   public static void setIndent(String indent) {s_indent = indent;}
@@ -104,7 +106,7 @@ public class TravelerPrintVisitor implements TravelerVisitor,
         return;
       }
       s_nIndent++;
-      //for (int i = 0; i < m_prerequisites.length; i++) {
+
       for (Prerequisite prereq: m_prerequisites) {
         prereq.accept(this, activity, cxt);
       }
@@ -120,11 +122,27 @@ public class TravelerPrintVisitor implements TravelerVisitor,
         return;
       }
       s_nIndent++;
-//      for (int i=0; i < m_results.length; i++) {
+
       for (PrescribedResult res: m_results) {
         res.accept(this, activity, cxt);
       }
       m_results = null;
+      s_nIndent--;
+    }
+    // Relationship tasks
+    if (m_relationshipTasks != null) {
+      try {
+        s_writer.write(leadingBlanks+"RelationshipTaskss:" + s_eol);
+      } catch (IOException ex) {
+        System.out.println("whoops!  " + ex.getMessage());
+        return;
+      }
+      s_nIndent++;
+
+      for (RelationshipTask rel: m_relationshipTasks) {
+        rel.accept(this, activity, cxt);
+      }
+      m_relationshipTasks = null;
       s_nIndent--;
     }
     if (m_optionalResults != null) {
@@ -135,7 +153,7 @@ public class TravelerPrintVisitor implements TravelerVisitor,
         return;
       }
       s_nIndent++;
-//      for (int i=0; i < m_optionalResults.length; i++) {
+
       for (PrescribedResult res: m_optionalResults) {
         res.accept(this, activity, cxt);
       }
@@ -154,9 +172,7 @@ public class TravelerPrintVisitor implements TravelerVisitor,
       s_nIndent++;
       TravelerVisitor childVisitor = new TravelerPrintVisitor();
       for (ProcessNode child: m_children) {
-          //(int i=0; i < m_children.size(); i++) {
         child.accept(childVisitor, activity, cxt);
-        //childVisitor.visit(m_children[i]);
       }
       s_nIndent--;
     }
@@ -181,6 +197,26 @@ public class TravelerPrintVisitor implements TravelerVisitor,
       System.out.println(ex.getMessage());
     }
   }
+  public void visit(RelationshipTask rel, String activity, Object cxt) {
+    resetRelationshipTask();
+    rel.exportTo(this);
+    String leadingBlanks="";
+    for (int i = 0; i < s_nIndent; i++) {
+      leadingBlanks += s_indent;
+    }
+    try {
+      s_writer.write(leadingBlanks + "*" + s_eol);
+      leadingBlanks += s_indent;
+      s_writer.write(leadingBlanks + "Relationship name: " + 
+                     m_relationshipName + s_eol);
+      s_writer.write(leadingBlanks + "Relationship action: " + 
+                     m_relationshipAction + s_eol);
+    } catch (IOException ex) {
+      System.out.println("Exception while writing relationship task:");
+      System.out.println(ex.getMessage());
+    }
+  }
+      
   public void visit(PrescribedResult result, String activity, Object cxt) {
     // prints out prescribed result info, using s_indent, s_writer
     resetResult();
@@ -221,16 +257,25 @@ public class TravelerPrintVisitor implements TravelerVisitor,
     m_label=null; m_units=null; m_minValue=null; m_maxValue=null;
     m_resultDescription=null; m_semantics=null; m_choiceField=null;
   }
+  private void resetRelationshipTask() {
+    m_relationshipName= null;
+    m_relationshipAction=null;
+  }
+
   // Implementation of ProcessNode.ExportTarget
   public void acceptId(String id) {m_id = id;}
   public void acceptName(String name) {m_name = name;}
   public void acceptHardwareGroup(String hardwareGroup) {m_hardwareGroup  = hardwareGroup;}
+
+  // Next few lines will go..
   public void acceptHardwareRelationshipType(String hardwareRelationshipType ) {
     m_hardwareRelationshipType  = hardwareRelationshipType;
   }
    public void acceptHardwareRelationshipSlot(String hardwareRelationshipSlot ) {
     m_hardwareRelationshipSlot  = hardwareRelationshipSlot;
   }
+  // .. down to here
+
   public void acceptVersion(String version) {m_version = version;}
   public void acceptUserVersionString(String userVersionString) {
     m_userVersionString = userVersionString;}
@@ -250,6 +295,9 @@ public class TravelerPrintVisitor implements TravelerVisitor,
   public void acceptChildren(ArrayList<ProcessNode> children) {m_children=children;}
   public void acceptPrerequisites(ArrayList<Prerequisite> prereqs) {
     m_prerequisites=prereqs;
+  }
+  public void acceptRelationshipTasks(ArrayList<RelationshipTask> rels) {
+    m_relationshipTasks=rels;
   }
   public void acceptPrescribedResults(ArrayList<PrescribedResult> res) {
     m_results=res;
@@ -293,39 +341,53 @@ public class TravelerPrintVisitor implements TravelerVisitor,
   
   public void acceptPrereqId(String prereqId) {}
  
+  // Implementation of RelationshipTask.ExportTarget
+  public void acceptRelationshipName(String name) {
+    m_relationshipName=name;
+  }
+  public void acceptRelationshipAction(String action) {
+    m_relationshipAction=action;
+  }
+  public void acceptRelationshipParent(ProcessNode process) { }
+  public void acceptRelationshipTaskId(String id) {}
+
   // Implementation of PrescribedResult.ExportTarget
-   public void acceptLabel(String label) {
-     m_label = label;
-   }
-   public void acceptSemantics(String semantics) {
-     m_semantics = semantics;
-   }
-   public void acceptUnits(String units) {
-     m_units=units;
-   }
-   public void acceptMinValue(String minValue) {
-     m_minValue = minValue;
-   }
-   public void acceptMaxValue(String maxValue) {
-     m_maxValue = maxValue;
-   }
-   public void acceptResultDescription(String description) {
-     m_resultDescription = description;
-   }
-   public void acceptIsOptional(String isOptional) {}
-   
-   public void acceptChoiceField(String choiceField)  {
-     m_choiceField = choiceField;
-   }
-   public void acceptEdited(boolean edited) {}
-   public void exportDone() { }
+  public void acceptLabel(String label) {
+    m_label = label;
+  }
+  public void acceptSemantics(String semantics) {
+    m_semantics = semantics;
+  }
+  public void acceptUnits(String units) {
+    m_units=units;
+  }
+  public void acceptMinValue(String minValue) {
+    m_minValue = minValue;
+  }
+  public void acceptMaxValue(String maxValue) {
+    m_maxValue = maxValue;
+  }
+
+  public void acceptResultDescription(String description) {
+    m_resultDescription = description;
+  }
+  public void acceptIsOptional(String isOptional) {}
+  
+  public void acceptChoiceField(String choiceField)  {
+    m_choiceField = choiceField;
+  }
+  public void acceptEdited(boolean edited) {}
+  public void exportDone() { }
   
   // Store process contents until we're ready to write
   private String m_id=null;
   private String m_name=null;
   private String m_hardwareGroup=null;
+
+  // delete next couple lines someday
   private String m_hardwareRelationshipType=null;
   private String m_hardwareRelationshipSlot="1";
+  //   .. down to here
   private String m_version=null;
   private String m_userVersionString=null;
   private String m_description=null;
@@ -346,6 +408,7 @@ public class TravelerPrintVisitor implements TravelerVisitor,
   private ArrayList<Prerequisite> m_prerequisites=null;
   private ArrayList<PrescribedResult> m_results=null;
   private ArrayList<PrescribedResult> m_optionalResults=null;
+  private ArrayList<RelationshipTask> m_relationshipTasks=null;
   
   // Store prereq. contents until we're ready to write
   private String m_prereqType=null;
@@ -354,7 +417,11 @@ public class TravelerPrintVisitor implements TravelerVisitor,
   private String m_prereqProcessUserVersionString=null;
   private int    m_prereqQuantity=1;
   private String m_prereqDescription=null;
-  
+
+  // Store relationship task contents   until we're ready to write
+  private String m_relationshipName=null;
+  private String m_relationshipAction=null;
+
   // Store prescribed result contents until we're ready to write
   private String m_label=null;
   private String m_units=null;

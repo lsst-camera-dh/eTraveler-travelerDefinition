@@ -65,12 +65,9 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
     
   }
   // leave these empty.  Easier to do everything from ProcessNode visit
-  public void visit(PrescribedResult result, String activity, Object cxt) {
-    
-  }
-  public void visit(Prerequisite prerequisite, String activity, Object cxt) {
-    
-  }
+  public void visit(PrescribedResult result, String activity, Object cxt) {  }
+  public void visit(Prerequisite prerequisite, String activity, Object cxt) {  }
+  public void visit(RelationshipTask rel, String activity, Object cxt) {  }
   
   public void visit(NCRSpecification ncrSpec, String activity) throws EtravelerException {
     if (activity.equals("new")) {

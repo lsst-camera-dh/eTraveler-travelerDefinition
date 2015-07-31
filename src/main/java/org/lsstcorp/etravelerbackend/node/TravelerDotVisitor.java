@@ -18,7 +18,8 @@ import java.util.ArrayList;
  * @author jrb
  */
 public class TravelerDotVisitor implements TravelerVisitor, 
-    ProcessNode.ExportTarget, Prerequisite.ExportTarget, PrescribedResult.ExportTarget { 
+    ProcessNode.ExportTarget, Prerequisite.ExportTarget, PrescribedResult.ExportTarget,
+    RelationshipTask.ExportTarget { 
   
   public void setDotWriter(Writer writer) {
     m_dotWriter = writer;
@@ -128,6 +129,9 @@ public class TravelerDotVisitor implements TravelerVisitor,
   public void visit(Prerequisite prerequisite, String activity, Object cxt) 
       throws EtravelerException {
   }
+  public void visit(RelationshipTask rel, String activity, Object cxt)
+      throws EtravelerException {
+  }
   
    // Implementation of ProcessNode.ExportTarget
   public void acceptId(String id) {m_id = id;}
@@ -162,10 +166,11 @@ public class TravelerDotVisitor implements TravelerVisitor,
     m_results=res;
   }
   /*
-   * Don't bother saving optional results.  We won't do anything with them
-   * anyway
+   * Don't bother saving optional results or relationship tasks.  
+   * We won't do anything with them anyway
    */
   public void acceptOptionalResults(ArrayList<PrescribedResult> res) {}
+  public void acceptRelationshipTasks(ArrayList<RelationshipTask> rel) {}
   // Implementation of Prerequisite.ExportTarget
   public void acceptPrerequisiteType(String prerequisiteType) {
     m_prereqType = prerequisiteType;
@@ -181,6 +186,10 @@ public class TravelerDotVisitor implements TravelerVisitor,
   public void acceptPrereqDescription(String description) {
     m_prereqDescription = description;
   }
+  public void acceptRelationshipName(String name) {}
+  public void acceptRelationshipAction(String action) {}
+  public void acceptRelationshipParent(ProcessNode process) {}
+  public void acceptRelationshipTaskId(String id) {}
   public void acceptClonedFrom(ProcessNode clonedFrom) {
     m_clonedFrom = clonedFrom;
   }

@@ -73,6 +73,19 @@ public class TravelerToYamlVisitor implements TravelerVisitor {
     visit(pre, "", prereqMap);
     prereqList.add(prereqMap);
   }
+  
+  public void visit(RelationshipTask rel, String activity, Object cxt)
+      throws EtravelerException {
+    RelationshipTaskToYaml yamlRela = new RelationshipTaskToYaml(this, (Map<String, Object>) cxt);
+    rel.exportTo(yamlRela);
+  }
+  
+  public void addRelationshipTask(ArrayList< HashMap<String, Object> > relList, 
+      RelationshipTask rel, String activity) throws EtravelerException {
+    HashMap<String, Object> relMap = new HashMap<String, Object>();
+    visit(rel, "", relMap);
+    relList.add(relMap);
+  }
   public String dump(Writer wrt)  {
     if (data != null) {
       m_yaml.dump(data, wrt);

@@ -81,10 +81,12 @@ public class ProcessNode implements  TravelerElement
    */
   private void copyFrom(ProcessNode model) {
     m_hardwareGroup = new String(model.m_hardwareGroup);
+    // This will go
     if (model.m_hardwareRelationshipType != null)  {
       m_hardwareRelationshipType = new String(model.m_hardwareRelationshipType);
       m_hardwareRelationshipSlot = new String(model.m_hardwareRelationshipSlot);
     }
+    // ... down to here
 
     if (model.m_userVersionString != null) 
       m_userVersionString = new String(model.m_userVersionString);
@@ -104,7 +106,7 @@ public class ProcessNode implements  TravelerElement
     if (model.m_prerequisites != null) {
       int plen = model.m_prerequisites.size();
       m_prerequisites = new ArrayList<Prerequisite>(plen);
-      //for (int ip = 0; ip < plen; ip++) {
+
       for (Prerequisite pre: model.m_prerequisites)  {
         m_prerequisites.add(new Prerequisite(this, pre));
       }
@@ -114,6 +116,13 @@ public class ProcessNode implements  TravelerElement
       m_resultNodes = new ArrayList<PrescribedResult>(rlen);
       for (PrescribedResult res: model.m_resultNodes) {
         m_resultNodes.add(new PrescribedResult(this, res));
+      }
+    }
+    if (model.m_relationshipTasks != null) {
+      int rlen = model.m_relationshipTasks.size();
+      m_relationshipTasks = new ArrayList<RelationshipTask>(rlen);
+      for (RelationshipTask rel: model.m_relationshipTasks) {
+        m_relationshipTasks.add(new RelationshipTask(this, rel));
       }
     }
   }
@@ -159,9 +168,7 @@ public class ProcessNode implements  TravelerElement
         throw ex;
       }
     }    
-    m_hardwareRelationshipType = imp.provideHardwareRelationshipType();
-    m_hardwareRelationshipSlot = imp.provideHardwareRelationshipSlot();
-    
+
     m_userVersionString = imp.provideUserVersionString();
     m_description = imp.provideDescription();
     m_instructionsURL = imp.provideInstructionsURL();
@@ -221,6 +228,16 @@ public class ProcessNode implements  TravelerElement
         m_optionalResultNodes.add(imp.provideOptionalResult(parent, iOpt));
       }
     }
+    //
+    int nRel = imp.provideNRelationshipTasks();
+    if (nRel > 0) {
+      m_relationshipTasks = new ArrayList<RelationshipTask>(nRel);
+      for (int iRel = 0; iRel < nRel; iRel++) {
+        m_relationshipTasks.add(imp.provideRelationshipTask(parent, iRel));
+      }
+    }
+
+    //
     int nChildren = imp.provideNChildren();
     if (nChildren > 0)  {
       m_children = new ArrayList<ProcessNode>(nChildren);
@@ -294,12 +311,12 @@ public class ProcessNode implements  TravelerElement
     }
     if (m_hardwareGroup != null)
       pList.add(new Attribute("hardware group", m_hardwareGroup));
+    // This section will go at some point
     if (m_hardwareRelationshipType != null) {
       pList.add(new Attribute("hardware relationship type", m_hardwareRelationshipType));
       pList.add(new Attribute("hardware relationship slot", m_hardwareRelationshipSlot));
-    } /* else {
-      pList.add(new Attribute("hardware relationship type", ""));
-    } */
+    }
+    //    ... through here
     pList.add(new Attribute("description", m_description));
     pList.add(new Attribute("max iterations", m_maxIteration));
     pList.add(new Attribute("child type", m_substeps));
@@ -329,7 +346,12 @@ public class ProcessNode implements  TravelerElement
     int nOptionalResults = 0;
     if (m_optionalResultNodes != null) nOptionalResults = m_optionalResultNodes.size();
     pList.add(new Attribute("# opt solicited results", 
-        Integer.toString(nOptionalResults)));
+                            Integer.toString(nOptionalResults)));
+    int nRelationshipTasks = 0;
+    if (m_relationshipTasks != null) 
+      nRelationshipTasks = m_relationshipTasks.size();
+    pList.add(new Attribute("# relationship tasks",
+                            Integer.toString(nRelationshipTasks)));
     pList.add(new Attribute("instructions URL", m_instructionsURL));
    
     if (m_isOption) {
@@ -352,6 +374,10 @@ public class ProcessNode implements  TravelerElement
       if (ix >= m_optionalResultNodes.size()) return null;
       return m_optionalResultNodes.get(ix).getAttributes();
     }
+  }
+  public AttributeList getRelationshipAttributes(int ix) {
+    if (ix >= m_relationshipTasks.size()) return null;
+    return m_relationshipTasks.get(ix).getAttributes();
   }
   /**
    * Remove prerequisites as directed by changedPrereq array
@@ -410,8 +436,8 @@ public class ProcessNode implements  TravelerElement
     String provideId();
     String provideName();
     String provideHardwareGroup();
-    String provideHardwareRelationshipType();
-    String provideHardwareRelationshipSlot();
+    // String provideHardwareRelationshipType();
+    // String provideHardwareRelationshipSlot();
     String provideVersion();
     String provideUserVersionString();
     String provideDescription();
@@ -426,6 +452,7 @@ public class ProcessNode implements  TravelerElement
     int provideNPrerequisites();
     int provideNPrescribedResults();
     int provideNOptionalResults();
+    int provideNRelationshipTasks();
     // More provides for parent edge:
     //String provideParentEdgeId();
     ProcessEdge provideParentEdge(ProcessNode parent, ProcessNode child);
@@ -439,6 +466,7 @@ public class ProcessNode implements  TravelerElement
     Prerequisite providePrerequisite(ProcessNode parent, int n) throws Exception;
     PrescribedResult provideResult(ProcessNode parent, int n) throws Exception;
     PrescribedResult provideOptionalResult(ProcessNode parent, int n) throws Exception;
+    RelationshipTask provideRelationshipTask(ProcessNode parent, int n) throws Exception;
     /* chance for source to do anything else it needs to do */
     void finishImport(ProcessNode process);
   }
@@ -457,8 +485,8 @@ public class ProcessNode implements  TravelerElement
     void acceptId(String id);
     void acceptName(String name);
     void acceptHardwareGroup(String hardwareGroup);
-    void acceptHardwareRelationshipType(String hardwareRelationshipType);
-    void acceptHardwareRelationshipSlot(String hardwareRelationshipSlot);
+    // void acceptHardwareRelationshipType(String hardwareRelationshipType);
+    // void acceptHardwareRelationshipSlot(String hardwareRelationshipSlot);
     void acceptVersion(String version);
     void acceptUserVersionString(String userVersionString);
     void acceptDescription(String description);
@@ -473,6 +501,7 @@ public class ProcessNode implements  TravelerElement
     void acceptPrerequisites(ArrayList<Prerequisite> prerequisites);
     void acceptPrescribedResults(ArrayList<PrescribedResult> prescribedResults);
     void acceptOptionalResults(ArrayList<PrescribedResult> optionalResults);
+    void acceptRelationshipTasks(ArrayList<RelationshipTask> tasks);
     // Following is to transmit condition assoc. with parent edge
     void acceptCondition(String condition); 
     void acceptClonedFrom(ProcessNode process);
@@ -512,8 +541,8 @@ public class ProcessNode implements  TravelerElement
       /* Make sure target gets action mask early since it can affect
          interpretation of some other fields */
       ptarget.acceptTravelerActionMask(m_travelerActionMask);
-      ptarget.acceptHardwareRelationshipType(m_hardwareRelationshipType);
-      ptarget.acceptHardwareRelationshipSlot(m_hardwareRelationshipSlot);
+      //ptarget.acceptHardwareRelationshipType(m_hardwareRelationshipType);
+      //ptarget.acceptHardwareRelationshipSlot(m_hardwareRelationshipSlot);
       if (m_hardwareRelationshipType == null) m_hardwareRelationshipSlot = null;
       ptarget.acceptVersion(m_version);
       ptarget.acceptUserVersionString(m_userVersionString);
@@ -528,6 +557,7 @@ public class ProcessNode implements  TravelerElement
       ptarget.acceptPrerequisites(m_prerequisites);
       ptarget.acceptPrescribedResults(m_resultNodes);
       ptarget.acceptOptionalResults(m_optionalResultNodes);
+      ptarget.acceptRelationshipTasks(m_relationshipTasks);
       ptarget.acceptChildren(m_children);
   
       ptarget.acceptIsRef(m_isRef);
@@ -645,6 +675,12 @@ public class ProcessNode implements  TravelerElement
         m_optionalResultNodes.add(new PrescribedResult(this, srcRes));
       }
     }
+    if (src.getRelationshipTaskCount() > 0) {
+      m_relationshipTasks = new ArrayList<RelationshipTask>(src.getRelationshipTaskCount());
+      for (RelationshipTask srcTask: src.m_relationshipTasks) {
+        m_relationshipTasks.add(new RelationshipTask(this, srcTask));
+      }
+    }
     
   }
   
@@ -674,6 +710,10 @@ public class ProcessNode implements  TravelerElement
   public int getOptionalResultCount() {
     if (m_optionalResultNodes  == null) return 0;
     return m_optionalResultNodes.size();
+  }
+  public int getRelationshipTaskCount() {
+    if (m_relationshipTasks == null) return 0;
+    return m_relationshipTasks.size();
   }
   public boolean getIsEdited() {return m_edited;}
   public String getSourceDb() {return m_sourceDb;}
@@ -710,6 +750,9 @@ public class ProcessNode implements  TravelerElement
   public ArrayList<PrescribedResult> getOptionalResults() {
     return m_optionalResultNodes;
   }
+  public ArrayList<RelationshipTask> getRelationshipTasks() {
+    return m_relationshipTasks;
+  }
   public boolean isCloned() { return m_isCloned; }
   public boolean hasClones() { return m_hasClones; }
   public ProcessNode clonedFrom() { return m_clonedFrom;}
@@ -730,6 +773,7 @@ public class ProcessNode implements  TravelerElement
   private ArrayList<Prerequisite> m_prerequisites=null;
   private ArrayList<PrescribedResult> m_resultNodes=null;
   private ArrayList<PrescribedResult> m_optionalResultNodes=null;
+  private ArrayList<RelationshipTask> m_relationshipTasks=null;
   private String m_name=null;
   private boolean m_isCloned=false;
   private boolean m_hasClones=false;

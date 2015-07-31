@@ -64,8 +64,8 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     s_knownKeys = new ArrayList<String>();
     s_knownKeys.add("Name");
     s_knownKeys.add("HardwareGroup");
-    s_knownKeys.add("HardwareRelationshipType");
-    s_knownKeys.add("HardwareRelationshipSlot");
+    //s_knownKeys.add("HardwareRelationshipType");
+    //s_knownKeys.add("HardwareRelationshipSlot");
     s_knownKeys.add("Version");
     s_knownKeys.add("UserVersionString");
     s_knownKeys.add("Description");
@@ -94,33 +94,34 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   }
   static final int NAME=0;
   static final int HARDWAREGROUP=1;
-  static final int HARDWARERELATIONSHIPTYPE=2;
-  static final int HARDWARERELATIONSHIPSLOT=3;
-  static final int VERSION=4;
-  static final int USERVERSIONSTRING=5;
-  static final int DESCRIPTION=6;
-  static final int INSTRUCTIONSURL=7;
-  static final int MAXITERATION=8;
-  static final int CONDITION=9;
-  static final int CLONE=10;
-  static final int SEQUENCE=11;
-  static final int SELECTION=12;
-  static final int PREREQUISITES=13;
-  static final int REQUIREDINPUTS=14;
-  static final int OPTIONALINPUTS=15;
-  static final int TRAVELERACTIONS=16;
-  static final int REFNAME=17;
-  static final int REFVERSION=18;
-  static final int SOURCEDB=19;
-  static final int NEWLOCATION=20;
-  static final int NEWSTATUS=21;
-  static final int ADDLABEL=22;
-  static final int REMOVELABEL=23;
+  //static final int HARDWARERELATIONSHIPTYPE=2;
+  //static final int HARDWARERELATIONSHIPSLOT=3;
+  static final int VERSION=2;
+  static final int USERVERSIONSTRING=3;
+  static final int DESCRIPTION=4;
+  static final int INSTRUCTIONSURL=5;
+  static final int MAXITERATION=6;
+  static final int CONDITION=7;
+  static final int CLONE=8;
+  static final int SEQUENCE=9;
+  static final int SELECTION=10;
+  static final int PREREQUISITES=11;
+  static final int REQUIREDINPUTS=12;
+  static final int OPTIONALINPUTS=13;
+  static final int RELATIONSHIPTASKS=14;
+  static final int TRAVELERACTIONS=15;
+  static final int REFNAME=16;
+  static final int REFVERSION=17;
+  static final int SOURCEDB=18;
+  static final int NEWLOCATION=19;
+  static final int NEWSTATUS=20;
+  static final int ADDLABEL=21;
+  static final int REMOVELABEL=22;
   
-  static final int FROMSOURCEVERSION=24;
-  static final int FROMSOURCEID=25;
-  static final int FROMSOURCEORIGINALID=26;
-  static final int FROMSOURCESOURCEDB=27;
+  static final int FROMSOURCEVERSION=23;
+  static final int FROMSOURCEID=24;
+  static final int FROMSOURCEORIGINALID=25;
+  static final int FROMSOURCESOURCEDB=26;
  
   
 
@@ -239,6 +240,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         }
         m_hardwareGroup = v;
         break;
+        /*
       case HARDWARERELATIONSHIPTYPE:
         m_hardwareRelationshipType =v; break;
       case HARDWARERELATIONSHIPSLOT:
@@ -247,6 +249,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
           throw new WrongTypeYamlValue("hardwareRelationshipSlot", v, "Process");
         }
         break;
+        */
       case VERSION:
         m_version = v; 
         if (!m_version.equals("next")) {
@@ -396,9 +399,15 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
             m_prerequisites[iP] = new PrerequisiteYaml();
             m_prerequisites[iP].readYaml(prereqMap, this, iP);
           }
-          // m_prerequisites = new PrerequisiteNodeYaml[list.size()];
-          //  iterate and call PrerequisiteNodeYaml version of readYaml
           break;
+        case RELATIONSHIPTASKS:
+          m_nRelationshipTasks = list.size();
+          m_relationshipTasks = new RelationshipTaskYaml[list.size()];
+          for (int iRt=0; iRt < m_nRelationshipTasks; iRt++) {           
+            Map<String, Object> relaMap = (Map<String, Object>) list.get(iRt);
+            m_relationshipTasks[iRt] = new RelationshipTaskYaml();
+            m_relationshipTasks[iRt].readYaml(relaMap, this, iRt);       
+          }
         case REQUIREDINPUTS: 
           m_nPrescribedResults = list.size();
           m_prescribedResults = new PrescribedResultYaml[list.size()];
@@ -430,12 +439,13 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     if ( ((m_travelerActionMask & TravelerActionBits.ADD_LABEL) != 0) &&
         ((m_travelerActionMask & TravelerActionBits.REMOVE_LABEL) != 0) )
       throw new EtravelerException("Cannot add and remove label in the same step");
-    // If "break" is not explicitly specified, set "make" bit
+    /* // If "break" is not explicitly specified, set "make" bit
     if ((m_hardwareRelationshipType != null)  && !m_hardwareRelationshipType.isEmpty()) {  
       if ((m_travelerActionMask & TravelerActionBits.BREAK_HARDWARE_RELATIONSHIP) == 0) {
         m_travelerActionMask |= TravelerActionBits.MAKE_HARDWARE_RELATIONSHIP;
       }
     }
+    */
     // Hardware type is inherited from parent
     if (m_parent != null) {
       m_hardwareGroup = m_parent.m_hardwareGroup;  
@@ -482,11 +492,13 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   public String provideId() {return null;}
   public String provideName()  {return m_name;}
   public String provideHardwareGroup() {return m_hardwareGroup;}
+  /*
   public String provideHardwareRelationshipType()  {
     return m_hardwareRelationshipType; }
   public String provideHardwareRelationshipSlot() {
     return m_hardwareRelationshipSlot;
   }
+  */
   public String provideVersion() {return m_version;}
   public String provideUserVersionString() {return m_userVersionString;}
   public String provideDescription() {return m_description;}
@@ -501,6 +513,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   public int provideNPrerequisites() {return m_nPrerequisites;}
   public int provideNPrescribedResults() {return m_nPrescribedResults;}
   public int provideNOptionalResults() {return m_nOptionalResults;}
+  public int provideNRelationshipTasks() {return m_nRelationshipTasks;}
   public boolean provideIsCloned() {return (m_clonedFrom != null); }
   public boolean provideHasClones() {return m_hasClones; }
   public boolean provideIsRef() {return m_isRef; }
@@ -519,24 +532,31 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
  
   
   public Prerequisite providePrerequisite(ProcessNode parent, int n) {
+    if (n > m_nPrerequisites) return null;
     return new Prerequisite(parent, m_prerequisites[n]);
   }
   public PrescribedResult provideResult(ProcessNode parent, int n) {
+    if (n > m_nPrescribedResults) return null;
     return new PrescribedResult(parent, m_prescribedResults[n]);
   }
   public PrescribedResult provideOptionalResult(ProcessNode parent, int n) {
+    if (n > m_nOptionalResults) return null;
     PrescribedResult pr = new PrescribedResult(parent, m_optionalResults[n]);
     pr.setIsOptional("1");
     return pr;
+  }
+  public RelationshipTask provideRelationshipTask(ProcessNode parent, int n) {
+    if (n > m_nRelationshipTasks) return null;
+    return new RelationshipTask(parent, m_relationshipTasks[n]);
   }
   public void finishImport(ProcessNode process) {}
 
   // Properties read in directly from yaml
   private String m_name=null;
   private String m_hardwareGroup=null;
-  private String m_hardwareRelationshipType=null;
+  //private String m_hardwareRelationshipType=null;
   // relationship slot is ignored if type is null
-  private String  m_hardwareRelationshipSlot="1"; 
+  //private String  m_hardwareRelationshipSlot="1"; 
   private String m_version="1";
   private String m_userVersionString=null;
   private String m_instructionsURL=null;
@@ -551,6 +571,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private int m_nPrerequisites = 0;
   private int m_nPrescribedResults = 0;
   private int m_nOptionalResults = 0;
+  private int m_nRelationshipTasks = 0;
   private boolean m_isClone=false;
   private boolean m_hasClones=false;
   private boolean m_isRef=false;
@@ -568,6 +589,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private PrerequisiteYaml[] m_prerequisites;
   private PrescribedResultYaml[] m_prescribedResults;
   private PrescribedResultYaml[] m_optionalResults;
+  private RelationshipTaskYaml [] m_relationshipTasks;
   
   // Keep track of process name/version pairs we've seen
   private HashMap<String, ProcessNodeYaml> m_processes = null; 

@@ -120,11 +120,15 @@ public class TravelerTreeVisitor implements TravelerVisitor {
     //    between selection / sequence children with color or line style
    
   }
-  // For the time being ignore prerequisites and results; just draw nodes & edges
+  // For the time being ignore prerequisites, results and relationship tasks; 
+  // just draw nodes & edges
   public void visit(PrescribedResult result, String activity, Object cxt) 
       throws EtravelerException {
   }
   public void visit(Prerequisite prerequisite, String activity, Object cxt) 
+      throws EtravelerException {
+  }
+  public void visit(RelationshipTask rel, String activity, Object cxt) 
       throws EtravelerException {
   }
   public void render(PageContext context) {

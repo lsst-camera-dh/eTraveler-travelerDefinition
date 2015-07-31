@@ -65,7 +65,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     init(processName, version, hgroup, travelerRoot);
   }
   private static String[] s_initCols = {"name", 
-    "hardwareGroupId", "hardwareRelationshipTypeId", "version", 
+    "hardwareGroupId",  "version", 
     "userVersionString", "description", "instructionsURL", "substeps", 
     "maxIteration", "travelerActionMask", "originalId", "newLocation",
     "newHardwareStatusId"};
@@ -76,6 +76,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private static PreparedStatement s_prescribedResultsQuery = null;
   private static PreparedStatement s_childQuery = null;
   private static PreparedStatement s_edgeInfoQuery = null;
+  private static PreparedStatement s_relationshipTaskQuery = null;
   /**
    * Query db and save all information of interest for process specified by
    * input parameters
@@ -175,14 +176,6 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       m_name = rs.getString(++ix);
       m_hardwareGroupId = rs.getString(++ix);
       m_hardwareGroup = m_hardwareGroupNameMap.get(m_hardwareGroupId);
-      m_hardwareRelationshipTypeId = rs.getString(++ix);
-      if (m_hardwareRelationshipTypeId != null) {
-        String relationshipKey =
-          m_relationshipTypeMap.get(m_hardwareRelationshipTypeId);
-        String parts[] = parseKey(relationshipKey);
-        m_hardwareRelationshipType = parts[0];
-        m_hardwareRelationshipSlot = parts[1];
-      }
       m_version = rs.getString(++ix);
       m_userVersionString = rs.getString(++ix);
       if (m_userVersionString  == null) m_userVersionString = "";
@@ -217,33 +210,25 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
           m_childEdgeIds[i] = rs.getString(2);
         }
       }
-      s_prereqQuery.setString(1, m_id);
-      rs = s_prereqQuery.executeQuery();
-      boolean more = rs.next();
-      while (more) {
-        m_nPrerequisites++;
-        more = rs.next();
-      }    
-      if (m_nPrerequisites > 0) {
-        m_prerequisiteIds = new String[m_nPrerequisites];
-        rs.beforeFirst();
-        for (int i=0; i < m_nPrerequisites; i++) {
-          rs.next();
-          m_prerequisiteIds[i] = rs.getString(1);
-        }
-      }
+      /* see if there are prerequisites associated with this step */    
+      m_prerequisiteIds = getAssociateIds(s_prereqQuery);
+      if (m_prerequisiteIds != null) 
+        m_nPrerequisites = m_prerequisiteIds.length;
+      /* see if there are relationship tasks associated with this step */
+      m_relationshipTaskIds = getAssociateIds(s_relationshipTaskQuery);
+      if (m_relationshipTaskIds != null)
+        m_nRelationshipTasks = m_relationshipTaskIds.length;
+  
       rs.close();
+      
       /*
-       * This is the tricky part.  Need to look at each result and decide
-       * whether it's a regular prescribed result or an optional one.
-       * Maybe fetch isOptional at the same time we fetch id
-       * Or do two queries
+       * Do one query for required results, another for optional
        */
       s_prescribedResultsQuery.setString(1, m_id);
       // First get "regular" (required) results
       s_prescribedResultsQuery.setString(2, "0");
       rs = s_prescribedResultsQuery.executeQuery();
-      more = rs.next();
+      boolean more = rs.next();
       while (more) {
         m_nPrescribedResults++;
         more = rs.next();
@@ -317,6 +302,9 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     getCol[0] = "id";
     s_prereqQuery = m_connect.prepareQuery("PrerequisitePattern", getCol, where);
     
+    s_relationshipTaskQuery = m_connect.prepareQuery("ProcessRelationshipTag", 
+        getCol, where);
+    
     /*
      * For prescribed results distinguish based on setting of isOptional
      */
@@ -325,18 +313,43 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     
     if ((s_processQuery == null) || (s_edgeQuery == null) || 
         (s_prereqQuery == null) || (s_prescribedResultsQuery == null) ||        
-        (s_edgeInfoQuery == null)) {
+        (s_edgeInfoQuery == null) || s_relationshipTaskQuery == null) {
       throw  new SQLException("DbConnection.prepareQuery failure");
     }
+  }
+  String [] getAssociateIds(PreparedStatement query) throws SQLException {
+    query.setString(1, m_id);
+    ResultSet rs = query.executeQuery();
+    boolean more = rs.next();
+    int count = 0;
+    while (more) {
+      count++;
+        more = rs.next();
+    }
+    if (count == 0) {
+      rs.close();
+      return null;
+    }
+    
+    String [] retArray = new String[count];
+    rs.beforeFirst();
+    for (int i=0; i < count; i++) {
+      rs.next();
+      retArray[i] = rs.getString(1);
+    }
+    rs.close();
+    return retArray;  
   }
   // ProcessNode.Importer interface implementation: support import into ProcessNode
   public String provideId() {return m_id;}
   public String provideName()  {return m_name;}
   public String provideHardwareGroup() {return m_hardwareGroup;}
+  /*
   public String provideHardwareRelationshipType()  {
     return m_hardwareRelationshipType; }
   public String provideHardwareRelationshipSlot()  {
     return m_hardwareRelationshipSlot; }
+    */
   public String provideVersion() {return m_version;}
   public String provideUserVersionString() {return m_userVersionString;}
   public String provideDescription() {
@@ -357,6 +370,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public int provideNPrerequisites() {return m_nPrerequisites;}
   public int provideNPrescribedResults() {return m_nPrescribedResults;}
   public int provideNOptionalResults() {return m_nOptionalResults;}
+  public int provideNRelationshipTasks() { return m_nRelationshipTasks;}
   public int provideEdgeStep() {return m_edgeStep;}
   public String provideEdgeCondition() {return m_edgeCondition;}
   //public String provideParentEdgeId() {return m_parentEdgeId;}
@@ -383,6 +397,10 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     return new PrescribedResult(parent, 
         new PrescribedResultDb(m_connect, m_optionalResultIds[n]));
   }
+  public RelationshipTask provideRelationshipTask(ProcessNode parent, int n) throws Exception {
+    return new RelationshipTask(parent,
+        new RelationshipTaskDb(m_connect, m_relationshipTaskIds[n]));
+  }
   public boolean provideIsCloned() {return m_isCloned;}
   public boolean provideHasClones() {return m_isCloned;}
   public boolean provideIsRef() { return m_isRef;}  // does this make any sense?
@@ -391,8 +409,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public void finishImport(ProcessNode process) {
     process.setProcessId(m_id);
     process.setOriginalId(m_originalId);
-  }
-    
+  }   
   
   // ProcessNode.ExportTarget implementation: allow ProcessNode to export to us
   public void acceptId(String id) {   m_id = id; }
@@ -400,12 +417,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public void acceptHardwareGroup(String hardwareGroup) {
     m_hardwareGroup=hardwareGroup;
   }
-  public void acceptHardwareRelationshipType(String hardwareRelationshipType) {
-    m_hardwareRelationshipType = hardwareRelationshipType;
-  }
-  public void acceptHardwareRelationshipSlot(String hardwareRelationshipSlot) {
-    m_hardwareRelationshipSlot = hardwareRelationshipSlot;
-  }
+  
   public void acceptVersion(String version) { m_version = version; }
   public void acceptUserVersionString(String userVersionString) {
     m_userVersionString = userVersionString;
@@ -457,20 +469,13 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     } else {
       m_prerequisites = prerequisites;
     }
-    boolean hasRelation = (m_hardwareRelationshipType != null);
+
     if (m_prerequisites == null)  {
-      if (hasRelation) {
-        m_prerequisitesDb = new PrerequisiteDb[2]; // just in case we need them
-        m_prerequisitesDb[0] = null;
-        m_prerequisitesDb[1] = null;
-      }
       return;
     }
     // Then maybe...
     int allocLen = m_prerequisites.size();
-    if (hasRelation) {
-      allocLen += 2;
-    }
+   
     if (prerequisites.size() > 0) {
       m_prerequisitesDb = 
         new PrerequisiteDb[allocLen];
@@ -478,14 +483,23 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
         m_prerequisitesDb[ip] = new PrerequisiteDb(m_connect);
         prerequisites.get(ip).exportTo(m_prerequisitesDb[ip]);
       }
-      
-      if (hasRelation) {
-        m_prerequisitesDb[allocLen - 2] = null;
-        m_prerequisitesDb[allocLen - 1] = null;
-      }
     }
   }
  
+  public void acceptRelationshipTasks(ArrayList<RelationshipTask> rels)  {
+    if (m_isCloned || m_isRef) {
+      m_relationshipTasks = null;
+    } else {
+      m_relationshipTasks = rels;
+    }
+    if (rels.size() > 0) {
+      m_relationshipTasksDb = new RelationshipTaskDb[rels.size()];
+      for (int irt = 0; irt < rels.size(); irt++) {
+        m_relationshipTasksDb[irt] = new RelationshipTaskDb(m_connect);
+        rels.get(irt).exportTo(m_relationshipTasksDb[irt]);
+      }
+    }
+  } 
   public void acceptPrescribedResults(ArrayList<PrescribedResult> prescribedResults) {
     if (m_isCloned || m_isRef)  {
       m_results = null;
@@ -543,13 +557,11 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public boolean isRootNode() {
     return (m_travelerRoot == this);
   }
-  public void verify(DbConnection connect) throws EtravelerException {
-   
+  public void verify(DbConnection connect) throws EtravelerException {   
     // For first time through (parentless node)  maybe look up some things,
     // such as all possible relationship types, prereq types and semantic types.
     //  Save and pass on through when calling verify on children, prereqs, etc.
-    if (m_dbParent == null)  {
-     
+    if (m_dbParent == null)  {    
       try {
         initIdMaps();
       }  catch (Exception ex) {
@@ -625,7 +637,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       return;
     }
         
-    // Verify relationship type if not null
+    /*
     if (m_hardwareRelationshipType != null) {
       String key = formUniqueKey(m_hardwareRelationshipType, 
           m_hardwareRelationshipSlot);
@@ -655,6 +667,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       // and HRT.id=m_hardwareRelationshipTypeId
 
     } 
+    */
     if (m_prerequisitesDb != null) {
       for (int ip=0; ip < m_prerequisitesDb.length; ip++) {
         /* there are circumstances where there are extra null entries
@@ -675,6 +688,12 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     if (m_optionalResultsDb != null) {
       for (int ir=0; ir < m_optionalResultsDb.length; ir++) {
         m_optionalResultsDb[ir].verify(m_semanticsTypeMap);
+      }
+    }
+    if (m_relationshipTasksDb != null) {
+      for (int rt=0; rt < m_relationshipTasksDb.length; rt++) {
+        m_relationshipTasksDb[rt].verify(m_relationshipTypeMap,
+            m_relationshipActionMap, m_hardwareGroupId);
       }
     }
     if (!(m_version.equals("1"))) { 
@@ -729,7 +748,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private static   String[] s_insertProcessCols={"name", 
     "hardwareGroupId", "version", "userVersionString", "description", 
     "instructionsURL", "substeps", "maxIteration", "newLocation", "newHardwareStatusId", "originalId",
-    "travelerActionMask", "hardwareRelationshipTypeId", "createdBy"};
+    "travelerActionMask", "createdBy"};
   private static   String[] s_insertEdgeCols={"parent", "child", "step", "cond", "createdBy"};
  
   
@@ -771,9 +790,9 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       vals[9] = m_newStatusId;
       vals[10] = m_originalId;
       vals[11] = String.valueOf(m_travelerActionMask);
-      vals[12] = m_hardwareRelationshipTypeId;
+      //vals[12] = m_hardwareRelationshipTypeId;
       //  Value for user should come from Confluence log-in
-      vals[13] = m_vis.getUser();
+      vals[12] = m_vis.getUser();
       try {
         m_id = m_connect.doInsert("Process", s_insertProcessCols, vals, "", 
                                   DbConnection.ADD_CREATION_TIMESTAMP);
@@ -810,32 +829,21 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
           }
         }
       }
-      // If there is a hardware relationship, might have to add
-      // prerequisite(s)
-      if ((m_hardwareRelationshipType != null) &&
-          ((m_travelerActionMask & 
-            TravelerActionBits.MAKE_HARDWARE_RELATIONSHIP) != 0)) {
-        // Get hardware types associated with the other component
-        // in the relationship
-        String cmpId;
-        String where = " where id='" + m_hardwareRelationshipTypeId + "'";
-        cmpId = m_connect.fetchColumn("HardwareRelationshipType", 
-                                       "componentTypeId", where);
-        if (cmpId == null)  {
-          throw new SQLException("Unable to retrieve relationship type info");
+      
+      /* put in something for RelationshipTask here %%%!!!  */
+      if (m_relationshipTasksDb != null) { // write them to db
+        if (m_relationshipTasksDb.length > 0) {
+          for (int irt = 0; irt < m_relationshipTasksDb.length; irt++) {
+              m_relationshipTasksDb[irt].writeToDb(connect, this, m_vis.getUser());
+          }
         }
-        addComponentPrerequisite(cmpId);
-      }
+      }  
     
       if (m_prerequisitesDb != null) {
         //   Write out prerequisite rows
-        //   Note a couple extra components may have been allocated, hence
-        //   check for null
         if (m_prerequisitesDb.length > 0) {
-          for (int ip = 0; ip < m_prerequisitesDb.length; ip++ ) {
-            if (m_prerequisitesDb[ip] != null) {
-              m_prerequisitesDb[ip].writeToDb(connect, this, m_vis.getUser());
-            }
+          for (int ip = 0; ip < m_prerequisitesDb.length; ip++ ) { 
+              m_prerequisitesDb[ip].writeToDb(connect, this, m_vis.getUser());         
           }
         }
       }
@@ -947,8 +955,9 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   }
   private void initIdMaps() throws SQLException {
     m_relationshipTypeMap = new ConcurrentHashMap<String, String>();
-    fillRelationshipMap("HardwareRelationshipType", "name", "slot", 
-        m_relationshipTypeMap);
+    fillIdMap("MultiRelationshipType", "name", " where TRUE", m_relationshipTypeMap);
+    m_relationshipActionMap = new ConcurrentHashMap<String, String>();
+    fillIdMap("MultiRelationshipAction", "name", " where TRUE", m_relationshipActionMap);
     m_semanticsTypeMap = new ConcurrentHashMap<String, String>();
     fillIdMap("InputSemantics", "name", " where TRUE", m_semanticsTypeMap);
     m_prerequisiteTypeMap = new ConcurrentHashMap<String, String>();
@@ -967,6 +976,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
 
   private void copyIdMaps() {
     m_relationshipTypeMap = m_travelerRoot.m_relationshipTypeMap;
+    m_relationshipActionMap = m_travelerRoot.m_relationshipActionMap;
     m_semanticsTypeMap = m_travelerRoot.m_semanticsTypeMap;
     m_prerequisiteTypeMap = m_travelerRoot.m_prerequisiteTypeMap;
     m_hardwareTypeNameMap = m_travelerRoot.m_hardwareTypeNameMap;
@@ -974,7 +984,6 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     m_processNameIdMap = m_travelerRoot.m_processNameIdMap;
     m_hardwareStatusIdMap = m_travelerRoot.m_hardwareStatusIdMap;
     m_hardwareLabelIdMap = m_travelerRoot.m_hardwareLabelIdMap;
-
   }
 
   private void fillIdMap(String table, String nameCol, String where,
@@ -998,7 +1007,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
         }
         if (oldValue != null) {
           throw new DbContentException("id or " + nameCol + "duplicate in "
-                                       + table); 
+              + table); 
         }
         more = rs.next();
       }
@@ -1008,6 +1017,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       throw ex;
     }
   }
+  
   /**
    *  Relationship type takes some special handling since the uniqueness constraint 
    * is on (name, slot), not just name
@@ -1016,6 +1026,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
    * @param nameCol2
    * @param map 
    */
+  /* Don't need it any more!
   private void fillRelationshipMap(String table, String nameCol1, String nameCol2,
       ConcurrentHashMap<String, String> map)  throws SQLException {
     String[] getCols = { "id", nameCol1, nameCol2};
@@ -1046,6 +1057,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       throw ex;
     }
   }
+  */
   /* Pick a separator string unlikely to appear in any actual db entry */
   private static final String GLUE = "%&*";
   private static final String GLUE_QUOTED = "\\Q" + GLUE + "\\E";
@@ -1061,9 +1073,6 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private String m_name=null;
   private String m_hardwareGroup=null;
   private String m_hardwareGroupId = null;
-  private String m_hardwareRelationshipType=null;
-  private String m_hardwareRelationshipSlot="1";
-  private String m_hardwareRelationshipTypeId=null;
   private String m_version=null;
   private String m_userVersionString="";
   private String m_description=null;
@@ -1082,11 +1091,13 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private int m_nPrerequisites = 0;
   private int m_nPrescribedResults = 0;
   private int m_nOptionalResults = 0;
+  private int m_nRelationshipTasks = 0;
   private String[] m_childIds;   // save these to make children if asked
   private String[] m_childEdgeIds;
   private String[] m_prerequisiteIds; // save these to make assoc prereqs
   private String[] m_resultIds; // save these to make assoc prescribed results
   private String[] m_optionalResultIds;
+  private String[] m_relationshipTaskIds;
   private DbConnection m_connect;
   private boolean m_isCloned=false;
   private boolean m_hasClones = false;
@@ -1102,14 +1113,17 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private ArrayList<Prerequisite> m_prerequisites=null;
   private ArrayList<PrescribedResult> m_results=null;
   private ArrayList<PrescribedResult> m_optionalResults=null;
+  private ArrayList<RelationshipTask> m_relationshipTasks=null;
   private ProcessNodeDb[] m_childrenDb=null;
   private PrerequisiteDb[] m_prerequisitesDb=null;
   private PrescribedResultDb[] m_resultsDb=null;
   private PrescribedResultDb[] m_optionalResultsDb=null;
+  private RelationshipTaskDb [] m_relationshipTasksDb=null;
   private ArrayList<NCRSpecificationDb> m_ncrSpecsDb=null;
   private ProcessNodeDb m_dbParent = null;
   
   private ConcurrentHashMap<String, String> m_relationshipTypeMap = null;
+  private ConcurrentHashMap<String, String> m_relationshipActionMap = null;
   private ConcurrentHashMap<String, String> m_semanticsTypeMap = null;
   private ConcurrentHashMap<String, String> m_prerequisiteTypeMap = null;
 

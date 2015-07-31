@@ -14,4 +14,5 @@ public interface TravelerVisitor {
   void visit(ProcessNode process, String activity, Object context) throws EtravelerException;
   void visit(PrescribedResult result, String activity, Object context) throws EtravelerException;
   void visit(Prerequisite prerequisite, String activity, Object context) throws EtravelerException;
+  void visit(RelationshipTask rel, String activity, Object context) throws EtravelerException;
 }
