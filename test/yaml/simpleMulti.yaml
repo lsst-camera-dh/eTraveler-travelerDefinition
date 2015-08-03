@@ -1,0 +1,17 @@
+%YAML 1.1
+---
+Name: simpleMulti
+HardwareGroup: snark
+Description: Try out multirelationships, simplest case
+Version: next
+Sequence:
+  - Name: doNothing
+    Description: Just a step to have a step
+    Version: next
+  - Name: assembleInOne
+    Description: Assign and install actions
+    RelationshipTasks:
+        - RelationshipName: boojum_borogove_1
+          RelationshipAction: assign
+        - RelationshipName: boojum_borogove_1
+          RelationshipAction: install

@@ -78,6 +78,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     s_knownKeys.add("Prerequisites");
     s_knownKeys.add("RequiredInputs");
     s_knownKeys.add("OptionalInputs");
+    s_knownKeys.add("RelationshipTasks");
     s_knownKeys.add("TravelerActions");
     s_knownKeys.add("RefName");
     s_knownKeys.add("RefVersion");
@@ -408,6 +409,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
             m_relationshipTasks[iRt] = new RelationshipTaskYaml();
             m_relationshipTasks[iRt].readYaml(relaMap, this, iRt);       
           }
+          break;
         case REQUIREDINPUTS: 
           m_nPrescribedResults = list.size();
           m_prescribedResults = new PrescribedResultYaml[list.size()];

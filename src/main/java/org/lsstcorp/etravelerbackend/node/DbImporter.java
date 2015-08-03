@@ -615,7 +615,7 @@ public class DbImporter {
     }
   }
   
-    static public AttributeList selectedNodeAttributes(PageContext context) {
+  static public AttributeList selectedNodeAttributes(PageContext context) {
     ProcessNode selected = getSelected(context);
     return selected.getAttributes();
   }
@@ -643,6 +643,16 @@ public class DbImporter {
       toReturn.addAll(selected.getOptionalResults());
     }
     return toReturn;
+  }
+  
+  static public int getRelationshipTaskCount(PageContext context) {
+    ProcessNode selected = getSelected(context);
+    return selected.getRelationshipTaskCount(); 
+  }
+  
+  static public ArrayList<RelationshipTask> getRelationshipTasks(PageContext context) {
+    ProcessNode selected = getSelected(context);
+    return selected.getRelationshipTasks();
   }
   
   static public boolean selectedIsRoot(PageContext context) {
@@ -865,6 +875,7 @@ public class DbImporter {
     return getTraveler(name, version, hgroup, dbType);
   }
     
+  /* Probably need to do something here for relationship tasks */
   static private String checkStep(PageContext context, ProcessNode selected) {
     String newVal = null;
     String ret="";
