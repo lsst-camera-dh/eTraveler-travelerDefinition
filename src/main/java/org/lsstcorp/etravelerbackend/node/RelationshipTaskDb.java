@@ -79,11 +79,13 @@ public class RelationshipTaskDb implements RelationshipTask.Importer,
         throw new 
           EtravelerException("No such relationship action " + m_action);
     } else {
-      m_actionId = aMap.get(m_name);
+      m_actionId = aMap.get(m_action);
     }
     String mapId = m_connect.fetchColumn(
-        "HardwareGroupTypeMapping join MultiRelationshipType on hardwareTypeId",
-        "id", " where hardwareGroupId='" + hgroupId + "'");
+        "HardwareTypeGroupMapping HGTM join MultiRelationshipType MRT on " + 
+        "HGTM.hardwareTypeId=MRT.hardwareTypeId",
+        "HGTM.id", " where hardwareGroupId='" + hgroupId + "' and MRT.id='" +
+        m_relationshipId + "'");
     if (mapId == null) {
       throw new EtravelerException("Relationship type " + m_name +
           " is not compatible with this traveler's hardware group");

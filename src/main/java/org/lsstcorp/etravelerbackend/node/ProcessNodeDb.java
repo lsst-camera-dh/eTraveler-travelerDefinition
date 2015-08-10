@@ -492,6 +492,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     } else {
       m_relationshipTasks = rels;
     }
+    if (rels == null) return;
     if (rels.size() > 0) {
       m_relationshipTasksDb = new RelationshipTaskDb[rels.size()];
       for (int irt = 0; irt < rels.size(); irt++) {

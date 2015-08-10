@@ -515,7 +515,9 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   public int provideNPrerequisites() {return m_nPrerequisites;}
   public int provideNPrescribedResults() {return m_nPrescribedResults;}
   public int provideNOptionalResults() {return m_nOptionalResults;}
-  public int provideNRelationshipTasks() {return m_nRelationshipTasks;}
+  public int provideNRelationshipTasks() {
+    return m_nRelationshipTasks;
+  }
   public boolean provideIsCloned() {return (m_clonedFrom != null); }
   public boolean provideHasClones() {return m_hasClones; }
   public boolean provideIsRef() {return m_isRef; }

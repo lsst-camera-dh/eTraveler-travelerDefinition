@@ -156,6 +156,8 @@ public class MysqlDbConnection implements DbConnection {
          }
        }
      } catch (SQLException ex) {
+       System.out.println("Failed to fetch column'" + col + "'with tableSpec=" + tableSpec +
+           " and WHERE clause='" + where + " with error " + ex.getMessage() );
        val = null;
      }  
      try {
