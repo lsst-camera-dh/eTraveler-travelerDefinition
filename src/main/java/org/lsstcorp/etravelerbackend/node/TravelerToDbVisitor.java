@@ -55,11 +55,19 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
         if (m_useTransactions) {
           try {
             m_connect.rollback();
-          }  catch (SQLException rollEx) {
             
+          }  catch (SQLException rollEx) {
+            throw new EtravelerException("Rollback failed with exception " + rollEx.getMessage());
           }
         }
         throw new EtravelerException(ex.getMessage());
+      } finally {
+        try {
+          m_connect.setAutoCommit(true);
+        } catch (Exception ex) {
+          throw new EtravelerException("Set autocommit faile with exception " +
+              ex.getMessage());
+        }
       }
     }
     

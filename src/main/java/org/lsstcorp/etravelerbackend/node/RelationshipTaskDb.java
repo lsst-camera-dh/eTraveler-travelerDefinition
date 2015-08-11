@@ -37,10 +37,10 @@ public class RelationshipTaskDb implements RelationshipTask.Importer,
       throws SQLException, EtravelerException {
     m_tagId = id;
     if (s_tagTableQuery == null) {
-      String where = " WHERE PRT.id='" + id + "'";
+      String where = " WHERE PRT.id=?";
       String tableSpec = "ProcessRelationshipTag PRT join MultiRelationshipAction MRA ";
-      tableSpec += "on PRT.multiRelationshipActionId=MRA.id join MultiRelationshipType";
-      tableSpec += " on PRT.multiRelationshipTypeId=MRT.id";
+      tableSpec += "on PRT.multiRelationshipActionId=MRA.id join MultiRelationshipType ";
+      tableSpec += " MRT on PRT.multiRelationshipTypeId=MRT.id";
       s_tagTableQuery = connect.prepareQuery(tableSpec, s_tagTableCols, where);
  
       if (s_tagTableQuery == null) {

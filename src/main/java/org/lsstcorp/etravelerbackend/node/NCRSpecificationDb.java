@@ -99,6 +99,7 @@ public class NCRSpecificationDb {
       m_exitProcessId = checkId(m_spec.getExit(), conn);
       m_returnProcessId = checkId(m_spec.getReturn(), conn);
       conn.getConnection().commit();
+      conn.setAutoCommit(true);
     } catch (SQLException ex)  {
       throw new EtravelerException("SQL error while verifying NCR: " + ex.getMessage());
     }

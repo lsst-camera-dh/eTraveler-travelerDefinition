@@ -132,7 +132,7 @@ public class TravelerPrintVisitor
     // Relationship tasks
     if (m_relationshipTasks != null) {
       try {
-        s_writer.write(leadingBlanks+"RelationshipTaskss:" + s_eol);
+        s_writer.write(leadingBlanks+"RelationshipTasks:" + s_eol);
       } catch (IOException ex) {
         System.out.println("whoops!  " + ex.getMessage());
         return;
