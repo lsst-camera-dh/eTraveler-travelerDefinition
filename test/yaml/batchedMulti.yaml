@@ -1,0 +1,18 @@
+%YAML 1.1
+---
+Name: batchedMulti
+HardwareGroup: snark
+Description: Try out multirelationships, simplest case
+Version: next
+Sequence:
+  - Name: relax
+    Description: nothing to do
+    Version: next
+  - Name: assembleScrews
+    Version: next
+    Description: Assign and install actions for single-batch relationship
+    RelationshipTasks:
+        - RelationshipName: boojum_screws_singleBatch
+          RelationshipAction: assign
+        - RelationshipName: boojum_screws_singleBatch
+          RelationshipAction: install
