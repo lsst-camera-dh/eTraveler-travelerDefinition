@@ -441,13 +441,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     if ( ((m_travelerActionMask & TravelerActionBits.ADD_LABEL) != 0) &&
         ((m_travelerActionMask & TravelerActionBits.REMOVE_LABEL) != 0) )
       throw new EtravelerException("Cannot add and remove label in the same step");
-    /* // If "break" is not explicitly specified, set "make" bit
-    if ((m_hardwareRelationshipType != null)  && !m_hardwareRelationshipType.isEmpty()) {  
-      if ((m_travelerActionMask & TravelerActionBits.BREAK_HARDWARE_RELATIONSHIP) == 0) {
-        m_travelerActionMask |= TravelerActionBits.MAKE_HARDWARE_RELATIONSHIP;
-      }
-    }
-    */
+   
     // Hardware type is inherited from parent
     if (m_parent != null) {
       m_hardwareGroup = m_parent.m_hardwareGroup;  
@@ -459,6 +453,13 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         throw new Exception("Duplicate process node named " + m_name);
       }
       m_processes.put(processKey, this);
+    }
+    // May not ask for operator input on automated steps
+    if ((m_nPrescribedResults + m_nOptionalResults > 0) &&
+        ((TravelerActionBits.AUTOMATABLE + TravelerActionBits.HARNESSED) 
+        & m_travelerActionMask) !=0 )  {
+      throw new EtravelerException("Operator inputs not allowed on automated step \""
+          + m_name + "\" ");
     }
 
     // Finished with keys. Have handled everything except process children
