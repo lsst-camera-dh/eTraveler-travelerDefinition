@@ -953,6 +953,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
    s_edgeInfoQuery = null;
    PrerequisiteDb.reset();
    PrescribedResultDb.reset();
+   RelationshipTaskDb.reset();
   }
   private void initIdMaps() throws SQLException {
     m_relationshipTypeMap = new ConcurrentHashMap<String, String>();
