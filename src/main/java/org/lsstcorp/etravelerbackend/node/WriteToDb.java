@@ -3,6 +3,7 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.Writer;
 import java.sql.SQLException;
 import java.util.Map;
 import org.lsstcorp.etravelerbackend.db.DbConnection;
@@ -55,7 +56,7 @@ public class WriteToDb {
       }
       ProcessNode ingested;
       try {
-        ingested = parse(fileContents);
+        ingested = parse(fileContents, writer);
         if (ingested == null) return "Could not parse yaml input";
       }  catch (Exception ex)  {
         return  "<b>" + ex.getMessage() + "</b>";
@@ -81,7 +82,7 @@ public class WriteToDb {
       return writeRet;
   }
 
-  private static ProcessNode parse(String fileContents) throws Exception  {    
+  private static ProcessNode parse(String fileContents, Writer wrt) throws Exception  {    
     Yaml yaml = new Yaml(true);
     Map yamlMap = null;
     try {
@@ -91,7 +92,7 @@ public class WriteToDb {
       throw new EtravelerException("Failed to load yaml with exception '" 
           + ex.getMessage() + "'");
     }
-    ProcessNodeYaml topYaml = new ProcessNodeYaml();
+    ProcessNodeYaml topYaml = new ProcessNodeYaml(wrt);
     try {
       topYaml.readYaml(yamlMap, null, false, 0, null);
     } catch (Exception ex) {

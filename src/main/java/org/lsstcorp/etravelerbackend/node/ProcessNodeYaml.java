@@ -26,7 +26,9 @@ import  java.util.List;
 import  java.util.Map;
 import  java.util.Set;
 import  java.util.Iterator;
-
+import  java.io.Writer;
+import  java.io.IOException;
+import  java.util.regex.Pattern;
 
 /**
  *  Mediates between internal (ProcessNode) representation and yaml rep.
@@ -69,6 +71,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     s_knownKeys.add("Version");
     s_knownKeys.add("UserVersionString");
     s_knownKeys.add("Description");
+    s_knownKeys.add("ShortDescription");
     s_knownKeys.add("InstructionsURL");
     s_knownKeys.add("MaxIteration");
     s_knownKeys.add("Condition");  
@@ -95,38 +98,40 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   }
   static final int NAME=0;
   static final int HARDWAREGROUP=1;
-  //static final int HARDWARERELATIONSHIPTYPE=2;
-  //static final int HARDWARERELATIONSHIPSLOT=3;
   static final int VERSION=2;
   static final int USERVERSIONSTRING=3;
   static final int DESCRIPTION=4;
-  static final int INSTRUCTIONSURL=5;
-  static final int MAXITERATION=6;
-  static final int CONDITION=7;
-  static final int CLONE=8;
-  static final int SEQUENCE=9;
-  static final int SELECTION=10;
-  static final int PREREQUISITES=11;
-  static final int REQUIREDINPUTS=12;
-  static final int OPTIONALINPUTS=13;
-  static final int RELATIONSHIPTASKS=14;
-  static final int TRAVELERACTIONS=15;
-  static final int REFNAME=16;
-  static final int REFVERSION=17;
-  static final int SOURCEDB=18;
-  static final int NEWLOCATION=19;
-  static final int NEWSTATUS=20;
-  static final int ADDLABEL=21;
-  static final int REMOVELABEL=22;
+  static final int SHORTDESCRIPTION=5;
+  static final int INSTRUCTIONSURL=6;
+  static final int MAXITERATION=7;
+  static final int CONDITION=8;
+  static final int CLONE=9;
+  static final int SEQUENCE=10;
+  static final int SELECTION=11;
+  static final int PREREQUISITES=12;
+  static final int REQUIREDINPUTS=13;
+  static final int OPTIONALINPUTS=14;
+  static final int RELATIONSHIPTASKS=15;
+  static final int TRAVELERACTIONS=16;
+  static final int REFNAME=17;
+  static final int REFVERSION=18;
+  static final int SOURCEDB=19;
+  static final int NEWLOCATION=20;
+  static final int NEWSTATUS=21;
+  static final int ADDLABEL=22;
+  static final int REMOVELABEL=23;
   
-  static final int FROMSOURCEVERSION=23;
-  static final int FROMSOURCEID=24;
-  static final int FROMSOURCEORIGINALID=25;
-  static final int FROMSOURCESOURCEDB=26;
- 
+  static final int FROMSOURCEVERSION=24;
+  static final int FROMSOURCEID=25;
+  static final int FROMSOURCEORIGINALID=26;
+  static final int FROMSOURCESOURCEDB=27;
   
-
- 
+  public ProcessNodeYaml() {}
+  
+  public ProcessNodeYaml(Writer wrt)  {
+    m_writer = wrt;
+  }
+  
   /**
    * 
    * @param yamlMap      Result of loading with snakeyaml
@@ -233,7 +238,9 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       String v = yamlMap.get(foundKey).toString();
       switch (keyIx)  {
       case NAME:
-        m_name = v; break;
+        m_name = v;
+        checkName(m_name);
+        break;
       case HARDWAREGROUP:
         if (m_parent != null)  {
           throw new IncompatibleChild(m_parent.m_name, "this child", 
@@ -241,16 +248,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         }
         m_hardwareGroup = v;
         break;
-        /*
-      case HARDWARERELATIONSHIPTYPE:
-        m_hardwareRelationshipType =v; break;
-      case HARDWARERELATIONSHIPSLOT:
-        m_hardwareRelationshipSlot = v;
-        if (!(Verify.isPosInt(v)).isEmpty()) {
-          throw new WrongTypeYamlValue("hardwareRelationshipSlot", v, "Process");
-        }
-        break;
-        */
+ 
       case VERSION:
         m_version = v; 
         if (!m_version.equals("next")) {
@@ -263,6 +261,8 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         m_userVersionString = v; break;
       case DESCRIPTION:
         m_description = v; break;
+      case SHORTDESCRIPTION:
+        m_shortDescription = v; break;
       case INSTRUCTIONSURL:
         m_instructionsURL = v; break;
       case MAXITERATION:
@@ -468,11 +468,10 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       boolean hasSelection = (m_substeps.equals("SELECTION"));
       for (int iC = 0; iC < m_nChildren; iC++) {
         Map<String, Object> processMap = (Map<String, Object>) list.get(iC);
-        m_children[iC] = new ProcessNodeYaml();
+        m_children[iC] = new ProcessNodeYaml(m_writer);
         m_children[iC].readYaml(processMap, this, hasSelection, iC, m_processes);
       }
-    }        
-  
+    }          
   }
   private String getStringVal(Map<String, Object> yamlMap, String keyName, String dflt) 
       throws NullYamlValue {
@@ -490,6 +489,22 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       throws NullYamlValue {
     return getStringVal(yamlMap, keyName, null);
   }
+  
+  /*
+   * Don't throw any exceptions yet; save that for a future release. For
+   * now just issue warning if name contains unacceptable characters.
+   */
+  private void checkName(String name) throws WrongTypeYamlValue, IOException {
+    if (m_writer == null) return;
+    String proscribed = ".*[ ',#{}:/$&?!\\\"\\[\\]\\s].*";
+    //String proscribed = "[',#{}:/$&?!]";
+    boolean match = Pattern.matches(proscribed, name);
+    if (match) {
+      m_writer.write("WARNING!! <br />");
+      m_writer.write("Step name '" + name + "' contains whitespace or one of these frowned-upon characters: <br />");
+      m_writer.write("# : / $ & , ' \" ! ? } { ] [ <br /><br />");
+    }
+  }
 
   // ProcessNode.Importer interface implementation
   public String provideId() {return null;}
@@ -505,6 +520,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   public String provideVersion() {return m_version;}
   public String provideUserVersionString() {return m_userVersionString;}
   public String provideDescription() {return m_description;}
+  public String provideShortDescription() {return m_shortDescription;}
   public String provideInstructionsURL() {return m_instructionsURL;}
   public String provideMaxIteration() {return m_maxIteration;}
   public String provideNewLocation() {return m_newLocation;}
@@ -566,6 +582,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private String m_userVersionString=null;
   private String m_instructionsURL=null;
   private String m_description=null;
+  private String m_shortDescription=null;
   private String m_maxIteration="1";
   private String m_newLocation=null;
   private String m_newStatus=null;
@@ -595,6 +612,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private PrescribedResultYaml[] m_prescribedResults;
   private PrescribedResultYaml[] m_optionalResults;
   private RelationshipTaskYaml [] m_relationshipTasks;
+  private Writer m_writer = null;
   
   // Keep track of process name/version pairs we've seen
   private HashMap<String, ProcessNodeYaml> m_processes = null; 

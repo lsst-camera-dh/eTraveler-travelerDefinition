@@ -91,6 +91,7 @@ public class ProcessNode implements  TravelerElement
     if (model.m_userVersionString != null) 
       m_userVersionString = new String(model.m_userVersionString);
     m_description = new String(model.m_description);
+    m_shortDescription = new String(model.m_shortDescription);
     m_instructionsURL = new String(model.m_instructionsURL);
     m_maxIteration = new String(model.m_maxIteration);
     m_substeps = new String(model.m_substeps);
@@ -171,6 +172,7 @@ public class ProcessNode implements  TravelerElement
 
     m_userVersionString = imp.provideUserVersionString();
     m_description = imp.provideDescription();
+    m_shortDescription = imp.provideShortDescription();
     m_instructionsURL = imp.provideInstructionsURL();
     m_maxIteration = imp.provideMaxIteration();
     m_substeps = imp.provideSubsteps();
@@ -318,6 +320,7 @@ public class ProcessNode implements  TravelerElement
     }
     //    ... through here
     pList.add(new Attribute("description", m_description));
+    pList.add(new Attribute("short description", m_shortDescription));
     pList.add(new Attribute("max iterations", m_maxIteration));
     pList.add(new Attribute("child type", m_substeps));
     pList.add(new Attribute("traveler action mask", Integer.toString(m_travelerActionMask)));
@@ -436,11 +439,10 @@ public class ProcessNode implements  TravelerElement
     String provideId();
     String provideName();
     String provideHardwareGroup();
-    // String provideHardwareRelationshipType();
-    // String provideHardwareRelationshipSlot();
     String provideVersion();
     String provideUserVersionString();
     String provideDescription();
+    String provideShortDescription();
     String provideInstructionsURL();
     String provideMaxIteration();
     String provideNewLocation();
@@ -490,6 +492,7 @@ public class ProcessNode implements  TravelerElement
     void acceptVersion(String version);
     void acceptUserVersionString(String userVersionString);
     void acceptDescription(String description);
+    void acceptShortDescription(String desc);
     void acceptInstructionsURL(String instructionsURL);
     void acceptMaxIteration(String maxIterations);
     void acceptNewLocation(String newLoc);
@@ -547,6 +550,7 @@ public class ProcessNode implements  TravelerElement
       ptarget.acceptVersion(m_version);
       ptarget.acceptUserVersionString(m_userVersionString);
       ptarget.acceptDescription(m_description);
+      ptarget.acceptShortDescription(m_shortDescription);
       ptarget.acceptInstructionsURL(m_instructionsURL);
       ptarget.acceptMaxIteration(m_maxIteration);
  
@@ -650,6 +654,7 @@ public class ProcessNode implements  TravelerElement
     m_version = src.m_version;
     m_originalId = src.m_originalId;
     m_description = src.m_description;
+    m_shortDescription = src.m_shortDescription;
     m_instructionsURL = src.m_instructionsURL;
     m_maxIteration = src.m_maxIteration;
     m_userVersionString = src.m_userVersionString;
@@ -692,6 +697,7 @@ public class ProcessNode implements  TravelerElement
   public String getProcessId() {return m_processId;}
   public String getHardwareGroup() {return m_hardwareGroup;}
   public String getDescription() {return m_description;}
+  public String getShortDescription() {return m_shortDescription;}
   public String getInstructionsURL() { return m_instructionsURL;}
   public String getMaxIteration() {return m_maxIteration;}
   public String getNewLocation() {return m_newLocation;}
@@ -721,6 +727,8 @@ public class ProcessNode implements  TravelerElement
   public void setProcessId(String id) {m_processId = id;}
   public void setOriginalId(String id) {m_originalId = id;}
   public void setDescription(String description) {m_description = description;}
+  public void setShortDescription(String desc) 
+  {m_shortDescription = desc;}
   public void setVersion(String version)  {m_version = version;}
   public void setUserVersionString(String ustring) {m_userVersionString = ustring;}
   public void setInstructionsURL(String url) {m_instructionsURL = url;}
@@ -785,6 +793,7 @@ public class ProcessNode implements  TravelerElement
   private String m_version=null;
   private String m_userVersionString="";
   private String m_description=null;
+  private String m_shortDescription=null;
   private String m_instructionsURL= "";
   private String m_maxIteration=null;
   private String m_newLocation=null;

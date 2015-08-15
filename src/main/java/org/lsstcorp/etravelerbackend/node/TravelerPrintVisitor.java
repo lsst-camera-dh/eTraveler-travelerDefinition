@@ -93,6 +93,8 @@ public class TravelerPrintVisitor
         s_writer.write(leadingBlanks + "Condition: " + m_condition + s_eol);
       }
       s_writer.write(leadingBlanks+"Max iteration: " + m_maxIteration + s_eol);
+      s_writer.write(leadingBlanks+"Short description: " + 
+                     m_shortDescription + s_eol);
       s_writer.write(leadingBlanks+"Description: " + m_description + s_eol);
     } catch (IOException ex) {
       System.out.println("whoops!  " + ex.getMessage());
@@ -280,6 +282,8 @@ public class TravelerPrintVisitor
   public void acceptUserVersionString(String userVersionString) {
     m_userVersionString = userVersionString;}
   public void acceptDescription(String description) {m_description = description;}
+  public void acceptShortDescription(String desc) 
+  {m_shortDescription = desc;}
   public void acceptInstructionsURL(String url) {
      m_instructionsURL = url;
    }
@@ -391,6 +395,7 @@ public class TravelerPrintVisitor
   private String m_version=null;
   private String m_userVersionString=null;
   private String m_description=null;
+  private String m_shortDescription=null;
   private String m_instructionsURL=null;
   private String m_maxIteration=null;
   private String m_newLocation=null;

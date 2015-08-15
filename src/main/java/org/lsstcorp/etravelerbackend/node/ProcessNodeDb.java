@@ -66,7 +66,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   }
   private static String[] s_initCols = {"name", 
     "hardwareGroupId",  "version", 
-    "userVersionString", "description", "instructionsURL", "substeps", 
+    "userVersionString", "description", "shortDescription", "instructionsURL", "substeps", 
     "maxIteration", "travelerActionMask", "originalId", "newLocation",
     "newHardwareStatusId"};
   private static String[] s_edgeCols = {"step", "cond"};
@@ -180,6 +180,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       m_userVersionString = rs.getString(++ix);
       if (m_userVersionString  == null) m_userVersionString = "";
       m_description = rs.getString(++ix);
+      m_shortDescription = rs.getString(++ix);
       m_instructionsURL = rs.getString(++ix);
       m_substeps = rs.getString(++ix);
       m_maxIteration = rs.getString(++ix);
@@ -356,6 +357,10 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     if (m_description == null) return "";
     return m_description;
   }
+  public String provideShortDescription() {
+    if (m_shortDescription == null) return "";
+    return m_shortDescription;
+  }
    public String provideInstructionsURL() {
     if (m_instructionsURL == null) return "";
     return m_instructionsURL;
@@ -423,6 +428,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     m_userVersionString = userVersionString;
   }
   public void acceptDescription(String description) {m_description=description;}
+  public void acceptShortDescription(String desc) {m_shortDescription=desc;}
   public void acceptInstructionsURL(String url) {m_instructionsURL = url;}
   public void acceptMaxIteration(String maxIteration) {m_maxIteration=maxIteration;}
   public void acceptNewLocation(String newLoc) {
@@ -747,7 +753,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   // NOTE:  Can use keyword DEFAULT for columns not always set to user-supplied,
   //         value, e.g. hardwareRelationshipType
   private static   String[] s_insertProcessCols={"name", 
-    "hardwareGroupId", "version", "userVersionString", "description", 
+    "hardwareGroupId", "version", "userVersionString", "description", "shortDescription",
     "instructionsURL", "substeps", "maxIteration", "newLocation", "newHardwareStatusId", "originalId",
     "travelerActionMask", "createdBy"};
   private static   String[] s_insertEdgeCols={"parent", "child", "step", "cond", "createdBy"};
@@ -771,29 +777,30 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     if (!m_isCloned) {
       // Make our row in Process
       String[] vals = new String[s_insertProcessCols.length];
-      vals[0] = m_name;
+      int ix=0;
+      vals[ix] = m_name;
     
-      vals[1] = m_hardwareGroupId;
+      vals[++ix] = m_hardwareGroupId;
       if (m_version.equals("next") || m_version.equals("modified")) {
         m_version = nextAvailableVersion(m_originalId);
       }
-      vals[2] = m_version;
+      vals[++ix] = m_version;
       if ((m_userVersionString != null) && m_userVersionString.isEmpty()) {
-        vals[3] = null;
+        vals[++ix] = null;
       } else {
-        vals[3] = m_userVersionString;
+        vals[++ix] = m_userVersionString;
       }
-      vals[4] = m_description;
-      vals[5] = m_instructionsURL;
-      vals[6] = m_substeps;
-      vals[7] = m_maxIteration;
-      vals[8] = m_newLocation;
-      vals[9] = m_newStatusId;
-      vals[10] = m_originalId;
-      vals[11] = String.valueOf(m_travelerActionMask);
-      //vals[12] = m_hardwareRelationshipTypeId;
+      vals[++ix] = m_description;
+      vals[++ix] = m_shortDescription;
+      vals[++ix] = m_instructionsURL;
+      vals[++ix] = m_substeps;
+      vals[++ix] = m_maxIteration;
+      vals[++ix] = m_newLocation;
+      vals[++ix] = m_newStatusId;
+      vals[++ix] = m_originalId;
+      vals[++ix] = String.valueOf(m_travelerActionMask);
       //  Value for user should come from Confluence log-in
-      vals[12] = m_vis.getUser();
+      vals[++ix] = m_vis.getUser();
       try {
         m_id = m_connect.doInsert("Process", s_insertProcessCols, vals, "", 
                                   DbConnection.ADD_CREATION_TIMESTAMP);
@@ -1018,48 +1025,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
                          ex.getMessage());
       throw ex;
     }
-  }
-  
-  /**
-   *  Relationship type takes some special handling since the uniqueness constraint 
-   * is on (name, slot), not just name
-   * @param table
-   * @param nameCol1
-   * @param nameCol2
-   * @param map 
-   */
-  /* Don't need it any more!
-  private void fillRelationshipMap(String table, String nameCol1, String nameCol2,
-      ConcurrentHashMap<String, String> map)  throws SQLException {
-    String[] getCols = { "id", nameCol1, nameCol2};
-    PreparedStatement idNameQuery;
-    ResultSet rs;
-    try {
-      idNameQuery = m_connect.prepareQuery(table, getCols, "");
-      rs = idNameQuery.executeQuery();
-      boolean more = rs.next();
-      while (more) {  
-        String oldValue;
-        String key = formUniqueKey(rs.getString(2), rs.getString(3));
-        oldValue = map.putIfAbsent(key, rs.getString(1));
-        if (oldValue == null) {
-          // and also use id as key 
-          // id is always string rep. of an integer; name never will be
-          oldValue = map.putIfAbsent(rs.getString(1), key);
-        }
-        if (oldValue != null) {
-          throw new DbContentException("id or " + key + "duplicate in "
-                                       + table); 
-        }
-        more = rs.next();
-      }
-    }      catch (SQLException ex) {
-      System.out.println("Exception reading table " + table + ": " +
-                         ex.getMessage());
-      throw ex;
-    }
-  }
-  */
+  }  
+ 
   /* Pick a separator string unlikely to appear in any actual db entry */
   private static final String GLUE = "%&*";
   private static final String GLUE_QUOTED = "\\Q" + GLUE + "\\E";
@@ -1078,6 +1045,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private String m_version=null;
   private String m_userVersionString="";
   private String m_description=null;
+  private String m_shortDescription=null;
   private String m_instructionsURL=null;
   private String m_substeps=null;
   private String m_maxIteration=null;

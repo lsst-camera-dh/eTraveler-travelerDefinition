@@ -84,6 +84,9 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
   public void acceptDescription(String description) {
     if (!m_isCloned) putIfPresent("Description", description);
   }
+  public void acceptShortDescription(String desc) {
+    if (!m_isCloned) putIfPresent("ShortDescription", desc);
+  }
   public void acceptInstructionsURL(String instructionsURL) {
     if (!m_isCloned) putIfPresent("InstructionsURL", instructionsURL);
   }

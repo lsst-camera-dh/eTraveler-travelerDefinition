@@ -148,6 +148,8 @@ public class TravelerDotVisitor implements TravelerVisitor,
   public void acceptUserVersionString(String userVersionString) {
     m_userVersionString = userVersionString;}
   public void acceptDescription(String description) {m_description = description;}
+  public void acceptShortDescription(String desc) 
+  {m_shortDescription = desc;}
   public void acceptInstructionsURL(String url) {m_instructionsURL = url;}
   public void acceptMaxIteration(String maxIteration) {
     m_maxIteration = maxIteration;}
@@ -244,6 +246,7 @@ public class TravelerDotVisitor implements TravelerVisitor,
   private String m_version=null;
   private String m_userVersionString=null;
   private String m_description=null;
+  private String m_shortDescription=null;
   private String m_instructionsURL=null;
   private String m_maxIteration=null;
   private String m_newLocation=null;
