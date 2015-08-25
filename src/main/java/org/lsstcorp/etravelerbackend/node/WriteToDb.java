@@ -24,8 +24,10 @@ public class WriteToDb {
     public static String ingest(PageContext context) {
   
       String redoInstructions = " Reselect file and try again"; 
+      boolean nameWarning=false;
      
-      Object fileContentsObj = context.getRequest().getParameter("importYamlFile");
+      Object fileContentsObj = context.getRequest().getParameter("importYamlFile"); 
+      nameWarning = (context.getRequest().getParameter("strictNameChecking") != null); 
   
       if (fileContentsObj == null)  {
         return "No file selected or stale reference. <br /> "
@@ -56,7 +58,7 @@ public class WriteToDb {
       }
       ProcessNode ingested;
       try {
-        ingested = parse(fileContents, writer);
+        ingested = parse(fileContents, nameWarning, writer);
         if (ingested == null) return "Could not parse yaml input";
       }  catch (Exception ex)  {
         return  "<b>" + ex.getMessage() + "</b>";
@@ -82,9 +84,12 @@ public class WriteToDb {
       return writeRet;
   }
 
-  private static ProcessNode parse(String fileContents, Writer wrt) throws Exception  {    
+  private static ProcessNode parse(String fileContents, boolean nameWarning,
+      Writer wrt) throws Exception  {    
     Yaml yaml = new Yaml(true);
     Map yamlMap = null;
+    String nameHandling="none";
+    if (nameWarning) nameHandling="warn";
     try {
       yamlMap = (Map<String, Object>) yaml.load(fileContents);
     } catch (Exception ex) {
@@ -92,7 +97,7 @@ public class WriteToDb {
       throw new EtravelerException("Failed to load yaml with exception '" 
           + ex.getMessage() + "'");
     }
-    ProcessNodeYaml topYaml = new ProcessNodeYaml(wrt);
+    ProcessNodeYaml topYaml = new ProcessNodeYaml(wrt, nameHandling);
     try {
       topYaml.readYaml(yamlMap, null, false, 0, null);
     } catch (Exception ex) {

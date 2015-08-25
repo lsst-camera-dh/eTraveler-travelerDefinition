@@ -128,8 +128,9 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   
   public ProcessNodeYaml() {}
   
-  public ProcessNodeYaml(Writer wrt)  {
+  public ProcessNodeYaml(Writer wrt, String nameHandling)  {
     m_writer = wrt;
+    m_nameHandling = nameHandling;
   }
   
   /**
@@ -239,7 +240,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       switch (keyIx)  {
       case NAME:
         m_name = v;
-        checkName(m_name);
+        if (m_nameHandling.equals("warn")) checkName(m_name);
         break;
       case HARDWAREGROUP:
         if (m_parent != null)  {
@@ -468,7 +469,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       boolean hasSelection = (m_substeps.equals("SELECTION"));
       for (int iC = 0; iC < m_nChildren; iC++) {
         Map<String, Object> processMap = (Map<String, Object>) list.get(iC);
-        m_children[iC] = new ProcessNodeYaml(m_writer);
+        m_children[iC] = new ProcessNodeYaml(m_writer, m_nameHandling);
         m_children[iC].readYaml(processMap, this, hasSelection, iC, m_processes);
       }
     }          
@@ -613,6 +614,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private PrescribedResultYaml[] m_optionalResults;
   private RelationshipTaskYaml [] m_relationshipTasks;
   private Writer m_writer = null;
+  private String m_nameHandling = "none";
   
   // Keep track of process name/version pairs we've seen
   private HashMap<String, ProcessNodeYaml> m_processes = null; 

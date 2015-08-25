@@ -31,6 +31,9 @@
  
     <p> <b> Yaml file: </b>
       <input type="file" name="importYamlFile" value="" /></p>
+      <p title="If checked issues a warning for each deprecated step name"><b>Enable step name verification: </b>
+    <input name="strictNameChecking" type="checkbox" />
+    </p>
     <fieldset >
       <legend>Actions</legend>
    
@@ -40,6 +43,7 @@
              title="See if YAML file conforms to eTraveler requirements and is compatible in some respects to selected databse. Does not ingest."/>
       
      </fieldset>
+  
   
     </form>
     
@@ -69,7 +73,8 @@
       <fieldset>
       <legend>Actions</legend>
    
-      <input type="submit" value="Import" name="fileAction" />  
+      <input type="submit" value="Import" name="fileAction" 
+             title="Create new traveler definition in the database"/>  
       </fieldset>
 </form>
 
