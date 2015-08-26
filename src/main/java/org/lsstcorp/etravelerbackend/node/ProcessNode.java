@@ -119,6 +119,13 @@ public class ProcessNode implements  TravelerElement
         m_resultNodes.add(new PrescribedResult(this, res));
       }
     }
+    if (model.m_optionalResultNodes != null) {
+      int orlen = model.m_optionalResultNodes.size();
+      m_optionalResultNodes = new ArrayList<PrescribedResult>(orlen);
+      for (PrescribedResult res: model.m_optionalResultNodes) {
+        m_optionalResultNodes.add(new PrescribedResult(this, res));
+      }
+    }
     if (model.m_relationshipTasks != null) {
       int rlen = model.m_relationshipTasks.size();
       m_relationshipTasks = new ArrayList<RelationshipTask>(rlen);
@@ -406,6 +413,17 @@ public class ProcessNode implements  TravelerElement
     }
   }
 
+  public void rmOptionalResults(ArrayList<Integer> changedResult)  {
+    /* Remove from back so indices are all good */
+    int ix = changedResult.size() - 1;
+    for (;  ix >= 0; ix--) {
+      if (changedResult.get(ix) == 2) {
+        m_optionalResultNodes.remove(ix);
+      }
+    }
+  }
+
+
   // Probably unused.  See instead ProcessNodeDb.writeToDb
   public int writeDb() {
     return 0;  // for now
@@ -487,8 +505,6 @@ public class ProcessNode implements  TravelerElement
     void acceptId(String id);
     void acceptName(String name);
     void acceptHardwareGroup(String hardwareGroup);
-    // void acceptHardwareRelationshipType(String hardwareRelationshipType);
-    // void acceptHardwareRelationshipSlot(String hardwareRelationshipSlot);
     void acceptVersion(String version);
     void acceptUserVersionString(String userVersionString);
     void acceptDescription(String description);
@@ -544,8 +560,7 @@ public class ProcessNode implements  TravelerElement
       /* Make sure target gets action mask early since it can affect
          interpretation of some other fields */
       ptarget.acceptTravelerActionMask(m_travelerActionMask);
-      //ptarget.acceptHardwareRelationshipType(m_hardwareRelationshipType);
-      //ptarget.acceptHardwareRelationshipSlot(m_hardwareRelationshipSlot);
+
       if (m_hardwareRelationshipType == null) m_hardwareRelationshipSlot = null;
       ptarget.acceptVersion(m_version);
       ptarget.acceptUserVersionString(m_userVersionString);

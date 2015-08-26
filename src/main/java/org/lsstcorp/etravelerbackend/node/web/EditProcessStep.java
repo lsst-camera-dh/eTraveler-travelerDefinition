@@ -71,9 +71,11 @@ public class EditProcessStep extends SimpleTagSupport {
             + (attsMap.get("hardware relationship slot")).toString() + "</td></tr>");
       }     
     } 
-   
-    wrt.println("<tr><td class='bold'><label for='description'>Description</label></td>");
+    wrt.println("<tr><td class='bold'><label for='shortDescription'>Short Description</label></td>");   
+    wrt.println("<td><input name='shortDescription' id='shortDescription' size='50'");
+    wrt.println("value='" + (attsMap.get("short description")).toString() + "' /></td></tr>");
     
+    wrt.println("<tr><td class='bold'><label for='description'>Description</label></td>");   
     wrt.println("<td><input name='description' id='description' size='50'");
     wrt.println("value='" + (attsMap.get("description")).toString() + "' /></td></tr>");
     wrt.println("<tr><td class='bold'><label for='user version string'>User version string</label></td>");
@@ -122,9 +124,15 @@ public class EditProcessStep extends SimpleTagSupport {
     }
     
     ArrayList<PrescribedResult> results =  imp.getResults(pageContext);
+    ArrayList<PrescribedResult> optionalResults =  
+      imp.getOptionalResults(pageContext);
  
     if (results != null) {
-      outputResults(results, wrt);
+      outputResults(results, false, wrt);
+    }
+
+    if (optionalResults != null) {
+      outputResults(optionalResults, true, wrt);
     }
     if  (imp.selectedClone(pageContext)) { 
       wrt.println("<p><b>There are multiple instances of selected step</b></p>");
@@ -138,7 +146,6 @@ public class EditProcessStep extends SimpleTagSupport {
       wrt.println("<p><input type='submit' name='save' value='Save edit' />");
     }
 
-    //wrt.println("<p><input type='submit' value='Save edit' />");
     wrt.println("<input type='reset' value='Reset form' />");
     wrt.println("</p></form>");
   }
@@ -196,9 +203,11 @@ public class EditProcessStep extends SimpleTagSupport {
     wrt.println("<tbody></table></fieldset>");
   }
       
-  private void outputResults(ArrayList<PrescribedResult> results, JspWriter wrt)
+  private void outputResults(ArrayList<PrescribedResult> results, 
+                             boolean optional, JspWriter wrt)
       throws IOException {
     boolean haveNumeric = false;
+    
     if (results != null) {
       for (PrescribedResult r: results) {
         String sem = r.getSemantics();
@@ -206,12 +215,16 @@ public class EditProcessStep extends SimpleTagSupport {
       }
     }
    
-    // wrt.println("<h3> Write prescribed results here</h3>");
-    wrt.println("<fieldset><legend>Required operator inputs</legend>");
+    if (optional) {
+      wrt.println("<fieldset><legend>Optional operator inputs</legend>");
+    } else {
+      wrt.println("<fieldset><legend>Required operator inputs</legend>");
+    }
     wrt.println("<table cellpadding='2'  class='datatable' border='0'>"); 
     wrt.println("<thead>");
     wrt.println("<tr><th bgcolor='red'>DELETE</th><th align='left'>Label</th>");
     wrt.println("<th align='left'>Type</th>  <th align='left'>Descrip</th>");
+    // wrt.println("<th align='left'>Is optional</th>");
     if (haveNumeric) { 
       wrt.println("<th align='left'>Units</th>");
       wrt.println("<th align='left'>Min</th><th align='left'>Max</th></tr>");
@@ -221,33 +234,37 @@ public class EditProcessStep extends SimpleTagSupport {
     String rowclass="odd";
     String warning="grey"; 
     String empty = "";
+    String suffix = "";
+    if (optional) suffix="Optional";
     int  ix = 0;                                          
     for (PrescribedResult result: results) {               
       wrt.println("<tr class='" + rowclass + "'>");
       wrt.println("<td bgcolor='" + warning + "'><input type='checkbox' name='" 
-          + genId("removeResult", ix) + "' id='"
-          + genId("removeResult", ix) +"' /></td>"); 
+          + genId("removeResult"+suffix, ix) + "' id='"
+          + genId("removeResult"+suffix, ix) +"' /></td>"); 
       wrt.println("<td class='left'>" + result.getLabel() + "</td>");
       wrt.println("<td class='left'>" + result.getSemantics() + "</td>");
       wrt.println("<td><input type='text' name='" 
-          + genId("resultDescrip", ix) + "' id='" + genId("resultDescrip", ix)
+          + genId("resultDescrip"+suffix, ix) + "' id='" + 
+                  genId("resultDescrip"+suffix, ix)
           + "' value='" + result.getDescription() + "' /></td>");
+      
       if (haveNumeric) {
         if (isNumberSemantics(result.getSemantics())) {
-          String idstring = genId("min", ix);
+          String idstring = genId("min"+suffix, ix);
           wrt.println("<td class='left'>");
-          wrt.println("<input type='text' name='" + genId("units", ix) 
-              + "' id='" + genId("units", ix) + "' size='6' value='"
+          wrt.println("<input type='text' name='" + genId("units"+suffix, ix) 
+              + "' id='" + genId("units"+suffix, ix) + "' size='6' value='"
               + result.getUnits() + "' /></td>");
           wrt.println("<td><input type='text' name='" + idstring 
               +  "' id='" + idstring + "' size='4' value='"
               + result.getMinValue() + "' onblur='isNumber(\""
               + idstring + "\",\"" + result.getSemantics() + "\",\""
               + empty + "\")' /></td>");
-          idstring = genId("max", ix);
+          idstring = genId("max"+suffix, ix);
           wrt.println("<td><input type='text' name='" + idstring 
               + "' id='" + idstring +"' size='4' value='"
-              + result.getMaxValue() +"'" 
+              + result.getMaxValue() +"' " 
               + "onblur='isNumber(\"" + idstring + "\",\"" 
               + result.getSemantics() + "\",\"" + empty
               + "\")' /></td>");

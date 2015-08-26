@@ -100,7 +100,14 @@ public class PrescribedResult  implements TravelerElement {
   public String getMinValue() {return m_minValue;}
   public String getMaxValue() {return m_maxValue;}
   public String getIsOptional() {return m_isOptional;}
-  public void setIsOptional(String isOpt) {m_isOptional = isOpt;}
+  public boolean setIsOptional(String isOpt) 
+  {
+    if (!isOpt.equals(m_isOptional)) {
+      m_isOptional = isOpt;
+      return true;
+    }
+    return false;
+  }
   public boolean setDescription(String desc) 
   {
     String arg = (desc == null) ? "" : desc;

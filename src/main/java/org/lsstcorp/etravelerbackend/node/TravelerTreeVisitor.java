@@ -139,16 +139,12 @@ public class TravelerTreeVisitor implements TravelerVisitor {
 
         m_treeRenderer.setLeafHref(href + "&leafSelectedPath=%p");
         m_treeRenderer.setFolderHref(href + "&folderSelectedPath=%p");
-        //m_treeRenderer.setLeafHref("actionTraveler.jsp?leafSelectedPath=%p");
-        //m_treeRenderer.setFolderHref("actionTraveler.jsp?folderSelectedPath=%p");
+
         if (m_editable)  {
           m_treeRenderer.setTarget("action");
              
-        }  //else {
-          //m_treeRenderer.setLeafHref("processAction.jsp?nodePath=%p&action=DisplayOrig");
-          //m_treeRenderer.setFolderHref("processAction.jsp?nodePath=%p&action=DisplayOrig");
-        //}
-        // m_treeRenderer.setTarget("action");
+        }
+
         if (m_reason.equals("NCR")) {
           m_treeRenderer.setTarget("NCR");
         }

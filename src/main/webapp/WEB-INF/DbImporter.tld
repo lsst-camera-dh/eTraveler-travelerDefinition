@@ -92,6 +92,19 @@
     <function-signature>int getResultCount(javax.servlet.jsp.PageContext)
     </function-signature>
   </function>
+
+  <function>
+    <name>getOptionalResults</name>
+    <function-class>org.lsstcorp.etravelerbackend.node.DbImporter</function-class>
+    <function-signature>java.util.ArrayList getOptionalResults(javax.servlet.jsp.PageContext)
+    </function-signature>
+  </function>
+  <function>
+    <name>getOptionalResultCount</name>
+    <function-class>org.lsstcorp.etravelerbackend.node.DbImporter</function-class>
+    <function-signature>int getOptionalResultCount(javax.servlet.jsp.PageContext)
+    </function-signature>
+  </function>
   
   <function>
     <name>getRelationshipTasks</name>

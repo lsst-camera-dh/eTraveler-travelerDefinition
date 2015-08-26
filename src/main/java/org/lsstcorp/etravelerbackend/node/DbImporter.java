@@ -632,17 +632,21 @@ public class DbImporter {
    
   static public int getResultCount(PageContext context) {
     ProcessNode selected = getSelected(context);
-    return selected.getResultCount() + selected.getOptionalResultCount();
+    return selected.getResultCount();
   }
   
+  static public int getOptionalResultCount(PageContext context) {
+    ProcessNode selected = getSelected(context);
+    return  selected.getOptionalResultCount();
+  }
   static public ArrayList<PrescribedResult> getResults(PageContext context) {
     ProcessNode selected = getSelected(context);
-    ArrayList<PrescribedResult> toReturn = selected.getResults();
-    if (toReturn == null) return selected.getOptionalResults();
-    if (selected.getOptionalResults() != null) {
-      toReturn.addAll(selected.getOptionalResults());
-    }
-    return toReturn;
+    return selected.getResults();
+  }
+
+  static public ArrayList<PrescribedResult> getOptionalResults(PageContext context) {
+    ProcessNode selected = getSelected(context);
+    return selected.getOptionalResults();
   }
   
   static public int getRelationshipTaskCount(PageContext context) {
@@ -896,6 +900,7 @@ public class DbImporter {
       }
     }
     // Validate PrescribedResults if any
+    // Need to do the same for the optional ones    ****
     if (selected.getResultCount() > 0) {
       for (int i=0; i < selected.getResultCount(); i++) {
         if (selected.getResults().get(i).numberSemantics()) {
@@ -948,6 +953,11 @@ public class DbImporter {
       selected.setDescription(newVal);
       changed = true;
     }
+    newVal = context.getRequest().getParameter("shortDescription");
+    if (!newVal.equals(selected.getShortDescription()) ) {
+      selected.setShortDescription(newVal);
+      changed = true;
+    }
     newVal = context.getRequest().getParameter("instructionsURL");
     if (!newVal.equals(selected.getInstructionsURL()) ) {
       selected.setInstructionsURL(newVal);
@@ -969,22 +979,43 @@ public class DbImporter {
       changed |= (changedPrereq.get(iPre) > 0);
       rmPrereq |= (changedPrereq.get(iPre) > 1);
     }
+
     cnt = selected.getResultCount();
     boolean rmResult = false;
     ArrayList<Integer> changedResult =
         new ArrayList<Integer>(cnt);
     for (int iRes=0; iRes < cnt; iRes++ ) {
       changedResult.add(iRes, 
-          saveResult(context.getRequest(),selected.getResults().get(iRes),iRes));
+          saveResult(context.getRequest(),selected.getResults().get(iRes),
+                     iRes, false));
       changed |= (changedResult.get(iRes) > 0);
       rmResult |= (changedResult.get(iRes) > 1);
     }   
 
+    //
+
+
+    cnt = selected.getOptionalResultCount();
+    boolean rmOptionalResult = false;
+    ArrayList<Integer> changedOptionalResult =
+        new ArrayList<Integer>(cnt);
+    for (int iOptRes=0; iOptRes < cnt; iOptRes++ ) {
+      changedOptionalResult.add(iOptRes, 
+          saveResult(context.getRequest(),
+                     selected.getOptionalResults().get(iOptRes),iOptRes, true));
+      changed |= (changedOptionalResult.get(iOptRes) > 0);
+      rmResult |= (changedOptionalResult.get(iOptRes) > 1);
+    }   
+
+    //
     if (rmPrereq) {
       selected.rmPrereqs(changedPrereq);
     }
     if (rmResult) {
       selected.rmResults(changedResult);
+    }
+    if (rmOptionalResult) {
+      selected.rmOptionalResults(changedOptionalResult);
     }
     return changed;
   }
@@ -1016,25 +1047,28 @@ public class DbImporter {
     return (changed ? 1 : 0);
   }
   static private int saveResult(ServletRequest req, PrescribedResult result, 
-      int iRes)  {
+                                int iRes, boolean isOptional)  {
     boolean changed = false;
+    String suffix="";
+    if (isOptional) suffix="Optional";
     
-    String newVal = req.getParameter(genId("removeResult", iRes));
+    String newVal = req.getParameter(genId("removeResult"+suffix, iRes));
     if (newVal != null) {
       if (!newVal.isEmpty()) return 2;
     }
-    newVal = req.getParameter(genId("resultDescrip", iRes));
+    newVal = req.getParameter(genId("resultDescrip"+suffix, iRes));
     changed |= result.setDescription(newVal);
     
     if (result.numberSemantics()) {
-      newVal = req.getParameter(genId("units", iRes));
+      newVal = req.getParameter(genId("units"+suffix, iRes));
       changed |= result.setUnits(newVal);
       
-      newVal = req.getParameter(genId("min", iRes));
+      newVal = req.getParameter(genId("min"+suffix, iRes));
       changed |= result.setMinValue(newVal);
       
-      newVal = req.getParameter(genId("max", iRes));
+      newVal = req.getParameter(genId("max"+suffix, iRes));
       changed |= result.setMaxValue(newVal);
+      
     }
     return (changed ? 1 : 0);
   }

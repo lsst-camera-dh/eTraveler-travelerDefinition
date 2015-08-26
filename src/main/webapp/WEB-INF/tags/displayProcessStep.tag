@@ -53,9 +53,22 @@
           <display:column property="units" style="text-align:left" />
           <display:column property="minValue" title="Min" style="text-align:right" />
           <display:column property="maxValue" title="Max" style="text-align:right" />
-          <display:column property="isOptional" title="Optional" style="text-align:left" />
         </display:table>
       </c:if>
+      <c:if test="${import:getOptionalResultCount(pageContext) > 0}">
+        <h3>Optional Operator Inputs</h3>
+        <display:table name="${import:getOptionalResults(pageContext)}"
+                       class="datatable" uid="result" >
+          <display:column property="label" title="Label" 
+                          sortable="true" style="text-align:left"/>
+          <display:column property="semantics" title="Type" style="text-align:left"/>
+          <display:column property="description" title="Descrip" style="text-align:left" />
+          <display:column property="units" style="text-align:left" />
+          <display:column property="minValue" title="Min" style="text-align:right" />
+          <display:column property="maxValue" title="Max" style="text-align:right" />
+        </display:table>
+      </c:if>
+
        <c:if test="${import:getRelationshipTaskCount(pageContext) > 0}">
         <h3>Hardware relationships</h3>
         <display:table name="${import:getRelationshipTasks(pageContext)}"
