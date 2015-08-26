@@ -900,37 +900,55 @@ public class DbImporter {
       }
     }
     // Validate PrescribedResults if any
-    // Need to do the same for the optional ones    ****
+    String resCheck;
     if (selected.getResultCount() > 0) {
-      for (int i=0; i < selected.getResultCount(); i++) {
-        if (selected.getResults().get(i).numberSemantics()) {
-          String minValue = context.getRequest().getParameter(genId("min", i));
-          if (minValue == null) minValue="";
-          String maxValue = context.getRequest().getParameter(genId("max", i));
-          if (maxValue == null) maxValue="";
-          if (minValue.isEmpty() && maxValue.isEmpty()) continue;
-          boolean haveBoth = !(minValue.isEmpty() || maxValue.isEmpty());
-          String ok="";
-          if (selected.getResults().get(i).getSemantics().equals("int")) {
-            if (!minValue.isEmpty()) ok = Verify.isInt(minValue);
-            if (ok.isEmpty() && !maxValue.isEmpty()) ok = Verify.isInt(maxValue);
-            if (haveBoth) {
-              if (Integer.parseInt(minValue) > Integer.parseInt(maxValue)) {
-                return "max must be greater than min";
-              }
-            }
-          }   else { // must be float
-            if (!minValue.isEmpty()) ok = Verify.isFloat(minValue);
-            if (ok.isEmpty() && !maxValue.isEmpty()) {
-              ok = Verify.isFloat(maxValue);
-            }
-            if (haveBoth) {
-              if (Float.parseFloat(minValue) > Float.parseFloat(maxValue)) {
-                return "max must be greater than min";
-              }
+      resCheck = checkResults(context, selected.getResults(), false);
+      if (!resCheck.isEmpty()) return resCheck;
+    }
+    // Need to do the same for the optional ones
+    if (selected.getOptionalResultCount() > 0) {
+      resCheck = checkResults(context, selected.getOptionalResults(), true);
+      if (!resCheck.isEmpty()) return resCheck;
+    }
+    return "";
+  }
+
+  private static String checkResults(PageContext context, 
+                                     ArrayList<PrescribedResult> results,
+                                     boolean optional) {
+    String suffix="";
+    if (optional) suffix="Optional";
+    for (int i=0; i < results.size(); i++) {
+      
+      if (results.get(i).numberSemantics()) {
+        String minValue = 
+          context.getRequest().getParameter(genId("min"+suffix, i));
+        if (minValue == null) minValue="";
+        String maxValue = 
+          context.getRequest().getParameter(genId("max"+suffix, i));
+        if (maxValue == null) maxValue="";
+        if (minValue.isEmpty() && maxValue.isEmpty()) continue;
+        boolean haveBoth = !(minValue.isEmpty() || maxValue.isEmpty());
+        String ok="";
+        if (results.get(i).getSemantics().equals("int")) {
+          if (!minValue.isEmpty()) ok = Verify.isInt(minValue);
+          if (ok.isEmpty() && !maxValue.isEmpty()) ok = Verify.isInt(maxValue);
+          if (haveBoth) {
+            if (Integer.parseInt(minValue) > Integer.parseInt(maxValue)) {
+              return "max must be greater than min";
             }
           }
-        }    
+        }   else { // must be float
+          if (!minValue.isEmpty()) ok = Verify.isFloat(minValue);
+          if (ok.isEmpty() && !maxValue.isEmpty()) {
+            ok = Verify.isFloat(maxValue);
+          }
+          if (haveBoth) {
+            if (Float.parseFloat(minValue) > Float.parseFloat(maxValue)) {
+              return "max must be greater than min";
+            }
+          }
+        }
       }
     }
     return "";

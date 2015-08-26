@@ -1,0 +1,23 @@
+%YAML 1.1 
+---
+Name:  SR-Accept_Sensor
+HardwareGroup: Generic-CCD
+Description: A toy acceptance process traveler
+Sequence:
+   -  Name: SR-Accept_Sensor_Verify
+      Description: Record whether everything is in order
+      RequiredInputs:
+        - Label: Metrology ok?
+          InputSemantics: boolean
+        - Label: EO acquisition ok?
+          InputSemantics: boolean
+        - Label: EO analysis ok?
+          InputSemantics: boolean
+   -  Name: SR-Accept_Sensor_Disposition
+      Description: '<p>If all answers above are <b>Yes</b>, mark this step
+                   and traveler as whole as <b>Complete</b></p>
+                   <p>Otherwise mark traveler as <b>Failed</b></p>'
+
+
+
+
