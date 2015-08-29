@@ -56,13 +56,15 @@ public class WriteToDb {
               + " to ingest!");
         }
       }
+      Traveler trav;
       ProcessNode ingested;
       try {
-        ingested = parse(fileContents, nameWarning, writer);
-        if (ingested == null) return "Could not parse yaml input";
+        trav = parse(fileContents, nameWarning, writer);
+        if (trav == null) return "Could not parse yaml input";
       }  catch (Exception ex)  {
         return  "<b>" + ex.getMessage() + "</b>";
       }
+      ingested = trav.getRoot();
       DbImporter.makePreviewTree(context, ingested);
       if (action.equals("Check YAML")) {
    
@@ -70,13 +72,15 @@ public class WriteToDb {
       }
       String writeRet;
       if (action.equals("Db validate")) {
-        writeRet=writeToDb(ingested, context.getSession().getAttribute("userName").toString(),
+        writeRet=writeToDb(trav, context.getSession().getAttribute("userName").toString(),
           useTransactions.equals("true"), dbType, datasource, action.equals("Import"),
                     "","","", writer); 
       } else {
       writeRet =
-          writeToDb(ingested, context.getSession().getAttribute("userName").toString(),
-          useTransactions.equals("true"), dbType, datasource, action.equals("Import"),
+          writeToDb(trav, 
+                    context.getSession().getAttribute("userName").toString(),
+                    useTransactions.equals("true"), dbType, datasource, 
+                    action.equals("Import"),
                     context.getRequest().getParameter("owner").trim(), 
                     context.getRequest().getParameter("reason").trim(),
                     DbImporter.yamlArchiveDir(context), writer);
@@ -84,7 +88,7 @@ public class WriteToDb {
       return writeRet;
   }
 
-  private static ProcessNode parse(String fileContents, boolean nameWarning,
+  private static Traveler parse(String fileContents, boolean nameWarning,
       Writer wrt) throws Exception  {    
     Yaml yaml = new Yaml(true);
     Map yamlMap = null;
@@ -106,26 +110,29 @@ public class WriteToDb {
       throw new EtravelerException("Failed to load yaml with exception '" 
           + ex.getMessage() + "'");  
     }
-    // System.out.println("Loaded file into Map of size  " + yamlMap.size());
-    ProcessNode traveler;
+
+    ProcessNode rootNode;
     try {
-      traveler = new ProcessNode(null, topYaml);
+      rootNode = new ProcessNode(null, topYaml);
     } catch (Exception ex) {
       System.out.println("Failed to import from yaml with exception " + ex.getMessage());
       // return null;
       throw new EtravelerException("Failed to import from yaml with exception '"
           + ex.getMessage() +"'");
     }
+    Traveler traveler  = new Traveler(rootNode, "yaml", null, 
+                                      topYaml.getSubsystem());
     return traveler;
   }
 
-  public static String writeToDb(ProcessNode travelerRoot, String user,
+  public static String writeToDb(Traveler traveler, String user,
                                  boolean useTransactions, String dbType, 
                                  String datasource, boolean ingest,
                                  String owner, String reason,
                                  String yamlArchiveDir, JspWriter writer)  {
 
     // Try connect
+    ProcessNode travelerRoot = traveler.getRoot();
     DbConnection conn = makeConnection(dbType, datasource);
     if (conn == null) return "Failed to connect";
     conn.setSourceDb(dbType);

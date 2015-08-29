@@ -13,8 +13,15 @@ public class Traveler {
   private ProcessNode m_root=null;
   private String m_source=null;  // e.g. db, yaml
   private String m_sourceDb="[none]";  // dataSourceMode value or "[none]"
+  private String m_subsystem=null;
   
-
+  public Traveler(ProcessNode root, String source, String sourceDb, 
+      String subsystem) {
+    m_root=root;
+    m_source = source;
+    m_sourceDb = sourceDb;
+    m_subsystem=subsystem;
+  }
   public Traveler(ProcessNode root, String source, String sourceDb) {
     m_root = root;
     m_source = source;    // check for validity?
@@ -27,6 +34,7 @@ public class Traveler {
   public ProcessNode getRoot() {return m_root;}
   public String getSource() {return m_source;}
   public String getSourceDb() {return m_sourceDb;}
+  public String getSubsystem() {return m_subsystem;}
   public String getName() {return m_root.getName();}
   public String getVersion() {return m_root.getVersion();}
   public String getHgroup() {return m_root.getHardwareGroup(); }

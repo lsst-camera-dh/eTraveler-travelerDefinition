@@ -90,6 +90,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     s_knownKeys.add("NewStatus");
     s_knownKeys.add("AddLabel");
     s_knownKeys.add("RemoveLabel");
+    s_knownKeys.add("Subsystem");
     /* Following are written by yaml export; informational only */
     s_knownKeys.add("FromSourceVersion");
     s_knownKeys.add("FromSourceId");
@@ -120,11 +121,12 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   static final int NEWSTATUS=21;
   static final int ADDLABEL=22;
   static final int REMOVELABEL=23;
+  static final int SUBSYSTEM=24;
   
-  static final int FROMSOURCEVERSION=24;
-  static final int FROMSOURCEID=25;
-  static final int FROMSOURCEORIGINALID=26;
-  static final int FROMSOURCESOURCEDB=27;
+  static final int FROMSOURCEVERSION=25;
+  static final int FROMSOURCEID=26;
+  static final int FROMSOURCEORIGINALID=27;
+  static final int FROMSOURCESOURCEDB=28;
   
   public ProcessNodeYaml() {}
   
@@ -249,7 +251,11 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         }
         m_hardwareGroup = v;
         break;
- 
+
+      case SUBSYSTEM:
+        // ignore for all but top node
+        if (m_parent == null) m_subsystem=v;
+        break;
       case VERSION:
         m_version = v; 
         if (!m_version.equals("next")) {
@@ -518,13 +524,6 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   public String provideId() {return null;}
   public String provideName()  {return m_name;}
   public String provideHardwareGroup() {return m_hardwareGroup;}
-  /*
-  public String provideHardwareRelationshipType()  {
-    return m_hardwareRelationshipType; }
-  public String provideHardwareRelationshipSlot() {
-    return m_hardwareRelationshipSlot;
-  }
-  */
   public String provideVersion() {return m_version;}
   public String provideUserVersionString() {return m_userVersionString;}
   public String provideDescription() {return m_description;}
@@ -579,6 +578,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     return new RelationshipTask(parent, m_relationshipTasks[n]);
   }
   public void finishImport(ProcessNode process) {}
+  public String getSubsystem() {return m_subsystem;}
 
   // Properties read in directly from yaml
   private String m_name=null;
@@ -614,6 +614,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private int m_edgeStep = 0;    // inferred from location in file
 
   private ProcessNodeYaml m_clonedFrom=null;
+  private String m_subsystem=null;
 
   private ProcessNodeYaml[] m_children;
   private PrerequisiteYaml[] m_prerequisites;

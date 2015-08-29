@@ -21,6 +21,7 @@ public class TravelerToYamlVisitor implements TravelerVisitor {
   private String m_dbSource;
   private Map<String, Object> data;
   private boolean m_includeDbInternal = false;
+  private String m_subsystem=null;
   
   public TravelerToYamlVisitor(String dbSource)  {
     m_dbSource = dbSource;
@@ -28,6 +29,8 @@ public class TravelerToYamlVisitor implements TravelerVisitor {
   }
   public void setIncludeDbInternal(boolean val)  {m_includeDbInternal = val;}
   public boolean getIncludeDbInternal() {return m_includeDbInternal;}
+  public void setSubsystem(String sub) {m_subsystem = sub;}
+  public String getSubsystem() {return m_subsystem;}
   public void visit(ProcessNode process, String activity, Object cxt) throws EtravelerException {
     Object cxtToPass = cxt;
     boolean topNode = false;

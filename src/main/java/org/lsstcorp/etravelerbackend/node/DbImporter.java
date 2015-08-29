@@ -370,6 +370,7 @@ public class DbImporter {
   static public String outputYaml(Writer writer, Traveler trav, boolean includeDebug)  {
     TravelerToYamlVisitor vis = new TravelerToYamlVisitor(trav.getSourceDb());
     vis.setIncludeDbInternal(includeDebug);
+    vis.setSubsystem(trav.getSubsystem());
     try {
       vis.visit(trav.getRoot(), "", null);
     } catch (EtravelerException ex) {
