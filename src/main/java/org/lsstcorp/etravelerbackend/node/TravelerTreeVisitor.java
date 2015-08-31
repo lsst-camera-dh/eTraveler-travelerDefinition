@@ -69,6 +69,10 @@ public class TravelerTreeVisitor implements TravelerVisitor {
   public ProcessNode getTravelerRoot() {
     return m_treeRoot.getProcessNode();
   }
+  public Traveler getTraveler() { return m_traveler; }
+  public void setTraveler(Traveler trav) {
+    m_traveler=trav;
+  }
   
   public void setPath(String path) {
     m_path = path;
@@ -224,5 +228,6 @@ public class TravelerTreeVisitor implements TravelerVisitor {
   private boolean m_editable=false; 
   private String m_reason=null;
   private String m_title="The tree";
+  private Traveler m_traveler=null;
   private HashMap <ProcessTreeNode, String> m_editedNodes=null;
 }

@@ -35,7 +35,7 @@ public class TravelerImageServlet extends HttpServlet {
     String decodedName = URLDecoder.decode(request.getParameter("name"), "UTF-8");
     Traveler trav;
     try {
-      trav = DbImporter.getTraveler(decodedName,
+      trav = DbImporter.getCachedTraveler(decodedName,
           request.getParameter("version"), request.getParameter("hgroup"),
           request.getParameter("db"));
     } catch (EtravelerException ex) {

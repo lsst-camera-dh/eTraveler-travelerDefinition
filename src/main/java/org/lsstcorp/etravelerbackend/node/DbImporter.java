@@ -48,18 +48,17 @@ public class DbImporter {
       String dbType) {
     return name + "_" + version + "_" + hgroup + "@" + dbType;
   }
-  public static ProcessNode getProcess(String name, String version, 
-      String hgroup, String dbType, String datasource) 
+  public static Traveler getTraveler(String name, String version, 
+                                     String hgroup, String dbType, 
+                                     String datasource) 
     throws EtravelerException {
     ConcurrentHashMap<String, Traveler> travelers=s_travelers;
-    ConcurrentHashMap<String, StringArrayWriter> writers=s_writers;
-   
+
     String key = makeKey(name, version, hgroup, dbType);
     ProcessNode travelerRoot = null;
     Traveler traveler = null;
     if (travelers.containsKey(key)) {
       traveler = travelers.get(key);
-      travelerRoot = traveler.getRoot();
     } else {
       // Try connect
       DbConnection conn = makeConnection(dbType, datasource);
@@ -70,7 +69,10 @@ public class DbImporter {
         ProcessNodeDb travelerDb = new ProcessNodeDb(conn, name, intVersion, 
             hgroup, null, null);
         travelerRoot = new ProcessNode(null, travelerDb);
-        traveler = new Traveler(travelerRoot, "db", dbType);
+        // Need db query to get subsystem, probably belongs in ProcessNodeDb.
+        // Or maybe make a TravelerDb class??
+        String subsys = travelerDb.getSubsystem(conn);
+        traveler = new Traveler(travelerRoot, "db", dbType, subsys);
         travelers.putIfAbsent(key, traveler);
       }  catch (NumberFormatException ex) {
         conn.close();
@@ -85,7 +87,13 @@ public class DbImporter {
         ProcessNodeDb.reset();
       }
     }
-    return travelerRoot;
+    return traveler;
+  }
+
+  public static ProcessNode getProcess(String name, String version, 
+      String hgroup, String dbType, String datasource) 
+    throws EtravelerException {
+    return getTraveler(name, version, hgroup, dbType, datasource).getRoot();
   }
   public static String retrieveProcess(PageContext context)  {
     return retrieveProcess(context, true);
@@ -155,7 +163,7 @@ public class DbImporter {
   
   static public String dotSource(PageContext context) {
     Traveler trav;
-    try { trav = getTraveler(context); } catch (EtravelerException ex) {
+    try { trav = getCachedTraveler(context); } catch (EtravelerException ex) {
       return (ex.getMessage());
     }
     ProcessNode travelerRoot = trav.getRoot();
@@ -275,7 +283,7 @@ public class DbImporter {
     HttpServletRequest request = (HttpServletRequest) context.getRequest();
     retrieveProcess(context, false);
     Traveler trav;
-    try {   trav = getTraveler(context); } catch (EtravelerException ex) {
+    try {   trav = getCachedTraveler(context); } catch (EtravelerException ex) {
       System.out.println(ex.getMessage());
       return ex.getMessage();
     }
@@ -412,10 +420,14 @@ public class DbImporter {
       version = context.getRequest().getParameter("traveler_version");
       hgroup = context.getRequest().getParameter("traveler_hgroup");
     }
-    ProcessNode originalTraveler = null;
-   
+    Traveler originalTraveler = null;
+    ProcessNode originalTravelerRoot = null;
+
+  
     try {
-      originalTraveler = getProcess(name, version, hgroup, dbType, datasource);
+      originalTraveler = 
+        getTraveler(name, version, hgroup, dbType, datasource);
+      originalTravelerRoot = originalTraveler.getRoot();
     } catch (EtravelerException ex) {
       try {
         context.getOut().println("Failed to retreive process with exception: " 
@@ -424,23 +436,30 @@ public class DbImporter {
       System.out.println("Failed to retrieve process with exception: " + ex.getMessage() );
       return;
     }
-    ProcessNode traveler = originalTraveler;
+    Traveler traveler = originalTraveler;
+    ProcessNode travelerRoot = originalTravelerRoot;   
     TravelerTreeVisitor vis = 
         new TravelerTreeVisitor(reason.equals("edit"), reason);
     HttpServletRequest request = (HttpServletRequest) context.getRequest();
     vis.setPath(request.getContextPath());
     try {
       if (reason.equals("edit"))  { /* make a copy */
-        traveler = new ProcessNode(null, originalTraveler, 0);
+        traveler = new Traveler(originalTraveler);
+        vis.setTraveler(traveler);
+        travelerRoot = traveler.getRoot();
       }
-      vis.visit(traveler, "build", null);
+      if (travelerRoot ==  null) {
+        System.out.println("Failed to copy traveler for editing");
+        return;
+      }
+      vis.visit(travelerRoot, "build", null);
     } catch (EtravelerException ex) {
       System.out.println("Failed to build tree: " + ex.getMessage() );
       return;
     }
     if (reason.equals("edit")) {
       // Tell visitor about original traveler
-      vis.setCopiedFrom(originalTraveler);
+      vis.setCopiedFrom(originalTravelerRoot);
     }
     jspContext.setAttribute("treeVisitor", vis, PageContext.SESSION_SCOPE);
     //}
@@ -543,18 +562,21 @@ public class DbImporter {
    * @param db
    * @return 
    */
-  static public Traveler getTraveler(String name, String version, String hgroup,
-      String db) throws EtravelerException {
+  static public Traveler 
+    getCachedTraveler(String name, String version, String hgroup, String db) 
+    throws EtravelerException {
     if ((name == null) || (version == null) || (hgroup == null) || (db == null)) {
-      throw new EtravelerException("Incomplete input to getTraveler(name, version, hgroup, db)");
+      throw new EtravelerException("Incomplete input to getCachedTraveler(name, version, hgroup, db)");
     }
     String key = makeKey(name, version, hgroup, db);
     return s_travelers.get(key);
   }
+  
   static public Traveler getTravelerFromKey(String key) {
     Traveler trav = s_travelers.get(key);
     return trav;
   }
+  
   /**
     * Do selected action on current traveler/process step. 
     * Can find tree visitor (hence traveler) and selected step path
@@ -743,7 +765,8 @@ public class DbImporter {
     TravelerTreeVisitor vis = 
       (TravelerTreeVisitor) jspContext.getAttribute("treeVisitor", 
                                                     PageContext.SESSION_SCOPE);
-    ProcessNode travelerRoot = vis.getTravelerRoot();
+    //ProcessNode travelerRoot = vis.getTravelerRoot();
+    Traveler traveler = vis.getTraveler();
     if (vis.getNEdited() == 0) {
       try {
         context.getOut().println("<p class='warning'>Traveler has not been modified. Will not ingest</p>");
@@ -753,7 +776,7 @@ public class DbImporter {
       }
     }
     String msg = 
-      WriteToDb.writeToDb(travelerRoot, 
+      WriteToDb.writeToDb(traveler, 
                          context.getSession().getAttribute("userName").toString(),
                          true, dbType, datasource, true, 
                          context.getRequest().getParameter("owner"),
@@ -870,14 +893,15 @@ public class DbImporter {
     }
   }
   
-  static private Traveler getTraveler(PageContext context) throws EtravelerException {
+  static private Traveler getCachedTraveler(PageContext context) 
+    throws EtravelerException {
     String name =  context.getRequest().getParameter("traveler_name");
     String version = context.getRequest().getParameter("traveler_version");
     String hgroup = context.getRequest().getParameter("traveler_hgroup");
     
     String dbType = ModeSwitcherFilter.getVariable(context.getSession(), 
                                                    "dataSourceMode");
-    return getTraveler(name, version, hgroup, dbType);
+    return getCachedTraveler(name, version, hgroup, dbType);
   }
     
   /* Probably need to do something here for relationship tasks */

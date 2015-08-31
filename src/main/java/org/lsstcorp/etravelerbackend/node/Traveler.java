@@ -3,6 +3,7 @@
  * and open the template in the editor.
  */
 package org.lsstcorp.etravelerbackend.node;
+import org.lsstcorp.etravelerbackend.exceptions.EtravelerException;
 
 /**
  * Root of a process tree plus some associated information: where
@@ -30,6 +31,20 @@ public class Traveler {
   public Traveler(ProcessNode root, String source)  {
     m_root = root;
     m_source = source;
+  }
+  /**
+   *  Deep copy constructor
+   * @param toCopy 
+   */
+  public Traveler(Traveler toCopy)  {
+    m_source = toCopy.m_source;
+    m_sourceDb= toCopy.m_sourceDb;
+    m_subsystem = toCopy.m_subsystem;
+    try {
+      m_root = new ProcessNode(null, toCopy.m_root, 0);
+    } catch (EtravelerException ex) {
+      m_root =  null;
+    }
   }
   public ProcessNode getRoot() {return m_root;}
   public String getSource() {return m_source;}

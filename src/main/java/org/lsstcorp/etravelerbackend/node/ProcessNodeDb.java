@@ -869,6 +869,18 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       }
     } 
   }
+  /**
+     Only makes sense to ask for subsystem when node has come from db
+     and is the root of a traveler
+     If something goes wrong, null is returned
+   */
+  public String getSubsystem(DbConnection conn) throws SQLException {
+    if (m_id == null) return null;
+    if (m_dbParent != null) return null;
+    String where = " where rootProcessId='" + m_id +"'";
+    String tableSpec = "TravelerType TT join Subsystem S on TT.subsystemId=S.id";
+    return conn.fetchColumn(tableSpec, "S.name", where);
+  }
   /*
    * Add new row to TravelerType and TravelerTypeStateHistory tables
    */
