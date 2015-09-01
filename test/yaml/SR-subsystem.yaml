@@ -1,0 +1,12 @@
+%YAML 1.1
+---
+Name: SR-subsystem
+Subsystem: SR
+Description:  Should see subsystem in output YAML
+HardwareGroup: Generic-CCD
+Version: next
+Sequence:
+  - Name: SR-subsystem_s1
+    Version: next
+  - Name: SR-subsystem_s2
+    Version: next

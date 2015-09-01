@@ -44,6 +44,7 @@ public class TravelerToYamlVisitor implements TravelerVisitor {
     process.exportTo(yamlChild);
     if (topNode)  {
       yamlChild.acceptSourceDb(m_dbSource);
+      yamlChild.acceptSubsystem(m_subsystem);
     }
   }
   public void addChild(ArrayList< HashMap<String, Object> > children, ProcessNode process,

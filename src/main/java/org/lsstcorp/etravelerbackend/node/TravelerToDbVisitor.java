@@ -36,7 +36,7 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
       } catch (SQLException ex) {
         throw new EtravelerException("SQL failure setting AutoCommit");
       }
-      m_processNodeDb.verify(m_connect);
+      m_processNodeDb.verify(m_connect, m_subsystem);
     }  else if (activity.equals("write"))  {
       /* Perhaps pass reason string in cxt argument.  Then
        * pass as argument to registerTraveler
@@ -96,6 +96,8 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
   public String getTravelerName() {return m_travelerName;}
   public String getTravelerVersion() {return m_travelerVersion;}
   public String getTravelerHardwareGroup() {return m_travelerHardwareGroup;}
+  public String getSubsystem() {return m_subsystem;}
+  public void setSubsystem(String sub){m_subsystem=sub;}
   public void setUseTransactions(boolean setting) {
     m_useTransactions = setting;
   }
@@ -114,4 +116,5 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
   private String m_travelerName = null;
   private String m_travelerVersion= null;
   private String m_travelerHardwareGroup=null;
+  private String m_subsystem=null;
 }

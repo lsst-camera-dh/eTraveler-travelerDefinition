@@ -564,7 +564,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public boolean isRootNode() {
     return (m_travelerRoot == this);
   }
-  public void verify(DbConnection connect) throws EtravelerException {   
+  public void verify(DbConnection connect, String sub) throws EtravelerException {   
     // For first time through (parentless node)  maybe look up some things,
     // such as all possible relationship types, prereq types and semantic types.
     //  Save and pass on through when calling verify on children, prereqs, etc.
@@ -588,6 +588,12 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
           m_hardwareGroupId = m_hardwareGroupNameMap.get(m_hardwareGroup);
         } else {
           throw new EtravelerException("No hardware group entry for " + m_hardwareGroup);
+        }
+      }
+      if (sub != null) {
+        m_subsystemId = connect.fetchColumn("Subsystem", "id", " where shortName='" + sub + "'");
+        if (m_subsystemId == null) {
+          throw new EtravelerException("Unknown subsystem:  " + sub);
         }
       }
         
@@ -697,7 +703,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     // a label and not a regular status     !!!!
     if (m_childrenDb != null) {
       for (int ic=0; ic < m_childrenDb.length; ic++) {
-        m_childrenDb[ic].verify(connect);
+        m_childrenDb[ic].verify(connect, null);
       
         if ((m_travelerActionMask & TravelerActionBits.AUTOMATABLE) != 0) {
           if ((m_childrenDb[ic].m_travelerActionMask & 
@@ -879,20 +885,23 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     if (m_dbParent != null) return null;
     String where = " where rootProcessId='" + m_id +"'";
     String tableSpec = "TravelerType TT join Subsystem S on TT.subsystemId=S.id";
-    return conn.fetchColumn(tableSpec, "S.name", where);
+    return conn.fetchColumn(tableSpec, "S.shortName", where);
   }
   /*
    * Add new row to TravelerType and TravelerTypeStateHistory tables
    */
-   private static   String[] s_insertTravTypeCols={"rootProcessId", "owner", "reason","createdBy"};
+   private static   String[] s_insertTravTypeCols={"rootProcessId", "owner", 
+     "reason", "subsystemId", "createdBy"};
    private static   String[] s_insertTravTypeHistoryCols={"reason", "createdBy", "travelerTypeId",
     "travelerTypeStateId"};
-  public  void registerTraveler(String owner, String reason) throws SQLException, EtravelerException {
+  public  void registerTraveler(String owner, String reason) 
+      throws SQLException, EtravelerException {
     String[] vals = new String[s_insertTravTypeCols.length];
     vals[0] = m_id;
     vals[1] = owner.trim();
     vals[2] = reason.trim();
-    vals[3] = m_vis.getUser();
+    vals[3] = m_subsystemId;
+    vals[4] = m_vis.getUser();
     String [] valsHist = new String[s_insertTravTypeHistoryCols.length];
     valsHist[0] = "new traveler";
     valsHist[1] = m_vis.getUser();
@@ -1055,6 +1064,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private boolean m_isRef=false;
   private boolean m_edited=false;
   private String m_sourceDb=null;
+  private String m_subsystemId = null;  /* only used for root node */
   private ProcessNodeDb m_travelerRoot=null; 
   private ConcurrentHashMap<String, ProcessNodeDb> m_nodeMap=null;
   // For exporting to db

@@ -266,6 +266,11 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
       }
     }
   }
+  public void acceptSubsystem(String sub) {
+    if (sub != null) {
+      m_data.put("Subsystem", sub);
+    }
+  }
   // Do we need anything more having to do with edges?
   // What about acceptChild ?
   // Signal to node in case it needs to do anything after contents are complete

@@ -65,7 +65,7 @@ public class WriteToDb {
         return  "<b>" + ex.getMessage() + "</b>";
       }
       ingested = trav.getRoot();
-      DbImporter.makePreviewTree(context, ingested);
+      DbImporter.makePreviewTree(context, trav);
       if (action.equals("Check YAML")) {
    
         return "File successfully parsed";
@@ -151,6 +151,7 @@ public class WriteToDb {
           ex.getMessage() +"'";
     }
     try {
+      vis.setSubsystem(traveler.getSubsystem());
       vis.visit(travelerRoot, "verify", null);
     }  catch (Exception ex)  {
       conn.close();

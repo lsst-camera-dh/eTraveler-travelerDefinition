@@ -72,6 +72,9 @@ public class TravelerTreeVisitor implements TravelerVisitor {
   public Traveler getTraveler() { return m_traveler; }
   public void setTraveler(Traveler trav) {
     m_traveler=trav;
+    if (trav.getSubsystem() != null) {
+      m_title="The tree, subsystem=" + trav.getSubsystem();
+    }
   }
   
   public void setPath(String path) {

@@ -445,13 +445,13 @@ public class DbImporter {
     try {
       if (reason.equals("edit"))  { /* make a copy */
         traveler = new Traveler(originalTraveler);
-        vis.setTraveler(traveler);
         travelerRoot = traveler.getRoot();
       }
       if (travelerRoot ==  null) {
         System.out.println("Failed to copy traveler for editing");
         return;
       }
+      vis.setTraveler(traveler);
       vis.visit(travelerRoot, "build", null);
     } catch (EtravelerException ex) {
       System.out.println("Failed to build tree: " + ex.getMessage() );
@@ -469,14 +469,15 @@ public class DbImporter {
    * In order to display traveler after yaml loading but before writing to db
    * For now, no editing allowed
    */
-  static public void makePreviewTree(PageContext context, ProcessNode traveler) {
+  static public void makePreviewTree(PageContext context, Traveler traveler) {
     TravelerTreeVisitor vis = 
         new TravelerTreeVisitor(false, "view");
-    vis.setTitle("Preview tree from YAML check");
+    vis.setTitle("Preview tree from YAML check, subsystem='" 
+        + traveler.getSubsystem() + "'");
     HttpServletRequest request = (HttpServletRequest) context.getRequest();
     vis.setPath(request.getContextPath());
     try {
-      vis.visit(traveler, "build", null);
+      vis.visit(traveler.getRoot(), "build", null);
     } catch (EtravelerException ex) {
       System.out.println("Failed to build tree: " + ex.getMessage() );
       return;
