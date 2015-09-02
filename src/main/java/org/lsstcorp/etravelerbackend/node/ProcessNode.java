@@ -332,6 +332,15 @@ public class ProcessNode implements  TravelerElement
     pList.add(new Attribute("max iterations", m_maxIteration));
     pList.add(new Attribute("child type", m_substeps));
     pList.add(new Attribute("traveler action mask", Integer.toString(m_travelerActionMask)));
+    if (m_permissionGroups != null) {
+      if (m_permissionGroups.size() > 0) {
+        String groupString = m_permissionGroups.get(0);
+        for (int i=1; i < m_permissionGroups.size(); i++) {
+          groupString += ", " + m_permissionGroups.get(i);
+        }
+        pList.add(new Attribute("permission groups", groupString));
+      }
+    }
     int nChild = m_optionCount;
     if (m_newLocation != null) {
       pList.add(new Attribute("new location", m_newLocation));
