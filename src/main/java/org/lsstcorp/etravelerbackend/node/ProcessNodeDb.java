@@ -328,14 +328,14 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     m_permissionGroups = new ArrayList<String>();
     int remaining = m_permissionGroupMask;
     int bit = 1;
-    while (remaining != 0)  {
+    while ((remaining != 0) && (bit < Integer.MAX_VALUE))  {
       if ((bit & remaining) != 0) {
         if (m_permissionGroupMap.contains(Integer.toString(bit))) {
           m_permissionGroups.add(m_permissionGroupMap.get(Integer.toString(bit)));
         }
         remaining -= bit;
-        bit *= 2;
       }
+      bit *= 2;
     }
   }
   /*
@@ -661,6 +661,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
         }
       }
     }
+    formPermissionGroupMask();
     // If ref, verify we have the right db and that the node we need really is.
     // there. Also fetch travelerActionMask
     if (m_isRef)   {
@@ -774,7 +775,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private static   String[] s_insertProcessCols={"name", 
     "hardwareGroupId", "version", "userVersionString", "description", "shortDescription",
     "instructionsURL", "substeps", "maxIteration", "newLocation", "newHardwareStatusId", "originalId",
-    "travelerActionMask", "createdBy"};
+    "travelerActionMask", "permissionMask", "createdBy"};
   private static   String[] s_insertEdgeCols={"parent", "child", "step", "cond", "createdBy"};
  
   
@@ -818,6 +819,9 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       vals[++ix] = m_newStatusId;
       vals[++ix] = m_originalId;
       vals[++ix] = String.valueOf(m_travelerActionMask);
+      if (m_permissionGroups != null ) {
+        vals[++ix] = String.valueOf(m_permissionGroupMask);
+      } else vals[++ix] = null;
       //  Value for user should come from Confluence log-in
       vals[++ix] = m_vis.getUser();
       try {

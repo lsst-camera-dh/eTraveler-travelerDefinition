@@ -1,0 +1,214 @@
+%YAML 1.1 
+---
+Name:  SR-Sensor_Preship_Review
+Version: next
+HardwareGroup: Generic-CCD
+ShortDescription: Procedure for accepting a sensor
+Description: '<p>For each item with a checkbox consult reports as appropriate 
+to determine whether the sensor meets requirements. Include a comment for
+any quantity not acquired or outside its prescribed range, 
+missing reports, etc.</p>
+<p>Complete all sections even for sensors which are deemed unacceptable.</p>
+<p>See also <a href="https://confluence.slac.stanford.edu/x/KYaMCw">E2V 11903-10-4</a></p>'
+Sequence:
+  - Name: SR-Sensor_Preship_Review-Test_values
+    Version: next
+    ShortDescription: Evaluate tested values
+    Description:  A check means the value in question is within spec
+    RequiredInputs:
+      - Label: 'CCD-007: read noise'
+        InputSemantics: boolean
+      - Label: 'CCD-008: Blooming full well'
+        InputSemantics: boolean
+      - Label: 'CCD-009: Non-linearity'
+        InputSemantics: boolean
+      - Label: 'CCD-010: Serial CTE at low signal level'
+        InputSemantics: boolean
+      - Label: 'CCD-010: Serial CTE at high signal level'
+        InputSemantics: boolean
+      - Label: 'CCD-011: Parallel CTE at low signal level'
+        InputSemantics: boolean
+      - Label: 'CCD-011: Parallel CTE at high signal level'
+        InputSemantics: boolean
+      - Label: 'CCD-012: Active imaging area and cosmetic quality'
+        InputSemantics: boolean
+      - Label: 'CCD-014: Dark Current percentile'
+        InputSemantics: boolean
+      - Label: 'CCD-021: u band QE at 330nm, 350nm and 370nm at -95C'
+        InputSemantics: boolean
+      - Label: 'CCD-022: g band QE at 450nm and 500nm at -95C'
+        InputSemantics: boolean
+      - Label: 'CCD-023: r band QE at 620nm at -95C'
+        InputSemantics: boolean
+      - Label: 'CCD-024: i band QE at 750nm at -95C'
+        InputSemantics: boolean
+      - Label: 'CCD-025: z band QE at 870nm at -95C'
+        InputSemantics: boolean
+      - Label: 'CCD-026: y band QE at 1000nm at -95C'
+        InputSemantics: boolean
+      - Label: 'CCD-027: PRNU'
+        InputSemantics: boolean
+      - Label: 'CCD-028: Point spread function'
+        InputSemantics: boolean
+      - Label: 'CCD-029: Mounting feature location'
+        InputSemantics: boolean
+      - Label: 'CCD-030: Nominal height & Sensor height (95% of imageing area)
+           (Pass per provided ZNOM)'
+        InputSemantics: boolean
+      - Label: 'CCD-031: Sensor surface flatness'
+        InputSemantics: boolean
+    OptionalInputs:
+      - Label: 'Remarks'
+        InputSemantics: string
+  - Name: SR-Sensor_Preship_Review-Testing_exclusion
+    Version: next
+    ShortDescription: Evaluate values obtained by analysis
+    Description:  A check means the value in question is within spec
+    RequiredInputs:
+      - Label: 'CCD-001: CCD type'
+        InputSemantics: boolean
+      - Label: 'CCD-002: Pixel size'
+        InputSemantics: boolean
+      - Label: 'CCD-003: Segmentation'
+        InputSemantics: boolean
+      - Label: 'CCD-004: Contiguity'
+        InputSemantics: boolean
+      - Label: 'CCD-006: Frame read time'
+        InputSemantics: boolean
+      - Label: 'CCD-013: Crosstalk'
+        InputSemantics: boolean
+      - Label: 'CCD-019: Output drive capability'
+        InputSemantics: boolean
+      - Label: 'CCD-020: Source follower power'
+        InputSemantics: boolean
+      - Label: 'CCD-032: Temperature sensor'
+        InputSemantics: boolean
+      - Label: 'CCD-033: Thermal impedance'
+        InputSemantics: boolean
+      - Label: 'CCD-034: Outgassing'
+        InputSemantics: boolean
+      - Label: 'CCD-036: Lower survival temperature'
+        InputSemantics: boolean
+      - Label: 'CCD-037: Uperr survival temeprature'
+        InputSemantics: boolean
+      - Label: 'CCD-038: Design load limit'
+        InputSemantics: boolean
+      - Label: 'CCD-041: Humidity survival'
+        InputSemantics: boolean
+      - Label: 'CCD-042: electrical access'
+        InputSemantics: boolean
+    OptionalInputs:
+      - Label: 'Remarks'
+        InputSemantics: string
+  - Name: SR-Sensor_Preship_Review-Performance
+    Version: next
+    ShortDescription: Evaluate items from EO Test Report
+    Description:  A check means the corresponding reprot and data product is 
+                  available.
+    RequiredInputs:
+      - Label: 'Dark Current'
+        InputSemantics: boolean
+      - Label: 'QE at each of the 6 wavelengths'
+        InputSemantics: boolean
+      - Label: 'PRNU'
+        InputSemantics: boolean
+      - Label: 'Number and location of defects and traps for each amplifier'
+        InputSemantics: boolean
+      - Label: 'Responsivity in uV/e-'
+        InputSemantics: boolean
+      - Label: 'Read noise'
+        InputSemantics: boolean
+      - Label: 'Image area saturation limit'
+        InputSemantics: boolean
+      - Label: 'Image area linearity'
+        InputSemantics: boolean
+      - Label: 'Full well'
+        InputSemantics: boolean
+      - Label: 'Serial CTE'
+        InputSemantics: boolean
+      - Label: 'Parallel CTE'
+        InputSemantics: boolean
+      - Label: 'Crosstalk'
+        InputSemantics: boolean
+      - Label: 'PSF'
+        InputSemantics: boolean
+    OptionalInputs:
+      - Label: 'Remarks'
+        InputSemantics: string
+  - Name: SR-Sensor_Preship_Review-Metadata
+    Version: next
+    ShortDescription: Confirm metadata is available
+    Description:  A check means the specified metadata is available
+    RequiredInputs:
+      - Label: 'Operatoring conditions (timing, etc.)'
+        InputSemantics: boolean
+      - Label: 'temperature'
+        InputSemantics: boolean
+    OptionalInputs:
+      - Label: 'Remarks'
+        InputSemantics: string
+  - Name: SR-Sensor_Preship_Review-LCA-10113_datasets
+    Version: next
+    ShortDescription: Verify existence and validity of prescribed datasets
+    Description:  'A check means the dataset, taken at -95 +/- 1 C, was
+   provided at least 1 week prior to shipping along with associated metadata'
+    RequiredInputs:
+      - Label: 'Flat field exposure'
+        InputSemantics: boolean
+      - Label: "'Pocket pumping' exposure"
+        InputSemantics: boolean
+      - Label: 'Dark integrations'
+        InputSemantics: boolean
+      - Label: 'Fe-55 X-ray exposures'
+        InputSemantics: boolean
+      - Label: 'Wavelength scan'
+        InputSemantics: boolean
+      - Label: 'Superflat'
+        InputSemantics: boolean
+      - Label: 'Spot Images'
+        InputSemantics: boolean
+      - Label: 'Readout System Noise Images'
+        InputSemantics: boolean
+      - Label: 'Readout System Crosstalk Images'
+        InputSemantics: boolean
+    OptionalInputs:
+      - Label: 'Remarks'
+        InputSemantics: string
+  - Name: SR-Sensor_Preship_Review-Mechanical_performance
+    Version: next
+    ShortDescription: Accept mechanical performance data
+    Description:  A check means the report and data products for the item are available
+    RequiredInputs:
+      - Label: 'Height of imaging surface'
+        InputSemantics: boolean
+      - Label: 'Sensor flatness'
+        InputSemantics: boolean
+    OptionalInputs:
+      - Label: 'Remarks'
+        InputSemantics: string
+  - Name: SR-Sensor_Preship_Review-SOW_datasets
+    Version: next
+    ShortDescription: Accept specified datasets
+    Description:  'A check means the dataset has been provided and associated metadata is available'
+    RequiredInputs:
+      - Label: 'Room temperature interferogram flatness map of theimaging surface'
+        InputSemantics: boolean
+      - Label: 'Set of uniformly-spaced measurements of image surface absolute
+height above the mounting surface'
+        InputSemantics: boolean
+      - Label: 'Flatness map of the imaging surface at operating temperature'
+        InputSemantics: boolean
+    OptionalInputs:
+      - Label: 'Remarks'
+        InputSemantics: string
+  - Name: SR-Sensor_Preship_Review-Final_decision
+    Version: next
+    ShortDescription: Accept or reject the sensor for shipment
+    Description: 'Indicate whether or not the sensor is accepted. If accepted
+with out-of-tolerance values or missing data, justify in <b>Remarks</b> below'
+    RequiredInputs:
+      - Label: 'Accept'
+        InputSemantics: boolean
+    OptionalInputs:
+      - Label: 'Remarks'
+        InputSemantics: string

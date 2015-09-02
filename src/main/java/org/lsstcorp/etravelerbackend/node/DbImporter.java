@@ -65,7 +65,7 @@ public class DbImporter {
       if (conn == null) throw new EtravelerException("Failed to connect");
       try {
         int intVersion = Integer.parseInt(version);
-        conn.setReadOnly(true);
+        // conn.setReadOnly(true);
         ProcessNodeDb travelerDb = new ProcessNodeDb(conn, name, intVersion, 
             hgroup, null, null);
         travelerRoot = new ProcessNode(null, travelerDb);

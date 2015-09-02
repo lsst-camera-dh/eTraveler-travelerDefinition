@@ -1,0 +1,26 @@
+%YAML 1.1
+---
+Name: BatchedMultiSeparate
+HardwareGroup: snark
+ShortDescription: Batched relationship test
+Description: Try out batched multirelationships one step at a time
+Version: next
+Sequence:
+  - Name: BatchedMultiSeparate-empty
+    ShortDescription: empty
+    Description: nothing to do
+    Version: next
+  - Name: BatchedMultiSeparate-assignScrews
+    Version: next
+    ShortDescription: Assign
+    Description: Assign for single-batch relationship
+    RelationshipTasks:
+        - RelationshipName: boojum_screws_singleBatch
+          RelationshipAction: assign
+  - Name: BatchedMultiSeparate-installScrews
+    Version: next
+    ShortDescription: Install
+    Description: Install already-assigned screws
+    RelationshipTasks:
+        - RelationshipName: boojum_screws_singleBatch
+          RelationshipAction: install

@@ -1,0 +1,17 @@
+%YAML 1.1
+---
+Name: Permissions
+Subsystem: LG
+Description:  Experiment with permission groups
+HardwareGroup: borogove
+Version: next
+Sequence:
+  - Name: Permissions_s1
+    Version: next
+    PermissionGroups:
+      - approver
+  - Name: Permissions_s2
+    PermissionGroups:
+      - operator
+      - qualityAssurance
+    Version: next

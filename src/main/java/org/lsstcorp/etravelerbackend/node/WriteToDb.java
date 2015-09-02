@@ -174,17 +174,15 @@ public class WriteToDb {
     conn.close();
     Traveler trav=null;
     try {
-      ProcessNode root = 
-          DbImporter.getProcess(vis.getTravelerName(), vis.getTravelerVersion(),
+      trav = 
+          DbImporter.getTraveler(vis.getTravelerName(), vis.getTravelerVersion(),
           vis.getTravelerHardwareGroup(), dbType, datasource);
-      trav = new Traveler(root, "db", dbType);
     } catch (Exception ex) {
       return "Failed to retrieve traveler from db with exception" + ex.getMessage();
       // add to message that file couldn't be archived
     }
    // Now have everything to call yamlArchive
     DbImporter.archiveYaml(trav, yamlArchiveDir, dbType, writer);
-    
     return "successfully wrote traveler to " + dbType + " db";
   }
   
