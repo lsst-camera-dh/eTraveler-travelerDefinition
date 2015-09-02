@@ -67,7 +67,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private static String[] s_initCols = {"name", 
     "hardwareGroupId",  "version", 
     "userVersionString", "description", "shortDescription", "instructionsURL", "substeps", 
-    "maxIteration", "travelerActionMask", "originalId", "newLocation",
+    "maxIteration", "travelerActionMask", "permissionMask", "originalId", "newLocation",
     "newHardwareStatusId"};
   private static String[] s_edgeCols = {"step", "cond"};
   private static PreparedStatement s_processQuery = null;
@@ -185,10 +185,12 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       m_substeps = rs.getString(++ix);
       m_maxIteration = rs.getString(++ix);
       m_travelerActionMask = rs.getInt(++ix);
+      m_permissionGroupMask = rs.getInt(++ix);
       m_originalId = rs.getString(++ix);
       m_newLocation = rs.getString(++ix);
       m_newStatusId = rs.getString(++ix);
       rs.close();
+      decodePermissionGroupMask();
       if (m_newStatusId != null)  { /* find corresponding string */
         m_newStatus = m_connect.fetchColumn("HardwareStatus", "name",
             " where id ='" + m_newStatusId + "'");
@@ -318,6 +320,40 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       throw  new SQLException("DbConnection.prepareQuery failure");
     }
   }
+  /*
+   * Called by constructor when we're forming an object from db. 
+   */
+  private void decodePermissionGroupMask() {
+    if (m_permissionGroupMask == 0) return;
+    m_permissionGroups = new ArrayList<String>();
+    int remaining = m_permissionGroupMask;
+    int bit = 1;
+    while (remaining != 0)  {
+      if ((bit & remaining) != 0) {
+        if (m_permissionGroupMap.contains(Integer.toString(bit))) {
+          m_permissionGroups.add(m_permissionGroupMap.get(Integer.toString(bit)));
+        }
+        remaining -= bit;
+        bit *= 2;
+      }
+    }
+  }
+  /*
+   * Called by verify when writing to Db.  Here we must check that
+   * user-supplied strings really do correspond to something in the
+   * PermissionGroup table (values already stored in one of our maps)
+   */
+  private void formPermissionGroupMask() throws EtravelerException {
+    if (m_permissionGroups == null)  return;
+    m_permissionGroupMask = 0;
+    for (String g : m_permissionGroups)  {
+      if (!m_permissionGroupMap.contains(g)) {
+        throw new EtravelerException("No such permission group as '" + g + "'");
+      }
+      String maskBit = m_permissionGroupMap.get(g);
+      m_permissionGroupMask += Integer.parseInt(maskBit);
+    }
+  }
   String [] getAssociateIds(PreparedStatement query) throws SQLException {
     query.setString(1, m_id);
     ResultSet rs = query.executeQuery();
@@ -371,6 +407,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public String provideSubsteps() {return m_substeps;}
   public int provideTravelerActionMask() {return m_travelerActionMask;}
   public String provideOriginalId() {return m_originalId;}
+  public ArrayList<String> providePermissionGroups() {return m_permissionGroups;}
   public int provideNChildren() {return m_nChildren;}
   public int provideNPrerequisites() {return m_nPrerequisites;}
   public int provideNPrescribedResults() {return m_nPrescribedResults;}
@@ -448,6 +485,13 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     m_travelerActionMask = travelerActionMask;
   }
   public  void acceptOriginalId(String originalId) {m_originalId = originalId;}
+  public  void acceptPermissionGroups(ArrayList<String> groups) {
+    if (groups == null) return;
+    m_permissionGroups = new ArrayList<String>(groups.size());
+    for (String g : groups) {
+      m_permissionGroups.add(new String(g));
+    }
+  }
   public void acceptChildren(ArrayList<ProcessNode> children) {
     if (m_isCloned || m_isRef)  {
       m_children = null;
@@ -969,8 +1013,9 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     fillIdMap("HardwareStatus", "name", " where isStatusValue='1'", m_hardwareStatusIdMap);
     m_hardwareLabelIdMap = new ConcurrentHashMap<String, String>();
     fillIdMap("HardwareStatus", "name", " where isStatusValue='0'", m_hardwareLabelIdMap);
+    m_permissionGroupMap = new ConcurrentHashMap<String, String>();
+    fill2WayMap("PermissionGroup", "maskBit", "name", " where TRUE", m_permissionGroupMap);
     m_processNameIdMap = new ConcurrentHashMap<String, String>();
- 
   }
 
   private void copyIdMaps() {
@@ -983,12 +1028,17 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     m_processNameIdMap = m_travelerRoot.m_processNameIdMap;
     m_hardwareStatusIdMap = m_travelerRoot.m_hardwareStatusIdMap;
     m_hardwareLabelIdMap = m_travelerRoot.m_hardwareLabelIdMap;
+    m_permissionGroupMap = m_travelerRoot.m_permissionGroupMap;
   }
 
   private void fillIdMap(String table, String nameCol, String where,
+      ConcurrentHashMap<String, String> map) throws SQLException {
+    fill2WayMap(table, "id", nameCol, where, map);
+  }
+  private void fill2WayMap(String table, String keyCol, String nameCol, String where,
                          ConcurrentHashMap<String, String> map) 
     throws SQLException {
-    String[] getCols = { "id", nameCol};
+    String[] getCols = { keyCol, nameCol};
     PreparedStatement idNameQuery;
     ResultSet rs;
     try {
@@ -1043,6 +1093,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private String m_newStatus;
   private String m_newStatusId;
   private int m_travelerActionMask=0;
+  private int m_permissionGroupMask=0;
   private String m_originalId=null;
   private String m_parentEdgeId = null;
   private int m_edgeStep = 0;
@@ -1058,6 +1109,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private String[] m_resultIds; // save these to make assoc prescribed results
   private String[] m_optionalResultIds;
   private String[] m_relationshipTaskIds;
+  private ArrayList<String>  m_permissionGroups=null;
   private DbConnection m_connect;
   private boolean m_isCloned=false;
   private boolean m_hasClones = false;
@@ -1093,6 +1145,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private ConcurrentHashMap<String, String> m_hardwareStatusIdMap = null;
   private ConcurrentHashMap<String, String> m_hardwareLabelIdMap = null;
   private ConcurrentHashMap<String, String> m_processNameIdMap = null;
+  private ConcurrentHashMap<String, String> m_permissionGroupMap = null;
 
   private boolean m_verified=false;
 }

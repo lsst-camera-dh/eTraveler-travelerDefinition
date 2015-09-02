@@ -208,6 +208,7 @@ public class ProcessNode implements  TravelerElement
     m_sourceDb = imp.provideSourceDb();
     m_processId = imp.provideId();
     m_originalId = imp.provideOriginalId();
+    m_permissionGroups = imp.providePermissionGroups();
     
     checkNonempty("children type", m_substeps);
     if ((!m_substeps.equals("NONE")) 
@@ -468,6 +469,7 @@ public class ProcessNode implements  TravelerElement
     String provideSubsteps();
     int provideTravelerActionMask();
     String provideOriginalId();
+    ArrayList<String> providePermissionGroups();
     int provideNChildren();
     int provideNPrerequisites();
     int provideNPrescribedResults();
@@ -515,6 +517,7 @@ public class ProcessNode implements  TravelerElement
     void acceptNewStatus(String newStat);
     void acceptSubsteps(String substeps);
     void acceptTravelerActionMask(int travelerActionMask);
+    void acceptPermissionGroups(ArrayList<String> groups);
     void acceptOriginalId(String originalId);
     void acceptChildren(ArrayList<ProcessNode> children);
     void acceptPrerequisites(ArrayList<Prerequisite> prerequisites);
@@ -573,6 +576,7 @@ public class ProcessNode implements  TravelerElement
       ptarget.acceptNewStatus(m_newStatus);
       ptarget.acceptOriginalId(m_originalId);
       ptarget.acceptSubsteps(m_substeps);
+      ptarget.acceptPermissionGroups(m_permissionGroups);
       ptarget.acceptPrerequisites(m_prerequisites);
       ptarget.acceptPrescribedResults(m_resultNodes);
       ptarget.acceptOptionalResults(m_optionalResultNodes);
@@ -797,6 +801,7 @@ public class ProcessNode implements  TravelerElement
   private ArrayList<PrescribedResult> m_resultNodes=null;
   private ArrayList<PrescribedResult> m_optionalResultNodes=null;
   private ArrayList<RelationshipTask> m_relationshipTasks=null;
+  private ArrayList<String> m_permissionGroups=null;
   private String m_name=null;
   private boolean m_isCloned=false;
   private boolean m_hasClones=false;

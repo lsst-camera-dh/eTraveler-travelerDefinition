@@ -52,6 +52,10 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
      m_data.put("Name", name);
     }
   }
+  public void acceptPermissionGroups(ArrayList<String> groups) {
+    if (groups == null) return;
+    m_data.put("PermissionGroups", groups);
+  }
 
   public void acceptHardwareGroup(String hardwareGroup) {
      if (m_isRoot) m_data.put("HardwareGroup", hardwareGroup);

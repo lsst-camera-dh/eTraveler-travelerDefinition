@@ -168,9 +168,10 @@ public class TravelerDotVisitor implements TravelerVisitor,
     m_results=res;
   }
   /*
-   * Don't bother saving optional results or relationship tasks.  
-   * We won't do anything with them anyway
+   * Don't bother saving optional results, relationship tasks or permission  
+   * groups. We won't do anything with them anyway
    */
+  public void acceptPermissionGroups(ArrayList<String> groups) {}
   public void acceptOptionalResults(ArrayList<PrescribedResult> res) {}
   public void acceptRelationshipTasks(ArrayList<RelationshipTask> rel) {}
   // Implementation of Prerequisite.ExportTarget

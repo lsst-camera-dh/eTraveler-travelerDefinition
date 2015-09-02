@@ -89,6 +89,12 @@ public class TravelerPrintVisitor
           } 
         }
       }
+      if ((m_permissionGroups != null))  {
+        s_writer.write(leadingBlanks + "PermissionGroups:" + s_eol);
+        for (String g : m_permissionGroups) {
+          s_writer.write(leadingBlanks + s_indent + g + s_eol);
+        }
+      }
       if (m_condition != null) {
         s_writer.write(leadingBlanks + "Condition: " + m_condition + s_eol);
       }
@@ -294,6 +300,13 @@ public class TravelerPrintVisitor
   public void acceptSubsteps(String substeps) {m_substeps = substeps;}
   public void acceptTravelerActionMask(int travelerActionMask) {
     m_travelerActionMask = travelerActionMask;}
+  public void acceptPermissionGroups(ArrayList<String> groups) {
+    if (groups == null) return;
+    m_permissionGroups = new ArrayList<String>(groups.size());
+    for (String g : groups) {
+      m_permissionGroups.add(g);
+    }
+  }
   public void acceptOriginalId(String originalId) {m_originalId = originalId;}
   public void acceptCondition(String condition) {m_condition=condition;}
   public void acceptChildren(ArrayList<ProcessNode> children) {m_children=children;}
@@ -414,6 +427,7 @@ public class TravelerPrintVisitor
   private ArrayList<PrescribedResult> m_results=null;
   private ArrayList<PrescribedResult> m_optionalResults=null;
   private ArrayList<RelationshipTask> m_relationshipTasks=null;
+  private ArrayList<String> m_permissionGroups=null;
   
   // Store prereq. contents until we're ready to write
   private String m_prereqType=null;

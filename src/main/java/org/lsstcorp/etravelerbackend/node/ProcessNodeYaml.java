@@ -83,6 +83,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     s_knownKeys.add("OptionalInputs");
     s_knownKeys.add("RelationshipTasks");
     s_knownKeys.add("TravelerActions");
+    s_knownKeys.add("PermissionGroups");
     s_knownKeys.add("RefName");
     s_knownKeys.add("RefVersion");
     s_knownKeys.add("SourceDb");
@@ -114,19 +115,20 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   static final int OPTIONALINPUTS=14;
   static final int RELATIONSHIPTASKS=15;
   static final int TRAVELERACTIONS=16;
-  static final int REFNAME=17;
-  static final int REFVERSION=18;
-  static final int SOURCEDB=19;
-  static final int NEWLOCATION=20;
-  static final int NEWSTATUS=21;
-  static final int ADDLABEL=22;
-  static final int REMOVELABEL=23;
-  static final int SUBSYSTEM=24;
+  static final int PERMISSIONGROUPS=17;
+  static final int REFNAME=18;
+  static final int REFVERSION=19;
+  static final int SOURCEDB=20;
+  static final int NEWLOCATION=21;
+  static final int NEWSTATUS=22;
+  static final int ADDLABEL=23;
+  static final int REMOVELABEL=24;
+  static final int SUBSYSTEM=25;
   
-  static final int FROMSOURCEVERSION=25;
-  static final int FROMSOURCEID=26;
-  static final int FROMSOURCEORIGINALID=27;
-  static final int FROMSOURCESOURCEDB=28;
+  static final int FROMSOURCEVERSION=26;
+  static final int FROMSOURCEID=27;
+  static final int FROMSOURCEORIGINALID=28;
+  static final int FROMSOURCESOURCEDB=29;
   
   public ProcessNodeYaml() {}
   
@@ -417,6 +419,13 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
             m_relationshipTasks[iRt].readYaml(relaMap, this, iRt);       
           }
           break;
+        case PERMISSIONGROUPS:
+          m_permissionGroups = new ArrayList<String>(list.size());
+          List<String> groupList = (List<String>) yamlMap.get(foundKey);
+          for (String g : groupList) {
+            m_permissionGroups.add(g);
+          }
+          break;
         case REQUIREDINPUTS: 
           m_nPrescribedResults = list.size();
           m_prescribedResults = new PrescribedResultYaml[list.size()];
@@ -534,6 +543,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   public String provideNewStatus() {return m_newStatus;}
   public String provideSubsteps() {return m_substeps;}
   public int provideTravelerActionMask() {return m_travelerActionMask;}
+  public ArrayList<String> providePermissionGroups() {return m_permissionGroups;}
   public String provideOriginalId() {return null;}
   public int provideNChildren() {return m_nChildren;}
   public int provideNPrerequisites() {return m_nPrerequisites;}
@@ -621,6 +631,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private PrescribedResultYaml[] m_prescribedResults;
   private PrescribedResultYaml[] m_optionalResults;
   private RelationshipTaskYaml [] m_relationshipTasks;
+  private ArrayList<String>  m_permissionGroups=null;
   private Writer m_writer = null;
   private String m_nameHandling = "none";
   
