@@ -299,7 +299,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     where = " WHERE parent=? order by abs(step)";    
     s_childQuery = m_connect.prepareQuery("ProcessEdge", childCol, where);  
     
-    where = " WHERE processId=?"; 
+    where = " WHERE processId=? order by id"; 
     getCol[0] = "id";
     s_prereqQuery = m_connect.prepareQuery("PrerequisitePattern", getCol, where);
     
@@ -309,7 +309,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     /*
      * For prescribed results distinguish based on setting of isOptional
      */
-    where += " and isOptional=?";
+    where = " WHERE processId=? and isOptional=? order by id";
     s_prescribedResultsQuery = m_connect.prepareQuery("InputPattern", getCol, where);
     
     if ((s_processQuery == null) || (s_edgeQuery == null) || 

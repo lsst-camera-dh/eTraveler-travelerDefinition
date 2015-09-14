@@ -1,0 +1,13 @@
+%YAML  1.1
+---
+# Call a nearly no-op jh job to test behavior of archive
+Name: jh_test_archive
+Version: next
+HardwareGroup:  Generic-CCD
+Description: Exercise JH selective archiving
+Sequence:
+  - Name: jrbtest
+    Version: next
+    UserVersionString: v3
+    TravelerActions:
+        - HarnessedJob

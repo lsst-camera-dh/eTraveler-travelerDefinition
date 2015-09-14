@@ -1,0 +1,36 @@
+%YAML 1.1
+---
+Name: order_test
+Version: next
+HardwareGroup: boojum
+ShortDescription: Ordering test
+Description: 'Test whether ordering of prerequisites and operator inputs is
+preserved through ingest, display during execution and export'
+Sequence:
+  - Name: order_test_prereqs
+    Version: next
+    ShortDescription: Test prereqs
+    Description: See if YAML ordering of prereqs is preserved 
+    Prerequisites:
+      - PrerequisiteType: PREPARATION
+        Name: ShouldBeFirst
+        Description: This prerequisite appears first in the source YAML
+      - PrerequisiteType: PREPARATION
+        Name: InTheMiddle
+        Description: This prerequisite appears second in the source YAML
+      - PrerequisiteType: PREPARATION
+        Name: Number3
+        Description: This prerequisite appears third in the source YAML
+  - Name: order_test_inputs
+    Version: next
+    ShortDescription: Test operator inputs
+    Description: See if YAML ordering of operator inputs is preserved
+    RequiredInputs:
+      - Label: Should be first. Enter an integer
+        InputSemantics: int
+      - Label: 'Middle operator input: enter a floating point number'
+        InputSemantics: float
+      - Label: Final operator input.  Enter another integer
+        InputSemantics: int
+
+
