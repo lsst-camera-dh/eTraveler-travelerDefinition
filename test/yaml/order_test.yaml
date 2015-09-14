@@ -28,8 +28,10 @@ Sequence:
     RequiredInputs:
       - Label: Should be first. Enter an integer
         InputSemantics: int
-      - Label: 'Middle operator input: enter a floating point number'
+      - Label: Should be in the middle (second). Enter a floating point number
         InputSemantics: float
+      - Label: This one should be third.  Enter a string
+        InputSemantics: string
       - Label: Final operator input.  Enter another integer
         InputSemantics: int
 
