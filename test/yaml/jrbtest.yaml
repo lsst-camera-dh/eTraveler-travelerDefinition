@@ -2,18 +2,23 @@
 ---
 # Call a nearly no-op jh job
 Name: jh_test
-HardwareType:  CCD
-Description: Exercise JH
+HardwareGroup:  Generic-CCD
+ShortDescription: Exercise JH
+Description: See how JH 0.8.0 behaves with automatable sequence
+Version: next
 TravelerActions:
   - Automatable
 Sequence:
   - 
     Name: jrbtest
-    UserVersionString: v0
+    ShortDescription: Writes out env variables
+    UserVersionString: v3
+    Version: next
     TravelerActions:
       - HarnessedJob
   - 
-    Name: example_station_B
+    Name: no-op-Generic
+    ShortDescription: Does almost nothing
     UserVersionString: v0
     Version: next
     TravelerActions:

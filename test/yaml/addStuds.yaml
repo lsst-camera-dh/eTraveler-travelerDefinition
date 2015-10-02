@@ -1,0 +1,24 @@
+%YAML 1.1
+---
+Name: addStuds
+HardwareGroup: Generic-CCD
+ShortDescription:  Record stud batch used
+Description: 'If hardware is an ITL CCD, record batch of studs used'
+Version: next
+## Identical to previous version except for this comment
+Selection: 
+  - Name: addStuds-ITL
+    Condition: Component is an ITL CCD
+    ShortDescription: Record stud batch
+    Description: Record stud batch
+    Version: next
+    RelationshipTasks:
+        - RelationshipName: ITL-CCD_and_studs
+          RelationshipAction: assign
+        - RelationshipName: ITL-CCD_and_studs
+          RelationshipAction: install
+  - Name: addStuds-no-op
+    Condition: Component is anything but an ITL CCD
+    Version: next
+    ShortDescription: Mark complete and proceed to next step
+    Description: Mark complete and proceed to next step

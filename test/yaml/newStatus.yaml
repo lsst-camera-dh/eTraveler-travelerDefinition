@@ -2,12 +2,20 @@
 ---
 Name: newStatus
 HardwareGroup: boojum
+Version: next
 Description: try out setting status
+ShortDescription: try out setting status
 Sequence:
   - Name: FixedNewStatus
     NewStatus: READY
+    Version: next
+    ShortDescription: should set status to READY
   - Name: StatusPromptSpecified
     NewStatus: (?)
+    Version: next
+    ShortDescription: should prompt for new status
   - Name: StatusPromptImplicit
     TravelerActions:
       - SetHardwareStatus
+    Version: next
+    ShortDescription: this also should prompt for new status

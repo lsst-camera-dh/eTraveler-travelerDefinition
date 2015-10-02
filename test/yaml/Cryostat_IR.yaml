@@ -1,0 +1,201 @@
+%YAML  1.1
+---
+Name: Cryostat_IR
+HardwareGroup: Cryostat
+Description: Install prepared raft into prepared cryostat
+ShortDescription: Cryostat integrate raft
+Version: next
+Sequence:
+   -
+     Name: Cryostat_IR-Attach_Z-stage
+     ShortDescription: something goes here
+     Description: This step needs to be rewritten to use hw relationships
+     Version: next
+     Prerequisites:
+       -
+         Name: LCA-Raft_2
+         PrerequisiteType: COMPONENT
+         #Status: raft_aligned
+   -
+     Name: Cryostat_IR-raft_into_bay
+     ShortDescription: Draw raft into bay
+     Description:  Draw raft into bay.  More detail should go here
+     Version: next
+   -
+     Name: Cryostat_IR-keyence_alignment
+     ShortDescription: Keyence supported alignment
+     Description:  Has substeps.  Details omitted here
+     Version: next
+   -
+     Name: Cryostat_IR-Alignment_movement_cm 
+     Description:  Coarse placement
+     ShortDescription: Initial coarse placement. Alignment by centimeters
+     MaxIteration:  10 # or whatever is reasonable
+     Version: next
+     Sequence:
+        - 
+          Name: Cryostat_IR-Align-cm
+          ShortDescription: Check
+          Description: For each movement check if still aligned
+          MaxIteration: 3 # or whatever is reasonable
+          Version: next
+          Sequence:
+             -
+                Name: Cryostat_IR-1cm_up
+                Description: Move raft up 1 cm
+                ShortDescription: Move raft up 1 cm
+                Version: next
+             -
+                Name: Cryostat_IR-keyence_check
+                ShortDescription: Keyence alignement check
+                Description:  Will have substeps. Details omitted here
+                Version: next
+             -
+                Name: Cryostat_IR-aligned_decision
+                ShortDescription: Branch dependiing on whether alignment is ok
+                Version: next
+                Selection:
+                   - 
+                     Name: Cryostat_IR-raft_aligned
+                     Version: next
+                     Condition: aligned
+                     Description: Operator selects this if check passed
+                     ShortDescription: Operator selects this if check passed
+                   -
+                     Name: Cryostat_IR-raft_not_aligned
+                     Version: next
+                     Condition: alignment failure
+                     Description: select if check fails
+                     ShortDescription: select if check fails
+                     Sequence:
+                        -
+                          Name: Cryostat_IR-1cm_down
+                          Version: next
+                          Description: move raft back down ~ 1 cm
+                          ShortDescription: move raft back down ~ 1 cm
+                        -
+                          Clone: Cryostat_IR-keyence_alignment
+                          Version: next
+                        -
+                          Name: Cryosta_IR-need_retry
+                          Version: next
+                          Description:  Operator should mark failed
+                          ShortDescription:  Operator should mark failed
+                          # This will return us to Align-cm step
+        -
+          Name: Cryostat_IR-high_enough
+          Description: is back of RTM within 3 cm of sensor plane? 
+          ShortDescription: is back of RTM within 3 cm of sensor plane? 
+          Version: next
+          # if operator marks 'succeeded', continue
+          # if marked 'failed', returns to retry of Alignment-movement-cm
+   -
+     Name: Cryostat_IR-Micro_alignment_check
+     ShortDescription:  Microscope alignment check
+     Description:  In reality a procedure with substeps
+     Version: next
+   -
+     Name: Cryostat_IR-align_mm
+     ShortDescription: Raft alignment-movement mm
+     Description: Move raft, align until balls are fully engaged
+     MaxIteration: 10 # or whatever is reasonable
+     Version: next
+     Sequence:
+         -
+           Name: Align-mm
+           Description: Subprocedure leading to ball engagement
+           Version: next
+           MaxIteration: 3
+           Sequence:
+              - 
+                Name: Cryostat_IR-move_up_1mm
+                ShortDescription: Move raft up 1mm
+                Description: Move raft up 1mm
+                Version: next
+              -
+                Clone: Cryostat_IR-Micro_alignment_check
+                Version: next
+              -
+                Name: Cryostat_IR-check_clearance
+                ShortDescription: Check clearance
+                Description: Check clearance
+                Version: next
+                Selection:
+                   -
+                     Name: Cryostat_IR-clearance_ok
+                     ShortDescription: clearance check passed
+                     Version: next
+                     Condition: passed 
+                     Description: 'If clearance check passed, 
+                         operator marks step "succeeded"'
+                   -
+                     Name: Cryostat_IR-clearance_failure
+                     ShortDescription: clearance check failed
+                     Condition: failed
+                     Version: next
+                     Description: If clearance check fails tweak and try again
+                     Sequence:
+                        -
+                          Name: Cryostat_IR-move_down_1mm
+                          Version: next
+                          ShortDescription: move raft about 1mm down
+                          Description: move raft about 1mm down
+                        -
+                          Name: Cryostat_IR-micro_tweaks
+                          Version: next
+                          ShortDescription: microscope supported tweaks
+                          Description: 'Microscope supported tweaks. 
+                                       Actually a procedure with substeps'
+                        -
+                          Clone: Cryostat_IR-Micro_alignment_check
+                          Version: next
+                        -
+                          Name: Cryostat_IR-evaluate_alignment
+                          Version: next
+                          ShortDescription: Alignment succeeded?
+                          Description: 'If alignment does not succeeed, 
+                                       mark failed. '
+                          # will go to Align-mm and retry if retries left
+         -
+           Name: Cryostat_IR-ball_engage_check
+           Version: next
+           ShortDescription: Ball engagement check
+           Description: 'Ball engagement check - a procedure with 
+                        substeps, omitted for now'
+         -
+           Name: Cryostat_IR-ball_engage_disposition
+           Version: next
+           ShortDescription: Ball engagement decision
+           Description: 'If ball engagement is not ok, operator retries
+              if possible; else fail'
+           # If failure, will attempt retry at Raft alignment-movement mm
+   -
+      Name: Cryostat_IR-REB_vertical
+      ShortDescription: Locate REB vertically
+      Description: Locate REB vertically
+      Version: next
+      MaxIteration:   10 # or whatever is reasonable
+      Sequence:
+        -
+          Name: Cryostat_IR-REB_up
+          Version: next
+          ShortDescription: Pull REB up 
+          Description: Pull up 5 mm or less
+        -
+          Name: Cryostat_IR-REB_vert_check
+          Version: next
+          ShortDescription: check location
+          Description: 'If has not reached cryo plate, mark "fail" and
+                        retry containing step'
+   -
+      Name: Cryostat_IR-REB_attach
+      Version: next
+      ShortDescription: Attach REB to cryo plate
+      Description:  Attach REB to cryo plate with N screws
+   -
+      Name: Cryostat_IR-engage_transfer
+      Version: next
+      ShortDescription: Engage RAFT load transfer to grid
+      Description: 'Engage RAFT load transfer to grid. Really a 
+                   procedure in its own right'
+      
