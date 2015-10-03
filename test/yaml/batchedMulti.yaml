@@ -3,14 +3,17 @@
 Name: batchedMulti
 HardwareGroup: snark
 Description: Try out multirelationships, simplest case
+ShortDescription: Try out multirelationships, simplest case
 Version: next
 Sequence:
   - Name: relax
     Description: nothing to do
+    ShortDescription: nothing to do
     Version: next
   - Name: assembleScrews
     Version: next
     Description: Assign and install actions for single-batch relationship
+    ShortDescription: Assign and install actions for single-batch relationship
     RelationshipTasks:
         - RelationshipName: boojum_screws_singleBatch
           RelationshipAction: assign

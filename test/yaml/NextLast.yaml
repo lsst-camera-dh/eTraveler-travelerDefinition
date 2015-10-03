@@ -4,12 +4,14 @@ Name: NextLast
 Version: 2
 HardwareType: CCD
 Description: Test use of version=next and refVersion=last
+ShortDescription: Test use of version=next and refVersion=last
 SourceDb: Raw
 Sequence:
   -
     Name: normalStep
     Version: next
     Description: still nothing special about it
+    ShortDescription: still nothing special about it
   -
     RefName: seq2
   -

@@ -3,14 +3,17 @@
 Name: simpleMulti
 HardwareGroup: snark
 Description: Try out multirelationships, simplest case
+ShortDescription: Try out multirelationships, simplest case
 Version: next
 Sequence:
   - Name: doNothing
     Description: Just a step to have a step
+    ShortDescription: Just a step to have a step
     Version: next
   - Name: assembleInOne
     Version: next
     Description: Assign and install actions
+    ShortDescription: Assign and install actions
     RelationshipTasks:
         - RelationshipName: boojum_borogove_1
           RelationshipAction: assign
