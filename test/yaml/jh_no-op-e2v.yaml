@@ -1,13 +1,17 @@
 %YAML  1.1
 ---
 Name: jh_no-op-e2v
+Version: next
 HardwareGroup:  ITL-e2v
 Description: Exercise JH
-
+ShortDescription: Exercise JH
 Sequence:
   - 
     Name: no-op-e2v
+    Version: next
     UserVersionString: v0
+    Description: JH step
+    ShortDescription: JH step
     TravelerActions:
       - HarnessedJob
 

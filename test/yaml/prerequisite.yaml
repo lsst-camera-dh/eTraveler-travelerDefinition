@@ -1,22 +1,28 @@
 %YAML 1.1 
 ---
 Name:  PrereqTraveler
+Version: next
 HardwareGroup: snark
 Description: Blah blah
+ShortDescription: Blah
 InstructionsURL:  No instructions
 Sequence:
    -
-      Name: stepWhichIsPrereq
+      Name: PrereqTraveler-stepWhichIsPrereq
       Description: Part of PrereqTraveler example; a step used as prereq
+      ShortDescription: 
+      Version: next
       UserVersionString: 1.2X
    -
-      Name: hasPrereqs
-      Description:  Do something
+      Name: PrereqTraveler-hasPrereqs
+      Version: next
+      Description:  This step has a variety of prerequisites
+      ShortDescription: has prerequisites
       UserVersionString:  user version 123.2B
       Prerequisites:
         -
           PrerequisiteType:  PROCESS_STEP
-          Name: stepWhichIsPrereq
+          Name: PrereqTraveler-stepWhichIsPrereq
           Description: Redundant since prereq must have been executed
           UserVersionString: 1.2X
         -
@@ -33,10 +39,12 @@ Sequence:
           Description:  "Check that the snark is not a boojum.
          <br /> Confirm these instructions have been read and understood"
    -
-      Clone: hasPrereqs
-
+      Clone: PrereqTraveler-hasPrereqs
+      Version: next
    - 
-      Name: Noprereqs
+      Name: Prereqtraveler-Noprereqs
+      Version: next
       Description: Do something else
+      ShortDescription: something
 
 

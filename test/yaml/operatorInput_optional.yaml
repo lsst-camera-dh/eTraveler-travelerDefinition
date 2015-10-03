@@ -4,11 +4,13 @@ Name:  InputTraveler
 Version: next
 HardwareGroup: boojum
 Description: Blah blah
+ShortDescription: Blah 
 Sequence:
    - 
-      Name: hasInputs
+      Name: InputTraveler-hasInputs
       Version: next
-      Description: Do something else
+      Description: Do something
+      ShortDescription: Do
       RequiredInputs:
         -
           Label: Count ( no more than 10)

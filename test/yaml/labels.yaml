@@ -2,17 +2,25 @@
 ---
 Name: labels
 HardwareGroup: snark
+Version: next
 Description: Play with labels, new status
+ShortDescription: Test stuff 
 Sequence:
-  - Name: addLabel
+  - Name: labels-addLabel
+    Version: next
     AddLabel: non-compliant
-    Description:   add a known label
+    Description:   add a known label. Description field here
        was spread across two lines
-  - Name: promptForLabel
+    ShortDescription: add label
+  - Name: labels-promptForLabel
+    Version: next
+    Description: This step explicitly says it wants operator prompt for label
+    ShortDescription: Explicit request for prompt
     AddLabel: (?)
-  - Name: removeLabel
+  - Name: labels-removeLabel
     RemoveLabel: userLabel
     Description: remove a label
+    ShortDescription: remove a label
     Version: next
 
 

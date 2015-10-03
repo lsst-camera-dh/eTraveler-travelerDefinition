@@ -2,12 +2,25 @@
 ---
 Name: newLocation
 HardwareGroup: boojum
-Description: try out setting location
+Description: try out setting a new location
+ShortDescription: location testing
+Version: next
 Sequence:
-  - Name: FixedMove
+  - Name: newLocation-fixed
+    Version: next
+    ShortDescription: fixed move
+    Description: Move to a fixed location
+    Version: next
     NewLocation: Cabinet2
-  - Name: MovePromptSpecified
+  - Name: newLocation-prompt
+    Version: next
+    Description: Move to locatiion operator specifies at prompt
+    ShortDescription: explicit request for prompt
     NewLocation: (?)
   - Name: MovePromptImplicit
+    Version: next
+    ShortDescription: implicit request for prompt
+    Description: 'specifying traveler action "SetHardwareLocation" 
+            implicitly requests et to put up operator prompt'
     TravelerActions:
       - SetHardwareLocation

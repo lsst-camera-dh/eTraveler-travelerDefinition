@@ -1,20 +1,27 @@
 %YAML 1.1
 ---
 Name: formatDescription
+Version: next
 HardwareGroup: snark
+ShortDescription: test display of description field
 Description: try various styles of step descriptions; see what they look like
 Sequence:
-  - Name: multi-line unquoted 
+  - Name: formatDescription-noquote
+    Version: next
+    ShortDescription: description field spread across 2 lines without quotes
     Description:   The value of this string
        was spread across two lines
     MaxIteration: 4
-  - Name: multi-line quoted
+  - Name: formatDescription-quoted
+    ShortDescription: multi-line quoted
     Description: "Split among
 several lines
 but quoted. 
 Can we do without indent?"
     Version: next
-  - Name: htmlInQuotes
+  - Name: formatDescription-htmlInQuotes
+    Version: next
+    ShortDescription: Use html and enclose in double quotes
     Description:  "<p>Put some <b>formatting</b> in <br /> the string, 
 including line <br /> breaks"
 

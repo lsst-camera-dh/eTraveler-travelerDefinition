@@ -1,56 +1,82 @@
 %YAML  1.1
 ---
 Name: NontrivialStructure
-HardwareType: CCD
-Description: To be used for testing. Exemplifies most features (except JH)
+Version: next
+HardwareGroup: Generic-CCD
+Description: 'To be used for testing. Exemplifies most features,
+             excluding JH and assemblies'
+ShortDescription: For testing many features
 Sequence:
   -
-    Name: seq1
+    Name: NTS-seq1
+    Version: next
     Description: Just a non-descript step
+    ShortDescription: Non-descript step
   -
-    Name: seq2
+    Name: NTS-seq2
+    Version: next
+    UserVersionString: v0
     Description:  Has selection children
+    ShortDescription:  Selection
     Selection:
       -
-        Name: sel1
+        Name: NTS-sel1
+        Version: next
+        ShortDescription: an option
+        Description: Select if A is < 0
         Condition: A < 0
       -
-        Name: sel2
-        Description:  has sequence children
+        Name: NTS-sel2
+        Version: next
+        Description:  has sequence children. Select if A = 0
+        ShortDescription:  Sequence
         Condition: A = 0
         Sequence:
           -
-            Name: Aeq0_0
+            Name: NTS-Aeq0_0
+            ShortDescription: seq 0
+            Description: step 0 in subseq.
+            Version: next
           -
-            Name: Aeq0_1
+            Name: NTS-Aeq0_1
+            ShortDescription: seq 1
+            Description: step 1 in subseq.
+            Version: next
           -
-            Name: Aeq0_2
+            Name: NTS-Aeq0_2
+            ShortDescription: seq 2
+            Description: step 2 in subseq.
+            Version: next
       -
-        Name: sel3
+        Name: NTS-sel3
+        ShortDescription: final option
+        Description: Select if A > 0
+        Version: next
         Condition: A > 0
   -
-    Name: seq3
+    Name: NTS-seq3
     Description: Has children with stuff
+    ShortDescription: proud parent
+    Version: next
     Sequence:
       -
         Name: hasPrereqs
         Description: step with various prereqs
+        Version: next
         Prerequisites:
           -
             PrerequisiteType:  PROCESS_STEP
-            Name: seq2
-            Version: 1
+            Name: NTS-seq2
+            UserVersionString: v0
           -
             PrerequisiteType: CONSUMABLE
             Name: ice cream cone
             Quantity: 3
-        ##-
-        ##  PrerequisiteType: COMPONENT
-        ##  Name: LCA-ASPIC
       -
-        Clone: seq1
+        Clone: NTS-seq1
+        Version: next
       -
-        Name: stepWithInputs
+        Name: NTS-stepWithInputs
         RequiredInputs:
           -
             Label: Count ( no more than 10)

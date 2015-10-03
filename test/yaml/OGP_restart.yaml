@@ -2,15 +2,22 @@
 ---
 # NCR procedure in case OGP misbehavior has been detected
 Name: OGP_restart
-HardwareType: CCD
+HardwareType: Generic-CCD
+Version: next
 Description: clear errors and restart
 Sequence:
   -
-    Name: OGP power down
-    Description: Whatever
+    Name: OGP_restart-down
+    Version: next
+    ShortDescription: power down
+    Description: Power down OGP
   - 
-    Name: OGP clear
+    Name: OGP_restart-clear
+    Version: next
+    ShortDescription: OGP clear
     Description:  Look for and address problems in physical set-up;
   -
-    Name: OGP power up
+    Name: OGP_restart-up
+    Version: next
+    ShortDescription: OGP power up
     Description:  Turn it back on; initialize

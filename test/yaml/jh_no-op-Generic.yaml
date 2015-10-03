@@ -1,12 +1,17 @@
 %YAML  1.1
 ---
 Name: jh_no-op-Generic
+Version: next
 HardwareGroup:  Generic-CCD
 Description: Exercise JH
+ShortDescription: Exercise JH
 
 Sequence:
   - 
     Name: no-op-Generic
     UserVersionString: v0
+    Description: jh step
+    ShortDescription: jh step
+    Version: next
     TravelerActions:
       - HarnessedJob

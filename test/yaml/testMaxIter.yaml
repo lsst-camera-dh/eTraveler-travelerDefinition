@@ -2,13 +2,15 @@
 ---
  Name:  testMaxIter
  HardwareGroup: Generic-CCD
- Description: Dummy procedure with process names unlikely to conflict
+ Description: Minimal dummy procedure to test MaxIteration keyword
+ ShortDescription: test MaxIteration
  InstructionsURL:  No instructions 
- Version: 1
+ Version: next
  MaxIteration: 1
  Sequence:
    - 
       Name: maxIterSubstep
+      Version: next
       Description:  unpack blah blah
       MaxIteration: 4
 

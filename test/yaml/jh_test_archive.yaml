@@ -5,9 +5,12 @@ Name: jh_test_archive
 Version: next
 HardwareGroup:  Generic-CCD
 Description: Exercise JH selective archiving
+ShortDescription: Exercise JH selective archiving
 Sequence:
   - Name: jrbtest
     Version: next
+    Description: simple jh step
+    ShortDescription: jh step
     UserVersionString: v3
     TravelerActions:
         - HarnessedJob

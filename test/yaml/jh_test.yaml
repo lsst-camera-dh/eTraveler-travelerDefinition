@@ -4,14 +4,20 @@
 Name: jh_test
 Version: next
 HardwareGroup:  Generic-CCD
-Description: Exercise JH
+Description: Exercise JH, including iterator
+ShortDescription: jh test
 Sequence:
   - Name: automatableChild
+    Version: next
+    Description: container for harnessed jobs, itself therefore automatable
+    ShortDescription: automatable
     TravelerActions:
         - Automatable
     Sequence:
       - 
         Name: example_station_A
+        Description: standard simple harnessed job
+        ShortDescription: harnessed job
         Version: next
         UserVersionString: v0
         TravelerActions:
@@ -19,6 +25,8 @@ Sequence:
       - 
         Name: example_station_B
         Version: next
+        Description: Another standard simple harnessed job
+        ShortDescription: harnessed job
         UserVersionString: v0
         TravelerActions:
           - HarnessedJob

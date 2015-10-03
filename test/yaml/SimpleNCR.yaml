@@ -1,10 +1,18 @@
 %YAML  1.1
 ---
 Name: SimpleNCR
-HardwareType:  CCD
+HardwareGroup:  Generic-CCD
+Version: next
 Description:  Use for testing
+ShortDescription:  Use for testing
 Sequence:
   - 
     Name: SimpleNCR_1
+    Version: next
+    ShortDescription: very short
+    Description: first step in NCR
   -
     Name: SimpleNCR_2
+    Version: next
+    ShortDescription: shorter
+    Description: second step in NCR
