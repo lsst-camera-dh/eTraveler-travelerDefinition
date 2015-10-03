@@ -1,0 +1,67 @@
+%YAML 1.1 
+---
+Name:  Clone_test
+Version: next
+HardwareGroup: LCA-ASPIC
+Description: Blah blah
+ShortDescription: Blah 
+InstructionsURL: No instructions
+Sequence:
+   -
+      Name: Clone_test-Clean2
+      Version: next
+      Description:  Clean.  Procedure depends on supplier
+      ShortDescription:  Clean.  Procedure depends on supplier
+      Selection:
+        - Condition: from supplier X
+          Name:  Clone_test-Clean_X
+          Version: next
+          Description: Clean procedure for supplier X
+          ShortDescription: Clean procedure for supplier X
+          Sequence:
+            - Name: Clone_test-assem_X
+              ShortDescription: Assemble Clean_X materials
+              Description: Assemble Clean_X materials
+              Version: next
+              InstructionsURL:   http://somewhere/materialsASPIC_X.html
+            - Name: Clone_test-coffee
+              Version: next
+              ShortDescription: Make coffee
+              Description: Make coffee
+              InstructionsURL: http://en.wikipedia.org/wiki/Coffee_preparation
+            - Name: Cone_test-apply_X
+              Version: next
+              ShortDescription:  Apply Clean_X
+              Description:  Apply Clean_X
+              InstructionsURL:   http://somewhere/cleanASPIC_X.html
+        - Condition: from supplier Y
+          Name:  Clone_test-Clean_Y
+          Version: next
+          Description: Clean procedure for supplier Y
+          ShortDescription: Clean procedure for supplier Y
+          Sequence:
+            - Name: Clone_test-assemble_Y
+              Version: next
+              ShortDescription: Assemble Clean_Y materials
+              Description: Assemble Clean_Y materials
+              InstructionsURL:   http://somewhere/materialsASPIC_Y.html
+            - Clone: Clone_test-coffee
+              Version: next
+            - Name:  Clone_test-apply_Y
+              Version: next
+              ShortDescription: Apply Clean_Y
+              Description: Apply Clean_Y
+              InstructionsURL:   http://somewhere/cleanASPIC_Y.html
+        - Condition: default
+          Name: Clone_test-Clean_default
+          Description: Non-specific clean procedure
+          ShortDescription: Non-specific clean procedure
+          InstructionsURL:   http://somewhere/generic_cleanASPIC.html     
+   -
+      Name: Clone_test-Inspect
+      Version: next
+      ShortDescription:  inspect
+      Description:  inspect blah blah blah
+      InstructionsURL:   http://somewhere/inspectASPIC.html
+
+
