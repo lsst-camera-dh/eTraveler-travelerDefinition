@@ -1,18 +1,26 @@
 %YAML  1.1
 ---
-# Call a nearly no-op jh job
 Name: jh_test_nogood
-HardwareType:  CCD
-Description: Exercise JH
+Version: next
+HardwareGroup:  Generic-CCD
+ShortDescription: Exercise ingest of automatable
+Description: Exercise ingest of automatable. Should complain here since
+  one of the children is neither harnessned nor automatable
 TravelerActions:
   - Automatable
 Sequence:
   - 
     Name: aHarnessedJob
+    Description: harnessed job
+    ShortDescription: harnessed job
+    Version: next
     UserVersionString: v0
     TravelerActions:
       - HarnessedJob
   - 
     Name: notHarnessed
+    Description: neither harnessed nor automatable
+    ShortDescription: neither harnessed nor automatable
+    Version: next
     UserVersionString: v0
 

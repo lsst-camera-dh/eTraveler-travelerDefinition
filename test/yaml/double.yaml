@@ -1,28 +1,37 @@
 %YAML  1.1
 ---
 Name: double
-HardwareType:  CCD
+HardwareType:  Generic-CCD
+Version: next
 Description: Traveler with identical child steps
+ShortDescription: Identical child steps
 Sequence:
   -
-    Name: double container
+    Name: double-container
+    Version: next
     Sequence:
       -
-        Name: Step to clone
+        Name: double-toClone
+        Version: next
         Description: This step will be referred to elsewhere in the 
                      traveler
+        ShortDescription: referred to elsewhere
         MaxIteration: 3
         Prerequisites:
            - 
              PrerequisiteType: CONSUMABLE
              Name: stuff
       - 
-        Name: Just a step
+        Name: double-Just_a_step
+        Version: next
       -
-        Clone: Step to clone
+        Clone: double-toClone
+        Version: next
 
   -
-     Name: another container
+     Name: double-another_container
+     Version: next
      Sequence:
        -
-          Clone: Step to clone
+          Clone: double-toClone
+          Version: next
