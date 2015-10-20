@@ -29,6 +29,8 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
   private boolean m_isCloned=false;
   private String m_substeps="NONE";
   private int m_travelerActionMask = 0;
+  private String m_description=null;
+  private String m_shortDescription=null;
   
   public ProcessNodeToYaml(TravelerToYamlVisitor vis, Map<String, Object> data)   {
     m_data = data;
@@ -54,22 +56,7 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
   public void acceptHardwareGroup(String hardwareGroup) {
      if (m_isRoot) m_data.put("HardwareGroup", hardwareGroup);
   }
-  /***  OBSOLETE
-  public void acceptHardwareRelationshipType(String hardwareRelationshipType) {
-    if (!m_isCloned) putIfPresent("HardwareRelationshipType", hardwareRelationshipType);
-    
-  }
-  public void acceptHardwareRelationshipSlot(String hardwareRelationshipSlot) {
-    if (!m_isCloned) {
-      if (((m_travelerActionMask & 
-          TravelerActionBits.BREAK_HARDWARE_RELATIONSHIP)!=0)    || 
-          ((m_travelerActionMask &
-          TravelerActionBits.MAKE_HARDWARE_RELATIONSHIP) != 0) ){ 
-        putIfPresent("HardwareRelationshipSlot", hardwareRelationshipSlot);
-      }
-    }
-  }
-  **/
+
   public void acceptVersion(String version) {
     m_data.put("Version", "next");
     if (!m_isCloned) {
@@ -82,10 +69,14 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
     if (!m_isCloned) putIfPresent("UserVersionString", userVersionString);
   }
   public void acceptDescription(String description) {
-    if (!m_isCloned) putIfPresent("Description", description);
+    if (!m_isCloned) m_description=description;
+      //putIfPresent("Description", description);
   }
   public void acceptShortDescription(String desc) {
-    if (!m_isCloned) putIfPresent("ShortDescription", desc);
+    if (!m_isCloned) {
+      m_shortDescription = desc;
+      putIfPresent("ShortDescription", desc);
+    }
   }
   public void acceptInstructionsURL(String instructionsURL) {
     if (!m_isCloned) putIfPresent("InstructionsURL", instructionsURL);
@@ -279,7 +270,13 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
   // What about acceptChild ?
   // Signal to node in case it needs to do anything after contents are complete
   public void exportDone() {
-    
+    // If description == shortDescription, only output latter
+    if (m_isCloned) return;
+    if (m_description == null) return;
+    if (m_description.isEmpty()) return;
+    if (!m_description.equals(m_shortDescription)) {
+      putIfPresent("Description", m_description);
+    }
   }
   private void putIfPresent(String key, String value) {
     if (value != null) {

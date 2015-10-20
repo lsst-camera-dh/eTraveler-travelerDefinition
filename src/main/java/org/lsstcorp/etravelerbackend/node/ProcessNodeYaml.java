@@ -434,6 +434,13 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         }
       }
     }
+    /* 
+       At this point everything has been read in. Make adjustments for
+       various fields which are in some sense defaulted or derived
+       from other fields
+    */
+    if (m_description == null) m_description = m_shortDescription;
+
     // May have at most one of newStatus, addLabel, removeLabel set
     if ((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_STATUS) != 0) {
       if ((m_travelerActionMask & (TravelerActionBits.ADD_LABEL + TravelerActionBits.REMOVE_LABEL )) != 0) 

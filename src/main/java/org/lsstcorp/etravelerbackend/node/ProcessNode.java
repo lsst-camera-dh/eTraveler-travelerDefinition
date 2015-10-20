@@ -564,8 +564,8 @@ public class ProcessNode implements  TravelerElement
       if (m_hardwareRelationshipType == null) m_hardwareRelationshipSlot = null;
       ptarget.acceptVersion(m_version);
       ptarget.acceptUserVersionString(m_userVersionString);
-      ptarget.acceptDescription(m_description);
       ptarget.acceptShortDescription(m_shortDescription);
+      ptarget.acceptDescription(m_description);
       ptarget.acceptInstructionsURL(m_instructionsURL);
       ptarget.acceptMaxIteration(m_maxIteration);
  
