@@ -644,37 +644,6 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       return;
     }
         
-    /*
-    if (m_hardwareRelationshipType != null) {
-      String key = formUniqueKey(m_hardwareRelationshipType, 
-          m_hardwareRelationshipSlot);
-      if (m_relationshipTypeMap.containsKey(key) ) {
-        m_hardwareRelationshipTypeId = m_relationshipTypeMap.get(key);
-      } else {
-        throw new EtravelerException("No such hardware relationship type, slot " 
-                                     + m_hardwareRelationshipType
-            + ", " + m_hardwareRelationshipSlot);
-      }
-      String tableSpec = "HardwareTypeGroupMapping HTGM join ";
-      tableSpec += "HardwareRelationshipType HRT on ";
-      tableSpec += "HTGM.hardwareTypeId=HRT.hardwareTypeId";
-      String where = " where HTGM.hardwareGroupId='" + m_hardwareGroupId;
-      where += "' and HRT.id='" + m_hardwareRelationshipTypeId + "'";
-      String hid = m_connect.fetchColumn(tableSpec, "HRT.id", where);
-      if (hid == null) {
-        String msg="Hardware relationship type " + m_hardwareRelationshipType;
-        msg += " not applicable to group " + m_hardwareGroup;
-        throw new EtravelerException(msg);
-      }
-      // Check hardwareTypeId mentioned in relationship is in our hdwr group
-      // select HRT.hardwareTypeId from 
-      // HardwareTypeGroupMapping HTGM join HardwareRelationshipType HRT 
-      // on HTGM.hardwareTypeId=HRT.hardwareTypeId 
-      // where HTGM.hardwareGroupId=m_hardwareGroupId 
-      // and HRT.id=m_hardwareRelationshipTypeId
-
-    } 
-    */
     if (m_prerequisitesDb != null) {
       for (int ip=0; ip < m_prerequisitesDb.length; ip++) {
         /* there are circumstances where there are extra null entries
