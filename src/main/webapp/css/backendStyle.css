@@ -9,6 +9,7 @@
 
 
 th, h4 { font-size: 10pt; font-weight: bold;}
+dt {font-weight: bold;}
 td, p, legend { font-size: 10pt;}
 
 
@@ -21,6 +22,8 @@ fieldset { border-color: black; width: 90%}
  .left {text-align: left;}
  .right {text-align: right;}
  .redError {color: red;}
+ .orange {color: orange;}
+ .green {color: green;}
  .form {background-color: lightgray;}
  .vcenter {vertical-align: middle}
  
