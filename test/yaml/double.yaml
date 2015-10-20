@@ -1,13 +1,14 @@
 %YAML  1.1
 ---
 Name: double
-HardwareType:  Generic-CCD
+HardwareGroup:  Generic-CCD
 Version: next
 Description: Traveler with identical child steps
 ShortDescription: Identical child steps
 Sequence:
   -
     Name: double-container
+    ShortDescription: specify only a short description for this step
     Version: next
     Sequence:
       -
@@ -23,6 +24,7 @@ Sequence:
              Name: stuff
       - 
         Name: double-Just_a_step
+        ShortDescription: a short description; no full description included
         Version: next
       -
         Clone: double-toClone
@@ -30,6 +32,7 @@ Sequence:
 
   -
      Name: double-another_container
+     ShortDescription: Another step with no explicit Description
      Version: next
      Sequence:
        -
