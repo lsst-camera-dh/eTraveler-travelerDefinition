@@ -6,6 +6,7 @@ package org.lsstcorp.etravelerbackend.node.web;
 import org.lsstcorp.etravelerbackend.exceptions.EtravelerException;
 import  org.lsstcorp.etravelerbackend.db.MysqlDbConnection;
 import  org.lsstcorp.etravelerbackend.db.DbConnection;
+import  java.util.Map;
 import  javax.servlet.jsp.JspContext;
 import  javax.servlet.jsp.PageContext;
 import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
@@ -16,7 +17,7 @@ import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
  */
 public class DbWebUtil {
   /**
-   * Get db connection based on information in page context
+   * Get db connection to 'current' db based on information in page context
    * @param context
    * @param readonly
    * @return   the connection
@@ -39,7 +40,37 @@ public class DbWebUtil {
         conn.setReadOnly(false);
       } catch (Exception ex)  {
         throw new 
-            EtravelerException("Faile to set connection writable with exception " +
+            EtravelerException("Failed to set connection writable with exception " +
+            ex.getMessage());
+      }
+    }
+    return conn;
+  }
+
+  /**
+     Make connection to db specified in dbType
+   */
+  public static DbConnection makeConnection(PageContext context, 
+                                            String dbType, boolean readonly) 
+      throws EtravelerException {
+
+    java.util.Map varValues = 
+      ModeSwitcherFilter.getVariableValues("etravelerDb", context);
+
+    String datasource = (varValues.get(dbType)).toString();
+
+    DbConnection  conn = new MysqlDbConnection();
+    conn.setSourceDb(dbType);
+    boolean isOpen = conn.openTomcat(datasource);
+    if (!isOpen) {
+      throw new EtravelerException("failed to create db connection to " + dbType);
+    }
+    if (!readonly)  {
+      try {
+        conn.setReadOnly(false);
+      } catch (Exception ex)  {
+        throw new 
+            EtravelerException("Failed to set connection writable with exception " +
             ex.getMessage());
       }
     }

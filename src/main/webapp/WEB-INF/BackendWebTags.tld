@@ -21,4 +21,19 @@
     <tag-class>org.lsstcorp.etravelerbackend.node.web.EditProcessStep</tag-class>
     <body-content>empty</body-content>
   </tag>
+  <tag>
+    <name>TransportHardwareType</name>
+    <tag-class>org.lsstcorp.etravelerbackend.node.web.TransportHardwareTypeTag</tag-class>
+    <attribute>
+      <name>selected</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>destDb</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <body-content>empty</body-content>
+  </tag>
 </taglib>

@@ -18,7 +18,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta http-equiv="Window-Target" content="_top" >
-        <title>JSP Page</title>
+        <title>eTraveler Backend Welcome</title>
          <link href="http://srs.slac.stanford.edu/Commons/css/srsCommons.jsp?experimantName=LSST-CAMERA"
           rel="stylesheet" type="text/css" />
         <link href="css/backendStyle.css" type="text/css" rel="stylesheet" />

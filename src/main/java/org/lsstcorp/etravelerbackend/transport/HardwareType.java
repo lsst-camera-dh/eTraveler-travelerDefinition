@@ -34,11 +34,12 @@ public class HardwareType implements Transportable {
   
   
   public HardwareType() {}
-  public void importFrom(DbConnection conn, int id) throws UnknownDbId {
+  public void importFrom(DbConnection conn, int id) throws UnknownDbId, 
+      SQLException {
     m_oldId = Integer.toString(id);
     String where = " where id=" + m_oldId;
     PreparedStatement q = conn.prepareQuery("HardwareType", s_getCols, where);
-    ResultSet rs;
+    ResultSet rs=null;
 
     try {
       rs = q.executeQuery();
@@ -55,7 +56,7 @@ public class HardwareType implements Transportable {
       // maybe print a message and rethrow?
       System.out.println("Query for HardwareType id=" + id + 
                          " failed with error ");
-      System.outprintln(ex.getMessage());
+      System.out.println(ex.getMessage());
       throw ex;
     } finally {
       rs.close();
@@ -67,7 +68,7 @@ public class HardwareType implements Transportable {
     String [] vals= {m_name, m_isBatched, m_description, m_autoSequenceWidth,
                      m_autoSequence, m_trackingType, user};
     if (!m_importDone) {
-      thrown new 
+      throw new 
         EtravelerException("HardwareType object is not ready for export");
     }
     try {
@@ -78,11 +79,16 @@ public class HardwareType implements Transportable {
       System.out.println("Failed to export Hardware type'"+m_name+"'");
       throw ex;
     }
-    return m_newId;
+    return Integer.parseInt(m_newId);
   }
+  
+  public String getName() {return m_name;}
 
- public int transport(DbConnection readConn, DbConnection writeConn, int id,
-               String user) throws UnknownDbId, SQLException {
+  /*
+  public int transport(DbConnection readConn, DbConnection writeConn, int id,
+               String user) throws UnknownDbId, SQLException, EtravelerException {
    importFrom(readConn, id);
-   return exportTo(writConn, user);
+   return exportTo(writeConn, user);
+ }
+ */ 
 }
