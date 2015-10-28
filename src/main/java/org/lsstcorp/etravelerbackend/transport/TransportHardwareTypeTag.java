@@ -1,4 +1,4 @@
-package org.lsstcorp.etravelerbackend.node.web;
+package org.lsstcorp.etravelerbackend.transport;
 
 import java.io.IOException;
 import java.sql.SQLException;
