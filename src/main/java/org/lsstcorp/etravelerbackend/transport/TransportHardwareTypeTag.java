@@ -92,15 +92,6 @@ public class TransportHardwareTypeTag extends SimpleTagSupport {
     
     wrt.println("<p>Wrote new hardware type " + h.getName() +
         " with id="+Integer.toString(newId)
-        + " to database " + dbType + "</p>");
-    //String selected = (pageContext.getAttribute("selected")).toString();
-    //System.out.println("Value of selected is: '" + selected + "'\n");
-    //String destDb = (pageContext.getAttribute("destDb")).toString();
-
-    //wrt.println("<p>Value of <b>selected</b> is:</p>");
-    //wrt.println("<p>"+selected+"</p>");
-    // wrt.println("<p>Value of <b>destDb</b> is:</p>");
-    //wrt.println("<p>"+destDb+"</p>");
-    
+        + " to database " + destDb + "</p>");   
   }                   
 }
