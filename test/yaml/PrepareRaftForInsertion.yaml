@@ -1,7 +1,7 @@
 %YAML  1.1
 ---
 Name: Prepare_raft_for_insertion
-HardwareType: LCA-Raft_2
+HardwareGroup: LCA-Raft_2
 Description: Final preparation before raft is installed in cryostat
 Sequence:
   - 
@@ -13,7 +13,7 @@ Sequence:
    Prerequisites:
       - 
        Name: Positioning_assembly
-       Description: 
+       Description:  put something here
        PrerequisiteType: TEST_EQUIPMENT
   -
    Name: Align below bay

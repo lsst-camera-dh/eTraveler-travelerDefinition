@@ -1,7 +1,7 @@
 %YAML  1.1
 ---
 Name: Cryostat_integrate_raft_prepare
-HardwareType: Cryostat
+HardwareGroup: Cryostat
 Description: Ready cryostat for installation
 Sequence:
   - 

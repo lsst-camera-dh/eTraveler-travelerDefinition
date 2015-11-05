@@ -2,7 +2,7 @@
 ---
 Name: NextLast
 Version: 2
-HardwareType: CCD
+HardwareGroup: Generic-CCD
 Description: Test use of version=next and refVersion=last
 ShortDescription: Test use of version=next and refVersion=last
 SourceDb: Raw

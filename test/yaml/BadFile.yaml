@@ -1,7 +1,7 @@
 %YAML  1.1
 ---
  Name:  BadFile
- HardwareType:  CCD
+ HardwareGroup:  Generic-CCD
  Description: Dup key example
  Sequence:
    -

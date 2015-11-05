@@ -1,7 +1,7 @@
 %YAML  1.1
 ---
 Name: REB_Clean
-HardwareType: REB
+HardwareGroup: REB
 Description: Covers sending of REB to vendor for cleaning and recording results
 Sequence:
   -

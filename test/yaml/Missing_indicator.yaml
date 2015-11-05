@@ -1,7 +1,7 @@
 %YAML 1.1
 ---
  Name: Missing_indicator
- HardwareType: CCD
+ HardwareGroup: Generic-CCD
  Description:  Leave out hyphen for a list element
  Sequence:
      -

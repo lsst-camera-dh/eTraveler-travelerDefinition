@@ -2,7 +2,7 @@
 ---
 # Call a nearly no-op jh job
 Name: jh_jrbtest
-HardwareType:  CCD
+HardwareGroup:  Generic-CCD
 Description: Exercise JH
 TravelerActions:
   - Automatable

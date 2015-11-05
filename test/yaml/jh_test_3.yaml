@@ -2,7 +2,7 @@
 ---
 # Call a nearly no-op jh job
 Name: jh_test
-HardwareType:  CCD
+HardwareGroup:  Generic-CCD
 Version:     3
 Description: Exercise JH, referring to pre-existing jh steps
 SourceDb: Raw

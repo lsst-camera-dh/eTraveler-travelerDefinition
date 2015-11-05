@@ -1,7 +1,7 @@
 %YAML 1.1 
 ---
 Name:  InputTraveler
-HardwareType: LCA-Raft_2
+HardwareGroup: LCA-Raft_2
 Description: Blah blah
 InstructionsURL: 
 Sequence:
