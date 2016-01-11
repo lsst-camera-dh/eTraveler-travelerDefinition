@@ -1,7 +1,7 @@
 %YAML 1.1
 ---
 Name: SR-subsystem
-Subsystem: SR
+Subsystem: SRFT
 Description:  Should see subsystem in output YAML
 HardwareGroup: Generic-CCD
 Version: next

@@ -634,13 +634,11 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
           throw new EtravelerException("No hardware group entry for " + m_hardwareGroup);
         }
       }
-      if (sub != null) {
-        m_subsystemId = connect.fetchColumn("Subsystem", "id", " where shortName='" + sub + "'");
-        if (m_subsystemId == null) {
-          throw new EtravelerException("Unknown subsystem:  " + sub);
-        }
-      }
-        
+      if (sub == null) sub = "Default";
+      m_subsystemId = connect.fetchColumn("Subsystem", "id", " where shortName='" + sub + "'");
+      if (m_subsystemId == null) {
+        throw new EtravelerException("Unknown subsystem:  " + sub);
+      }        
     }   else { // assuming we checked compatibility of child earlier
       m_hardwareGroupId = m_dbParent.m_hardwareGroupId;
     }

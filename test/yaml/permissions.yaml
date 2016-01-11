@@ -1,7 +1,7 @@
 %YAML 1.1
 ---
 Name: Permissions
-Subsystem: LG
+Subsystem: CRFT
 Description:  Experiment with permission groups
 HardwareGroup: borogove
 Version: next

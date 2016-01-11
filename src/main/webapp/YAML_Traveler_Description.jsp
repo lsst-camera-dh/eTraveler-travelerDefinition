@@ -124,10 +124,35 @@ and open the template in the editor.
           tables where a short description is needed.  See also <a href='#Description'>Description:</a>.
           <br /><br />
         </dd>
-        <dt class="redError">Subsystem:</dt>
+        <dt>Subsystem:</dt>
         <dd>
           Subsystem to which the traveler belongs. Ignored for all steps except the
-          root step.<br /><br />
+          root step. If supplied, value must match the "Short Name" of a 
+          subsystem known to the database.  If not supplied, the traveler 
+	  will be given an associated
+          subsystem of <b>Default</b> when it is ingested. The collection
+          of known subsystems is experiment-dependent.  As of
+          January, 2016, the following subsystems are known to the
+          database for LSST-CAMERA: <br /><br />
+
+	  <table border="1">
+	  <tr><th class='left'>Name</th><th class='left'>Short Name</th>
+	  <th class='left'>Parent</th></tr>
+	  <tr><td>Exchange System</td><td>EXCH</td><td>(None)</td><tr>
+	  <tr><td>Auto Changer</td><td>CHGR</td><td>Exchange System</td></tr>
+	  <tr><td>Carousel</td><td>CAR</td><td>Exchange System</td></tr>
+	  <tr><td>Filter Loader</td><td>LDR</td><td>Exchange System</td></tr>
+	  <tr><td>Camera Body and Shutter</td><td>CBS</td><td>(None)</td></tr>
+	  <tr><td>Camera Body</td><td>CBDY</td><td>Camera Body and Shutter</td></tr>
+	  <tr><td>Shutter</td><td>SHTR</td><td>Camera Body and Shutter</td></tr>
+	  <tr><td>Science Raft</td><td>SRFT</td><td>(None)</td></tr>
+	  <tr><td>Corner Raft</td><td>CRFT</td><td>(None)</td></tr>
+	  <tr><td>Cryostat</td><td>CRYO</td><td>(None)</td></tr>
+	  <tr><td>Utility Trunk</td><td>UT</td><td>Cryostat</td></tr>
+	  <tr><td>Integration and Test</td><td>IT</td><td>(None)</td></tr>
+	  <tr><td>Optics</td><td>OPT</td><td>(None)</td></tr>
+</table>
+          <br /><br />
         </dd>
         <dt>UserVersionString:</dt>
         <dd>
