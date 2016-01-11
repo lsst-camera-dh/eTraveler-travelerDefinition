@@ -233,6 +233,17 @@ and open the template in the editor.
 	</dd>	
     
         <dt><br />PermissionGroups:</dt>
+	<dd>Optional.  A list of permission roles whose members may execute
+            the step.  If omitted, defaults to all known permission groups
+            associated with the traveler's subsystem.  The roles
+            currently known to eTraveler which apply to step execution are
+	    <ul>
+	    <li>operator</li>
+	    <li>supervisor</li>
+	    <li>approver</li>
+	    <li>admin</li>
+	    <li>qualityAssurance</li>
+	    </ul>
         <dt><br />RelationshipTasks:</dt>
         <dd>
 	The value for this key is a list of RelationshipTask nodes.  Each such node
