@@ -2,15 +2,17 @@
 ---
 Name: Permissions
 Subsystem: CRFT
-Description:  Experiment with permission groups
+ShortDescription:  Experiment with permission groups
 HardwareGroup: borogove
 Version: next
 Sequence:
   - Name: Permissions_s1
+    ShortDescription: must be approver to execute this step
     Version: next
     PermissionGroups:
       - approver
   - Name: Permissions_s2
+    ShortDescription: must be operator or qualityAssurance for this step
     PermissionGroups:
       - operator
       - qualityAssurance

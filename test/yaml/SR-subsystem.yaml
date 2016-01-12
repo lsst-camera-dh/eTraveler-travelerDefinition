@@ -2,11 +2,13 @@
 ---
 Name: SR-subsystem
 Subsystem: SRFT
-Description:  Should see subsystem in output YAML
+ShortDescription:  Should see subsystem in output YAML
 HardwareGroup: Generic-CCD
 Version: next
 Sequence:
   - Name: SR-subsystem_s1
+    ShortDescription: a no-op step
     Version: next
   - Name: SR-subsystem_s2
+    ShortDescription: another no-op step
     Version: next
