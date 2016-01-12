@@ -25,15 +25,23 @@
   
 <form method="get" action="displayTraveler.jsp" >
 <table>
-<tr>   <td><b>Traveler name:</b></td>
+<tr>   <td>
+<fieldset >
+<legend>Chosen&nbsp;traveler&nbsp;type</legend>
+<table>
+<tr><td><b>Traveler&nbsp;name:</b></td>
 <td> <input type="text" name="traveler_name" value="" /> </td></tr>
 <tr><td> <b>Version:</b></td>
 <td> <input type="text" name="traveler_version" value="1" /> </td></tr>
-<tr><td> <b>Hardware group:</b></td>
+<tr><td> <b>Hardware&nbsp;group:</b></td>
 <td> <input type="text" name="traveler_hgroup" value="" /> </td></tr>
 </table>
+</fieldset>
+</td>
+<td>&nbsp;</td>
+<td>
 
-<table><tr><td>
+ <table><tr><td>
 <fieldset >
   <legend>Output style</legend>
    <input type="submit" name="ostyle" value="Tree" 
@@ -44,16 +52,9 @@
          title="export canonical YAML to local file"/>
   <input type="submit" name="ostyle" value="Yaml-verbose"
          title="export verbose YAML to local file"/>
-</fieldset> </td>
-<td>&nbsp;</td>
-<td>
-  <fieldset>
-    <legend>deprecated&nbsp;styles</legend>
- 
-   <input type="submit" name="ostyle" value="Dot file" />
-  <input type="submit" name="ostyle" value="Image" />
-
 </fieldset>
+</td></tr></table>
+
 </td></tr></table>
   </form>
 
@@ -63,13 +64,21 @@
  <%-- <c:set var="ostyle" value="${oformat}" />  --%>
 <form method="get" action="displayTraveler.jsp" >
 <table>
-<tr>   <td><b>Traveler name:</b></td>
+<tr><td>
+<fieldset >
+<legend>Chosen&nbsp;traveler&nbsp;type</legend>
+<table>
+<tr><td><b>Traveler&nbsp;name:</b></td>
 <td> <input type="text" name="traveler_name" value="${traveler}" /> </td></tr>
 <tr><td> <b>Version:</b></td>
 <td> <input type="text" name="traveler_version" value="${version}" /> </td></tr>
-<tr><td> <b>Hardware group:</b></td>
+<tr><td> <b>Hardware&nbsp;group:</b></td>
 <td> <input type="text" name="traveler_hgroup" value="${hgroup}" /> </td></tr>
 </table>
+</fieldset>
+</td>
+<td>&nbsp;</td>
+<td>
 <table><tr><td valign="top">
 <fieldset >
   <legend>Output&nbsp;style</legend>
@@ -81,17 +90,7 @@
   <input type="submit" name="ostyle" value="Yaml-verbose"
          title="export verbose YAML to local file"/>
 </fieldset>
-</td><td>&nbsp;</td>
-<td>
-  <fieldset>
-    <legend> deprecated&nbsp;styles</legend>
-   
-  <input type="submit" name="ostyle" value="Dot file" />
-  <input type="submit" name="ostyle" value="Image" />
-  <%--  Doesn't work so comment out for now
-  <input type="submit" name="ostyle" value="Image map" />
-  --%>
-</fieldset>
+</td></tr></table>
 </td></tr></table>
      </form>
 </c:if>

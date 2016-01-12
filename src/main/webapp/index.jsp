@@ -25,7 +25,7 @@
     </head>
     <body>
       
-    <h2>View and Edit Process Traveler Definitions</h2>
+    <h2>View Process Traveler Definitions</h2>
     <table><tr><td class="vcenter">  <span class="vcenter"> <b>Filtering:</b> </span></td>
         <td>
      <filter:filterTable>
@@ -63,7 +63,6 @@
            <display:column property="createdBy" title="Creator"  style="text-align:left" />
            <display:column title="Creation TS" property="creationTS" sortable="true" 
                            style="text-align:left" />
-           <display:column property = "viewEdit" title="Edit" style="text-align:left"  />                     
            <display:column property = "addNCR" title="Add NCR" style="text-align:left"  />                        
          </display:table>
         
