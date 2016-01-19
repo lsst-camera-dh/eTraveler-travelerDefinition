@@ -7,13 +7,13 @@ HardwareGroup: borogove
 Version: next
 Sequence:
   - Name: Permissions_s1
-    ShortDescription: must be approver to execute this step
-    Version: next
-    PermissionGroups:
-      - approver
-  - Name: Permissions_s2
     ShortDescription: must be operator or qualityAssurance for this step
     PermissionGroups:
       - operator
       - qualityAssurance
     Version: next
+  - Name: Permissions_s2
+    ShortDescription: must be approver to execute this step
+    Version: next
+    PermissionGroups:
+      - approver

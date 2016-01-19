@@ -5,6 +5,8 @@ Version: next
 HardwareGroup:  Generic-CCD
 Description: Exercise JH
 ShortDescription: Exercise JH
+TravelerActions:
+  - Automatable
 
 Sequence:
   - 
