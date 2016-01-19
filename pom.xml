@@ -10,7 +10,7 @@
 
   <groupId>lsst</groupId>
   <artifactId>org-lsstcorp-eTravelerBackend</artifactId>
-  <version>1.30.0</version>
+  <version>1.31.0-SNAPSHOT</version>
   <packaging>war</packaging>
 
   <name>eTravelerBackend</name>
@@ -21,6 +21,25 @@
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <netbeans.hint.deploy.server>Tomcat</netbeans.hint.deploy.server>
   </properties>
+
+  <distributionManagement>
+    <!-- use the following if you're not using a snapshot version. -->
+    <repository>
+      <id>lsst-dh-maven2</id>
+      <name>LSST Data Handling Maven 2 central repository</name>
+<url>http://srs.slac.stanford.edu/nexus/content/repositories/lsst-dh-maven2/</url>
+    </repository>
+    <snapshotRepository>
+      <id>lsst-dh-maven2-snapshots</id>
+      <name>LSST Data Handling Maven2 central SNAPSHOTS repository</name>
+<url>http://srs.slac.stanford.edu/nexus/content/repositories/lsst-dh-maven2-snapshot/</url>
+    </snapshotRepository>
+    <site>
+      <id>lsst-dh-maven2-site</id>
+      <name>LSST Data Handling Maven2 central site repository</name>
+      <url>dav:http://srs.slac.stanford.edu/nexus/content/sites/lsst-dh-site/</url>
+    </site>
+  </distributionManagement> 
 
   <repositories>
     <repository>
