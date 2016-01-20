@@ -229,7 +229,8 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     }
 
     Iterator<String> it = yamlMap.keySet().iterator();
-    List<Node> list = null;               // only used if there are children
+    List<Node> list = null;    // only used if our node has non-scalar value
+    List<Node> childList = null;  // only used for Sequence or Selection
     while (it.hasNext()) {
       String foundKey = it.next();
       int keyIx = s_knownKeys.indexOf(foundKey);
@@ -391,14 +392,16 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
             throw new ConflictingChildren("SELECTION", "SEQUENCE");
           }
           m_substeps="SEQUENCE";
-          m_nChildren = list.size();
+          childList = (List<Node>) yamlMap.get(foundKey);
+          m_nChildren = childList.size();
           break;
         case SELECTION:
           if (m_substeps == "SEQUENCE") {
             throw new ConflictingChildren("SELECTION", "SEQUENCE");
           }
           m_substeps="SELECTION";
-          m_nChildren = list.size();
+          childList = (List<Node>) yamlMap.get(foundKey);
+          m_nChildren = childList.size();
           break;
         case PREREQUISITES:
           m_nPrerequisites = list.size();
@@ -490,7 +493,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       m_children = new ProcessNodeYaml[m_nChildren];
       boolean hasSelection = (m_substeps.equals("SELECTION"));
       for (int iC = 0; iC < m_nChildren; iC++) {
-        Map<String, Object> processMap = (Map<String, Object>) list.get(iC);
+        Map<String, Object> processMap = (Map<String, Object>) childList.get(iC);
         m_children[iC] = new ProcessNodeYaml(m_writer, m_nameHandling);
         m_children[iC].readYaml(processMap, this, hasSelection, iC, m_processes);
       }
