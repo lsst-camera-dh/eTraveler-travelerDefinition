@@ -1,12 +1,12 @@
 %YAML 1.1
 ---
-Name: bad[Names
+Name: bad-Names
 HardwareGroup: snark
 Description: Testing out ShortDescription field and frowned-upon names
 ShortDescription: Testing
 Version: next
 Sequence:
-  - Name: rel?ax
+  - Name: -rel?ax
     Description: nothing to do
     ShortDescription: rel?ax should be ok here
     Version: next

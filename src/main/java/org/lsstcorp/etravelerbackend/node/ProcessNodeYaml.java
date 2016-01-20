@@ -519,13 +519,18 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
    */
   private void checkName(String name) throws WrongTypeYamlValue, IOException {
     if (m_writer == null) return;
-    String proscribed = ".*[ ',#{}:/$&?!\\\"\\[\\]\\s].*";
+    String proscribed = ".*[ ',#{}:/$&?!^=*\\\"\\[\\]\\s].*";
+    String noInitialHyphen = "-.*";
     //String proscribed = "[',#{}:/$&?!]";
     boolean match = Pattern.matches(proscribed, name);
     if (match) {
       m_writer.write("WARNING!! <br />");
       m_writer.write("Step name '" + name + "' contains whitespace or one of these frowned-upon characters: <br />");
-      m_writer.write("# : / $ & , ' \" ! ? } { ] [ <br /><br />");
+      m_writer.write("# : / $ & , ' \" ! ? = * ^ } { ] [ <br /><br />");
+    }
+    if (Pattern.matches(noInitialHyphen, name)) {
+        m_writer.write("WARNING!! <br />");
+        m_writer.write("Step name '" + name + "' starts with a hyphen, which is not allowed<br /><br />");                
     }
   }
 
