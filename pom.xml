@@ -3,7 +3,7 @@
   <parent>
       <groupId>org.lsst.camera</groupId>
       <artifactId>org-lsst-camera-maven-project-war</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -25,9 +25,9 @@
   <distributionManagement>
     <!-- use the following if you're not using a snapshot version. -->
     <repository>
-      <id>lsst-dh-maven2</id>
+      <id>lsst-dh-maven2-public</id>
       <name>LSST Data Handling Maven 2 central repository</name>
-<url>http://srs.slac.stanford.edu/nexus/content/repositories/lsst-dh-maven2/</url>
+<url>http://srs.slac.stanford.edu/nexus/content/repositories/lsst-dh-maven2-public/</url>
     </repository>
     <snapshotRepository>
       <id>lsst-dh-maven2-snapshots</id>
@@ -40,6 +40,12 @@
       <url>dav:http://srs.slac.stanford.edu/nexus/content/sites/lsst-dh-site/</url>
     </site>
   </distributionManagement> 
+  
+  <scm>
+      <url>https://github.com/lsst-camera-dh/eTraveler-travelerDefinition</url>
+      <connection>scm:git:git::/github.vom/lsst-camera-dh/eTraveler-travelerDefinition</connection>
+      <developerConnection>scm:git:ssh://git@github.com/lsst-camera-dh/eTraveler-travelerDefinition</developerConnection>
+  </scm>
 
   <repositories>
     <repository>
@@ -106,6 +112,12 @@
           <artifactId>freehep-webutil</artifactId>
           <version>1.11.5</version>
          <type>jar</type>
+      </dependency>
+      
+      <dependency>
+          <groupId>org.yaml</groupId>
+          <artifactId>snakeyaml</artifactId>
+          <version>1.15-lsst-dh</version>
       </dependency>
   </dependencies>
 
