@@ -6,7 +6,7 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="import" 
-   uri="http://lsstcorp.org/etravelerbackend/DbImporter" %>
+   uri="http://etraveler.camera.lsst.org/backend/DbImporter" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>

@@ -1,7 +1,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <%@taglib prefix="import" 
-          uri="http://lsstcorp.org/etravelerbackend/DbImporter" %>
+          uri="http://etraveler.camera.lsst.org/backend/DbImporter" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <%@taglib prefix="tree" uri="http://java.freehep.org/tree-taglib" %>
@@ -11,9 +11,9 @@
 <%@page import="java.util.ArrayList" %>
 <%@page import="javax.management.AttributeList" %>
 <%@page import="javax.management.Attribute" %>
-<%@page import="org.lsstcorp.etravelerbackend.node.DbImporter" %>
-<%@page import="org.lsstcorp.etravelerbackend.node.Prerequisite" %>
-<%@page import="org.lsstcorp.etravelerbackend.node.PrescribedResult" %>
+<%@page import="org.lsst.camera.etraveler.backend.node.DbImporter" %>
+<%@page import="org.lsst.camera.etraveler.backend.node.Prerequisite" %>
+<%@page import="org.lsst.camera.etraveler.backend.node.PrescribedResult" %>
 
 <!DOCTYPE html>
 

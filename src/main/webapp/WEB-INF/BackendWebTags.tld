@@ -7,24 +7,24 @@
   <short-name>BackendWebTags</short-name>
   <tag>
     <name>TreeVariables</name>
-    <tag-class>org.lsstcorp.etravelerbackend.node.web.TreeVariables</tag-class>
+    <tag-class>org.lsst.camera.etraveler.backend.node.TreeVariables</tag-class>
     <body-content>empty</body-content>
   </tag>
   <function>
     <name>getTravelerTypeInfo</name>
-    <function-class>org.lsstcorp.etravelerbackend.node.web.BackendWeb</function-class>
+    <function-class>org.lsst.camera.etraveler.backend.node.web.BackendWeb</function-class>
     <function-signature>org.apache.commons.beanutils.RowSetDynaClass 
      getTravelerTypeInfo(javax.servlet.jsp.PageContext)</function-signature>
   </function>
   <tag>
     <name>EditProcessStep</name>
-    <tag-class>org.lsstcorp.etravelerbackend.node.web.EditProcessStep</tag-class>
+    <tag-class>org.lsst.camera.etraveler.backend.node.EditProcessStep</tag-class>
     <body-content>empty</body-content>
   </tag>
   <!--
   <tag>
     <name>TransportHardwareType</name>
-    <tag-class>org.lsstcorp.etravelerbackend.transport.TransportHardwareTypeTag</tag-class>
+    <tag-class>org.lsst.camera.etraveler.backend.transport.TransportHardwareTypeTag</tag-class>
     <attribute>
       <name>selected</name>
       <required>true</required>

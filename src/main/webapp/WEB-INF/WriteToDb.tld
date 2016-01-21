@@ -2,18 +2,18 @@
 <taglib version="2.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/ xml/ns/j2ee/web-jsptaglibrary_2_0.xsd">
   <tlib-version>1.0</tlib-version>
   <short-name>WriteToDb</short-name>
-  <uri>http://lsstcorp.org/etravelerbackend/WriteToDb</uri>
+  <uri>http://etraveler.camera.lsst.org/backend/WriteToDb</uri>
   <!--
   <function>
     <name>ingest</name>
-    <function-class>org.lsstcorp.etravelerbackendnode.YamlToDb</function-class>
+    <function-class>org.lsst.camera.etraveler.backend.node.YamlToDb</function-class>
     <function-signature>java.lang.String ingest(java.lang.String, boolean)
     </function-signature>
   </function>
   -->
   <function>
     <name>ingest</name>
-    <function-class>org.lsstcorp.etravelerbackend.node.WriteToDb</function-class>
+    <function-class>org.lsst.camera.etraveler.backend.node.WriteToDb</function-class>
     <function-signature>void ingest(javax.servlet.jsp.PageContext)
     </function-signature>
   </function>

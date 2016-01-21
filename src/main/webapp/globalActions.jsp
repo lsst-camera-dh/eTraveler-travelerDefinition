@@ -6,11 +6,11 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="import" 
-          uri="http://lsstcorp.org/etravelerbackend/DbImporter" %>
+          uri="http://etraveler.camera.lsst.org/backend/DbImporter" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="display" uri="http://displaytag.sf.net" %>
-<%@page import="org.lsstcorp.etravelerbackend.node.DbImporter" %>
-<%@page import="org.lsstcorp.etravelerbackend.node.EditedTreeNode" %>
+<%@page import="org.lsst.camera.etraveler.backend.node.DbImporter" %>
+<%@page import="org.lsst.camera.etraveler.backend.node.EditedTreeNode" %>
 <%@page import="javax.management.Attribute" %>
 <%@page import="javax.management.AttributeList" %>
 <%@page import="java.util.ArrayList"%>

@@ -6,7 +6,7 @@
 
 <%@tag description="puts up traveler select form" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@taglib prefix="import" uri="http://lsstcorp.org/etravelerbackend/DbImporter" %>
+<%@taglib prefix="import" uri="http://etraveler.camera.lsst.org/backend/DbImporter" %>
 
 <%-- The list of normal or fragment attributes can be specified here: --%>
 <%@attribute name="formAction"%>

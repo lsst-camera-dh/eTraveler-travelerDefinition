@@ -1,20 +1,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-      <groupId>srs</groupId>
-      <artifactId>org-srs-maven-project-war</artifactId>
-      <version>4.2</version>
+      <groupId>org.lsst.camera</groupId>
+      <artifactId>org-lsst-camera-maven-project-war</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>lsst</groupId>
-  <artifactId>org-lsstcorp-eTravelerBackend</artifactId>
+  <groupId>org.lsst.camera</groupId>
+  <artifactId>org-lsst-camera-etraveler-backend</artifactId>
   <version>1.31.0-SNAPSHOT</version>
   <packaging>war</packaging>
 
-  <name>eTravelerBackend</name>
-  <url>http://localhost:8084/eTravelerbackend</url>
+  <name>eTraveler Backend</name>
+  <!-- <url>http://localhost:8084/eTravelerbackend</url> -->
 
   <properties>
       <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
@@ -53,6 +53,12 @@
         <name>SRS Maven2 central SNAPSHOTS repository</name>
         <url>http://srs.slac.stanford.edu/maven2/SNAPSHOTS</url>
     </repository>
+    
+    <repository>
+            <id>lsst-dh-maven2-public</id>
+            <name>LSST Data Handling Maven Central repository</name>
+<url>http://srs.slac.stanford.edu/nexus/content/groups/lsst-dh-maven2-public/</url>
+    </repository> 
     
     <repository>
       <id>central</id>

@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
-    
-
     <session-config>
         <session-timeout>
             120
         </session-timeout>
     </session-config>
-
     <welcome-file-list>
-  <!--      <welcome-file>welcome.jsp</welcome-file>   -->
-    <welcome-file>index.jsp</welcome-file>  
+        <!--      <welcome-file>welcome.jsp</welcome-file>   -->
+        <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
-
-
     <context-param>
         <param-name>
             applicationTitle
@@ -22,8 +17,7 @@
             eTraveler Backend
         </param-value>
     </context-param>
-    
-     <context-param>
+    <context-param>
         <param-name>
             version
         </param-name>
@@ -31,36 +25,31 @@
             ${pom.version}
         </param-value>
     </context-param>
-
-    
     <!-- Default database connection -->
     <context-param>
-      <param-name>
+        <param-name>
         javax.servlet.jsp.jstl.sql.dataSource
       </param-name>
-      <param-value>
+        <param-value>
         jdbc/rd-lsst-cam-dev
       </param-value>
     </context-param>
-    
     <context-param>
-      <param-name>
+        <param-name>
         titleHeight
       </param-name>
-      <param-value>
+        <param-value>
         60
       </param-value>
     </context-param>
-    
     <context-param>
-      <param-name>
+        <param-name>
         imageHeight
       </param-name>
-      <param-value>
+        <param-value>
         100
       </param-value>
     </context-param>
-    
     <!--
     <context-param>
         <param-name>
@@ -71,8 +60,6 @@
         </param-value>
     </context-param>
     -->
-
-
     <filter>
         <filter-name>ModeSwitcherFilter</filter-name>
         <filter-class>org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter</filter-class>
@@ -89,20 +76,16 @@
         <filter-name>ModeSwitcherFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-
- <!-- Load the Multipart Filter -->
-     <filter>
-         <filter-name>MultipartFilter</filter-name>
-         <filter-class>org.srs.web.base.filters.multipart.MultipartFilter</filter-class>
-     </filter>
-     <filter-mapping>
-         <filter-name>MultipartFilter</filter-name>
-         <url-pattern>/*</url-pattern>
-     </filter-mapping>
-     
+    <!-- Load the Multipart Filter -->
+    <filter>
+        <filter-name>MultipartFilter</filter-name>
+        <filter-class>org.srs.web.base.filters.multipart.MultipartFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>MultipartFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
     <!-- Login Filter -->
-
-
     <filter>
         <filter-name>LoginFilter</filter-name>
         <filter-class>org.srs.web.base.filters.login.LoginFilter</filter-class>
@@ -110,7 +93,6 @@
             <param-name>configDb</param-name>
             <param-value>${experiment.configuration.database}</param-value>
         </init-param>
-        
         <!--
         <init-param>
             <param-name>skipPages</param-name>
@@ -121,125 +103,99 @@
             <param-name>requireLogin</param-name>
             <param-value>true</param-value>
         </init-param>
-
-
     </filter>
-
     <filter-mapping>
         <filter-name>LoginFilter</filter-name>
         <url-pattern>*.jsp</url-pattern>
     </filter-mapping>
-
-
-    
-     
     <servlet>
-      <servlet-name>ExperimentContextServlet</servlet-name>
-      <servlet-class>org.srs.web.base.filters.experimentcontext.ExperimentContextServlet</servlet-class>
+        <servlet-name>ExperimentContextServlet</servlet-name>
+        <servlet-class>org.srs.web.base.filters.experimentcontext.ExperimentContextServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-      <servlet-name>ExperimentContextServlet</servlet-name>
-      <url-pattern>/exp/*</url-pattern>
+        <servlet-name>ExperimentContextServlet</servlet-name>
+        <url-pattern>/exp/*</url-pattern>
     </servlet-mapping>
-
     <filter>
-      <filter-name>ExperimentContextFilter</filter-name>
-      <filter-class>org.srs.web.base.filters.experimentcontext.ExperimentContextFilter</filter-class>
+        <filter-name>ExperimentContextFilter</filter-name>
+        <filter-class>org.srs.web.base.filters.experimentcontext.ExperimentContextFilter</filter-class>
     </filter>
     <filter-mapping>
-      <filter-name>ExperimentContextFilter</filter-name>
-      <url-pattern>/*</url-pattern>
-    </filter-mapping> 
-
+        <filter-name>ExperimentContextFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
     <!-- Adding Sitemesh Filter -->
-    
     <filter>
         <filter-name>sitemesh</filter-name>
         <filter-class>com.opensymphony.module.sitemesh.filter.PageFilter</filter-class>
     </filter>
-
     <filter-mapping>
         <filter-name>sitemesh</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-   
     <!-- Done adding Sitemesh Filter -->
-    
-  
-    
     <!-- Servlets -->
     <!-- Locally defined servlet needed for creating circle-and-arrow images -->
     <servlet>
-      <servlet-name>TravelerImageServlet</servlet-name>
-      <servlet-class>org.lsstcorp.etravelerbackend.node.TravelerImageServlet</servlet-class>
+        <servlet-name>TravelerImageServlet</servlet-name>
+        <servlet-class>org.lsst.camera.etraveler.backend.node.TravelerImageServlet</servlet-class>
     </servlet>
-    
     <servlet-mapping>
-      <servlet-name>TravelerImageServlet</servlet-name>
-      <url-pattern>/TravelerImageServlet</url-pattern>
+        <servlet-name>TravelerImageServlet</servlet-name>
+        <url-pattern>/TravelerImageServlet</url-pattern>
     </servlet-mapping>
-    
     <!-- Generate yaml for download -->
     <servlet>
-       <servlet-name>DownloadYamlServlet</servlet-name>
-       <servlet-class>org.lsstcorp.etravelerbackend.node.web.DownloadYamlServlet</servlet-class>
+        <servlet-name>DownloadYamlServlet</servlet-name>
+        <servlet-class>org.lsst.camera.etraveler.backend.node.web.DownloadYamlServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-       <servlet-name>DownloadYamlServlet</servlet-name>
-       <url-pattern>/servlet/DownloadYamlServlet</url-pattern>
+        <servlet-name>DownloadYamlServlet</servlet-name>
+        <url-pattern>/servlet/DownloadYamlServlet</url-pattern>
     </servlet-mapping>
-
     <!-- Icons for tree display -->
     <servlet>
-       <servlet-name>fhicon</servlet-name>
-       <servlet-class>org.freehep.webutil.tree.IconServlet</servlet-class>
-       <load-on-startup>1</load-on-startup>
+        <servlet-name>fhicon</servlet-name>
+        <servlet-class>org.freehep.webutil.tree.IconServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
     </servlet>
-
     <servlet-mapping>
         <servlet-name>fhicon</servlet-name>
         <url-pattern>/icon.jsp</url-pattern>
     </servlet-mapping>
-
     <!-- insist on newish compiler -->
     <servlet>
-      <servlet-name>jsp</servlet-name>
-      <servlet-class>org.apache.jasper.servlet.JspServlet</servlet-class>
-      <init-param>
-        <param-name>fork</param-name>
-        <param-value>false</param-value>
-      </init-param>
-      <init-param>
-        <param-name>xpoweredBy</param-name>
-        <param-value>false</param-value>
-      </init-param>
-      <init-param>
-        <param-name>compilerSourceVM</param-name>
-        <param-value>1.7</param-value>
-      </init-param>
-      <init-param>
-        <param-name>compilerTargetVM</param-name>
-        <param-value>1.7</param-value>
-      </init-param>
-      <load-on-startup>3</load-on-startup>
+        <servlet-name>jsp</servlet-name>
+        <servlet-class>org.apache.jasper.servlet.JspServlet</servlet-class>
+        <init-param>
+            <param-name>fork</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <init-param>
+            <param-name>xpoweredBy</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <init-param>
+            <param-name>compilerSourceVM</param-name>
+            <param-value>1.7</param-value>
+        </init-param>
+        <init-param>
+            <param-name>compilerTargetVM</param-name>
+            <param-value>1.7</param-value>
+        </init-param>
+        <load-on-startup>3</load-on-startup>
     </servlet>
-    
-  
- 
-    
     <context-param>
-      <param-name>org.srs.web.base.datasource.mode</param-name>
-      <param-value>dataSourceMode</param-value>
+        <param-name>org.srs.web.base.datasource.mode</param-name>
+        <param-value>dataSourceMode</param-value>
     </context-param>
     <context-param>
-      <param-name>org.srs.web.base.datasource.variable</param-name>
-      <param-value>etravelerDb</param-value>  
+        <param-name>org.srs.web.base.datasource.variable</param-name>
+        <param-value>etravelerDb</param-value>
     </context-param>
-    
     <listener>
-      <listener-class>org.srs.web.base.datasource.DefaultDataSourceSwitcher</listener-class>
+        <listener-class>org.srs.web.base.datasource.DefaultDataSourceSwitcher</listener-class>
     </listener>
-
     <!-- The mappings for the JSP servlet 
     <servlet-mapping>
       <servlet-name>jsp</servlet-name>
@@ -247,5 +203,4 @@
       <url-pattern>*.jspx</url-pattern>
     </servlet-mapping>
 -->
-
 </web-app>

@@ -6,7 +6,7 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>  
  <%@taglib prefix="yamltodb" 
-   uri="http://lsstcorp.org/etravelerbackend/WriteToDb" %> 
+   uri="http://etraveler.camera.lsst.org/backend/WriteToDb" %> 
  <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>

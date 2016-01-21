@@ -15,8 +15,7 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="display" uri="http://displaytag.sf.net" %>
 <%@taglib prefix="import" 
-          uri="http://lsstcorp.org/etravelerbackend/DbImporter" %>
-
+          uri="http://etraveler.camera.lsst.org/backend/DbImporter" %>
 
       <h3>Process Attributes</h3>
          <display:table name="${import:selectedNodeAttributes(pageContext)}" 
