@@ -7,12 +7,12 @@
   <short-name>NCRTags</short-name>
   <tag>
     <name>ShowNCRCandidates</name>
-    <tag-class>org.lsst.camera.etraveler.backend.node.ShowNCRCandidates</tag-class>
+    <tag-class>org.lsst.camera.etraveler.backend.node.web.ShowNCRCandidates</tag-class>
     <body-content>empty</body-content>
   </tag>
   <tag>
     <name>ClearNCRVariables</name>
-    <tag-class>org.lsst.camera.etraveler.backend.node.ClearNCRVariables</tag-class>
+    <tag-class>org.lsst.camera.etraveler.backend.node.web.ClearNCRVariables</tag-class>
     <body-content>empty</body-content>
   </tag>
 </taglib>

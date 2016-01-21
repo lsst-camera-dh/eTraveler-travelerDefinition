@@ -7,7 +7,7 @@
   <short-name>BackendWebTags</short-name>
   <tag>
     <name>TreeVariables</name>
-    <tag-class>org.lsst.camera.etraveler.backend.node.TreeVariables</tag-class>
+    <tag-class>org.lsst.camera.etraveler.backend.node.web.TreeVariables</tag-class>
     <body-content>empty</body-content>
   </tag>
   <function>
@@ -18,7 +18,7 @@
   </function>
   <tag>
     <name>EditProcessStep</name>
-    <tag-class>org.lsst.camera.etraveler.backend.node.EditProcessStep</tag-class>
+    <tag-class>org.lsst.camera.etraveler.backend.node.web.EditProcessStep</tag-class>
     <body-content>empty</body-content>
   </tag>
   <!--
