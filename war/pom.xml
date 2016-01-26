@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.lsst.camera</groupId>
+         <artifactId>org-lsst-camera-maven-project-war</artifactId>
+        <version>1.0.0</version> 
+        <relativePath />
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.lsst.camera</groupId>
+    <artifactId>org-lsst-camera-etraveler-backend-war</artifactId>
+    <packaging>war</packaging>
+    <version>1.31.0-SNAPSHOT</version>
+    <name>LSST eTraveler Backend War</name>
+
+    <url>http://lsst-camera.slac.stanford.edu/eTravelerBackend</url>
+    <dependencies>
+        <dependency>
+            <groupId>org.lsst.camera</groupId>
+            <artifactId>org-lsst-camera-etraveler-backend-core</artifactId>
+            <version>1.31.0-SNAPSHOT</version>
+        </dependency>
+       <!--
+	<dependency>
+	  <groupId>javax</groupId>
+	  <artifactId>javaee-web-api</artifactId>
+	  <version>6.0</version>
+	  <scope>provided</scope>
+	</dependency>
+        -->
+      
+
+      <dependency>
+          <groupId>srs</groupId>
+          <artifactId>org-srs-groupmanager-web</artifactId>
+          <version>1.29</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <version>1.9.2</version>
+      </dependency>
+      
+      <!-- Do we need this for login filter? -->
+      <dependency>
+          <groupId>org.freehep</groupId>
+          <artifactId>freehep-webutil</artifactId>
+          <version>1.11.5</version>
+         <type>jar</type>
+      </dependency>
+      
+      <dependency>
+          <groupId>org.yaml</groupId>
+          <artifactId>snakeyaml</artifactId>
+          <version>1.15-lsst-dh</version>
+      </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>eTravelerBackend</finalName>   
+    </build>
+    
+     <repositories>
+        <repository>
+                <id>lsst-dh-maven2-public</id>
+                <name>LSST Data Handling Maven Central repository</name>
+<url>http://srs.slac.stanford.edu/nexus/content/groups/lsst-dh-maven2-public/</url>
+        </repository> 
+    
+    </repositories>
+</project>
