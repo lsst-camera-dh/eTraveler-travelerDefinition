@@ -4,7 +4,7 @@
  */
 package org.lsst.camera.etraveler.backend.node;
 import org.lsst.camera.etraveler.backend.exceptions.EtravelerException;
-import org.lsst.camera.etraveler.backend.db.DbInfo;
+// import org.lsst.camera.etraveler.backend.db.DbInfo;
 import org.lsst.camera.etraveler.backend.db.DbConnection;
 import org.lsst.camera.etraveler.backend.db.MysqlDbConnection;
 import org.lsst.camera.etraveler.backend.util.GraphViz;
@@ -869,12 +869,12 @@ public class DbImporter {
       return null;
     }
   }
-  /**
+  /*
    * Make a connection with supplied information
    * @param info   Data structure containing part of connection info
-   * @param dbType  One of "Prod", "Dev", "Test", "Raw"
-   * @return 
+   * @param dbType  One of "Prod", "Dev", "Test", "Raw" 
    */
+  /*
   static private DbConnection makeConnection(DbInfo info, String dbType)  {   
     // Try connect
     DbConnection conn = new MysqlDbConnection();
@@ -893,7 +893,7 @@ public class DbImporter {
       return null;
     }
   }
-  
+  */
   static private Traveler getCachedTraveler(PageContext context) 
     throws EtravelerException {
     String name =  context.getRequest().getParameter("traveler_name");
