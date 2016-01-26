@@ -171,7 +171,7 @@ public class MysqlDbConnection implements DbConnection {
    * @param tableSpec
    * @param col
    * @param where
-   * @return 
+   * @return Array of string values or null
    */
   public ArrayList<String> fetchColumnMulti(String tableSpec, String col, String where) {
      String[] cols = new String[1];

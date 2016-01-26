@@ -93,8 +93,7 @@ public interface DbConnection {
    * @param table  Table to be updated
    * @param col    Column to be updated
    * @param val    New value
-   * @param where   Condition
-   * @return 
+   * @param where   Condition   
    */
   void updateColumn(String table, String col, String val, String where, 
       int extras) throws SQLException;
