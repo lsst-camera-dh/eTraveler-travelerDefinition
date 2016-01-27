@@ -16,7 +16,7 @@ import org.lsst.camera.etraveler.backend.exceptions.EtravelerException;
 import org.lsst.camera.etraveler.backend.exceptions.UnknownDbId;
 import org.lsst.camera.etraveler.backend.transport.HardwareType;
 import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
-import org.lsst.camera.etraveler.backend.node.web.DbWebUtil;
+import org.lsst.camera.etraveler.backend.ui.DbWebUtil;
     
 /**
  *  Accept form input specifying hardware type and db to transport

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.lsst.camera.etraveler.backend.node.web;
+package org.lsst.camera.etraveler.backend.ui;
 import org.lsst.camera.etraveler.backend.exceptions.EtravelerException;
 import  org.lsst.camera.etraveler.backend.db.MysqlDbConnection;
 import  org.lsst.camera.etraveler.backend.db.DbConnection;

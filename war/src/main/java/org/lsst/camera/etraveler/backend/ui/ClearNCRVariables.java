@@ -1,4 +1,4 @@
-package org.lsst.camera.etraveler.backend.node.web;
+package org.lsst.camera.etraveler.backend.ui;
 
 import javax.servlet.jsp.JspContext;
 import javax.servlet.jsp.PageContext;

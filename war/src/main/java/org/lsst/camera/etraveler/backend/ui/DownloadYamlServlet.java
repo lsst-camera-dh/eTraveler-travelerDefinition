@@ -1,4 +1,4 @@
-package org.lsst.camera.etraveler.backend.node.web;
+package org.lsst.camera.etraveler.backend.ui;
 import java.io.*;
 import java.net.URLDecoder;
 // import javax.naming.InitialContext;

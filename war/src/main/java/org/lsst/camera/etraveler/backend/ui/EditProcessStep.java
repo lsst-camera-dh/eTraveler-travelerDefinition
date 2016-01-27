@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.lsst.camera.etraveler.backend.node.web;
+package org.lsst.camera.etraveler.backend.ui;
 
 import java.io.IOException;
 import java.util.ArrayList;

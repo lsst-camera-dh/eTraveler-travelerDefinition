@@ -147,7 +147,7 @@
     <!-- Generate yaml for download -->
     <servlet>
         <servlet-name>DownloadYamlServlet</servlet-name>
-        <servlet-class>org.lsst.camera.etraveler.backend.node.web.DownloadYamlServlet</servlet-class>
+        <servlet-class>org.lsst.camera.etraveler.backend.ui.DownloadYamlServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>DownloadYamlServlet</servlet-name>
