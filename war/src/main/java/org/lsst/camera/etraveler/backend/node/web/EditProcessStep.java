@@ -13,7 +13,7 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 import javax.servlet.jsp.JspWriter;
-import org.lsst.camera.etraveler.backend.node.DbImporter;
+import org.lsst.camera.etraveler.backend.ui.DbImporter;
 import org.lsst.camera.etraveler.backend.node.Prerequisite;
 import org.lsst.camera.etraveler.backend.node.PrescribedResult;
     

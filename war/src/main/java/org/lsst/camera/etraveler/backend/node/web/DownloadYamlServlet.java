@@ -6,7 +6,7 @@ import java.net.URLDecoder;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-import org.lsst.camera.etraveler.backend.node.DbImporter;
+import org.lsst.camera.etraveler.backend.ui.DbImporter;
 import org.lsst.camera.etraveler.backend.node.Traveler;
 /**
  *  Allow user to download generated yaml

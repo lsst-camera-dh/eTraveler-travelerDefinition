@@ -1,7 +1,8 @@
-package org.lsst.camera.etraveler.backend.node;
+package org.lsst.camera.etraveler.backend.ui;
 
 import java.util.ArrayList;
 import org.freehep.webutil.tree.DefaultTreeNode; // freeheptree.DefaultTreeNode;
+import org.lsst.camera.etraveler.backend.node.ProcessNode;
 
 public class ProcessTreeNode extends DefaultTreeNode 
   implements ProcessNode.Wrapper {

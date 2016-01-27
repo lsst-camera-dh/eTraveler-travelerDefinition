@@ -13,7 +13,7 @@
   -->
   <function>
     <name>ingest</name>
-    <function-class>org.lsst.camera.etraveler.backend.node.WriteToDb</function-class>
+    <function-class>org.lsst.camera.etraveler.backend.ui.WriteToDb</function-class>
     <function-signature>void ingest(javax.servlet.jsp.PageContext)
     </function-signature>
   </function>

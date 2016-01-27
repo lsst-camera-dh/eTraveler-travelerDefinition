@@ -8,7 +8,7 @@ import javax.servlet.jsp.tagext.SimpleTagSupport;
 import javax.servlet.jsp.JspWriter;
 import org.lsst.camera.etraveler.backend.db.DbConnection;
 import org.lsst.camera.etraveler.backend.node.ProcessNode;
-import org.lsst.camera.etraveler.backend.node.TravelerTreeVisitor;
+import org.lsst.camera.etraveler.backend.ui.TravelerTreeVisitor;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

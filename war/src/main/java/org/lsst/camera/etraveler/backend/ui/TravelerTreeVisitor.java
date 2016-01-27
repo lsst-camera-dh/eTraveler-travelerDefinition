@@ -2,7 +2,8 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.lsst.camera.etraveler.backend.node;
+package org.lsst.camera.etraveler.backend.ui;
+import org.lsst.camera.etraveler.backend.ui.ProcessTreeNode;
 import org.lsst.camera.etraveler.backend.exceptions.EtravelerException;
 import java.io.Writer;
 import java.io.StringWriter;
@@ -17,6 +18,13 @@ import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 import org.freehep.webutil.tree.DefaultIconSet; // freeheptree.DefaultIconSet;
 import org.freehep.webutil.tree.Tree; // freeheptree.Tree;  
+import org.lsst.camera.etraveler.backend.ui.EditedTreeNode;
+import org.lsst.camera.etraveler.backend.node.Prerequisite;
+import org.lsst.camera.etraveler.backend.node.PrescribedResult;
+import org.lsst.camera.etraveler.backend.node.ProcessNode;
+import org.lsst.camera.etraveler.backend.node.RelationshipTask;
+import org.lsst.camera.etraveler.backend.node.Traveler;
+import org.lsst.camera.etraveler.backend.node.TravelerVisitor;
 
 /**
  * Create text file (or byte stream) for input to GraphViz

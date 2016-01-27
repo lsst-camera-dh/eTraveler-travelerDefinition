@@ -4,7 +4,7 @@
         <groupId>org.lsst.camera</groupId>
        
         <artifactId>org-lsst-camera-maven-project-jar</artifactId>
-        <version>1.0.1-SNAPSHOT</version> 
+        <version>1.0.1</version> 
         <relativePath />
     </parent>
     
@@ -21,6 +21,12 @@
         <version>5.1.18</version>
         <scope>provided</scope>
       </dependency>
+      <dependency>
+        <groupId>org.yaml</groupId>
+        <artifactId>snakeyaml</artifactId>
+        <version>1.15-lsst-dh</version>
+      </dependency>
+
        <dependency>
          <groupId>srs</groupId>
          <artifactId>org-srs-web-base</artifactId>
