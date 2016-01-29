@@ -151,7 +151,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     throws EtravelerException, Exception {
     if (processes == null) {  
       if (m_processes == null) {
-        m_processes = new HashMap<String, ProcessNodeYaml>();
+        m_processes = new HashMap<>();
       }
     } else {
       m_processes = processes;
@@ -388,7 +388,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
 
           break;
         case SEQUENCE:
-          if (m_substeps == "SELECTION") {
+          if (m_substeps.equals("SELECTION") ) {
             throw new ConflictingChildren("SELECTION", "SEQUENCE");
           }
           m_substeps="SEQUENCE";
@@ -396,7 +396,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
           m_nChildren = childList.size();
           break;
         case SELECTION:
-          if (m_substeps == "SEQUENCE") {
+          if (m_substeps.equals("SEQUENCE") ) {
             throw new ConflictingChildren("SELECTION", "SEQUENCE");
           }
           m_substeps="SELECTION";
@@ -423,7 +423,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
           }
           break;
         case PERMISSIONGROUPS:
-          m_permissionGroups = new ArrayList<String>(list.size());
+          m_permissionGroups = new ArrayList<>(list.size());
           List<String> groupList = (List<String>) yamlMap.get(foundKey);
           for (String g : groupList) {
             m_permissionGroups.add(g);
@@ -577,7 +577,6 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     return new ProcessNode(parent, m_children[n]);                      
   }
  
-  
   public Prerequisite providePrerequisite(ProcessNode parent, int n) {
     if (n > m_nPrerequisites) return null;
     return new Prerequisite(parent, m_prerequisites[n]);
@@ -602,9 +601,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   // Properties read in directly from yaml
   private String m_name=null;
   private String m_hardwareGroup=null;
-  //private String m_hardwareRelationshipType=null;
-  // relationship slot is ignored if type is null
-  //private String  m_hardwareRelationshipSlot="1"; 
+  
   private String m_version="1";
   private String m_userVersionString=null;
   private String m_instructionsURL=null;
