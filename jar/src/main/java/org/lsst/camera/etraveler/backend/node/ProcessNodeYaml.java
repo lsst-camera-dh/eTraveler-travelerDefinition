@@ -493,12 +493,8 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       m_children = new ProcessNodeYaml[m_nChildren];
       boolean hasSelection = (m_substeps.equals("SELECTION"));
       for (int iC = 0; iC < m_nChildren; iC++) {
-<<<<<<< HEAD:jar/src/main/java/org/lsst/camera/etraveler/backend/node/ProcessNodeYaml.java
         Map<String, Object> processMap =
           (Map<String, Object>) childList.get(iC);
-=======
-        Map<String, Object> processMap = (Map<String, Object>) childList.get(iC);
->>>>>>> 4dfce232a2850d38a3a0ef132d6eecf3ac8fb608:src/main/java/org/lsstcorp/etravelerbackend/node/ProcessNodeYaml.java
         m_children[iC] = new ProcessNodeYaml(m_writer, m_nameHandling);
         m_children[iC].readYaml(processMap, this, hasSelection, iC, m_processes);
       }

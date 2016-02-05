@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.lsst.camera</groupId>
          <artifactId>org-lsst-camera-maven-project-war</artifactId>
-        <version>1.0.1</version> 
+        <version>1.0.2</version> 
         <relativePath />
     </parent>
 
@@ -12,7 +12,7 @@
     <groupId>org.lsst.camera</groupId>
     <artifactId>org-lsst-camera-etraveler-backend-war</artifactId>
     <packaging>war</packaging>
-    <version>1.31.0</version>
+    <version>1.31.1</version>
     <name>LSST eTraveler Backend War</name>
 
     <url>http://lsst-camera.slac.stanford.edu/eTravelerBackend</url>
@@ -20,7 +20,7 @@
         <dependency>
             <groupId>org.lsst.camera</groupId>
             <artifactId>org-lsst-camera-etraveler-backend-core</artifactId>
-            <version>1.31.0-SNAPSHOT</version>
+            <version>1.31.1</version>
         </dependency>
        <!--
 	<dependency>
