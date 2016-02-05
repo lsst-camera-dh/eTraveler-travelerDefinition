@@ -8,14 +8,13 @@
 
   <modelVersion>4.0.0</modelVersion>
 
+
   <groupId>org.lsst.camera</groupId>
   <artifactId>org-lsst-camera-etraveler-backend</artifactId>
   <version>1.31.0</version>
   <packaging>pom</packaging>
 
   <name>eTraveler Backend</name>
-  <!-- <url>http://localhost:8084/eTravelerbackend</url> -->
-
   
   <scm>
       <url>https://github.com/lsst-camera-dh/eTraveler-travelerDefinition</url>
