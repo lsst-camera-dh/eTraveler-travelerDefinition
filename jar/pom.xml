@@ -24,7 +24,7 @@
       <dependency>
         <groupId>org.yaml</groupId>
         <artifactId>snakeyaml</artifactId>
-        <version>1.15-lsst-dh</version>
+        <version>1.15.1-lsst-dh-SNAPSHOT</version>
       </dependency>
 
        <dependency>
