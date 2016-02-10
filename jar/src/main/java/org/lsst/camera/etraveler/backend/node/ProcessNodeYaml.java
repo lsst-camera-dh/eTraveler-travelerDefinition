@@ -13,6 +13,7 @@ import org.lsst.camera.etraveler.backend.exceptions.NullYamlValue;
 import org.lsst.camera.etraveler.backend.exceptions.IncompatibleChild;
 import org.lsst.camera.etraveler.backend.exceptions.EtravelerException;
 import org.lsst.camera.etraveler.backend.util.Verify;
+import org.lsst.camera.etraveler.backend.util.LineWriter;
 import  org.yaml.snakeyaml.Yaml;
 import  org.yaml.snakeyaml.nodes.MappingNode;
 import  org.yaml.snakeyaml.nodes.Node;
@@ -132,7 +133,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   
   public ProcessNodeYaml() {}
   
-  public ProcessNodeYaml(Writer wrt, String nameHandling)  {
+  public ProcessNodeYaml(LineWriter wrt, String nameHandling)  {
     m_writer = wrt;
     m_nameHandling = nameHandling;
   }
@@ -528,13 +529,13 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     //String proscribed = "[',#{}:/$&?!]";
     boolean match = Pattern.matches(proscribed, name);
     if (match) {
-      m_writer.write("WARNING!! <br />");
-      m_writer.write("Step name '" + name + "' contains whitespace or one of these frowned-upon characters: <br />");
-      m_writer.write("# : / $ & , ' \" ! ? = * ^ } { ] [ <br /><br />");
+      m_writer.writeln("WARNING!! ");
+      m_writer.writeln("Step name '" + name + "' contains whitespace or one of these frowned-upon characters: ");
+      m_writer.writeln("# : / $ & , ' \" ! ? = * ^ } { ] [ ");
     }
     if (Pattern.matches(noInitialHyphen, name)) {
-        m_writer.write("WARNING!! <br />");
-        m_writer.write("Step name '" + name + "' starts with a hyphen, which is not allowed<br /><br />");                
+        m_writer.writeln("WARNING!! ");
+        m_writer.writeln("Step name '" + name + "' starts with a hyphen, which is not allowed");                
     }
   }
 
@@ -638,7 +639,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private PrescribedResultYaml[] m_optionalResults;
   private RelationshipTaskYaml [] m_relationshipTasks;
   private ArrayList<String>  m_permissionGroups=null;
-  private Writer m_writer = null;
+  private LineWriter m_writer = null;
   private String m_nameHandling = "none";
   
   // Keep track of process name/version pairs we've seen

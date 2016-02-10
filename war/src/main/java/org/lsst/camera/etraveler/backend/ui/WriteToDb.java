@@ -1,6 +1,5 @@
 package org.lsst.camera.etraveler.backend.ui;
 import org.lsst.camera.etraveler.backend.ui.DbImporter;
-import org.yaml.snakeyaml.Yaml;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -19,6 +18,7 @@ import org.lsst.camera.etraveler.backend.node.ProcessNode;
 import org.lsst.camera.etraveler.backend.node.ProcessNodeYaml;
 import org.lsst.camera.etraveler.backend.node.Traveler;
 import org.lsst.camera.etraveler.backend.node.TravelerToDbVisitor;
+import org.lsst.camera.etraveler.backend.util.HtmlLineWriter;
 import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
 /**
  * Used from jsp to ingest Yaml, export to Db
@@ -31,7 +31,12 @@ public class WriteToDb {
   
       String redoInstructions = " Reselect file and try again"; 
       boolean nameWarning=false;
-     
+      HtmlLineWriter hwrite=null;
+      try {
+          hwrite = new HtmlLineWriter(context.getResponse().getOutputStream());
+      } catch (IOException ex) {
+         return "cannot get output stream"; 
+      } 
       Object fileContentsObj = context.getRequest().getParameter("importYamlFile"); 
       nameWarning = (context.getRequest().getParameter("strictNameChecking") != null); 
   
@@ -65,8 +70,10 @@ public class WriteToDb {
       Traveler trav;
       ProcessNode ingested;
       try {
-        trav = parse(fileContents, nameWarning, writer);
-        if (trav == null) return "Could not parse yaml input";
+        trav = new Traveler(fileContents, nameWarning, hwrite);
+        if (trav.getRoot() == null) return "Could not parse yaml input";
+        //parse(fileContents, nameWarning, writer);
+        //if (trav == null) return "Could not parse yaml input";
       }  catch (Exception ex)  {
         return  "<b>" + ex.getMessage() + "</b>";
       }
@@ -92,43 +99,6 @@ public class WriteToDb {
                     DbImporter.yamlArchiveDir(context), writer);
       }
       return writeRet;
-  }
-
-  private static Traveler parse(String fileContents, boolean nameWarning,
-      Writer wrt) throws Exception  {    
-    Yaml yaml = new Yaml(true);
-    Map yamlMap = null;
-    String nameHandling="none";
-    if (nameWarning) nameHandling="warn";
-    try {
-      yamlMap = (Map<String, Object>) yaml.load(fileContents);
-    } catch (Exception ex) {
-      System.out.println("Failed to load yaml with exception " + ex.getMessage());
-      throw new EtravelerException("Failed to load yaml with exception '" 
-          + ex.getMessage() + "'");
-    }
-    ProcessNodeYaml topYaml = new ProcessNodeYaml(wrt, nameHandling);
-    try {
-      topYaml.readYaml(yamlMap, null, false, 0, null);
-    } catch (Exception ex) {
-      System.out.println("Failed to process yaml with exception '" 
-          + ex.getMessage() + "'");
-      throw new EtravelerException("Failed to load yaml with exception '" 
-          + ex.getMessage() + "'");  
-    }
-
-    ProcessNode rootNode;
-    try {
-      rootNode = new ProcessNode(null, topYaml);
-    } catch (Exception ex) {
-      System.out.println("Failed to import from yaml with exception " + ex.getMessage());
-      // return null;
-      throw new EtravelerException("Failed to import from yaml with exception '"
-          + ex.getMessage() +"'");
-    }
-    Traveler traveler  = new Traveler(rootNode, "yaml", null, 
-                                      topYaml.getSubsystem());
-    return traveler;
   }
 
   public static String writeToDb(Traveler traveler, String user,
