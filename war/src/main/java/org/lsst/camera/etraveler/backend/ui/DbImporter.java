@@ -141,19 +141,19 @@ public class DbImporter {
       return "";
   }
    
-  static public String nextLine(StringArrayWriter wrt, PageContext context) {   
+  static private String nextLine(StringArrayWriter wrt, PageContext context) {   
     if (wrt == null)  {
       return "No information for requested name, version combination <br />";
     }
     return wrt.fetchNext();
   }
-  static public String fetchLine(StringArrayWriter wrt, PageContext context, int i) {
+  static private String fetchLine(StringArrayWriter wrt, PageContext context, int i) {
     if (wrt == null)  {
       return "No information for requested name, version combination <br />";
     }
     return wrt.fetchLine(i);
   }
-  static public int nLinesUsed(StringArrayWriter wrt, PageContext context) {
+  static private int nLinesUsed(StringArrayWriter wrt, PageContext context) {
     if (wrt == null) return 0;
     return wrt.fetchNUsed();
   }
