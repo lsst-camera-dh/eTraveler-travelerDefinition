@@ -9,6 +9,7 @@ import org.lsst.camera.etraveler.backend.db.DbConnection;
 import org.lsst.camera.etraveler.backend.db.MysqlDbConnection;
 import org.lsst.camera.etraveler.backend.util.GraphViz;
 import org.lsst.camera.etraveler.backend.util.Verify;
+import org.lsst.camera.etraveler.backend.util.HtmlLineWriter;
 import org.freehep.webutil.tree.Tree;   //  freeheptree.Tree;
 import org.freehep.webutil.tree.TreeNode; // freeheptree.TreeNode; 
 import java.io.ByteArrayOutputStream;
@@ -50,8 +51,6 @@ public class DbImporter {
  
   static ConcurrentHashMap<String, Traveler> s_travelers =
       new ConcurrentHashMap<String, Traveler>();
-  static ConcurrentHashMap<String, StringArrayWriter> s_writers =
-      new ConcurrentHashMap<String, StringArrayWriter>();
  
   private static String makeKey(String name, String version) 
     {return name + "_" + version;}
@@ -128,132 +127,48 @@ public class DbImporter {
       return("Failed to retrieve process with exception: " + ex.getMessage() );
     }
     if (printIt)   {
-      collectOutput(name, version, hgroup, traveler, dbType);
-    }
-      return "";
-  }
- 
-  static private void collectOutput(String name, String version, String hgroup,
-     ProcessNode trav, String dbType)  {
-    StringArrayWriter wrt = new StringArrayWriter();
-    TravelerPrintVisitor vis = new TravelerPrintVisitor();
-    String key = makeKey(name, version, hgroup, dbType);
-    if (!s_writers.containsKey(key)) {
-      vis.setEol("\n");
-      vis.setWriter(wrt);
-      vis.setIndent("&nbsp;&nbsp");
-      try {
-        vis.visit(trav, "Print Html", null);
-      }  catch (EtravelerException ex)  {
-        System.out.println("Print to Html failed with exception");
-        System.out.println(ex.getMessage());
-        return;
-      }
-      
-      s_writers.putIfAbsent(key, wrt);
-    }
-  }
-  static public String nextLine(PageContext context) {   
-    StringArrayWriter wrt = getWriter(context);
-    if (wrt == null)  {
-      return "No information for requested name, version combination <br />";
-    }
-    return wrt.fetchNext();
-  }
-  static public String fetchLine(PageContext context, int i) {
-    StringArrayWriter wrt = getWriter(context);
-    if (wrt == null)  {
-      return "No information for requested name, version combination <br />";
-    }
-    return wrt.fetchLine(i);
-  }
-  static public int nLinesUsed(PageContext context) {
-    StringArrayWriter wrt = getWriter(context);
-    if (wrt == null) return 0;
-    return wrt.fetchNUsed();
-  }
-  
-  static public String dotSource(PageContext context) {
-    Traveler trav;
-    try { trav = getCachedTraveler(context); } catch (EtravelerException ex) {
-      return (ex.getMessage());
-    }
-    ProcessNode travelerRoot = trav.getRoot();
-    TravelerDotVisitor vis = new TravelerDotVisitor();
-    JspWriter writer = context.getOut();
-    try {
-      vis.initOutput(writer, "\n");
-      // vis.initOutput(writer, "\n", context.getRequest().getParameter("db"));
-      vis.visit(travelerRoot, "dot file", null);
-      vis.endOutput();
-    } catch (EtravelerException ex) {
-      return(ex.getMessage());
-    }
-    
-    return "Called dotSource";
-  }
-  
-  static public void dotImg(PageContext context) {
-    String name = context.getRequest().getParameter("traveler_name");
-    String version = context.getRequest().getParameter("traveler_version");
-    String hgroup = context.getRequest().getParameter("traveler_hgroup");
-    String dbType = ModeSwitcherFilter.getVariable(context.getSession(), 
-        "dataSourceMode");
-    String datasource = ModeSwitcherFilter.getVariable(context.getSession(), 
-        "etravelerDb");
-    ProcessNode traveler = null;
-    try {
-      traveler = getProcess(name, version, hgroup, dbType, datasource);
-    } catch (EtravelerException ex) {
-      System.out.println("Failed to retrieve process with exception: " + ex.getMessage() );
-      return;
-    }
-    JspWriter outWriter = context.getOut();
-    String nameEncoded=null;
-    try {
-      nameEncoded = 
-          URLEncoder.encode(context.getRequest().getParameter("traveler_name"), "UTF-8");
-    } catch (UnsupportedEncodingException ex) {
-      System.out.println("Bad traveler name");
-      return;
-    }
-    try {
-      outWriter.println("<img src=\"TravelerImageServlet?name=" + name + "&version=" 
-          + version + "&hgroup=" + hgroup + "&db=" +dbType + "\" />");
-    } catch  (IOException ex) {
-      System.out.println("Couldn't write img line");
-    }
-   
-  }
-  static public void displayTraveler(PageContext context) {
-    String ostyle =  context.getRequest().getParameter("ostyle");
-    switch (ostyle) {
-      case "pprint":
-      case "Pretty print":
-        JspWriter writer = context.getOut();
-        int nLines = nLinesUsed(context);
+      StringArrayWriter wrt =traveler.collectOutput();
+      JspWriter writer = context.getOut();
+      int nLines = nLinesUsed(wrt, context);
         try {
           writer.println("<pre>");
           for (int iLine = 0; iLine < nLines; iLine++) {
-            writer.println(fetchLine(context, iLine));
+            writer.println(fetchLine(wrt, context, iLine));
           }
           writer.println("</pre>");
         } catch (IOException ex) {
           System.out.println("IOException from DbImporter.displayTraveler");
         }
+      
+    }
+      return "";
+  }
+   
+  static public String nextLine(StringArrayWriter wrt, PageContext context) {   
+    if (wrt == null)  {
+      return "No information for requested name, version combination <br />";
+    }
+    return wrt.fetchNext();
+  }
+  static public String fetchLine(StringArrayWriter wrt, PageContext context, int i) {
+    if (wrt == null)  {
+      return "No information for requested name, version combination <br />";
+    }
+    return wrt.fetchLine(i);
+  }
+  static public int nLinesUsed(StringArrayWriter wrt, PageContext context) {
+    if (wrt == null) return 0;
+    return wrt.fetchNUsed();
+  }
+ 
+  static public void displayTraveler(PageContext context) {
+    String ostyle =  context.getRequest().getParameter("ostyle");
+    switch (ostyle) {
+      case "pprint":
+      case "Pretty print":
+          /*   Shouldn't get here any more */
         break;
-      case "dot":
-      case "Dot file":
-        dotSource(context);
-        break;
-      case "img":
-      case "Image":
-        dotImg(context);
-        break;
-      case "imgMap":
-      case "Image map":
-        dotImgMap(context);
-        break;
+   
       case "tree":
       case "Tree":
         makeTree(context);
@@ -320,11 +235,17 @@ public class DbImporter {
       }
     } 
    
-    JspWriter writer = context.getOut();
+    JspWriter jwriter = context.getOut();
+    HtmlLineWriter hwrite=null;
+    try {
+      hwrite = new HtmlLineWriter(context.getResponse().getOutputStream());
+    } catch (IOException ex) {
+      return "cannot get output stream"; 
+    } 
 
     String dbType = ModeSwitcherFilter.getVariable(context.getSession(), "dataSourceMode");
 
-    int archiveStatus = archiveYaml(trav, yamlArchiveDir(context), dbType, writer);
+    int archiveStatus = trav.archiveYaml(yamlArchiveDir(context), dbType, hwrite);
     if (archiveStatus == 1) return "Success!";
     if (archiveStatus == 2) return "Wrong conditions for archiving";
     return "something went wrong"; 
@@ -335,10 +256,14 @@ public class DbImporter {
     String url = (request.getRequestURL()).toString();
     String dirname = ModeSwitcherFilter.getVariable(context.getSession(),
         "etravelerFileStore");
-    if (url.contains("localhost")) dirname = "/u1/jrb/localET";
+    if (url.contains("localhost")) {
+        dirname = System.getenv("HOME") + "/localET";
+    }
     return dirname;
   }
 
+  // Obsolete.  Call Traveler.archiveYaml(String archDir, String dbType, LineWrite wrt)
+  // instead
   static public int archiveYaml(Traveler trav, String archiveDir, 
                                 String dbType, JspWriter writer)  {
     // Return 2 if it's inappropriate to write the files
@@ -387,6 +312,7 @@ public class DbImporter {
     return 1;
   }
 
+  // Obsolete.  Call trav.outputYaml(Writer writer, boolean includeDebug) instead
   static public String outputYaml(Writer writer, Traveler trav, boolean includeDebug)  {
     TravelerToYamlVisitor vis = new TravelerToYamlVisitor(trav.getSourceDb());
     vis.setIncludeDbInternal(includeDebug);
@@ -556,17 +482,7 @@ public class DbImporter {
     }
     
   }
-  static private StringArrayWriter getWriter(PageContext context)  {
-    String name =  context.getRequest().getParameter("traveler_name");
-    String version = context.getRequest().getParameter("traveler_version");
-    String hgroup = context.getRequest().getParameter("traveler_hgroup");
-    String dbType = ModeSwitcherFilter.getVariable(context.getSession(),
-                                                   "dataSourceMode");
-    String key = makeKey(name, version, hgroup, dbType);
-     
-    return s_writers.get(key);
-  }
-
+ 
   /**
    * getTraveler only accesses local data.  It tries to find traveler among 
    * those already stored (unlike getProcess which will go to db if necessary)
@@ -778,7 +694,6 @@ public class DbImporter {
     TravelerTreeVisitor vis = 
       (TravelerTreeVisitor) jspContext.getAttribute("treeVisitor", 
                                                     PageContext.SESSION_SCOPE);
-    //ProcessNode travelerRoot = vis.getTravelerRoot();
     Traveler traveler = vis.getTraveler();
     if (vis.getNEdited() == 0) {
       try {
@@ -881,31 +796,7 @@ public class DbImporter {
       return null;
     }
   }
-  /*
-   * Make a connection with supplied information
-   * @param info   Data structure containing part of connection info
-   * @param dbType  One of "Prod", "Dev", "Test", "Raw" 
-   */
-  /*
-  static private DbConnection makeConnection(DbInfo info, String dbType)  {   
-    // Try connect
-    DbConnection conn = new MysqlDbConnection();
-    conn.setSourceDb(dbType);
   
-    // String datasource = "jdbc/eTraveler-" + dbType + "-ro";
-    String datasource = info.dbname;
-    boolean  isOpen = conn.open(info.host, info.user, info.pwd, info.dbname);
-  
-    if (isOpen) {
-      System.out.println("Successfully connected to " + datasource);    
-      return conn;
-    }
-    else {
-      System.out.println("Failed to connect");
-      return null;
-    }
-  }
-  */
   static private Traveler getCachedTraveler(PageContext context) 
     throws EtravelerException {
     String name =  context.getRequest().getParameter("traveler_name");

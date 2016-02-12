@@ -20,6 +20,13 @@ public class TravelerPrintVisitor
   private static String s_eol = "\n";
   public static void setEol(String eol)  {s_eol = eol;}
   public static void setIndent(String indent) {s_indent = indent;}
+  public TravelerPrintVisitor() { 
+      m_writer=null;
+      TravelerPrintVisitor.s_nIndent = 0;
+  }
+  public TravelerPrintVisitor(Writer wrt) {
+      m_writer=wrt;
+  }
   public void visit(ProcessNode process, String activity, Object cxt) throws EtravelerException {
     resetProcessScalars();
     process.exportTo(this);
@@ -30,8 +37,8 @@ public class TravelerPrintVisitor
     // Print out the scalar stuff
     if (m_isCloned) {
       try {
-        s_writer.write(leadingBlanks + "++" + s_eol);
-        s_writer.write(leadingBlanks + "Clone: " + m_name + s_eol);
+        m_writer.write(leadingBlanks + "++" + s_eol);
+        m_writer.write(leadingBlanks + "Clone: " + m_name + s_eol);
       } catch (IOException ex) {
         System.out.println("whoops!  " + ex.getMessage());
       }
@@ -39,10 +46,10 @@ public class TravelerPrintVisitor
     }
     if (m_isRef) {
       try {
-        s_writer.write(leadingBlanks + "++" + s_eol);
-        s_writer.write(leadingBlanks + "RefName: " + m_name + s_eol);
+        m_writer.write(leadingBlanks + "++" + s_eol);
+        m_writer.write(leadingBlanks + "RefName: " + m_name + s_eol);
         if (m_version != null) {
-          s_writer.write(leadingBlanks + "RefVersion: " + m_version + s_eol);
+          m_writer.write(leadingBlanks + "RefVersion: " + m_version + s_eol);
         }
       } catch (IOException ex) {
         System.out.println("whoops!  " + ex.getMessage());
@@ -50,65 +57,65 @@ public class TravelerPrintVisitor
       return;
     }
     try {
-      s_writer.write(leadingBlanks + "++" + s_eol);
+      m_writer.write(leadingBlanks + "++" + s_eol);
       if (m_sourceDb != null)  {
-        s_writer.write(leadingBlanks + "SourceDb: " + m_sourceDb + s_eol);
+        m_writer.write(leadingBlanks + "SourceDb: " + m_sourceDb + s_eol);
       }
-      s_writer.write(leadingBlanks + "Name: " + m_name + s_eol);
-      s_writer.write(leadingBlanks + "Version: " + m_version + s_eol);
+      m_writer.write(leadingBlanks + "Name: " + m_name + s_eol);
+      m_writer.write(leadingBlanks + "Version: " + m_version + s_eol);
       if (m_userVersionString != null) {
-        s_writer.write(leadingBlanks+"UserVersionString: " + m_userVersionString + s_eol);
+        m_writer.write(leadingBlanks+"UserVersionString: " + m_userVersionString + s_eol);
       }
       if (m_travelerActionMask != 0) {
-        s_writer.write(leadingBlanks + "TravelerActionMask: " + m_travelerActionMask);
+        m_writer.write(leadingBlanks + "TravelerActionMask: " + m_travelerActionMask);
         if ((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_LOCATION) != 0) {
           if (m_newLocation != null) {
-            s_writer.write(leadingBlanks + "NewLocation: " + m_newLocation + s_eol);
+            m_writer.write(leadingBlanks + "NewLocation: " + m_newLocation + s_eol);
           }  else {
-            s_writer.write(leadingBlanks + "NewLocation: (?)" + s_eol);
+            m_writer.write(leadingBlanks + "NewLocation: (?)" + s_eol);
           }
         }
         if ((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_STATUS) !=0) {
           if (m_newStatus != null) {
-            s_writer.write(leadingBlanks + "NewStatus: " + m_newStatus + s_eol);
+            m_writer.write(leadingBlanks + "NewStatus: " + m_newStatus + s_eol);
           }  else {
-            s_writer.write(leadingBlanks + "NewStatus: (?)" + s_eol);
+            m_writer.write(leadingBlanks + "NewStatus: (?)" + s_eol);
           }
         }
         if ((m_travelerActionMask & TravelerActionBits.ADD_LABEL) !=0) {
           if (m_newStatus != null) {
-            s_writer.write(leadingBlanks + "AddLabel: " + m_newStatus + s_eol);
+            m_writer.write(leadingBlanks + "AddLabel: " + m_newStatus + s_eol);
           }  else {
-            s_writer.write(leadingBlanks + "AddLabel: (?)" + s_eol);
+            m_writer.write(leadingBlanks + "AddLabel: (?)" + s_eol);
           }
         }
         // No wildcard allowed for remove label
         if ((m_travelerActionMask & TravelerActionBits.REMOVE_LABEL) !=0) {
           if (m_newStatus != null) {
-            s_writer.write(leadingBlanks + "REMOVE_LABEL: " + m_newStatus + s_eol);
+            m_writer.write(leadingBlanks + "REMOVE_LABEL: " + m_newStatus + s_eol);
           } 
         }
       }
       if ((m_permissionGroups != null))  {
-        s_writer.write(leadingBlanks + "PermissionGroups:" + s_eol);
+        m_writer.write(leadingBlanks + "PermissionGroups:" + s_eol);
         for (String g : m_permissionGroups) {
-          s_writer.write(leadingBlanks + s_indent + g + s_eol);
+          m_writer.write(leadingBlanks + s_indent + g + s_eol);
         }
       }
       if (m_condition != null) {
-        s_writer.write(leadingBlanks + "Condition: " + m_condition + s_eol);
+        m_writer.write(leadingBlanks + "Condition: " + m_condition + s_eol);
       }
-      s_writer.write(leadingBlanks+"Max iteration: " + m_maxIteration + s_eol);
-      s_writer.write(leadingBlanks+"Short description: " + 
+      m_writer.write(leadingBlanks+"Max iteration: " + m_maxIteration + s_eol);
+      m_writer.write(leadingBlanks+"Short description: " + 
                      m_shortDescription + s_eol);
-      s_writer.write(leadingBlanks+"Description: " + m_description + s_eol);
+      m_writer.write(leadingBlanks+"Description: " + m_description + s_eol);
     } catch (IOException ex) {
       System.out.println("whoops!  " + ex.getMessage());
       return;
     }
     if (m_prerequisites != null)  {
       try {
-        s_writer.write(leadingBlanks+"Prerequisites:" + s_eol);
+        m_writer.write(leadingBlanks+"Prerequisites:" + s_eol);
       } catch (IOException ex) {
         System.out.println("whoops!  " + ex.getMessage());
         return;
@@ -124,7 +131,7 @@ public class TravelerPrintVisitor
     // Similar for PrescribedResults
     if (m_results != null) {
       try {
-        s_writer.write(leadingBlanks+"RequiredInputs:" + s_eol);
+        m_writer.write(leadingBlanks+"RequiredInputs:" + s_eol);
       } catch (IOException ex) {
         System.out.println("whoops!  " + ex.getMessage());
         return;
@@ -140,7 +147,7 @@ public class TravelerPrintVisitor
     // Relationship tasks
     if (m_relationshipTasks != null) {
       try {
-        s_writer.write(leadingBlanks+"RelationshipTasks:" + s_eol);
+        m_writer.write(leadingBlanks+"RelationshipTasks:" + s_eol);
       } catch (IOException ex) {
         System.out.println("whoops!  " + ex.getMessage());
         return;
@@ -155,7 +162,7 @@ public class TravelerPrintVisitor
     }
     if (m_optionalResults != null) {
       try {
-        s_writer.write(leadingBlanks+"OptionalInputs:" + s_eol);
+        m_writer.write(leadingBlanks+"OptionalInputs:" + s_eol);
       } catch (IOException ex) {
         System.out.println("whoops!  " + ex.getMessage());
         return;
@@ -172,13 +179,13 @@ public class TravelerPrintVisitor
     // new TravelerPrintVisitor so we don't lose context
     if (m_children != null)  {
       try {
-        s_writer.write(leadingBlanks + m_substeps + s_eol);
+        m_writer.write(leadingBlanks + m_substeps + s_eol);
       } catch (IOException ex) {
         System.out.println("whoops!  " + ex.getMessage());
         return;
       }
       s_nIndent++;
-      TravelerVisitor childVisitor = new TravelerPrintVisitor();
+      TravelerVisitor childVisitor = new TravelerPrintVisitor(m_writer);
       for (ProcessNode child: m_children) {
         child.accept(childVisitor, activity, cxt);
       }
@@ -188,7 +195,7 @@ public class TravelerPrintVisitor
  
   }
   public void visit(Prerequisite prerequisite, String activity, Object cxt) {
-    // Gets prereq info, prints it, using static values s_indent, s_writer
+    // Gets prereq info, prints it, using static value s_indent
     resetPrereq();
     prerequisite.exportTo(this);
     String leadingBlanks="";
@@ -196,10 +203,10 @@ public class TravelerPrintVisitor
       leadingBlanks += s_indent;
     }
     try {
-      s_writer.write(leadingBlanks + "*" + s_eol);
+      m_writer.write(leadingBlanks + "*" + s_eol);
       leadingBlanks += s_indent;
-      s_writer.write(leadingBlanks + "Prereq name: " + m_prereqName + s_eol);
-      s_writer.write(leadingBlanks + "Prereq type: " + m_prereqType + s_eol);
+      m_writer.write(leadingBlanks + "Prereq name: " + m_prereqName + s_eol);
+      m_writer.write(leadingBlanks + "Prereq type: " + m_prereqType + s_eol);
     } catch (IOException ex) {
       System.out.println("Exception while writing prerequisite:");
       System.out.println(ex.getMessage());
@@ -213,11 +220,11 @@ public class TravelerPrintVisitor
       leadingBlanks += s_indent;
     }
     try {
-      s_writer.write(leadingBlanks + "*" + s_eol);
+      m_writer.write(leadingBlanks + "*" + s_eol);
       leadingBlanks += s_indent;
-      s_writer.write(leadingBlanks + "Relationship name: " + 
+      m_writer.write(leadingBlanks + "Relationship name: " + 
                      m_relationshipName + s_eol);
-      s_writer.write(leadingBlanks + "Relationship action: " + 
+      m_writer.write(leadingBlanks + "Relationship action: " + 
                      m_relationshipAction + s_eol);
     } catch (IOException ex) {
       System.out.println("Exception while writing relationship task:");
@@ -226,7 +233,7 @@ public class TravelerPrintVisitor
   }
       
   public void visit(PrescribedResult result, String activity, Object cxt) {
-    // prints out prescribed result info, using s_indent, s_writer
+    // prints out prescribed result info, using s_indent, m_writer
     resetResult();
     result.exportTo(this);
         String leadingBlanks="";
@@ -234,21 +241,22 @@ public class TravelerPrintVisitor
       leadingBlanks += s_indent;
     }
     try {
-      s_writer.write(leadingBlanks + "*" + s_eol);
+      m_writer.write(leadingBlanks + "*" + s_eol);
       leadingBlanks += s_indent;
-      s_writer.write(leadingBlanks + "Result label: " + m_label + s_eol);
-      s_writer.write(leadingBlanks + "Result semantics: " + m_semantics + s_eol);      s_writer.write(leadingBlanks + "Result units: " + m_units + s_eol);
-      s_writer.write(leadingBlanks + "Result description: " + m_description + s_eol);
-      s_writer.write(leadingBlanks + "Result min value: " + m_minValue + s_eol);
-      s_writer.write(leadingBlanks + "Result max value: " + m_maxValue + s_eol);
+      m_writer.write(leadingBlanks + "Result label: " + m_label + s_eol);
+      m_writer.write(leadingBlanks + "Result semantics: " + m_semantics + s_eol);      
+      m_writer.write(leadingBlanks + "Result units: " + m_units + s_eol);
+      m_writer.write(leadingBlanks + "Result description: " + m_description + s_eol);
+      m_writer.write(leadingBlanks + "Result min value: " + m_minValue + s_eol);
+      m_writer.write(leadingBlanks + "Result max value: " + m_maxValue + s_eol);
     } catch (IOException ex) {
       System.out.println("Exception while writing prescribed result:");
       System.out.println(ex.getMessage());
     }
   
   }
- // public static void setFileWriter(FileWriter writer)  {s_writer = writer;}
-  public static void setWriter(Writer writer)  {s_writer = writer;}
+ 
+  public void setWriter(Writer writer)  {m_writer = writer;}
   private void resetProcessScalars() {
     m_id=null; m_name=null;     m_hardwareRelationshipType=null;
     m_hardwareGroup=null; m_version=null; m_userVersionString=null; m_description=null;
@@ -451,8 +459,10 @@ public class TravelerPrintVisitor
   private String m_choiceField=null;
   
   private static String s_indent="  ";
-  private static int s_nIndent = 0;
-  // private static FileWriter s_writer=null;
-  private static Writer s_writer=null;
+  //private static int s_nIndent = 0;
+ 
+  //private static Writer s_writer=null;
+  private static int s_nIndent= 0;
+  private Writer m_writer=null;
   
 }

@@ -52,10 +52,11 @@
         </c:when>
         <c:otherwise>
            ${import:retrieveProcess(pageContext, "false")}
+           ${import:displayTraveler(pageContext)}
         </c:otherwise>
       </c:choose>
     </p>
-    ${import:displayTraveler(pageContext)}
+    
    
     </c:if>
   </body>

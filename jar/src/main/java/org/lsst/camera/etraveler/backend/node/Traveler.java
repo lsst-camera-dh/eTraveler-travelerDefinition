@@ -6,6 +6,8 @@ package org.lsst.camera.etraveler.backend.node;
 import org.lsst.camera.etraveler.backend.exceptions.EtravelerException;
 import org.yaml.snakeyaml.Yaml;
 import java.io.Writer;
+import java.io.FileWriter;
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import org.lsst.camera.etraveler.backend.util.LineWriter;
@@ -124,4 +126,69 @@ public class Traveler {
   public String getName() {return m_root.getName();}
   public String getVersion() {return m_root.getVersion();}
   public String getHgroup() {return m_root.getHardwareGroup(); }
+
+  public int archiveYaml(String archiveDir, String dbType, LineWriter writer) {
+    // Return 2 if it's inappropriate to write the files
+    if (archiveDir == null) return 2;
+    if (archiveDir.isEmpty()) return 2;
+    if ((!dbType.equals("Prod")) && (!dbType.equals("Raw")) ) return 2;
+
+    FileWriter fileOutCanon = null;
+    FileWriter fileOutVerbose = null;
+
+    String dirname = archiveDir;
+    dirname += "/yaml/";
+    dirname += dbType;
+    String fname =  dirname + "/" + this.getName() + "_" +
+      this.getVersion() + "_" + this.getHgroup() + "_" + this.getSourceDb();
+    String[ ] fnames = new String[2];
+
+    String results = "<p>Files written to " + fname + "_verbose.yaml, " + fname+ "_canonical.yaml</p>";
+    boolean okStatus = true;
+    try {
+      File dir = new File(dirname);
+      if (!dir.isDirectory())  {
+        dir.mkdirs();
+      }
+      fileOutVerbose = new FileWriter(fname + "_verbose.yaml");
+      fileOutCanon = new FileWriter(fname + "_canonical.yaml");
+    } catch (Exception ex)  {
+      results = "unable to open output file" + fname + " or " + fname + "_canonical";
+      System.out.println(results);
+      okStatus = false;
+    }
+    if (okStatus) {
+      outputYaml(fileOutVerbose, true);
+      outputYaml(fileOutCanon, false);
+    }
+    try {
+      writer.write(results);
+   
+    } catch (Exception ex) {
+      System.out.println("exception " + ex.getMessage() 
+          + " attempting to write " + results);
+      return 0;
+    }
+    return 1;
+  }
+
+  public String outputYaml(Writer writer, boolean includeDebug)  {
+    TravelerToYamlVisitor vis = new TravelerToYamlVisitor(m_sourceDb);
+    vis.setIncludeDbInternal(includeDebug);
+    vis.setSubsystem(this.getSubsystem());
+    try {
+      vis.visit(this.getRoot(), "", null);
+    } catch (EtravelerException ex) {
+      return("outputYaml failed with exception" + ex.getMessage());
+    } 
+ 
+    String msg = vis.dump(writer);
+    try {
+      writer.close();
+    } catch (IOException ioEx) {
+      return ("outputYaml unable to close file with exception " + ioEx.getMessage());
+    }
+    return msg;
+  }
+
 }

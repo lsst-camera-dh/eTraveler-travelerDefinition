@@ -399,6 +399,25 @@ public class ProcessNode implements  TravelerElement
     if (ix >= m_relationshipTasks.size()) return null;
     return m_relationshipTasks.get(ix).getAttributes();
   }
+  
+  public StringArrayWriter collectOutput()  {
+    StringArrayWriter wrt = new StringArrayWriter();
+    TravelerPrintVisitor vis = new TravelerPrintVisitor();
+    //String key = makeKey(name, version, hgroup, dbType);
+    //if (!s_writers.containsKey(key)) {
+    vis.setEol("\n");
+    vis.setWriter(wrt);
+    vis.setIndent("&nbsp;&nbsp");
+    try {
+      vis.visit(this, "Print Html", null);
+    }  catch (EtravelerException ex)  {
+        System.out.println("Print to Html failed with exception");
+        System.out.println(ex.getMessage());
+        return null;
+    }
+    return wrt;
+  }
+  
   /**
    * Remove prerequisites as directed by changedPrereq array
    * @param changedPrereq Entry for each prerequisite.  0 means unchanged,

@@ -35,7 +35,7 @@ public class DownloadYamlServlet extends HttpServlet {
     PrintWriter out = response.getWriter();
     response.setHeader("Content-Disposition", 
                        "attachment; filename=\"" + fname + "\"");
-    DbImporter.outputYaml(out, trav, ostyle.equals("Yaml-verbose"));
+    trav.outputYaml(out, ostyle.equals("Yaml-verbose"));
     out.close();
   }
 
