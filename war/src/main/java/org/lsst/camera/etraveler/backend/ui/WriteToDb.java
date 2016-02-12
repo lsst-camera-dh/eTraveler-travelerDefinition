@@ -18,7 +18,6 @@ import org.lsst.camera.etraveler.backend.node.ProcessNode;
 import org.lsst.camera.etraveler.backend.node.ProcessNodeYaml;
 import org.lsst.camera.etraveler.backend.node.Traveler;
 import org.lsst.camera.etraveler.backend.node.TravelerToDbVisitor;
-import org.lsst.camera.etraveler.backend.util.HtmlLineWriter;
 import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
 /**
  * Used from jsp to ingest Yaml, export to Db
@@ -27,26 +26,25 @@ import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
  */
 public class WriteToDb {
 
-    public static String ingest(PageContext context) {
+    public static void ingest(PageContext context) throws IOException {
   
-      String redoInstructions = " Reselect file and try again"; 
+      String redoInstructions = " Reselect file and try again <br />"; 
       boolean nameWarning=false;
-      HtmlLineWriter hwrite=null;
-      try {
-          hwrite = new HtmlLineWriter(context.getResponse().getOutputStream());
-      } catch (IOException ex) {
-         return "cannot get output stream"; 
-      } 
+      JspWriter wrt = context.getOut();
+      
       Object fileContentsObj = context.getRequest().getParameter("importYamlFile"); 
       nameWarning = (context.getRequest().getParameter("strictNameChecking") != null); 
   
       if (fileContentsObj == null)  {
-        return "No file selected or stale reference. <br /> "
-          + redoInstructions;
+        wrt.write("No file selected or stale reference. <br /> "
+            + redoInstructions);
+        return;
       }
       String fileContents = fileContentsObj.toString();
-      if (fileContents.isEmpty()) return "empty file contents string<br />"
-                                    + redoInstructions;
+      if (fileContents.isEmpty()) {
+          wrt.write("empty file contents string<br />" + redoInstructions);
+          return;
+      }
       String useTransactions = "true";
       if (context.getAttribute("useTransaction") != null) {
         useTransactions = (context.getAttribute("useTransactions")).toString();
@@ -55,39 +53,44 @@ public class WriteToDb {
           "dataSourceMode");
       String datasource = ModeSwitcherFilter.getVariable(context.getSession(),
           "etravelerDb");
-      JspWriter writer = context.getOut();
+     
 
       String action = context.getRequest().getParameter("fileAction").toString();
       
       if (action.equals("Import"))   {
         if (context.getRequest().getParameter("owner").trim().isEmpty() ||
             context.getRequest().getParameter("reason").trim().isEmpty() ) {
-          return 
+          wrt.write
               ("Must specify <b>Description</b> and <b>Responsible Person</b> "
-              + " to ingest!");
+              + " to ingest! <br />");
+          return;
         }
       }
       Traveler trav;
       ProcessNode ingested;
       try {
-        trav = new Traveler(fileContents, nameWarning, hwrite);
-        if (trav.getRoot() == null) return "Could not parse yaml input";
-        //parse(fileContents, nameWarning, writer);
-        //if (trav == null) return "Could not parse yaml input";
+        trav = new Traveler(fileContents, nameWarning, wrt, "<br />");
+        if (trav.getRoot() == null) {
+            wrt.write("Could not parse yaml input <br />");
+            return;
+        }
+        
       }  catch (Exception ex)  {
-        return  "<b>" + ex.getMessage() + "</b>";
+        wrt.write("<b>" + ex.getMessage() + "</b>");
+        return;
       }
       ingested = trav.getRoot();
       DbImporter.makePreviewTree(context, trav);
       if (action.equals("Check YAML")) {
    
-        return "File successfully parsed";
+        wrt.write("File successfully parsed <br />");
+        return;
       }
       String writeRet;
       if (action.equals("Db validate")) {
         writeRet=writeToDb(trav, context.getSession().getAttribute("userName").toString(),
           useTransactions.equals("true"), dbType, datasource, action.equals("Import"),
-                    "","","", writer); 
+                    "","","", wrt); 
       } else {
       writeRet =
           writeToDb(trav, 
@@ -96,16 +99,17 @@ public class WriteToDb {
                     action.equals("Import"),
                     context.getRequest().getParameter("owner").trim(), 
                     context.getRequest().getParameter("reason").trim(),
-                    DbImporter.yamlArchiveDir(context), writer);
+                    DbImporter.yamlArchiveDir(context), wrt);
       }
-      return writeRet;
-  }
+      wrt.write(writeRet + "<br />");
+      return;
+    }
 
   public static String writeToDb(Traveler traveler, String user,
                                  boolean useTransactions, String dbType, 
                                  String datasource, boolean ingest,
                                  String owner, String reason,
-                                 String yamlArchiveDir, JspWriter writer)  {
+                                 String yamlArchiveDir, Writer writer)  {
 
     // Try connect
     ProcessNode travelerRoot = traveler.getRoot();
@@ -157,8 +161,8 @@ public class WriteToDb {
       return "Failed to retrieve traveler from db with exception" + ex.getMessage();
       // add to message that file couldn't be archived
     }
-   // Now have everything to call yamlArchive
-    DbImporter.archiveYaml(trav, yamlArchiveDir, dbType, writer);
+    // Now have everything to call archiveYaml
+    trav.archiveYaml(yamlArchiveDir, dbType, writer);
     return "successfully wrote traveler to " + dbType + " db";
   }
   

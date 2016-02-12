@@ -31,8 +31,8 @@
  
     <p> <b> Yaml file: </b>
       <input type="file" name="importYamlFile" value="" /></p>
-      <p title="If checked issues a warning for each deprecated step name"><b>Enable step name vetting: </b>
-    <input name="strictNameChecking" type="checkbox" />
+     <!-- <p title="If checked issues a warning for each deprecated step name"><b>Enable step name vetting: </b>-->
+    <input name="strictNameChecking" type="hidden" value="on"/>
     </p>
     <fieldset >
       <legend>Actions</legend>
@@ -56,7 +56,7 @@
  
     <p> <b> Yaml file: </b>
       <input type="file" name="importYamlFile" value="" /></p>
-   
+      <input name="strictNameChecking" type="hidden" value="on"/>
     <table ><tr>
         <td><label for="reason"><b> Description of new process traveler: </b>
           </label></td>

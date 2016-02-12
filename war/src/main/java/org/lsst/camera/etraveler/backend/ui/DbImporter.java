@@ -4,12 +4,10 @@
  */
 package org.lsst.camera.etraveler.backend.ui;
 import org.lsst.camera.etraveler.backend.exceptions.EtravelerException;
-// import org.lsst.camera.etraveler.backend.db.DbInfo;
 import org.lsst.camera.etraveler.backend.db.DbConnection;
 import org.lsst.camera.etraveler.backend.db.MysqlDbConnection;
 import org.lsst.camera.etraveler.backend.util.GraphViz;
 import org.lsst.camera.etraveler.backend.util.Verify;
-import org.lsst.camera.etraveler.backend.util.HtmlLineWriter;
 import org.freehep.webutil.tree.Tree;   //  freeheptree.Tree;
 import org.freehep.webutil.tree.TreeNode; // freeheptree.TreeNode; 
 import java.io.ByteArrayOutputStream;
@@ -76,7 +74,6 @@ public class DbImporter {
       if (conn == null) throw new EtravelerException("Failed to connect");
       try {
         int intVersion = Integer.parseInt(version);
-        // conn.setReadOnly(true);
         ProcessNodeDb travelerDb = new ProcessNodeDb(conn, name, intVersion, 
             hgroup, null, null);
         travelerRoot = new ProcessNode(null, travelerDb);
@@ -236,16 +233,10 @@ public class DbImporter {
     } 
    
     JspWriter jwriter = context.getOut();
-    HtmlLineWriter hwrite=null;
-    try {
-      hwrite = new HtmlLineWriter(context.getResponse().getOutputStream());
-    } catch (IOException ex) {
-      return "cannot get output stream"; 
-    } 
 
     String dbType = ModeSwitcherFilter.getVariable(context.getSession(), "dataSourceMode");
 
-    int archiveStatus = trav.archiveYaml(yamlArchiveDir(context), dbType, hwrite);
+    int archiveStatus = trav.archiveYaml(yamlArchiveDir(context), dbType, jwriter);
     if (archiveStatus == 1) return "Success!";
     if (archiveStatus == 2) return "Wrong conditions for archiving";
     return "something went wrong"; 
@@ -262,75 +253,6 @@ public class DbImporter {
     return dirname;
   }
 
-  // Obsolete.  Call Traveler.archiveYaml(String archDir, String dbType, LineWrite wrt)
-  // instead
-  static public int archiveYaml(Traveler trav, String archiveDir, 
-                                String dbType, JspWriter writer)  {
-    // Return 2 if it's inappropriate to write the files
-    if (trav == null) return 2;
-    if (archiveDir == null) return 2;
-    if (archiveDir.isEmpty()) return 2;
-    if ((!dbType.equals("Prod")) && (!dbType.equals("Raw")) ) return 2;
-
-    FileWriter fileOutCanon = null;
-    FileWriter fileOutVerbose = null;
-
-    String dirname = archiveDir;
-    dirname += "/yaml/";
-    dirname += dbType;
-    String fname =  dirname + "/" + trav.getName() + "_" +
-      trav.getVersion() + "_" + trav.getHgroup() + "_" + trav.getSourceDb();
-    String[ ] fnames = new String[2];
-
-
-    String results = "<p>Files written to " + fname + "_verbose.yaml, " + fname+ "_canonical.yaml</p>";
-    boolean okStatus = true;
-    try {
-      File dir = new File(dirname);
-      if (!dir.isDirectory())  {
-        dir.mkdirs();
-      }
-      fileOutVerbose = new FileWriter(fname + "_verbose.yaml");
-      fileOutCanon = new FileWriter(fname + "_canonical.yaml");
-    } catch (Exception ex)  {
-      results = "unable to open output file" + fname + " or " + fname + "_canonical";
-      System.out.println(results);
-      okStatus = false;
-    }
-    if (okStatus) {
-      outputYaml(fileOutVerbose, trav, true);
-      outputYaml(fileOutCanon, trav, false);
-    }
-    try {
-      writer.write(results);
-   
-    } catch (Exception ex) {
-      System.out.println("exception " + ex.getMessage() 
-          + " attempting to write " + results);
-      return 0;
-    }
-    return 1;
-  }
-
-  // Obsolete.  Call trav.outputYaml(Writer writer, boolean includeDebug) instead
-  static public String outputYaml(Writer writer, Traveler trav, boolean includeDebug)  {
-    TravelerToYamlVisitor vis = new TravelerToYamlVisitor(trav.getSourceDb());
-    vis.setIncludeDbInternal(includeDebug);
-    vis.setSubsystem(trav.getSubsystem());
-    try {
-      vis.visit(trav.getRoot(), "", null);
-    } catch (EtravelerException ex) {
-      return("outputYaml failed with exception" + ex.getMessage());
-    } 
- 
-    String msg = vis.dump(writer);
-    try {
-      writer.close();
-    } catch (IOException ioEx) {
-      return ("outputYaml unable to close file with exception " + ioEx.getMessage());
-    }
-    return msg;
-  }
 
   static public void makeTree(PageContext context)  {
     makeTree(context, "view");
@@ -456,9 +378,7 @@ public class DbImporter {
     ByteArrayOutputStream bytes=null;
     try {
       bytes = gv.getGraph(dotWriter.toString(), GraphViz.Format.CMAPX);
-      //outWriter.println("<map name=\"Traveler\" >");
       outWriter.println(bytes.toString());
-      //outWriter.println("</map>");
     } catch (IOException ex) {
       System.out.println("Failed to make or output image map");
       return;
@@ -685,37 +605,6 @@ public class DbImporter {
     return vis.getEdited();  
   }
    
-  static public void ingestEdited(PageContext context) {
-    JspContext jspContext = (JspContext)context;
-    String dbType = ModeSwitcherFilter.getVariable(context.getSession(), 
-                                                   "dataSourceMode");
-    String datasource = 
-      ModeSwitcherFilter.getVariable(context.getSession(), "etravelerDb");
-    TravelerTreeVisitor vis = 
-      (TravelerTreeVisitor) jspContext.getAttribute("treeVisitor", 
-                                                    PageContext.SESSION_SCOPE);
-    Traveler traveler = vis.getTraveler();
-    if (vis.getNEdited() == 0) {
-      try {
-        context.getOut().println("<p class='warning'>Traveler has not been modified. Will not ingest</p>");
-        return;
-      } catch (IOException ex) {
-        System.out.println("DbImporter.ingestEdited: JspWriter failed to write");
-      }
-    }
-    String msg = 
-      WriteToDb.writeToDb(traveler, 
-                         context.getSession().getAttribute("userName").toString(),
-                         true, dbType, datasource, true, 
-                         context.getRequest().getParameter("owner"),
-                         context.getRequest().getParameter("reason"),
-                         yamlArchiveDir(context), context.getOut());
-    try {
-      context.getOut().println(msg);
-    } catch (IOException ex) {
-      System.out.println("DbImporter.ingestEdited: JspWriter failed to write");
-    }
-  }
   static public void adjustList(PageContext context, String path) {
     JspContext jspContext = (JspContext) context;
     TravelerTreeVisitor vis = 

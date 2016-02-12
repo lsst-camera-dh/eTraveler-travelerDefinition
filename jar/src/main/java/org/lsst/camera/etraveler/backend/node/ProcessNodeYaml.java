@@ -3,7 +3,6 @@
  * and open the template in the editor.
  */
 package org.lsst.camera.etraveler.backend.node;
-//import  org.yaml.snakeyaml.Util;
 import org.lsst.camera.etraveler.backend.exceptions.ConflictingChildren;
 import org.lsst.camera.etraveler.backend.exceptions.UnknownReferent;
 import org.lsst.camera.etraveler.backend.exceptions.UnrecognizedYamlKey;
@@ -13,7 +12,6 @@ import org.lsst.camera.etraveler.backend.exceptions.NullYamlValue;
 import org.lsst.camera.etraveler.backend.exceptions.IncompatibleChild;
 import org.lsst.camera.etraveler.backend.exceptions.EtravelerException;
 import org.lsst.camera.etraveler.backend.util.Verify;
-import org.lsst.camera.etraveler.backend.util.LineWriter;
 import  org.yaml.snakeyaml.Yaml;
 import  org.yaml.snakeyaml.nodes.MappingNode;
 import  org.yaml.snakeyaml.nodes.Node;
@@ -67,8 +65,6 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     s_knownKeys = new ArrayList<String>();
     s_knownKeys.add("Name");
     s_knownKeys.add("HardwareGroup");
-    //s_knownKeys.add("HardwareRelationshipType");
-    //s_knownKeys.add("HardwareRelationshipSlot");
     s_knownKeys.add("Version");
     s_knownKeys.add("UserVersionString");
     s_knownKeys.add("Description");
@@ -133,8 +129,9 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   
   public ProcessNodeYaml() {}
   
-  public ProcessNodeYaml(LineWriter wrt, String nameHandling)  {
+  public ProcessNodeYaml(Writer wrt, String eol, String nameHandling)  {
     m_writer = wrt;
+    m_eol = eol;
     m_nameHandling = nameHandling;
   }
   
@@ -146,10 +143,11 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
    * @param iChild       0 if no parent.  Else positive int
    * @throws UnrecognizedYamlKey 
    */
-  public void readYaml(Map<String, Object> yamlMap, 
+  public boolean readYaml(Map<String, Object> yamlMap, 
                        ProcessNodeYaml parent, boolean isSelection, int iChild,
                        HashMap<String, ProcessNodeYaml> processes) 
     throws EtravelerException, Exception {
+    boolean ok = true;
     if (processes == null) {  
       if (m_processes == null) {
         m_processes = new HashMap<>();
@@ -192,7 +190,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         }
       }
       m_edgeCondition = getStringVal(yamlMap, "Condition" );
-      return;
+      return ok;
     }
     // Check for Clone
     if (yamlMap.containsKey("Clone"))  {
@@ -226,7 +224,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         ancestor = ancestor.m_parent;
       }
       m_isClone = true;
-      return;
+      return ok;
     }
 
     Iterator<String> it = yamlMap.keySet().iterator();
@@ -246,7 +244,9 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       switch (keyIx)  {
       case NAME:
         m_name = v;
-        if (m_nameHandling.equals("warn")) checkName(m_name);
+        if (m_nameHandling.equals("warn")) {
+            ok = ok && checkName(m_name);
+        }
         break;
       case HARDWAREGROUP:
         if (m_parent != null)  {
@@ -330,9 +330,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         break;   /* Informational only; nothing to do */
        
       default: // remaining keys have list values
-        // SequenceNode yamlSequence = (SequenceNode) yamlMap.get(foundKey);
         list = (List<Node>) yamlMap.get(foundKey);
-        //list = yamlSequence.getValue();
         switch (keyIx) {
         case TRAVELERACTIONS:
           List<String> actionList = (List<String>) yamlMap.get(foundKey);
@@ -496,10 +494,14 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       for (int iC = 0; iC < m_nChildren; iC++) {
         Map<String, Object> processMap =
           (Map<String, Object>) childList.get(iC);
-        m_children[iC] = new ProcessNodeYaml(m_writer, m_nameHandling);
-        m_children[iC].readYaml(processMap, this, hasSelection, iC, m_processes);
+        m_children[iC] = new ProcessNodeYaml(m_writer, m_eol, m_nameHandling);
+        
+        boolean childOk =
+          m_children[iC].readYaml(processMap, this, hasSelection, iC, m_processes);
+        ok = ok && childOk;
       }
-    }          
+    }  
+    return ok;
   }
   private String getStringVal(Map<String, Object> yamlMap, String keyName, String dflt) 
       throws NullYamlValue {
@@ -519,24 +521,33 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   }
   
   /*
-   * Don't throw any exceptions yet; save that for a future release. For
-   * now just issue warning if name contains unacceptable characters.
+   * Don't throw any exceptions yet; save that for a future release. Print
+   * error message if name contains unacceptable characters.
+   * Return true if name is ok; false otherwise
    */
-  private void checkName(String name) throws WrongTypeYamlValue, IOException {
-    if (m_writer == null) return;
+  private boolean checkName(String name) throws WrongTypeYamlValue, IOException {
+    if (m_writer == null) {
+        throw new IOException("checkName has no writer to complain with");
+    }
     String proscribed = ".*[ ',#{}:/$&?!^=*\\\"\\[\\]\\s].*";
     String noInitialHyphen = "-.*";
     //String proscribed = "[',#{}:/$&?!]";
     boolean match = Pattern.matches(proscribed, name);
     if (match) {
-      m_writer.writeln("WARNING!! ");
-      m_writer.writeln("Step name '" + name + "' contains whitespace or one of these frowned-upon characters: ");
-      m_writer.writeln("# : / $ & , ' \" ! ? = * ^ } { ] [ ");
+      m_writer.write("ERROR!! " + m_eol);
+      m_writer.write("Step name '" + name + "' contains whitespace or one of these frowned-upon characters: " + m_eol);
+      m_writer.write("# : / $ & , ' \" ! ? = * ^ } { ] [ " + m_eol);
+      m_writer.flush();
+      return false;
     }
     if (Pattern.matches(noInitialHyphen, name)) {
-        m_writer.writeln("WARNING!! ");
-        m_writer.writeln("Step name '" + name + "' starts with a hyphen, which is not allowed");                
+        m_writer.write("ERROR!! " + m_eol);
+        m_writer.write("Step name '" + name +
+                       "' starts with a hyphen, which is not allowed" + m_eol);  
+        m_writer.flush();
+        return false;
     }
+    return true;
   }
 
   // ProcessNode.Importer interface implementation
@@ -568,10 +579,8 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   public String provideSourceDb() {return m_sourceDb;}
   public int provideEdgeStep() {return m_edgeStep;}
   public String provideEdgeCondition() {return m_edgeCondition;}
-  //public String provideParentEdgeId() {return m_parentEdgeId;}
   public ProcessEdge provideParentEdge(ProcessNode parent, ProcessNode child) {
     ProcessEdge parentEdge = new ProcessEdge(parent, child, m_edgeStep, m_edgeCondition);
-    ///parentEdge.setId(m_parentEdgeId);
     return parentEdge;
   }
   public ProcessNode provideChild(ProcessNode parent, int n) throws Exception {
@@ -639,8 +648,9 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private PrescribedResultYaml[] m_optionalResults;
   private RelationshipTaskYaml [] m_relationshipTasks;
   private ArrayList<String>  m_permissionGroups=null;
-  private LineWriter m_writer = null;
+  private Writer m_writer = null;
   private String m_nameHandling = "none";
+  private String m_eol = "";
   
   // Keep track of process name/version pairs we've seen
   private HashMap<String, ProcessNodeYaml> m_processes = null; 

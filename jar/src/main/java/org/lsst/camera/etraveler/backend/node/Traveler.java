@@ -10,7 +10,6 @@ import java.io.FileWriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import org.lsst.camera.etraveler.backend.util.LineWriter;
 
 /**
  * Root of a process tree plus some associated information: where
@@ -67,7 +66,7 @@ public class Traveler {
    *  @param wrt  Used to write error messages or warnings
    */
    public Traveler(String fileContents, boolean nameWarning,
-      LineWriter wrt)  throws IOException {    
+                   Writer wrt, String eol)  throws IOException {    
     Yaml yaml = new Yaml(true);
     Map yamlMap = null;
     String nameHandling="none";
@@ -77,19 +76,25 @@ public class Traveler {
       yamlMap = (Map<String, Object>) yaml.load(fileContents);
     } catch (Exception ex) {
       System.out.println("Failed to load yaml with exception " + ex.getMessage());
-      wrt.writeln("Failed to load yaml with exception '"
-                + ex.getMessage() + "'");
+      wrt.write("Failed to load yaml with exception '"
+                + ex.getMessage() + "'" + eol);
       return;
     }
-    ProcessNodeYaml topYaml = new ProcessNodeYaml(wrt, nameHandling);
+    ProcessNodeYaml topYaml = new ProcessNodeYaml(wrt, eol, nameHandling);
+    boolean namesOk = true;
     try {
-      topYaml.readYaml(yamlMap, null, false, 0, null);
+      namesOk = topYaml.readYaml(yamlMap, null, false, 0, null);
     } catch (Exception ex) {
       System.out.println("Failed to process yaml with exception '" 
           + ex.getMessage() + "'");
-      wrt.writeln("Failed to load yaml with exception '" 
-          + ex.getMessage() + "'");
+      wrt.write("Failed to load yaml with exception '" 
+          + ex.getMessage() + "'" + eol);
       return;
+    }
+    if (!namesOk) {
+        System.out.println("Failed to process yaml due to name errors");
+        wrt.write("Failed to load yaml due to name errors" + eol);
+        return;
     }
 
     ProcessNode rootNode;
@@ -100,8 +105,8 @@ public class Traveler {
       m_subsystem = topYaml.getSubsystem();
     } catch (Exception ex) {
       System.out.println("Failed to import from yaml with exception " + ex.getMessage());
-      wrt.writeln("Failed to import from yaml with exception '" +
-                ex.getMessage() +"'");
+      wrt.write("Failed to import from yaml with exception '" +
+                ex.getMessage() +"'" + eol);
     }
   }
 
@@ -127,7 +132,7 @@ public class Traveler {
   public String getVersion() {return m_root.getVersion();}
   public String getHgroup() {return m_root.getHardwareGroup(); }
 
-  public int archiveYaml(String archiveDir, String dbType, LineWriter writer) {
+  public int archiveYaml(String archiveDir, String dbType, Writer writer) {
     // Return 2 if it's inappropriate to write the files
     if (archiveDir == null) return 2;
     if (archiveDir.isEmpty()) return 2;
