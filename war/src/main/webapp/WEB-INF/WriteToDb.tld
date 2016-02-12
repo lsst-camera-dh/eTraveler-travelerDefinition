@@ -3,14 +3,6 @@
   <tlib-version>1.0</tlib-version>
   <short-name>WriteToDb</short-name>
   <uri>http://etraveler.camera.lsst.org/backend/WriteToDb</uri>
-  <!--
-  <function>
-    <name>ingest</name>
-    <function-class>org.lsst.camera.etraveler.backend.node.YamlToDb</function-class>
-    <function-signature>java.lang.String ingest(java.lang.String, boolean)
-    </function-signature>
-  </function>
-  -->
   <function>
     <name>ingest</name>
     <function-class>org.lsst.camera.etraveler.backend.ui.WriteToDb</function-class>
