@@ -10,6 +10,10 @@ import java.io.FileWriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import javax.servlet.jsp.PageContext;
+import javax.servlet.http.HttpServletRequest;
+import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
+
 
 /**
  * Root of a process tree plus some associated information: where
@@ -132,11 +136,20 @@ public class Traveler {
   public String getVersion() {return m_root.getVersion();}
   public String getHgroup() {return m_root.getHardwareGroup(); }
 
-  public int archiveYaml(String archiveDir, String dbType, Writer writer) {
+  public int archiveYaml(HttpServletRequest req, Writer writer) {
     // Return 2 if it's inappropriate to write the files
-    if (archiveDir == null) return 2;
-    if (archiveDir.isEmpty()) return 2;
+
+    String dbType = ModeSwitcherFilter.getVariable(req.getSession(), 
+                                                   "dataSourceMode");
+    // only archive if db is Prod or Raw
     if ((!dbType.equals("Prod")) && (!dbType.equals("Raw")) ) return 2;
+    String archiveDir = ModeSwitcherFilter.getVariable(req.getSession(), 
+                                                       "etravelerFileStore");
+    String url = (req.getRequestURL()).toString();
+    if (url.contains("localhost")) {
+        System.out.println("Official archiveDir was " + archiveDir);
+        archiveDir = System.getenv("HOME") + "/localET";
+    }
 
     FileWriter fileOutCanon = null;
     FileWriter fileOutVerbose = null;

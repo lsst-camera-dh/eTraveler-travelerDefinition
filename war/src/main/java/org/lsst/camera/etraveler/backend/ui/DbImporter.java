@@ -236,24 +236,13 @@ public class DbImporter {
 
     String dbType = ModeSwitcherFilter.getVariable(context.getSession(), "dataSourceMode");
 
-    int archiveStatus = trav.archiveYaml(yamlArchiveDir(context), dbType, jwriter);
+    int archiveStatus = trav.archiveYaml((HttpServletRequest)
+                                         context.getRequest(), jwriter);
     if (archiveStatus == 1) return "Success!";
     if (archiveStatus == 2) return "Wrong conditions for archiving";
     return "something went wrong"; 
   }
   
-  static public String yamlArchiveDir(PageContext context) {
-    HttpServletRequest request = (HttpServletRequest) context.getRequest();
-    String url = (request.getRequestURL()).toString();
-    String dirname = ModeSwitcherFilter.getVariable(context.getSession(),
-        "etravelerFileStore");
-    if (url.contains("localhost")) {
-        dirname = System.getenv("HOME") + "/localET";
-    }
-    return dirname;
-  }
-
-
   static public void makeTree(PageContext context)  {
     makeTree(context, "view");
   } 

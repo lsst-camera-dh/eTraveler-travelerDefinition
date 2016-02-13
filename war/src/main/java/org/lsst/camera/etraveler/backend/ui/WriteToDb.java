@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
 import org.lsst.camera.etraveler.backend.node.NCRSpecification;
 import org.lsst.camera.etraveler.backend.node.ProcessNode;
 import org.lsst.camera.etraveler.backend.node.ProcessNodeYaml;
@@ -90,7 +91,7 @@ public class WriteToDb {
       if (action.equals("Db validate")) {
         writeRet=writeToDb(trav, context.getSession().getAttribute("userName").toString(),
           useTransactions.equals("true"), dbType, datasource, action.equals("Import"),
-                    "","","", wrt); 
+                    "","",null, wrt); 
       } else {
       writeRet =
           writeToDb(trav, 
@@ -99,7 +100,7 @@ public class WriteToDb {
                     action.equals("Import"),
                     context.getRequest().getParameter("owner").trim(), 
                     context.getRequest().getParameter("reason").trim(),
-                    DbImporter.yamlArchiveDir(context), wrt);
+                    (HttpServletRequest) context.getRequest(), wrt);
       }
       wrt.write(writeRet + "<br />");
       return;
@@ -109,7 +110,7 @@ public class WriteToDb {
                                  boolean useTransactions, String dbType, 
                                  String datasource, boolean ingest,
                                  String owner, String reason,
-                                 String yamlArchiveDir, Writer writer)  {
+                                 HttpServletRequest req, Writer writer)  {
 
     // Try connect
     ProcessNode travelerRoot = traveler.getRoot();
@@ -162,7 +163,7 @@ public class WriteToDb {
       // add to message that file couldn't be archived
     }
     // Now have everything to call archiveYaml
-    trav.archiveYaml(yamlArchiveDir, dbType, writer);
+    trav.archiveYaml(req, writer);
     return "successfully wrote traveler to " + dbType + " db";
   }
   
