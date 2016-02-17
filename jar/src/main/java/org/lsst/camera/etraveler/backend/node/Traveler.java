@@ -13,6 +13,8 @@ import java.util.Map;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.http.HttpServletRequest;
 import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
+import org.lsst.camera.etraveler.backend.db.DbConnection;
+import org.lsst.camera.etraveler.backend.db.MysqlDbConnection;
 
 
 /**
@@ -209,4 +211,104 @@ public class Traveler {
     return msg;
   }
 
+  //
+  public String writeToDb(String user, boolean useTransactions, 
+                          boolean ingest, 
+                          HttpServletRequest req, Writer writer)  {
+
+    String dbType = ModeSwitcherFilter.getVariable(req.getSession(),
+                                                   "dataSourceMode");
+    String datasource = ModeSwitcherFilter.getVariable(req.getSession(),
+                                                       "etravelerDb");
+    
+    // Try connect
+    DbConnection conn = makeConnection(dbType, datasource);
+    if (conn == null) return "Failed to connect";
+    conn.setSourceDb(dbType);
+
+    TravelerToDbVisitor vis = new TravelerToDbVisitor(conn);
+    vis.setUseTransactions(useTransactions);
+    vis.setUser(user);
+
+    // Convert to db-like classes, e.g. ProcessNodeDb   
+    // next visit with activity "verify", then "write".
+    try {
+      vis.visit(m_root, "new", null);
+    }  catch (Exception ex)  {
+      conn.close();
+      return "Failed to create xxDb classes with exception '" + 
+          ex.getMessage() +"'";
+    }
+    try {
+      vis.setSubsystem(m_subsystem);
+      vis.visit(m_root, "verify", null);
+    }  catch (Exception ex)  {
+      conn.close();
+      return "Failed to verify against " + dbType + 
+          " db with exception '" + ex.getMessage() + "'";
+    }
+    if (!ingest) {
+      conn.close();
+      return "Successfully verified against " + dbType;
+    }
+    try {
+      vis.setReason(req.getParameter("reason").trim());
+      vis.setOwner(req.getParameter("owner").trim());
+      vis.visit(m_root, "write", null);
+    }  catch (Exception ex) {
+      conn.close();
+      return "Failed to write to " + dbType + 
+          " db with exception '" + ex.getMessage() + "'";
+    }
+    //    conn.close();
+    //  Traveler is now in db.  Retrieve for purpose of archiving
+    Traveler travelerFromDb=null;
+    try {
+      int intVersion = Integer.parseInt(vis.getTravelerVersion());
+      ProcessNodeDb travelerDb = 
+        new ProcessNodeDb(conn, vis.getTravelerName(), intVersion, 
+                          vis.getTravelerHardwareGroup(), null, null);
+      ProcessNode travelerRoot = new ProcessNode(null, travelerDb);
+      String subsys = travelerDb.getSubsystem(conn);
+      travelerFromDb = new Traveler(travelerRoot, "db", dbType, subsys);
+    }  catch (NumberFormatException ex) {
+      conn.close();
+      return "input version must be an integer!";
+    }  catch (Exception ex)  {
+      System.out.println(ex.getMessage());
+      conn.close();
+      return "Failed to read traveler " + vis.getTravelerName() + " with exception " 
+                                   + ex.getMessage();
+    } finally {
+      conn.close();
+      ProcessNodeDb.reset();
+    }
+
+    // Now have everything to call archiveYaml
+    travelerFromDb.archiveYaml(req, writer);
+    return "successfully wrote traveler to " + dbType + " db";
+  }
+
+  static private DbConnection makeConnection(String dbType, String datasource)  {
+    DbConnection conn = new MysqlDbConnection();
+    conn.setSourceDb(dbType);
+    boolean isOpen = conn.openTomcat(datasource);
+    if (isOpen) {
+      try {
+        conn.setReadOnly(false);
+      } catch (Exception ex) {
+        conn.close();
+        System.out.println("Unable to set connection non-readonly");
+        return null;
+      }
+      System.out.println("Successfully connected to " + datasource);    
+      return conn;
+    }
+    else {
+      System.out.println("Failed to connect");
+      return null;
+    }
+  }  
+
+  //
 }

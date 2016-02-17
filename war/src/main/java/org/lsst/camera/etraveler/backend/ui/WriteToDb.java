@@ -14,6 +14,7 @@ import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletRequest;
+//import javax.servlet.ServletRequest;
 import org.lsst.camera.etraveler.backend.node.NCRSpecification;
 import org.lsst.camera.etraveler.backend.node.ProcessNode;
 import org.lsst.camera.etraveler.backend.node.ProcessNodeYaml;
@@ -27,14 +28,15 @@ import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
  */
 public class WriteToDb {
 
-    public static void ingest(PageContext context) throws IOException {
+    public static void ingest(PageContext cxt) throws IOException {
   
       String redoInstructions = " Reselect file and try again <br />"; 
-      boolean nameWarning=false;
-      JspWriter wrt = context.getOut();
+      boolean nameWarning=true;
+      JspWriter wrt = cxt.getOut();
+      HttpServletRequest req = (HttpServletRequest) cxt.getRequest();
       
-      Object fileContentsObj = context.getRequest().getParameter("importYamlFile"); 
-      nameWarning = (context.getRequest().getParameter("strictNameChecking") != null); 
+      Object fileContentsObj = req.getParameter("importYamlFile");
+      //nameWarning = (cxt.getRequest().getParameter("strictNameChecking") != null); 
   
       if (fileContentsObj == null)  {
         wrt.write("No file selected or stale reference. <br /> "
@@ -47,20 +49,19 @@ public class WriteToDb {
           return;
       }
       String useTransactions = "true";
-      if (context.getAttribute("useTransaction") != null) {
-        useTransactions = (context.getAttribute("useTransactions")).toString();
+      if (cxt.getAttribute("useTransaction") != null) {
+        useTransactions = (cxt.getAttribute("useTransactions")).toString();
       }
-      String dbType = ModeSwitcherFilter.getVariable(context.getSession(),
+      String dbType = ModeSwitcherFilter.getVariable(cxt.getSession(),
           "dataSourceMode");
-      String datasource = ModeSwitcherFilter.getVariable(context.getSession(),
+      String datasource = ModeSwitcherFilter.getVariable(cxt.getSession(),
           "etravelerDb");
      
-
-      String action = context.getRequest().getParameter("fileAction").toString();
+      String action = req.getParameter("fileAction").toString();
       
       if (action.equals("Import"))   {
-        if (context.getRequest().getParameter("owner").trim().isEmpty() ||
-            context.getRequest().getParameter("reason").trim().isEmpty() ) {
+        if (req.getParameter("owner").trim().isEmpty() ||
+            req.getParameter("reason").trim().isEmpty() ) {
           wrt.write
               ("Must specify <b>Description</b> and <b>Responsible Person</b> "
               + " to ingest! <br />");
@@ -81,7 +82,7 @@ public class WriteToDb {
         return;
       }
       ingested = trav.getRoot();
-      DbImporter.makePreviewTree(context, trav);
+      DbImporter.makePreviewTree(cxt, trav);
       if (action.equals("Check YAML")) {
    
         wrt.write("File successfully parsed <br />");
@@ -89,84 +90,19 @@ public class WriteToDb {
       }
       String writeRet;
       if (action.equals("Db validate")) {
-        writeRet=writeToDb(trav, context.getSession().getAttribute("userName").toString(),
-          useTransactions.equals("true"), dbType, datasource, action.equals("Import"),
-                    "","",null, wrt); 
+        writeRet=
+          trav.writeToDb(cxt.getSession().getAttribute("userName").toString(),
+                         useTransactions.equals("true"),action.equals("Import"),
+                         req, wrt); 
       } else {
-      writeRet =
-          writeToDb(trav, 
-                    context.getSession().getAttribute("userName").toString(),
-                    useTransactions.equals("true"), dbType, datasource, 
-                    action.equals("Import"),
-                    context.getRequest().getParameter("owner").trim(), 
-                    context.getRequest().getParameter("reason").trim(),
-                    (HttpServletRequest) context.getRequest(), wrt);
+        writeRet =
+          trav.writeToDb(cxt.getSession().getAttribute("userName").toString(),
+                         useTransactions.equals("true"),action.equals("Import"),
+                         req, wrt);
       }
       wrt.write(writeRet + "<br />");
       return;
     }
-
-  public static String writeToDb(Traveler traveler, String user,
-                                 boolean useTransactions, String dbType, 
-                                 String datasource, boolean ingest,
-                                 String owner, String reason,
-                                 HttpServletRequest req, Writer writer)  {
-
-    // Try connect
-    ProcessNode travelerRoot = traveler.getRoot();
-    DbConnection conn = makeConnection(dbType, datasource);
-    if (conn == null) return "Failed to connect";
-    conn.setSourceDb(dbType);
-
-    TravelerToDbVisitor vis = new TravelerToDbVisitor(conn);
-    vis.setUseTransactions(useTransactions);
-    vis.setUser(user);
-
-    // Convert to db-like classes, e.g. ProcessNodeDb   
-    // next visit with activity "verify", then "write".
-    try {
-      vis.visit(travelerRoot, "new", null);
-    }  catch (Exception ex)  {
-      conn.close();
-      return "Failed to create xxDb classes with exception '" + 
-          ex.getMessage() +"'";
-    }
-    try {
-      vis.setSubsystem(traveler.getSubsystem());
-      vis.visit(travelerRoot, "verify", null);
-    }  catch (Exception ex)  {
-      conn.close();
-      return "Failed to verify against " + dbType + 
-          " db with exception '" + ex.getMessage() + "'";
-    }
-    if (!ingest) {
-      conn.close();
-      return "Successfully verified against " + dbType;
-    }
-    try {
-      vis.setReason(reason);
-      vis.setOwner(owner);
-      vis.visit(travelerRoot, "write", null);
-    }  catch (Exception ex) {
-      conn.close();
-      return "Failed to write to " + dbType + 
-          " db with exception '" + ex.getMessage() + "'";
-    }
-    conn.close();
-    Traveler trav=null;
-    try {
-      trav = 
-          DbImporter.getTraveler(vis.getTravelerName(), vis.getTravelerVersion(),
-          vis.getTravelerHardwareGroup(), dbType, datasource);
-    } catch (Exception ex) {
-      return "Failed to retrieve traveler from db with exception" + ex.getMessage();
-      // add to message that file couldn't be archived
-    }
-    // Now have everything to call archiveYaml
-    trav.archiveYaml(req, writer);
-    return "successfully wrote traveler to " + dbType + " db";
-  }
-  
   public static String writeNCRToDb(NCRSpecification ncr, String user, 
       boolean useTransactions, String dbType, String dataSource) {
     if (!dbType.equals(ncr.getDbType())) return "db type match failure";
@@ -202,29 +138,9 @@ public class WriteToDb {
     
     return "";
   }
-  static private DbConnection makeConnection(String dbType)  {   
-    // Try connect
-    DbConnection conn = new MysqlDbConnection();
-    String datasource = "jdbc/eTraveler-" + dbType + "-app";
-    boolean isOpen = conn.openTomcat(datasource);
-    if (isOpen) {
-      try {
-        conn.setReadOnly(false);
-      } catch (Exception ex) {
-        conn.close();
-        System.out.println("Unable to set connection non-readonly");
-        return null;
-      }
-      System.out.println("Successfully connected to " + datasource);
-      
-      return conn;
-    }
-    else {
-      System.out.println("Failed to connect for dbType " + dbType);
-      return null;
-    }
-  }
-  static private DbConnection makeConnection(String dbType, String datasource)  {
+
+  static private DbConnection makeConnection(String dbType, String datasource)
+  {
     DbConnection conn = new MysqlDbConnection();
     conn.setSourceDb(dbType);
     boolean isOpen = conn.openTomcat(datasource);
