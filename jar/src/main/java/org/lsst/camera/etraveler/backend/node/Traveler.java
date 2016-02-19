@@ -9,7 +9,9 @@ import java.io.Writer;
 import java.io.FileWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Map;
+import java.util.HashMap;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.http.HttpServletRequest;
 import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
@@ -138,13 +140,13 @@ public class Traveler {
   public String getVersion() {return m_root.getVersion();}
   public String getHgroup() {return m_root.getHardwareGroup(); }
 
-  public int archiveYaml(HttpServletRequest req, Writer writer) {
-    // Return 2 if it's inappropriate to write the files
-
+  public String archiveYaml(HttpServletRequest req, Writer errWriter) {
     String dbType = ModeSwitcherFilter.getVariable(req.getSession(), 
                                                    "dataSourceMode");
     // only archive if db is Prod or Raw
-    if ((!dbType.equals("Prod")) && (!dbType.equals("Raw")) ) return 2;
+    if ((!dbType.equals("Prod")) && (!dbType.equals("Raw")) ) {
+      return "";
+    }
     String archiveDir = ModeSwitcherFilter.getVariable(req.getSession(), 
                                                        "etravelerFileStore");
     String url = (req.getRequestURL()).toString();
@@ -163,8 +165,8 @@ public class Traveler {
       this.getVersion() + "_" + this.getHgroup() + "_" + this.getSourceDb();
     String[ ] fnames = new String[2];
 
-    String results = "<p>Files written to " + fname + "_verbose.yaml, " + fname+ "_canonical.yaml</p>";
-    boolean okStatus = true;
+    String summary = "Files written to " + fname + "_verbose.yaml, " + fname+ "_canonical.yaml";
+    String msg = null;
     try {
       File dir = new File(dirname);
       if (!dir.isDirectory())  {
@@ -173,25 +175,29 @@ public class Traveler {
       fileOutVerbose = new FileWriter(fname + "_verbose.yaml");
       fileOutCanon = new FileWriter(fname + "_canonical.yaml");
     } catch (Exception ex)  {
-      results = "unable to open output file" + fname + " or " + fname + "_canonical";
-      System.out.println(results);
-      okStatus = false;
+      msg = "unable to open output file" + fname + " or " + fname + "_canonical";
+      System.out.println(msg);
     }
-    if (okStatus) {
-      outputYaml(fileOutVerbose, true);
-      outputYaml(fileOutCanon, false);
+    if (msg == null) msg = outputYaml(fileOutVerbose, true);
+    if (msg == null) msg = outputYaml(fileOutCanon, false);
+    if (msg != null) {
+      try {
+        errWriter.write(msg);
+      } catch (Exception ex) {
+        System.out.println("exception " + ex.getMessage() 
+                           + " attempting to write " + msg);
+        return "Archive failure";
+      }
     }
-    try {
-      writer.write(results);
-   
-    } catch (Exception ex) {
-      System.out.println("exception " + ex.getMessage() 
-          + " attempting to write " + results);
-      return 0;
+    if (msg == null) {
+      return summary;
+    } else {
+      return msg;
     }
-    return 1;
   }
-
+  /**
+   *  Output yaml representation of traveler to supplied writer
+   */
   public String outputYaml(Writer writer, boolean includeDebug)  {
     TravelerToYamlVisitor vis = new TravelerToYamlVisitor(m_sourceDb);
     vis.setIncludeDbInternal(includeDebug);
@@ -206,15 +212,29 @@ public class Traveler {
     try {
       writer.close();
     } catch (IOException ioEx) {
-      return ("outputYaml unable to close file with exception " + ioEx.getMessage());
+      msg = "outputYaml unable to close file with exception "
+        + ioEx.getMessage();
     }
     return msg;
   }
 
-  //
+  /**
+   *  @param user  user id of person requesting write
+   *  @param useTransactions  normally true
+   *  @param ingest    true if traveler is to be ingested; else only
+   *                   validate against db
+   *  @param reason    Purpose of traveler or traveler update.
+   *                   Stored in db if ingest is true, else not used
+   *  @param owner     Person responsible for traveler content
+   *                   Stored in db if ingest is true, else not used
+   *  @param req 
+   *  @param errWriter Used for error output
+   *  @return          Summary status string     
+   */
   public String writeToDb(String user, boolean useTransactions, 
-                          boolean ingest, 
-                          HttpServletRequest req, Writer writer)  {
+                          boolean ingest, String reason, String owner,
+                          HttpServletRequest req, Writer errWriter) 
+  throws IOException {
 
     String dbType = ModeSwitcherFilter.getVariable(req.getSession(),
                                                    "dataSourceMode");
@@ -223,7 +243,10 @@ public class Traveler {
     
     // Try connect
     DbConnection conn = makeConnection(dbType, datasource);
-    if (conn == null) return "Failed to connect";
+    if (conn == null){
+      errWriter.write("Failed to connect to db " + dbType);
+      return "Ingest failed";
+    }
     conn.setSourceDb(dbType);
 
     TravelerToDbVisitor vis = new TravelerToDbVisitor(conn);
@@ -236,29 +259,32 @@ public class Traveler {
       vis.visit(m_root, "new", null);
     }  catch (Exception ex)  {
       conn.close();
-      return "Failed to create xxDb classes with exception '" + 
-          ex.getMessage() +"'";
+      errWriter.write("Failed to create xxDb classes with exception '" + 
+                      ex.getMessage() + "'");
+      return "Ingest failed";
     }
     try {
       vis.setSubsystem(m_subsystem);
       vis.visit(m_root, "verify", null);
     }  catch (Exception ex)  {
       conn.close();
-      return "Failed to verify against " + dbType + 
-          " db with exception '" + ex.getMessage() + "'";
+      errWriter.write("Failed to verify against " + dbType + 
+                      " db with exception '" + ex.getMessage() + "'");
+      return "Ingest failed";
     }
     if (!ingest) {
       conn.close();
       return "Successfully verified against " + dbType;
     }
     try {
-      vis.setReason(req.getParameter("reason").trim());
-      vis.setOwner(req.getParameter("owner").trim());
+      vis.setReason(reason);
+      vis.setOwner(owner);
       vis.visit(m_root, "write", null);
     }  catch (Exception ex) {
       conn.close();
-      return "Failed to write to " + dbType + 
-          " db with exception '" + ex.getMessage() + "'";
+      errWriter.write("Failed to write to " + dbType + 
+                      " db with exception '" + ex.getMessage() + "'");
+      return "Ingest failed";
     }
     //    conn.close();
     //  Traveler is now in db.  Retrieve for purpose of archiving
@@ -273,20 +299,88 @@ public class Traveler {
       travelerFromDb = new Traveler(travelerRoot, "db", dbType, subsys);
     }  catch (NumberFormatException ex) {
       conn.close();
-      return "input version must be an integer!";
+      errWriter.write("input version must be an integer!");
+      return "Ingest failed";
     }  catch (Exception ex)  {
       System.out.println(ex.getMessage());
       conn.close();
-      return "Failed to read traveler " + vis.getTravelerName() + " with exception " 
-                                   + ex.getMessage();
+      errWriter.write("Failed to read traveler " + vis.getTravelerName() + " with exception " + ex.getMessage());
+      return "Ingest failed";
     } finally {
       conn.close();
       ProcessNodeDb.reset();
     }
 
     // Now have everything to call archiveYaml
-    travelerFromDb.archiveYaml(req, writer);
-    return "successfully wrote traveler to " + dbType + " db";
+    travelerFromDb.archiveYaml(req, errWriter);
+    return "";
+  }
+  static public Map<String, String>
+    ingest(HttpServletRequest req, Map<String, String> parms) {
+
+    String summary = "";
+    String acknowledge = null;
+    String contents=null;
+    String reason= "";
+    String operator= "null";
+    String responsible= "";
+    String validateOnly= "null";
+    boolean imp = false;
+    HashMap<String, String> retMap = new HashMap<String, String>();
+    retMap.put("summary", "");  // overwrite if successful ingest
+    retMap.put("acknowledge", acknowledge); // overwrite if fail
+
+    // Check for reasonable arguments
+    contents = unpackMap("contents", parms, retMap);
+    if (contents == null) return retMap;
+    operator = unpackMap("operator", parms, retMap);
+    if (operator == null) return retMap;
+    validateOnly = unpackMap("validateOnly", parms, retMap);
+    if (validateOnly == null) return retMap;
+    if (validateOnly.equals("0") || validateOnly.equals("False")) {
+      reason = unpackMap("reason", parms, retMap);
+      if (reason == null) return retMap;
+      responsible = unpackMap("responsible", parms, retMap);
+      if (responsible == null) return retMap;
+      imp = true;
+    }
+    StringWriter wrt = new StringWriter(200);
+    String dbType = ModeSwitcherFilter.getVariable(req.getSession(),
+                                                   "dataSourceMode");
+    String datasource = ModeSwitcherFilter.getVariable(req.getSession(),
+                                                   "etravelerDb");
+    Traveler trav = null;
+    try {
+      trav = new Traveler(contents, true, wrt, "\n");
+      if (trav.getRoot() == null) {
+        wrt.write("Could not parse yaml input\n");
+        retMap.put("acknowledge", wrt.toString());
+        return retMap;
+      }
+        
+    }  catch (Exception ex)  {
+      wrt.write(ex.getMessage() + "\n");
+      retMap.put("acknowledge", wrt.toString());
+      return retMap;
+    }
+    try {
+      String retStatus = trav.writeToDb(operator, true, imp, reason, 
+        responsible, req, wrt);
+      retMap.put("acknowledge", wrt.toString());
+      retMap.put("summary", retStatus);
+    } catch (IOException ex) {
+        retMap.put("acknowledge", "Error " + wrt.toString() + 
+          " followed by IOException " + ex.getMessage());
+        retMap.put("summary", "Failure");
+        return retMap;
+    }
+    return retMap;
+  }
+  static private String unpackMap(String key, Map<String, String> parms,
+                                  Map<String, String> out) {
+    if (parms.containsKey(key)) return parms.get(key);
+    out.put("acknowledge", "Bad input: missing " + key);
+    return null;
   }
 
   static private DbConnection makeConnection(String dbType, String datasource)  {

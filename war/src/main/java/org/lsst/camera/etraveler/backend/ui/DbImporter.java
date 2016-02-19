@@ -236,11 +236,10 @@ public class DbImporter {
 
     String dbType = ModeSwitcherFilter.getVariable(context.getSession(), "dataSourceMode");
 
-    int archiveStatus = trav.archiveYaml((HttpServletRequest)
+    String archiveStatus = trav.archiveYaml((HttpServletRequest)
                                          context.getRequest(), jwriter);
-    if (archiveStatus == 1) return "Success!";
-    if (archiveStatus == 2) return "Wrong conditions for archiving";
-    return "something went wrong"; 
+    if (archiveStatus.isEmpty()) return "Wrong conditions for archiving";
+    else  return archiveStatus; 
   }
   
   static public void makeTree(PageContext context)  {
