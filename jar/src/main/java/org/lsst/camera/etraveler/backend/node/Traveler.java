@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
 import org.lsst.camera.etraveler.backend.db.DbConnection;
 import org.lsst.camera.etraveler.backend.db.MysqlDbConnection;
+import org.lsst.camera.etraveler.backend.util.SessionData;
 
 
 /**
@@ -141,16 +142,18 @@ public class Traveler {
   public String getHgroup() {return m_root.getHardwareGroup(); }
 
   public String archiveYaml(HttpServletRequest req, Writer errWriter) {
-    String dbType = ModeSwitcherFilter.getVariable(req.getSession(), 
-                                                   "dataSourceMode");
+    return archiveYaml(new SessionData(req), errWriter);
+  }
+  
+  public String archiveYaml(SessionData sessionData, Writer errWriter) {
+    String dbType = sessionData.getDbType();
+
     // only archive if db is Prod or Raw
     if ((!dbType.equals("Prod")) && (!dbType.equals("Raw")) ) {
       return "";
     }
-    String archiveDir = ModeSwitcherFilter.getVariable(req.getSession(), 
-                                                       "etravelerFileStore");
-    String url = (req.getRequestURL()).toString();
-    if (url.contains("localhost")) {
+    String archiveDir = sessionData.getFileStore();
+    if (sessionData.getLocalhost()) {
         System.out.println("Official archiveDir was " + archiveDir);
         archiveDir = System.getenv("HOME") + "/localET";
     }
@@ -227,7 +230,7 @@ public class Traveler {
    *                   Stored in db if ingest is true, else not used
    *  @param owner     Person responsible for traveler content
    *                   Stored in db if ingest is true, else not used
-   *  @param req 
+   *  @param sessionData
    *  @param errWriter Used for error output
    *  @return          Summary status string     
    */
@@ -235,11 +238,30 @@ public class Traveler {
                           boolean ingest, String reason, String owner,
                           HttpServletRequest req, Writer errWriter) 
   throws IOException {
+    return writeToDb(user, useTransactions, ingest, reason, owner,
+                     new SessionData(req), errWriter);
+  }
 
-    String dbType = ModeSwitcherFilter.getVariable(req.getSession(),
-                                                   "dataSourceMode");
-    String datasource = ModeSwitcherFilter.getVariable(req.getSession(),
-                                                       "etravelerDb");
+  /**
+   *  @param user  user id of person requesting write
+   *  @param useTransactions  normally true
+   *  @param ingest    true if traveler is to be ingested; else only
+   *                   validate against db
+   *  @param reason    Purpose of traveler or traveler update.
+   *                   Stored in db if ingest is true, else not used
+   *  @param owner     Person responsible for traveler content
+   *                   Stored in db if ingest is true, else not used
+   *  @param sessionData
+   *  @param errWriter Used for error output
+   *  @return          Summary status string     
+   */
+  public String writeToDb(String user, boolean useTransactions, 
+                          boolean ingest, String reason, String owner,
+                          SessionData sessionData, Writer errWriter) 
+  throws IOException {
+
+    String dbType = sessionData.getDbType();
+    String datasource = sessionData.getDatasource();
     
     // Try connect
     DbConnection conn = makeConnection(dbType, datasource);
@@ -286,7 +308,7 @@ public class Traveler {
                       " db with exception '" + ex.getMessage() + "'");
       return "Ingest failed";
     }
-    //    conn.close();
+
     //  Traveler is now in db.  Retrieve for purpose of archiving
     Traveler travelerFromDb=null;
     try {
@@ -312,11 +334,17 @@ public class Traveler {
     }
 
     // Now have everything to call archiveYaml
-    travelerFromDb.archiveYaml(req, errWriter);
+    travelerFromDb.archiveYaml(sessionData, errWriter);
     return "";
   }
+
   static public Map<String, String>
     ingest(HttpServletRequest req, Map<String, String> parms) {
+    return ingest(new SessionData(req), parms);
+  }
+  
+  static public Map<String, String>
+    ingest(SessionData sessionData, Map<String, String> parms) {
 
     String summary = "";
     String acknowledge = null;
@@ -345,10 +373,9 @@ public class Traveler {
       imp = true;
     }
     StringWriter wrt = new StringWriter(200);
-    String dbType = ModeSwitcherFilter.getVariable(req.getSession(),
-                                                   "dataSourceMode");
-    String datasource = ModeSwitcherFilter.getVariable(req.getSession(),
-                                                   "etravelerDb");
+    String dbType = sessionData.getDbType();
+    String datasource = sessionData.getDatasource();
+
     Traveler trav = null;
     try {
       trav = new Traveler(contents, true, wrt, "\n");
@@ -365,7 +392,7 @@ public class Traveler {
     }
     try {
       String retStatus = trav.writeToDb(operator, true, imp, reason, 
-        responsible, req, wrt);
+        responsible, sessionData, wrt);
       retMap.put("acknowledge", wrt.toString());
       retMap.put("summary", retStatus);
     } catch (IOException ex) {
@@ -403,6 +430,4 @@ public class Traveler {
       return null;
     }
   }  
-
-  //
 }
