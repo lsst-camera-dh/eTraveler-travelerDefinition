@@ -168,8 +168,8 @@ public class Traveler {
       this.getVersion() + "_" + this.getHgroup() + "_" + this.getSourceDb();
     String[ ] fnames = new String[2];
 
-    String summary = "Files written to " + fname + "_verbose.yaml, " + fname+ "_canonical.yaml";
-    String msg = null;
+    String summary = " archiveYaml: Files written to " + fname + "_verbose.yaml, " + fname+ "_canonical.yaml";
+    String msg = "";
     try {
       File dir = new File(dirname);
       if (!dir.isDirectory())  {
@@ -178,24 +178,17 @@ public class Traveler {
       fileOutVerbose = new FileWriter(fname + "_verbose.yaml");
       fileOutCanon = new FileWriter(fname + "_canonical.yaml");
     } catch (Exception ex)  {
-      msg = "unable to open output file" + fname + " or " + fname + "_canonical";
+      msg = " archiveYaml: unable to open output file" + fname + " or " + fname + "_canonical";
       System.out.println(msg);
+      return msg;
     }
-    if (msg == null) msg = outputYaml(fileOutVerbose, true);
-    if (msg == null) msg = outputYaml(fileOutCanon, false);
-    if (msg != null) {
-      try {
-        errWriter.write(msg);
-      } catch (Exception ex) {
-        System.out.println("exception " + ex.getMessage() 
-                           + " attempting to write " + msg);
-        return "Archive failure";
-      }
-    }
-    if (msg == null) {
+    if (msg.isEmpty()) msg = outputYaml(fileOutVerbose, true);
+    if (msg.isEmpty()) msg = outputYaml(fileOutCanon, false);
+    
+    if (msg.isEmpty()) {
       return summary;
     } else {
-      return msg;
+      return " archiveYaml failure: " + msg;
     }
   }
   /**
@@ -261,10 +254,9 @@ public class Traveler {
   throws IOException {
 
     String dbType = sessionData.getDbType();
-    String datasource = sessionData.getDatasource();
     
     // Try connect
-    DbConnection conn = makeConnection(dbType, datasource);
+    DbConnection conn = makeConnection(sessionData);
     if (conn == null){
       errWriter.write("Failed to connect to db " + dbType);
       return "Ingest failed";
@@ -334,8 +326,8 @@ public class Traveler {
     }
 
     // Now have everything to call archiveYaml
-    travelerFromDb.archiveYaml(sessionData, errWriter);
-    return "";
+    String archiveRet = travelerFromDb.archiveYaml(sessionData, errWriter);
+    return "Ingest succeeded " + archiveRet;
   }
 
   static public Map<String, String>
@@ -410,10 +402,10 @@ public class Traveler {
     return null;
   }
 
-  static private DbConnection makeConnection(String dbType, String datasource)  {
+  static private DbConnection makeConnection(SessionData sd)  {
     DbConnection conn = new MysqlDbConnection();
-    conn.setSourceDb(dbType);
-    boolean isOpen = conn.openTomcat(datasource);
+    conn.setSourceDb(sd.getDbType());
+    boolean isOpen = conn.open(sd);
     if (isOpen) {
       try {
         conn.setReadOnly(false);
@@ -421,8 +413,7 @@ public class Traveler {
         conn.close();
         System.out.println("Unable to set connection non-readonly");
         return null;
-      }
-      System.out.println("Successfully connected to " + datasource);    
+      }    
       return conn;
     }
     else {

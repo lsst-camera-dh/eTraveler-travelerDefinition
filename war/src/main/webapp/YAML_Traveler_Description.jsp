@@ -145,11 +145,12 @@ and open the template in the editor.
 	  <tr><td>Camera Body and Shutter</td><td>CBS</td><td>(None)</td></tr>
 	  <tr><td>Camera Body</td><td>CBDY</td><td>Camera Body and Shutter</td></tr>
 	  <tr><td>Shutter</td><td>SHTR</td><td>Camera Body and Shutter</td></tr>
-	  <tr><td>Science Raft</td><td>SRFT</td><td>(None)</td></tr>
-	  <tr><td>Corner Raft</td><td>CRFT</td><td>(None)</td></tr>
+	  <tr><td>Science Raft</td><td>SR</td><td>(None)</td></tr>
+	  <tr><td>Corner Raft</td><td>CR</td><td>(None)</td></tr>
 	  <tr><td>Cryostat</td><td>CRYO</td><td>(None)</td></tr>
 	  <tr><td>Utility Trunk</td><td>UT</td><td>Cryostat</td></tr>
-	  <tr><td>Integration and Test</td><td>IT</td><td>(None)</td></tr>
+	  <tr><td>Integration and Test</td><td>INT</td><td>(None)</td></tr>
+          <tr><td>Data Acquisition</td><td>DAQ</td><td>(None)</td></tr>
 	  <tr><td>Optics</td><td>OPT</td><td>(None)</td></tr>
 </table>
           <br /><br />
@@ -184,7 +185,7 @@ and open the template in the editor.
           <dl>
             <dt>Label:</dt>
               <dd>Required. Used to prompt operator for a sensible value </dd>
-            <dt>Semantics: </dt>
+            <dt>InputSemantics: </dt>
             <dd>
               Required. Value must be one of a set of known values (to be 
               verified against the database).  As of Oct., 2015, the known

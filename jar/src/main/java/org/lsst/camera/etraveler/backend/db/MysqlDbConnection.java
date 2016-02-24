@@ -14,6 +14,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import javax.servlet.jsp.JspException;
 import org.srs.web.base.db.ConnectionManager;
+import org.lsst.camera.etraveler.backend.util.SessionData;
 
 
 /**
@@ -43,6 +44,7 @@ public class MysqlDbConnection implements DbConnection {
     return true;
   }
 
+  /*
   @Override
   public boolean open(String host, String userid, String pwd, String dbname) {
     if (m_connect != null) {
@@ -61,7 +63,41 @@ public class MysqlDbConnection implements DbConnection {
     }
     return true;
   }
+  */
 
+  public boolean open(SessionData sd) {
+    if (!sd.getStandalone() ) return openTomcat(sd.getDatasource());
+
+    // Following Max's prescription
+    String dbUrl = "jdbc:mysql://mysql-dev01.slac.stanford.edu:3307/";
+    if (sd.getDbType().equals("Prod")) {
+        dbUrl = "jdbc:mysql://mysql-node03.slac.stanford.edu/";
+    }
+
+    String uPropertyName = sd.getDbType() + ".username";
+    String pPropertyName = sd.getDbType() + ".pwd";
+    String dbPropertyName = sd.getDbType() + ".dbname";
+    String username = System.getProperty(uPropertyName);
+    String pwd = System.getProperty(pPropertyName);
+    String dbname = System.getProperty(dbPropertyName);
+    dbUrl += dbname;
+    if (username == null) {
+        System.out.println("Null value for property " + uPropertyName);
+        return false;
+    } 
+    if (pwd == null) {
+        System.out.println("Null value for property " + pPropertyName);
+        return false;
+    }
+
+    try {
+      m_connect = DriverManager.getConnection(dbUrl, username, pwd);
+    } catch (Exception ex) {
+      System.out.println("Failed to get connection to db " + sd.getDbType());
+      return false;
+    }
+    return true;
+  }
   /**
    * Build and execute an insert statement; return auto-generated key
    *

@@ -94,6 +94,9 @@ public class WriteToDb {
                        "", "", req, wrt);
       if (writeRet.isEmpty()) {
         writeRet = "Traveler successfully verified against db " + dbType;
+      }  else  {
+          wrt.write("<br />" + writeRet + "<br />");
+          return;
       }
     } else {
       String reason = req.getParameter("reason").trim();
@@ -106,7 +109,7 @@ public class WriteToDb {
       if (writeRet.isEmpty()) {
         writeRet = "Traveler successfully ingested into " + dbType + " db";
       }
-      wrt.write(writeRet + "<br />");
+      wrt.write("<br />" + writeRet + "<br />");
       return;
     }
   }

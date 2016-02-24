@@ -3,6 +3,7 @@
  * and open the template in the editor.
  */
 package org.lsst.camera.etraveler.backend.db;
+import org.lsst.camera.etraveler.backend.util.SessionData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -20,7 +21,7 @@ public interface DbConnection {
 
   boolean setOption(int option, String value);
 
-  boolean open(String host, String userid, String pwd, String dbname);
+  boolean open(SessionData sd);
   
   /**
    * Ask Tomcat for a connection in its pool
