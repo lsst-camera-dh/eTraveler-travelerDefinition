@@ -385,7 +385,13 @@ public class Traveler {
     try {
       String retStatus = trav.writeToDb(operator, true, imp, reason, 
         responsible, sessionData, wrt);
-      retMap.put("acknowledge", wrt.toString());
+      String ack = wrt.toString();
+      if (ack != null) {
+          if (ack.isEmpty()) {
+              ack = null;
+          }
+      }
+      retMap.put("acknowledge", ack);
       retMap.put("summary", retStatus);
     } catch (IOException ex) {
         retMap.put("acknowledge", "Error " + wrt.toString() + 
