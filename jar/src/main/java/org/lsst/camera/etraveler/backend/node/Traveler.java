@@ -345,7 +345,7 @@ public class Traveler {
     String operator= "null";
     String responsible= "";
     String validateOnly= "null";
-    boolean imp = false;
+    boolean imp = false;   // by default validate only; no import
     HashMap<String, String> retMap = new HashMap<String, String>();
     retMap.put("summary", "");  // overwrite if successful ingest
     retMap.put("acknowledge", acknowledge); // overwrite if fail
@@ -357,7 +357,7 @@ public class Traveler {
     if (operator == null) return retMap;
     validateOnly = unpackMap("validateOnly", parms, retMap);
     if (validateOnly == null) return retMap;
-    if (validateOnly.equals("0") || validateOnly.equals("False")) {
+    if (validateOnly.equals("false")) {
       reason = unpackMap("reason", parms, retMap);
       if (reason == null) return retMap;
       responsible = unpackMap("responsible", parms, retMap);

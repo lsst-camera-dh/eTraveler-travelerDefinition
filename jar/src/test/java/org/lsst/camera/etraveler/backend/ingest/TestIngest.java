@@ -3,6 +3,7 @@ package org.lsst.camera.etraveler.backend.ingest;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.lsst.camera.etraveler.backend.node.Traveler;
 import org.lsst.camera.etraveler.backend.util.SessionData;
 import java.util.Map;
@@ -80,7 +81,8 @@ public class TestIngest {
   
   @Test
   public void validateFailure() {
-      m_parms.put("validateOnly", "1");
+      System.out.println("Running validateFailure test");
+      m_parms.put("validateOnly", "true");
       m_parms.put("contents", m_contentsFailure);
       Map<String, String> results =
       Traveler.ingest(m_sessionData, m_parms);
@@ -94,7 +96,8 @@ public class TestIngest {
   @Test
   public void validateSimple() {
     //this.setName("ingestValidateOnlyTest");
-    m_parms.put("validateOnly", "1");
+    System.out.println("Running validateSimple test");
+    m_parms.put("validateOnly", "true");
     m_parms.put("contents", m_contentsSimple);
     Map<String, String> results =
       Traveler.ingest(m_sessionData, m_parms);
@@ -104,11 +107,11 @@ public class TestIngest {
       System.out.println("Messages: " + results.get("acknowledge"));
     }
   }
-  
-  @Test
+  /* Don't routinely run ingest test to avoid cluttering up db */
+  @Ignore @Test
   public void ingestSimple() {
-    //this.setName("ingestValidateOnlyTest");
-    m_parms.put("validateOnly", "0");
+    System.out.println("Running ingestSimple test");
+    m_parms.put("validateOnly", "false");
     m_parms.put("contents", m_contentsSimple);
     m_parms.put("responsible", "Joanne Bogart");
     m_parms.put("reason", "Simple ingest test");
@@ -120,5 +123,4 @@ public class TestIngest {
       System.out.println("Messages: " + results.get("acknowledge"));
     }
   }
-  
 }
