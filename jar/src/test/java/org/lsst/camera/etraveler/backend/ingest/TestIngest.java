@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.Ignore;
+import static org.junit.Assert.*;
 import org.lsst.camera.etraveler.backend.node.Traveler;
 import org.lsst.camera.etraveler.backend.util.SessionData;
 import java.util.Map;
@@ -90,6 +91,8 @@ public class TestIngest {
       System.out.println("Summary: " + results.get("summary"));
       if (results.containsKey("acknowledge") ) {
         System.out.println("Messages: " + results.get("acknowledge"));
+        assertNotNull("validation should have failed", 
+          results.get("acknowledge"));
       }
   }
 
@@ -105,6 +108,8 @@ public class TestIngest {
     System.out.println("Summary: " + results.get("summary"));
     if (results.containsKey("acknowledge") ) {
       System.out.println("Messages: " + results.get("acknowledge"));
+      assertNull("Validation should have succeeded",
+        results.get("acknowledge"));
     }
   }
   /* Don't routinely run ingest test to avoid cluttering up db */

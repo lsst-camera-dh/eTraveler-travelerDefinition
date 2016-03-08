@@ -1,0 +1,21 @@
+Name: DEF-ASM-02 
+ShortDescription: Relationship example
+Description: 'In this example a part of type MyCmp is assembled
+              onto a part of type MyAsm all in one go.  Note
+              there is no explicit assign in the YAML. 
+              At execution time eTraveler will put it in for us.'
+Subsystem: Default
+HardwareGroup: MyAsm
+Version: next
+Sequence:
+- Name: DEF-ASM-02_doit
+  ShortDescription: Select and assemble
+  Version: next
+  RelationshipTasks:
+  - RelationshipName: MyAsm_MyCmp
+    RelationshipAction: install
+
+
+
+
+

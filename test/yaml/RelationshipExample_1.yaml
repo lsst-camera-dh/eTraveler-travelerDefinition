@@ -1,0 +1,32 @@
+Name: DEF-ASM-01 
+ShortDescription: Relationship example
+Description: 'In this example a part of type MyCmp is assembled
+              onto a part of type MyAsm.  The assign and the
+              actual assembly are done in separate steps'
+Subsystem: Default
+HardwareGroup: MyAsm
+Version: next
+Sequence:
+- Name: DEF-ASM-01_select
+  ShortDescription: Choose the part here
+  RelationshipTasks:
+  - RelationshipName: MyAsm_MyCmp
+    RelationshipAction: assign
+  Version: next
+- Name: DEF-ASM-01_mullOver
+  ShortDescription: "Take a good look at the MyCmp instance we've
+                     chosen, do some final finishing of it, etc."
+  Version: next
+  OptionalInputs:
+  - Label: Snapshot
+    Description: Optionally take a picture of the MyCmp before assembly
+    InputSemantics: filepath
+- Name: DEF-ASM-01_assemble
+  ShortDescription: Actual assembly here
+  Version: next
+  RelationshipTasks:
+  - RelationshipName: MyAsm_MyCmp
+    RelationshipAction: install
+
+
+
