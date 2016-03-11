@@ -2,4 +2,5 @@ target
 *.*~
 old.git
 .DS_Store
+nbactions.xml
 
