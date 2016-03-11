@@ -73,10 +73,8 @@ Sequence:
             Name: ice cream cone
             Quantity: 3
       -
-        Clone: NTS-seq1
-        Version: next
-      -
         Name: NTS-stepWithInputs
+        Version: next
         RequiredInputs:
           -
             Label: Count ( no more than 10)
