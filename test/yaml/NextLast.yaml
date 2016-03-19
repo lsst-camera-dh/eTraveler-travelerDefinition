@@ -1,7 +1,6 @@
 %YAML  1.1
 ---
 Name: NextLast
-Version: 2
 HardwareGroup: Generic-CCD
 Description: Test use of version=next and refVersion=last
 ShortDescription: Test use of version=next and refVersion=last
@@ -13,7 +12,7 @@ Sequence:
     Description: still nothing special about it
     ShortDescription: still nothing special about it
   -
-    RefName: seq2
+    RefName: double-toClone
   -
     RefName: jh_test
     RefVersion: last

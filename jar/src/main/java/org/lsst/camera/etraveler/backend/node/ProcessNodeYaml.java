@@ -53,12 +53,19 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
      Value is just process name (e.g. "myStep" )
      Really this data structure should be per-session
    */
+  /*
+    Just use process name.  Do not allow multiple versions of a process
+    step in a single traveler
+  */
  
   static String formProcessKey(String name, String version) {
     return name + "_" + version;
   }
   static String formProcessKey(String name, int version) {
     return name + "_" + version;
+  }
+  static String formProcessKey(String name) {
+    return name;
   }
 
   static void initKnownKeys() {
@@ -189,6 +196,24 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
           throw new WrongTypeYamlValue("version", m_version, "Process");
         }
       }
+      // If there is already a node with our name, it must be
+      // another reference node with the same version
+      String processKey = formProcessKey(m_name);
+      if (m_processes.containsKey(processKey)) {
+        ProcessNodeYaml referent = m_processes.get(processKey);
+        if (!referent.m_isRef) {
+          throw new
+            EtravelerException("RefName value " + m_name +
+                               " already is name of prior node");
+        }
+        if (referent.m_version != m_version) {
+          throw new
+          EtravelerException("Ref steps with RefName " + m_name +
+                             " must all be of same version");
+        }
+      } else  { // make an entry for it
+        m_processes.put(processKey, this);
+      }
       m_edgeCondition = getStringVal(yamlMap, "Condition" );
       return ok;
     }
@@ -201,20 +226,30 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         throw new YamlIncompatibleKeys("Clone", "Name");
       }
       m_name = (yamlMap.get("Clone")).toString();
-     
-      m_version = getStringVal(yamlMap, "Version", m_version);
+      if (yamlMap.containsKey("Version")) {
+        if (!getStringVal(yamlMap,"Version").equals("cloned")) {
+          throw new YamlIncompatibleKeys("Clone", "Version");  
+        }
+      }
+      // Set m_version below, once we find referent
+    
       
       m_edgeCondition = getStringVal(yamlMap, "Condition");     
       
       /* A clone must be cloned from something appearing earlier in the
        * yaml definition, but it must not be an ancestor
        */
-      String processKey = formProcessKey(m_name, m_version);  
+      String processKey = formProcessKey(m_name);  
       ProcessNodeYaml referent = m_processes.get(processKey);
       if (referent == null) {
-        throw new UnknownReferent(m_name, m_version);
+        throw new UnknownReferent(m_name);
+      }
+      if (referent.m_isRef) {
+        throw new EtravelerException("May not clone Reference node: "
+                                     + m_name);
       }
       m_clonedFrom = referent;
+      m_version = "cloned";
       referent.m_hasClones = true; 
       ProcessNodeYaml ancestor = m_parent;
       while (ancestor != null) {
@@ -472,7 +507,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       m_hardwareGroup = m_parent.m_hardwareGroup;  
     }
     if (!m_isClone) {
-      String processKey = formProcessKey(m_name, m_version);
+      String processKey = formProcessKey(m_name);
       if (m_processes.containsKey(processKey)) {
         // tilt!
         throw new Exception("Duplicate process node named " + m_name);
@@ -612,7 +647,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private String m_name=null;
   private String m_hardwareGroup=null;
   
-  private String m_version="1";
+  private String m_version="next";
   private String m_userVersionString=null;
   private String m_instructionsURL=null;
   private String m_description=null;

@@ -1,9 +1,12 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!--
-To change this template, choose Tools | Templates
-and open the template in the editor.
--->
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"  %>
+<%@taglib prefix="display" uri="http://displaytag.sf.net" %>
+<%@taglib prefix="sql" uri="http://java.sun.com/jsp/jstl/sql" %>  
 <!DOCTYPE html>
+
+<sql:query var="subsQ">
+    select name, shortName from Subsystem order by name;
+</sql:query>
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>YAML Traveler Description</title>
@@ -77,8 +80,9 @@ and open the template in the editor.
         <dt id="Name">Name:</dt>
         <dd>
           The name of the process step.  This string value must not include any
-          embedded blanks nor any of the following characters:
-          <pre>;,#?{}:'/$&amp;!"</pre>
+          embedded blanks, must not start with a hypen, nor may it
+          include any of the following characters:
+          <pre>;,:?!}{]['"/$#&amp;=*^</pre>
         </dd>
         <dt>NewLocation:</dt>
         <dd>
@@ -131,28 +135,21 @@ and open the template in the editor.
           subsystem known to the database.  If not supplied, the traveler 
 	  will be given an associated
           subsystem of <b>Default</b> when it is ingested. The collection
-          of known subsystems is experiment-dependent.  As of
-          January, 2016, the following subsystems are known to the
-          database for LSST-CAMERA: <br /><br />
+          of known subsystems is experiment- and database-dependent. 
+          The following subsystems are known to the 
+          currently-selected experiment and database:
+          <br /><br />
 
-	  <table border="1">
-	  <tr><th class='left'>Name</th><th class='left'>Short Name</th>
-	  <th class='left'>Parent</th></tr>
-	  <tr><td>Exchange System</td><td>EXCH</td><td>(None)</td><tr>
-	  <tr><td>Auto Changer</td><td>CHGR</td><td>Exchange System</td></tr>
-	  <tr><td>Carousel</td><td>CAR</td><td>Exchange System</td></tr>
-	  <tr><td>Filter Loader</td><td>LDR</td><td>Exchange System</td></tr>
-	  <tr><td>Camera Body and Shutter</td><td>CBS</td><td>(None)</td></tr>
-	  <tr><td>Camera Body</td><td>CBDY</td><td>Camera Body and Shutter</td></tr>
-	  <tr><td>Shutter</td><td>SHTR</td><td>Camera Body and Shutter</td></tr>
-	  <tr><td>Science Raft</td><td>SR</td><td>(None)</td></tr>
-	  <tr><td>Corner Raft</td><td>CR</td><td>(None)</td></tr>
-	  <tr><td>Cryostat</td><td>CRYO</td><td>(None)</td></tr>
-	  <tr><td>Utility Trunk</td><td>UT</td><td>Cryostat</td></tr>
-	  <tr><td>Integration and Test</td><td>INT</td><td>(None)</td></tr>
-          <tr><td>Data Acquisition</td><td>DAQ</td><td>(None)</td></tr>
-	  <tr><td>Optics</td><td>OPT</td><td>(None)</td></tr>
-</table>
+          
+          <display:table name="${subsQ.rows}" class="datatable" >
+              <display:column property="name" title="Name" sortable="true"
+                              headerClass="sortable" style="text-align:left" />
+              <display:column property="shortName" title="Short Name"
+                              sortable="true" headerClass="sortable" 
+                              style="text-align:left" />
+              
+          </display:table>
+          
           <br /><br />
         </dd>
         <dt>UserVersionString:</dt>
@@ -289,8 +286,52 @@ and open the template in the editor.
          <span class='redError'>red</span> means not yet fully implemented.
         </dd>
       </dl>
+      <h2 id='ref_clone'>Referenced and Cloned Steps</h2>
+      <p>In addition to 'regular' process steps, one may also refer to existing
+          steps.  There are two different methods, depending on whether you
+          want to refer to a step already defined in the current traveler or
+          one defined in another, already-ingested traveler. In either case most
+          of the regular contents of a step are inappropriate and will either
+          cause an error if present or will be ignored.  Definitions for
+      cloned or reference step do not include child steps (nor Prerequistes,
+          RequiredResults, etc.) because these things have already been
+          defined in the step being cloned or referred to. </p>
+      <ul><li>
+              For cloned steps, the only keyword which should be present
+              is Clone:.  The value
+              must be the name of a step defined above in the same traveler.
+          </li>
+          <li>
+              For reference steps, use the keyword RefName: whose value must
+              match the name of a step in some already-ingested traveler for
+              the same hardware group.   The keyword RefVersion: is optional.
+              Its default value is 'last'; that is, refer to the step in
+              the db with correct name and hardware group of the highest 
+              version number.  You may also specify a positive integer value.
+          </li>
+      </ul>
+      <h3>Restrictions</h3>
+      <p>Within a traveler, all steps with the same name must also have the
+      same version.  This implies certain restrictions on regular steps,
+      cloned steps and reference steps, namely</p>
+      <ul>
+          <li>There may be only one 'regular' step with a given name 
+              (value of keyword Name:) in a
+              traveler definition.</li>
+          <li>For any clone step, the value of Clone: must be a string 
+              which has already appeared
+              as the value of Name: for some prior regular step. </li>
+          <li>If there is a ref step (keyword RefName:) the value of RefName:
+              must be different from the names of any regular steps or clones.
+          </li>
+          <li>
+              If there are two steps using the keyword RefName: with the same
+              value, they must also have the same value for RefVersion: (or
+              they can both omit RefVersion: so the value defaults to 'last')
+          </li>
+      </ul>
       <%-- Sections to perhaps be added later
-      <h2>Reference and Clone Nodes</h2>
+     
       <h2 id='Examples' >Examples</h2>
        --%>
     </div>

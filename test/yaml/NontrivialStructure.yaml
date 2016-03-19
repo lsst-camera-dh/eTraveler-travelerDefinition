@@ -9,7 +9,6 @@ ShortDescription: For testing many features
 Sequence:
   -
     Name: NTS-seq1
-    Version: next
     Description: Just a non-descript step
     ShortDescription: Non-descript step
   -

@@ -28,13 +28,10 @@ Sequence:
         Version: next
       -
         Clone: double-toClone
-        Version: next
 
   -
      Name: double-another_container
      ShortDescription: Another step with no explicit Description
-     Version: next
      Sequence:
        -
           Clone: double-toClone
-          Version: next

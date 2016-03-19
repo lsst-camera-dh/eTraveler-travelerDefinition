@@ -308,7 +308,8 @@ public class ProcessNode implements  TravelerElement
   }
 
   private String makeKey() {
-    return m_name + '%' + m_version;
+    // return m_name + '%' + m_version;
+    return m_name;
   }
   public AttributeList getAttributes() {
     AttributeList pList = new AttributeList(20);

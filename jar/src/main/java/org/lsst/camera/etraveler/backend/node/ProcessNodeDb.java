@@ -20,10 +20,13 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTarget {
   static String formProcessKey(String name, String version) {
-    return name + "_" + version;
+    return name; // + "_" + version;
   }
   static String formProcessKey(String name, int version) {
-    return name + "_" + version;
+    return name; // + "_" + version;
+  }
+  static String formProcessKey(String name) {
+    return name;
   }
 
   // Constructor when means is ProcessNode visitor
@@ -590,7 +593,10 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     m_edgeCondition = condition;
   }
   public void acceptClonedFrom(ProcessNode process) {
-    if (process != null) m_isCloned = true;
+    if (process != null) {
+      m_isCloned = true;
+      m_fromProcessNode = process;
+    }
   }
   public void acceptIsCloned(boolean isCloned) {
     m_isCloned = isCloned;
@@ -692,6 +698,11 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       m_verified = true;
       return;
     }
+    if (m_isCloned) {
+      // Nothing more to check against db
+      m_verified = true;
+      return; 
+    }
         
     if (m_prerequisitesDb != null) {
       for (int ip=0; ip < m_prerequisitesDb.length; ip++) {
@@ -761,6 +772,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private boolean acceptableVersion(String v) {
     if (v.equals("next") || v.equals("modified") ) return true;
     if (v.equals("last") && m_isRef) return true;
+    if (v.equals("cloned") && m_isCloned) return true;
     try {
       int iv = Integer.parseInt(v);
       return true;
@@ -837,7 +849,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
                                      + m_name + " with SQL exception "
                                      + ex.getMessage());
       }
-      String key = formProcessKey(m_name, m_version);
+      String key = formProcessKey(m_name); //, m_version);
       String oldValue  = m_processNameIdMap.putIfAbsent(key, m_id);
       // Should not be duplicate.  
       // This has already been checked in ProcessNodeYaml
@@ -877,7 +889,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
         }
       }
     }   else {   // need to find our id to make edge
-      m_id = m_processNameIdMap.get(formProcessKey(m_name, m_version));
+      m_id = m_processNameIdMap.get(formProcessKey(m_name));
     }
     //  If parent isn't null, make edge between us and it
     insertEdge();
@@ -1119,10 +1131,16 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private boolean m_edited=false;
   private String m_sourceDb=null;
   private String m_subsystemId = null;  /* only used for root node */
-  private ProcessNodeDb m_travelerRoot=null; 
+  private ProcessNodeDb m_travelerRoot=null;
+
+  // For reading from db
   private ConcurrentHashMap<String, ProcessNodeDb> m_nodeMap=null;
+
   // For exporting to db
   private TravelerToDbVisitor m_vis=null;    // may not need this
+
+  // only used when constructed via export from a ProcessNode
+  private ProcessNode m_fromProcessNode;
 
   private ArrayList<ProcessNode> m_children=null;
   private ArrayList<Prerequisite> m_prerequisites=null;

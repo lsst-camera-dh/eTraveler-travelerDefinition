@@ -46,7 +46,6 @@ Sequence:
               Description: Assemble Clean_Y materials
               InstructionsURL:   http://somewhere/materialsASPIC_Y.html
             - Clone: Clone_test-coffee
-              Version: next
             - Name:  Clone_test-apply_Y
               Version: next
               ShortDescription: Apply Clean_Y

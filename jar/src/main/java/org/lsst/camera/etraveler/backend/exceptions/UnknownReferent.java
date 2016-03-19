@@ -18,4 +18,8 @@ public class UnknownReferent extends EtravelerException {
     m_name = name;
     m_version = version;
   }
+  public UnknownReferent(String name) {
+    super("No prior process definition of name " + name);
+    m_name = name;
+  }
 }
