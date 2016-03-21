@@ -9,6 +9,8 @@ import org.lsst.camera.etraveler.backend.node.Traveler;
 import org.lsst.camera.etraveler.backend.util.SessionData;
 import java.util.Map;
 import java.util.HashMap;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 public class TestIngest {
 
@@ -111,6 +113,18 @@ public class TestIngest {
       assertNull("Validation should have succeeded",
         results.get("acknowledge"));
     }
+  }
+  
+  @Test
+  public void validateClone() {
+    System.out.println("running validateClone test");
+    m_parms.put("validateOnly", "true");
+    FileInputStream f;
+    try {
+      f = new FileInputStream("yaml/Clone_autotest.yaml");
+    } catch  (FileNotFoundException ex)   {
+    }
+    
   }
   /* Don't routinely run ingest test to avoid cluttering up db */
   @Ignore @Test

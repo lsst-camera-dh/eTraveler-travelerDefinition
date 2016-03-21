@@ -1,0 +1,50 @@
+%YAML 1.1 
+---
+Name:  Clone_autotest
+Version: next
+HardwareGroup: snark
+Description: Blah blah
+ShortDescription: Blah 
+Sequence:
+   -
+      Name: Clone_autotest-Clean
+      Description:  Clean.  Procedure depends on supplier
+      ShortDescription:  Clean.  Procedure depends on supplier
+      Selection:
+        - Condition: from supplier X
+          Name:  Clone_autotest-Clean_X
+          Description: Clean procedure for supplier X
+          ShortDescription: Clean procedure for supplier X
+          Sequence:
+            - Name: Clone_autotest-assem_X
+              ShortDescription: Assemble Clean_X materials
+              Description: Assemble Clean_X materials
+              Version: next
+            - Name: Clone_autotest-coffee
+              ShortDescription: Make coffee
+              Description: Make coffee.  This step will be cloned
+            - Name: Cone_test-apply_X
+              ShortDescription:  Apply Clean_X
+              Description:  Apply Clean_X
+        - Condition: from supplier Y
+          Name:  Clone_autotest-Clean_Y
+          Description: Clean procedure for supplier Y
+          ShortDescription: Clean procedure for supplier Y
+          Sequence:
+            - Name: Clone_autotest-assemble_Y
+              ShortDescription: Assemble Clean_Y materials
+              Description: Assemble Clean_Y materials
+            - Clone: Clone_autotest-coffee
+            - Name:  Clone_autotest-apply_Y
+              ShortDescription: Apply Clean_Y
+              Description: Apply Clean_Y
+        - Condition: default
+          Name: Clone_autotest-Clean_default
+          Description: Non-specific clean procedure
+          ShortDescription: Non-specific clean procedure
+   -
+      Name: Clone_autotest-Inspect
+      ShortDescription:  inspect
+      Description:  inspect blah blah blah
+
+
