@@ -7,6 +7,9 @@
 <sql:query var="subsQ">
     select name, shortName from Subsystem order by name;
 </sql:query>
+<sql:query var="hwsQ">
+    select name, description from HardwareStatus where isStatusValue=1 order by name;
+</sql:query>
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>YAML Traveler Description</title>
@@ -94,11 +97,23 @@
         </dd>
         <dt class="redError">NewStatus:</dt>
         <dd>
-          Status to which component is to be set. Must be defined in database
+          <p>Status to which component is to be set. Must be defined in database
           as a known status value or must be the string
           '(?)'
           in which case the operator will be prompted with a menu of all
-          known status values.<br /><br />
+          known status values. Status values available in the current
+          database are:</p>
+
+          <display:table name="${hwsQ.rows}" class="datatable" >
+              <display:column property="name" title="Name" sortable="true"
+                              headerClass="sortable" style="text-align:left" />
+              <display:column property="description" title="Description"
+                                style="text-align:left" />
+              
+          </display:table>
+          
+          <br /><br />
+
         </dd>
         <dt>RefName:</dt>
         <dd>
