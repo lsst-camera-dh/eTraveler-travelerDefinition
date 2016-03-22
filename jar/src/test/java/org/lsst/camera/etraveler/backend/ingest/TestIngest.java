@@ -9,8 +9,10 @@ import org.lsst.camera.etraveler.backend.node.Traveler;
 import org.lsst.camera.etraveler.backend.util.SessionData;
 import java.util.Map;
 import java.util.HashMap;
-import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class TestIngest {
 
@@ -118,13 +120,19 @@ public class TestIngest {
   @Test
   public void validateClone() {
     System.out.println("running validateClone test");
-    m_parms.put("validateOnly", "true");
-    FileInputStream f;
-    try {
-      f = new FileInputStream("yaml/Clone_autotest.yaml");
-    } catch  (FileNotFoundException ex)   {
-    }
+    //System.out.println("Working Directory = " + System.getProperty("user.dir"));
+    // Working directing is eTraveler-travelerDefinition/jar
+    String fp = "src/test/yaml/Clone_autotest.yaml";
+   
+    checkFile(fp, true);
+  }
+  
+  @Test
+  public void validateNextLast() {
+    System.out.println("running validateNextLast test");
+    String fp = "src/test/yaml/NextLast_autotest.yaml";
     
+    checkFile(fp, true);
   }
   /* Don't routinely run ingest test to avoid cluttering up db */
   @Ignore @Test
@@ -140,6 +148,41 @@ public class TestIngest {
     System.out.println("Summary: " + results.get("summary"));
     if (results.containsKey("acknowledge") ) {
       System.out.println("Messages: " + results.get("acknowledge"));
+    }
+  }
+  
+  private void checkFile(String fp, boolean validateOnly) 
+  {
+    if (validateOnly) {
+      m_parms.put("validateOnly", "true");
+    } else {
+      m_parms.put("validateOnly", "false");
+    }   
+    String contents = "";
+    try {
+      FileReader f = new FileReader(fp);
+      BufferedReader br = new BufferedReader(f);
+      String line = br.readLine();
+      while (line != null) {
+        contents += line + "\n";
+        line = br.readLine();
+      }
+    } catch  (FileNotFoundException ex)   {
+      fail("Unable to open file " + fp);
+      return;
+    } catch (IOException ex) {
+      fail("Exception while reading " + fp);
+      return;
+    }
+    m_parms.put("contents", contents);
+      Map<String, String> results =
+      Traveler.ingest(m_sessionData, m_parms);
+    
+    System.out.println("Summary: " + results.get("summary"));
+    if (results.containsKey("acknowledge") ) {
+      System.out.println("Messages: " + results.get("acknowledge"));
+      assertNull("Validation should have succeeded",
+        results.get("acknowledge"));
     }
   }
 }

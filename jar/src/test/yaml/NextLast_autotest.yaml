@@ -1,0 +1,18 @@
+%YAML  1.1
+---
+Name: NextLast_autotest
+HardwareGroup: Generic-CCD
+Description: Test use of version=next and refVersion=last
+ShortDescription: Test use of version=next and refVersion=last
+SourceDb: Raw
+Sequence:
+  -
+    Name: NextLast_autotest-normalStep
+    Version: next
+    Description: still nothing special about it
+    ShortDescription: still nothing special about it
+  -
+    RefName: double-toClone
+  -
+    RefName: jh_test
+    RefVersion: last
