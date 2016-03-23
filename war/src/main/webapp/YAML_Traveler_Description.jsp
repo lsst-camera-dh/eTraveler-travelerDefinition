@@ -312,9 +312,11 @@
           RequiredResults, etc.) because these things have already been
           defined in the step being cloned or referred to. </p>
       <ul><li>
-              For cloned steps, the only keyword which should be present
-              is Clone:.  The value
+              For cloned steps, the only keywords which may be present
+              are Clone: (required) and Version: (optional).  The value
               must be the name of a step defined above in the same traveler.
+              If the keyword Version: is present, the associated value
+              must be 'cloned' (with or without quotes).
           </li>
           <li>
               For reference steps, use the keyword RefName: whose value must
@@ -323,6 +325,9 @@
               Its default value is 'last'; that is, refer to the step in
               the db with correct name and hardware group of the highest 
               version number.  You may also specify a positive integer value.
+              <b>WARNING:</b> When travelers using a reference are exported
+                the fact that the step was originally a reference will not
+                be preserved.
           </li>
       </ul>
       <h3>Restrictions</h3>

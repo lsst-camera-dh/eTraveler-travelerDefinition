@@ -61,13 +61,16 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
      if (m_isRoot) m_data.put("HardwareGroup", hardwareGroup);
   }
 
-  public void acceptVersion(String version) {
-    m_data.put("Version", "next");
+  public void acceptVersion(String version) { 
     if (!m_isCloned) {
+      m_data.put("Version", "next");
       if (m_vis.getIncludeDbInternal() ) {
         m_data.put("FromSourceVersion", version);
       }
+    } else {
+      m_data.put("Version", "cloned");
     }
+    
   }
   public void acceptUserVersionString(String userVersionString) {
     if (!m_isCloned) putIfPresent("UserVersionString", userVersionString);

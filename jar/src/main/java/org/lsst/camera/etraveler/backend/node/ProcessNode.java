@@ -536,6 +536,8 @@ public class ProcessNode implements  TravelerElement
     void acceptId(String id);
     void acceptName(String name);
     void acceptHardwareGroup(String hardwareGroup);
+    void acceptIsCloned(boolean isCloned);
+    void acceptIsRef(boolean isRef);
     void acceptVersion(String version);
     void acceptUserVersionString(String userVersionString);
     void acceptDescription(String description);
@@ -557,8 +559,7 @@ public class ProcessNode implements  TravelerElement
     void acceptCondition(String condition); 
     void acceptClonedFrom(ProcessNode process);
     void acceptHasClones(boolean hasClones);
-    void acceptIsCloned(boolean isCloned);
-    void acceptIsRef(boolean isRef);
+    
     void acceptEdited(boolean edited);
     // Do we need anything more having to do with edges?
     // What about acceptChild ?
