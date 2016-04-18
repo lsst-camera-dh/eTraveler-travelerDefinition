@@ -12,7 +12,7 @@
     <groupId>org.lsst.camera</groupId>
     <artifactId>org-lsst-camera-etraveler-backend-war</artifactId>
     <packaging>war</packaging>
-    <version>1.32.2-SNAPSHOT</version>
+    <version>1.32.2</version>
     <name>LSST eTraveler Backend War</name>
 
     <url>http://lsst-camera.slac.stanford.edu/eTravelerBackend</url>
@@ -20,7 +20,7 @@
         <dependency>
             <groupId>org.lsst.camera</groupId>
             <artifactId>org-lsst-camera-etraveler-backend-core</artifactId>
-            <version>1.32.2-SNAPSHOT</version>
+            <version>1.32.2</version>
         </dependency>
 
       <dependency>
