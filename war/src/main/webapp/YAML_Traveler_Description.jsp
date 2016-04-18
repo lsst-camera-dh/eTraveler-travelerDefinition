@@ -10,6 +10,12 @@
 <sql:query var="hwsQ">
     select name, description from HardwareStatus where isStatusValue=1 order by name;
 </sql:query>
+<sql:query var="pgQ">
+    select name from PermissionGroup where maskBit > 0;
+</sql:query>
+<sql:query var="semQ">
+    select name, (strcmp(name, 'signature')=0) as onlyRequired from InputSemantics;
+</sql:query>
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>YAML Traveler Description</title>
@@ -199,9 +205,17 @@
               <dd>Required. Used to prompt operator for a sensible value </dd>
             <dt>InputSemantics: </dt>
             <dd>
-              Required. Value must be one of a set of known values (to be 
-              verified against the database).  As of Oct., 2015, the known
-              values are "int", "float", "filepath", "string" and "boolean".
+              Required. Value must be one of a set of known values.
+              The value 'signature' may only be used for 
+              <a href="#RequiredInputs">RequiredInputs</a>.
+             <display:table name="${semQ.rows}" class="datatable" >
+            <display:column property="name" title="Semantic Type" 
+                          sortable="true"
+                          headerClass="sortable" style="text-align:left" />
+            <display:column property="onlyRequired" title="RequiredInputs Only"
+                   />
+         </display:table>
+
             </dd>
             <dt>Units: </dt>
             <dd>Optional information for operator</dd>
@@ -245,18 +259,16 @@
         </dl>
 	</dd>	
     
-        <dt><br />PermissionGroups:</dt>
+        <dt id="PermissionGroups" name="PermissionGroups"><br />PermissionGroups:</dt>
 	<dd>Optional.  A list of permission roles whose members may execute
             the step.  If omitted, defaults to all known permission groups
             associated with the traveler's subsystem.  The roles
-            currently known to eTraveler which apply to step execution are
-	    <ul>
-	    <li>operator</li>
-	    <li>supervisor</li>
-	    <li>approver</li>
-	    <li>admin</li>
-	    <li>qualityAssurance</li>
-	    </ul>
+            known to eTraveler for the current database which may appear 
+         here are
+         <display:table name="${pgQ.rows}" class="datatable" >
+            <display:column property="name" title="Role" sortable="true"
+                            headerClass="sortable" style="text-align:left" />
+         </display:table>
         <dt><br />RelationshipTasks:</dt>
         <dd>
 	The value for this key is a list of RelationshipTask nodes.  Each such node
@@ -271,13 +283,21 @@
            </dd>
         </dl>
         </dd>
-        <dt><br />RequiredInputs:</dt>
+        <dt name="RequiredInputs" id="RequiredInputs" ><br />RequiredInputs:</dt>
         <dd>
           The value for this key is a list of Input Nodes. The operator will
           see a form with a row for each optional input.  The operator <em>must</em>
           fill in any such rows to complete the step.  See 
           <a href="#OptionalInputs">OptionalInputs:</a> above for a detailed
-          description of Input Nodes.
+          description of Input Nodes which applies to both RequiredInputs:
+	  and OptionalInputs:. 
+         <p>A required input whose semantic type is 'signature' may
+           have one additional subitem <b>Roles:</b> whose value is
+           again a list.  The items allowed in the list are the
+           same ones which can be used with the 
+           <a href="#PermissionGroups">PermissionGroups:</a> key.
+           If the Roles: keyword is not used, the signatures required will
+           be determined dynamically when the traveler is run.</p>
         </dd>
         <dt id="Selection"><br />Selection:</dt>
         <dd>Indicates that the process step has children, one of which
