@@ -10,7 +10,6 @@ Sequence:
     Version: next
     ShortDescription: fixed move
     Description: Move to a fixed location
-    Version: next
     NewLocation: Cabinet2
   - Name: newLocation-prompt
     Version: next

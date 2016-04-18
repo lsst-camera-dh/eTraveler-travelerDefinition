@@ -35,7 +35,7 @@ public class TravelerActionBits {
       case SET_HARDWARE_STATUS:
         return "SetHardwareStatus";
       case SET_HARDWARE_LOCATION:
-        return "SetHardwareStatus";
+        return "SetHardwareLocation";
       case ASYNC:
         return "Async";
       case AUTOMATABLE:
