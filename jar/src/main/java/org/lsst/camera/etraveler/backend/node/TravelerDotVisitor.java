@@ -232,6 +232,7 @@ public class TravelerDotVisitor implements TravelerVisitor,
   public void acceptChoiceField(String choiceField)  {
     m_choiceField = choiceField;
   }
+  public void acceptSignatureRole(String role) { }
   public void acceptEdited(boolean edited) {}
   public void exportDone() {}
   public String getName() {return m_name;}

@@ -28,6 +28,7 @@ public class PrescribedResult  implements TravelerElement {
       ptarget.acceptMaxValue(m_maxValue);
       ptarget.acceptIsOptional(m_isOptional);
       ptarget.acceptResultDescription(m_description);
+      ptarget.acceptSignatureRole(m_role);
     }
   }
  
@@ -40,6 +41,7 @@ public class PrescribedResult  implements TravelerElement {
     String provideMaxValue();
     String provideChoiceField();
     String provideIsOptional();
+    String provideRole();
   }
   public interface ExportTarget extends TravelerElement.ExportTarget {
     void acceptLabel(String label);
@@ -50,6 +52,7 @@ public class PrescribedResult  implements TravelerElement {
     void acceptResultDescription(String description);
     void acceptChoiceField(String choiceField);
     void acceptIsOptional(String isOptional);
+    void acceptSignatureRole(String role);
   }
   public PrescribedResult(ProcessNode parent, PrescribedResult.Importer imp) {
     m_parent = parent;
@@ -61,6 +64,7 @@ public class PrescribedResult  implements TravelerElement {
     m_maxValue = imp.provideMaxValue();
     m_choiceField = imp.provideChoiceField();
     m_isOptional = imp.provideIsOptional();
+    m_role = imp.provideRole();
   }
   // Copy constructor
   public PrescribedResult(ProcessNode parent, PrescribedResult orig) {
@@ -70,6 +74,7 @@ public class PrescribedResult  implements TravelerElement {
     m_description = new String(orig.m_description);
     m_units = new String(orig.m_units);
     m_isOptional = new String(orig.m_isOptional);
+    m_role = new String(orig.m_role);
     if (orig.m_minValue != null) m_minValue = new String(orig.m_minValue);
     if (orig.m_maxValue != null) m_maxValue = new String(orig.m_maxValue);
     if (orig.m_choiceField != null) m_choiceField = new String(orig.m_choiceField);
@@ -90,6 +95,9 @@ public class PrescribedResult  implements TravelerElement {
     if (!m_maxValue.equals("")) {
       atts.add(new Attribute("max value", m_maxValue));
     }
+    if (m_semantics.equals("signature")) {
+      atts.add(new Attribute("role", m_role));
+    }
     return atts;
   }
     
@@ -100,6 +108,7 @@ public class PrescribedResult  implements TravelerElement {
   public String getMinValue() {return m_minValue;}
   public String getMaxValue() {return m_maxValue;}
   public String getIsOptional() {return m_isOptional;}
+  public String getRole() {return m_role;}
   public boolean setIsOptional(String isOpt) 
   {
     if (!isOpt.equals(m_isOptional)) {
@@ -143,6 +152,16 @@ public class PrescribedResult  implements TravelerElement {
     }
     return false;
   }
+  /* Of interest for semantic type signature only */
+  public boolean setRole(String role)
+  {
+    String arg = (role == null) ? "" : role;
+    if (!arg.equals(m_role)) {
+      m_role = arg;
+      return true;
+    }
+    return false;
+  }
   public boolean numberSemantics() {
     return (m_semantics.equals("int") || m_semantics.equals("float") );
   }
@@ -165,5 +184,6 @@ public class PrescribedResult  implements TravelerElement {
   private String m_description="";
   private String m_choiceField="";
   private String m_isOptional="0";
+  private String m_role="";
   private ProcessNode m_parent;  
 }

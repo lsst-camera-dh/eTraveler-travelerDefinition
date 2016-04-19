@@ -292,11 +292,12 @@
           description of Input Nodes which applies to both RequiredInputs:
 	  and OptionalInputs:. 
          <p>A required input whose semantic type is 'signature' may
-           have one additional subitem <b>Roles:</b> whose value is
-           again a list.  The items allowed in the list are the
-           same ones which can be used with the 
-           <a href="#PermissionGroups">PermissionGroups:</a> key.
-           If the Roles: keyword is not used, the signatures required will
+           have one additional subitem <b>Role:</b> whose value must
+           either be '(?)' or must come from the same set of values 
+           which can be used with the 
+           <a href="#PermissionGroups">PermissionGroups:</a> key,
+           If the Role: keyword is omitted, its value will, by default,
+           be '(?)'; that is, the signatures required will
            be determined dynamically when the traveler is run.</p>
         </dd>
         <dt id="Selection"><br />Selection:</dt>

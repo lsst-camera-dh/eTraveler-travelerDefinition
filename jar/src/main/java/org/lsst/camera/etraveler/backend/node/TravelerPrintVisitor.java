@@ -249,6 +249,9 @@ public class TravelerPrintVisitor
       m_writer.write(leadingBlanks + "Result description: " + m_description + s_eol);
       m_writer.write(leadingBlanks + "Result min value: " + m_minValue + s_eol);
       m_writer.write(leadingBlanks + "Result max value: " + m_maxValue + s_eol);
+      if (m_semantics.equals("signature")) {
+        m_writer.write(leadingBlanks + "Result role: " + m_resultRole + s_eol);
+      }
     } catch (IOException ex) {
       System.out.println("Exception while writing prescribed result:");
       System.out.println(ex.getMessage());
@@ -272,6 +275,7 @@ public class TravelerPrintVisitor
   private void resetResult() {
     m_label=null; m_units=null; m_minValue=null; m_maxValue=null;
     m_resultDescription=null; m_semantics=null; m_choiceField=null;
+    m_resultRole=null;
   }
   private void resetRelationshipTask() {
     m_relationshipName= null;
@@ -396,6 +400,9 @@ public class TravelerPrintVisitor
   public void acceptResultDescription(String description) {
     m_resultDescription = description;
   }
+  public void acceptSignatureRole(String role) {
+    m_resultRole = role;
+  }
   public void acceptIsOptional(String isOptional) {}
   
   public void acceptChoiceField(String choiceField)  {
@@ -456,6 +463,7 @@ public class TravelerPrintVisitor
   private String m_minValue=null;
   private String m_maxValue=null;
   private String m_resultDescription=null;
+  private String m_resultRole=null;
   private String m_choiceField=null;
   
   private static String s_indent="  ";
