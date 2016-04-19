@@ -28,7 +28,9 @@ public class PrescribedResult  implements TravelerElement {
       ptarget.acceptMaxValue(m_maxValue);
       ptarget.acceptIsOptional(m_isOptional);
       ptarget.acceptResultDescription(m_description);
-      ptarget.acceptSignatureRole(m_role);
+      if (m_semantics.equals("signature")) {
+        ptarget.acceptSignatureRole(m_role);
+      }
     }
   }
  

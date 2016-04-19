@@ -52,6 +52,7 @@
           <display:column property="units" style="text-align:left" />
           <display:column property="minValue" title="Min" style="text-align:right" />
           <display:column property="maxValue" title="Max" style="text-align:right" />
+          <display:column property="role" title="Role" style="text-align:left" />
         </display:table>
       </c:if>
       <c:if test="${import:getOptionalResultCount(pageContext) > 0}">

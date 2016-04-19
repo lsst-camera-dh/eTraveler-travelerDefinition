@@ -436,11 +436,11 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
                                   m_hardwareTypeNameMap));
   }
   public PrescribedResult provideResult(ProcessNode parent, int n) throws Exception {
-    return new PrescribedResult(parent, new PrescribedResultDb(m_connect, m_resultIds[n]));
+    return new PrescribedResult(parent, new PrescribedResultDb(m_connect, m_resultIds[n], m_permissionGroupMap));
   }
   public PrescribedResult provideOptionalResult(ProcessNode parent, int n) throws Exception {
     return new PrescribedResult(parent, 
-        new PrescribedResultDb(m_connect, m_optionalResultIds[n]));
+                                new PrescribedResultDb(m_connect, m_optionalResultIds[n], m_permissionGroupMap));
   }
   public RelationshipTask provideRelationshipTask(ProcessNode parent, int n) throws Exception {
     return new RelationshipTask(parent,
@@ -718,12 +718,14 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     }
     if (m_resultsDb != null) {
       for (int ir=0; ir < m_resultsDb.length; ir++) {
-        m_resultsDb[ir].verify(m_semanticsTypeMap);
+        m_resultsDb[ir].verify(m_semanticsTypeMap,
+                               m_permissionGroupMap);
       }
     }
     if (m_optionalResultsDb != null) {
       for (int ir=0; ir < m_optionalResultsDb.length; ir++) {
-        m_optionalResultsDb[ir].verify(m_semanticsTypeMap);
+        m_optionalResultsDb[ir].verify(m_semanticsTypeMap,
+                                       m_permissionGroupMap);
       }
     }
     if (m_relationshipTasksDb != null) {

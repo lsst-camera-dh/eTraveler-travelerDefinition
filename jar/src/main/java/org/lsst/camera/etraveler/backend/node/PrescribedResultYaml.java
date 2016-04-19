@@ -10,6 +10,8 @@ import org.lsst.camera.etraveler.backend.exceptions.EtravelerException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import java.io.Writer;
+import java.io.IOException;
 
 /**
  *
@@ -23,6 +25,7 @@ public class PrescribedResultYaml implements PrescribedResult.Importer {
   static final int MINVALUE=3;
   static final int MAXVALUE=4;
   static final int DESCRIPTION=5;
+  static final int ROLE=6;
     
   public void readYaml(Map<String, Object> yamlMap, ProcessNodeYaml parent, int iPre) 
   throws EtravelerException {
@@ -34,6 +37,7 @@ public class PrescribedResultYaml implements PrescribedResult.Importer {
       s_knownKeys.add(MINVALUE, "MinValue");
       s_knownKeys.add(MAXVALUE, "MaxValue");
       s_knownKeys.add(DESCRIPTION, "Description");
+      s_knownKeys.add(ROLE, "Role");
     }
     m_parent = parent;
     
@@ -55,7 +59,11 @@ public class PrescribedResultYaml implements PrescribedResult.Importer {
       case LABEL:
         m_label = v; break;
       case SEMANTICS:
-        m_semantics = v; break;
+        m_semantics = v; 
+        if (m_semantics.equals("signature") & (m_isOptional.equals("1"))) {
+          throw new EtravelerException("Signatures not allowed in OptionalInputs");
+        }
+        break;
       case DESCRIPTION:
         m_description = v; break;
       case UNITS:
@@ -66,9 +74,27 @@ public class PrescribedResultYaml implements PrescribedResult.Importer {
         // is of correct type.  Similarly for MAXVALUE case.
         break;
       case MAXVALUE:
-        m_maxValue = v; break;
+        m_maxValue = v; break; 
+      case ROLE:
+        if (m_isOptional.equals("1")) {
+          throw new EtravelerException("Optional inputs may not include Role: keyword ");
+        }
+        m_role = v;
+        if (v.isEmpty()) v = "(?)";
+        break;
       }
     } 
+    if (!m_semantics.equals("signature")) {
+      if (!m_role.isEmpty()) {
+        try {
+          parent.getWriter().write("WARNING: Role keyword does not apply to semantic type ");
+          parent.getWriter().write(m_semantics + ". Ignored." + parent.getEol());
+          m_role ="";
+        } catch (IOException ex) {
+          
+        }
+      }
+    }
   }
   public String provideLabel() {return m_label;}
   public String provideSemantics() {return m_semantics;}
@@ -78,6 +104,7 @@ public class PrescribedResultYaml implements PrescribedResult.Importer {
   public String provideDescription() {return m_description;}
   public String provideChoiceField() {return m_choiceField;}
   public String provideIsOptional() {return m_isOptional;}
+  public String provideRole() {return m_role;}
   public void setIsOptional(String isOptional) {m_isOptional = isOptional;}
   private String m_label=null;
   private String m_semantics=null;
@@ -87,6 +114,7 @@ public class PrescribedResultYaml implements PrescribedResult.Importer {
   private String m_description="";
   private String m_choiceField="";
   private String m_isOptional="0";
+  private String m_role="";
   
   private ProcessNodeYaml m_parent=null;
 }

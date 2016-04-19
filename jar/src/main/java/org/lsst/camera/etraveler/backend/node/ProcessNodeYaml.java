@@ -479,6 +479,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
           for (int iR = 0; iR < m_nOptionalResults; iR++) {
             Map<String, Object> optInputsMap = (Map<String, Object>) list.get(iR);
             m_optionalResults[iR] = new PrescribedResultYaml();
+            m_optionalResults[iR].setIsOptional("1");
             m_optionalResults[iR].readYaml(optInputsMap, this, iR);
           }
           // similar to prereq case
@@ -642,6 +643,8 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   }
   public void finishImport(ProcessNode process) {}
   public String getSubsystem() {return m_subsystem;}
+  public Writer getWriter() {return m_writer;}
+  public String getEol() {return m_eol;}
 
   // Properties read in directly from yaml
   private String m_name=null;

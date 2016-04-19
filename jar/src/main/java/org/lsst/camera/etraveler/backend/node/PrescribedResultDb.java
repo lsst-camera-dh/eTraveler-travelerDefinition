@@ -21,7 +21,8 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
     s_inputPatternQuery = null;
   }
   private static String[] s_patternCols = {"inputSemanticsId", "label",
-    "units", "description", "isOptional", "minV", "maxV", "choiceField"};
+    "units", "description", "isOptional", "minV", "maxV", "choiceField",
+    "roleBitmask"};
   
   private static ConcurrentHashMap<String, String> s_semanticsIdMap;
     
@@ -39,7 +40,8 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
    * @throws SQLException
    * @throws EtravelerException 
    */
-  public PrescribedResultDb(DbConnection connect, String id) 
+  public PrescribedResultDb(DbConnection connect, String id, 
+    ConcurrentHashMap<String, String> pgmap) 
       throws SQLException, EtravelerException {
     m_id = id;
     if (s_inputPatternQuery == null) {
@@ -94,25 +96,46 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
       if (m_maxV.isEmpty()) m_maxV = null;
     }
     m_choiceField =  rs.getString(++ix);
+    m_roleMask = rs.getString(++ix);
     rs.close();
     if (!s_semanticsIdMap.containsKey(m_semanticsId))  {
         throw new UnknownDbId(m_semanticsId, "InputSemantics");
     }
-    m_semantics = s_semanticsIdMap.get(m_semanticsId);
+    m_semantics = s_semanticsIdMap.get(m_semanticsId);  
+    if (m_roleMask.equals("0")) m_role="(?)";
+    else {
+      if (!pgmap.containsKey(m_roleMask))  {
+        throw new EtravelerException("Unknown role mask bit " + m_roleMask);
+      }
+      m_role = pgmap.get(m_roleMask);
+    }
   }   // end constructor
 
-  void verify(ConcurrentHashMap<String, String> smap)  throws EtravelerException {
+  void verify(ConcurrentHashMap<String, String> smap, 
+      ConcurrentHashMap<String, String> pgmap)  throws EtravelerException {
     if (!smap.containsKey(m_semantics))  {
         throw new 
           EtravelerException("No such semantics type " + m_semanticsId);
     }
     m_semanticsId = smap.get(m_semantics);
+    if (!m_semantics.equals("signature")) {
+      m_roleMask = null;
+    } else {
+      if (m_role.equals("(?)") ) {
+        m_roleMask = "0";
+      } else {
+        if (!pgmap.containsKey(m_role)) {
+          throw new EtravelerException("No such role " + m_role);
+        }
+        m_roleMask = pgmap.get(m_role);
+      }
+    }
     m_verified = true;
   }
 
   private static String[] s_insertResultCols=
   {"label", "inputSemanticsId", "processId", "description", "units", "isOptional",
-    "createdBy", "minV", "maxV"};
+    "createdBy", "minV", "maxV", "roleBitmask"};
 
   void writeToDb(DbConnection connect, ProcessNodeDb parent, String user) 
     throws    SQLException {
@@ -132,6 +155,10 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
       if (m_maxV.isEmpty()) m_maxV = null;
     }
     vals[8] = m_maxV;
+    if (m_roleMask != null) {
+      if (m_roleMask.isEmpty()) m_roleMask = null;
+    }
+    vals[9] = m_roleMask;
  
     try {
       m_id = m_connect.doInsert("InputPattern", s_insertResultCols, vals, "", 
@@ -153,6 +180,7 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
   public String provideMaxValue() {return m_maxV;}
   public String provideChoiceField() {return m_choiceField;}
   public String provideIsOptional() {return m_isOptional;}
+  public String provideRole() {return m_role;}
   
   // ExportTarget interface
   public void acceptLabel(String label) { m_label = label;}
@@ -162,6 +190,9 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
   public void acceptMaxValue(String maxValue) {m_maxV = maxValue;}
   public void acceptResultDescription(String description) {
     m_description = description;
+  }
+  public void acceptSignatureRole(String role) {
+    m_role = role;
   }
   public void acceptIsOptional(String isOpt) {m_isOptional=isOpt;}
   public void acceptChoiceField(String choiceField) {
@@ -178,6 +209,8 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
   private String m_maxV=null;
   private String m_choiceField=null;
   private String m_isOptional="0";
+  private String m_role=null;
+  private String m_roleMask=null;
   private DbConnection m_connect=null;
   private boolean m_verified=false;
  }
