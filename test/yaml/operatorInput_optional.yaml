@@ -1,6 +1,7 @@
 %YAML 1.1 
 ---
 Name:  InputTraveler
+Subsystem: Default
 Version: next
 HardwareGroup: boojum
 Description: Blah blah
@@ -21,6 +22,7 @@ Sequence:
           Label: Displacement
           Units: mm
           InputSemantics: float
+          Role: operator
         -
           Label: Operator needs to sign
           InputSemantics: signature
@@ -34,14 +36,20 @@ Sequence:
           Label: Snapshot
           Description:  Attach picture of measurement
           InputSemantics: filepath
-  -
+   -
       Name: InputTraveler-dynamic
       ShortDescription:  establish signatures dynamically
       RequiredInputs:
         -
           Label: Establish needed signatures
-          IputSemantics: signature
+          InputSemantics: signature
           Role:  (?)
+        -
+          Label: Always require supervisor
+          InputSemantics: signature
+          Role:   supervisor
+
+          
 
 
 

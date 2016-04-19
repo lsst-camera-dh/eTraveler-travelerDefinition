@@ -102,8 +102,9 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
         throw new UnknownDbId(m_semanticsId, "InputSemantics");
     }
     m_semantics = s_semanticsIdMap.get(m_semanticsId);  
-    if (m_roleMask.equals("0")) m_role="(?)";
-    else {
+    if (m_roleMask.equals("0") ) {
+      if  (m_semantics.equals("signature") ) m_role="(?)";
+    }  else {
       if (!pgmap.containsKey(m_roleMask))  {
         throw new EtravelerException("Unknown role mask bit " + m_roleMask);
       }
