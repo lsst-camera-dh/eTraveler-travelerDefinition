@@ -22,7 +22,7 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
   }
   private static String[] s_patternCols = {"inputSemanticsId", "label",
     "units", "description", "isOptional", "minV", "maxV", "choiceField",
-    "roleBitmask"};
+    "permissionGroupId"};
   
   private static ConcurrentHashMap<String, String> s_semanticsIdMap;
     
@@ -47,7 +47,6 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
     if (s_inputPatternQuery == null) {
       String where = " WHERE id=?";
       s_inputPatternQuery = connect.prepareQuery("InputPattern", s_patternCols, where);
-      // s_processQuery = connect.prepareQuery("Process", s_processCols, where);
  
       if (s_inputPatternQuery == null) {
         throw new SQLException("DbConnection.prepareQuery failure");
@@ -96,19 +95,19 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
       if (m_maxV.isEmpty()) m_maxV = null;
     }
     m_choiceField =  rs.getString(++ix);
-    m_roleMask = rs.getString(++ix);
+    m_roleId = rs.getString(++ix);
     rs.close();
     if (!s_semanticsIdMap.containsKey(m_semanticsId))  {
         throw new UnknownDbId(m_semanticsId, "InputSemantics");
     }
     m_semantics = s_semanticsIdMap.get(m_semanticsId);  
-    if (m_roleMask.equals("0") ) {
+    if (m_roleId == null ) {
       if  (m_semantics.equals("signature") ) m_role="(?)";
     }  else {
-      if (!pgmap.containsKey(m_roleMask))  {
-        throw new EtravelerException("Unknown role mask bit " + m_roleMask);
+      if (!pgmap.containsKey(m_roleId))  {
+        throw new EtravelerException("Unknown permission group is " + m_roleId);
       }
-      m_role = pgmap.get(m_roleMask);
+      m_role = pgmap.get(m_roleId);
     }
   }   // end constructor
 
@@ -120,15 +119,15 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
     }
     m_semanticsId = smap.get(m_semantics);
     if (!m_semantics.equals("signature")) {
-      m_roleMask = null;
+      m_roleId = null;
     } else {
       if (m_role.equals("(?)") ) {
-        m_roleMask = "0";
+        m_roleId = null;
       } else {
         if (!pgmap.containsKey(m_role)) {
           throw new EtravelerException("No such role " + m_role);
         }
-        m_roleMask = pgmap.get(m_role);
+        m_roleId = pgmap.get(m_role);
       }
     }
     m_verified = true;
@@ -136,7 +135,7 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
 
   private static String[] s_insertResultCols=
   {"label", "inputSemanticsId", "processId", "description", "units", "isOptional",
-    "createdBy", "minV", "maxV", "roleBitmask"};
+    "createdBy", "minV", "maxV", "permissionGroupId"};
 
   void writeToDb(DbConnection connect, ProcessNodeDb parent, String user) 
     throws    SQLException {
@@ -156,10 +155,11 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
       if (m_maxV.isEmpty()) m_maxV = null;
     }
     vals[8] = m_maxV;
-    if (m_roleMask != null) {
-      if (m_roleMask.isEmpty()) m_roleMask = null;
+    if (m_roleId != null) {
+      if (m_roleId.isEmpty()) m_roleId = null;
+      if (m_roleId.equals("(?)")) m_roleId = null;
     }
-    vals[9] = m_roleMask;
+    vals[9] = m_roleId;
  
     try {
       m_id = m_connect.doInsert("InputPattern", s_insertResultCols, vals, "", 
@@ -211,7 +211,7 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
   private String m_choiceField=null;
   private String m_isOptional="0";
   private String m_role=null;
-  private String m_roleMask=null;
+  private String m_roleId=null;
   private DbConnection m_connect=null;
   private boolean m_verified=false;
  }
