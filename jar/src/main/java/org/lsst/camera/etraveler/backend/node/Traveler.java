@@ -385,11 +385,20 @@ public class Traveler {
     try {
       String retStatus = trav.writeToDb(operator, true, imp, reason, 
         responsible, sessionData, wrt);
-      String ack = wrt.toString();
-      if (ack != null) {
-          if (ack.isEmpty()) {
-              ack = null;
-          }
+      String msg = wrt.toString();
+      if (msg != null) {
+        if (msg.isEmpty()) {
+            msg = null;
+        }
+      }
+      String ack = null;
+      if (retStatus.startsWith("Success")) {
+        if (msg != null) {
+          retStatus += " " + msg;
+        }
+      }
+      else {
+        ack = msg;
       }
       retMap.put("acknowledge", ack);
       retMap.put("summary", retStatus);
