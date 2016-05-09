@@ -1,0 +1,55 @@
+%YAML 1.1 
+---
+Name:  InputTraveler
+Subsystem: Default
+Version: next
+HardwareGroup: Generic-CCD
+Description: Blah blah
+ShortDescription: Blah 
+Sequence:
+   - 
+      Name: InputTraveler-hasInputs
+      Version: next
+      Description: Do something
+      ShortDescription: Do
+      RequiredInputs:
+        -
+          Label: Count ( no more than 10)
+          InputSemantics: int
+          MinValue: 0
+          MaxValue: 10
+        - 
+          Label: Displacement
+          Units: mm
+          InputSemantics: float
+          Role: operator
+        -
+          Label: Operator needs to sign
+          InputSemantics: signature
+          Role:  operator
+        -
+          Label: Need one more signature
+          InputSemantics: signature
+          Role:  supervisor
+      OptionalInputs:
+        -
+          Label: Snapshot
+          Description:  Attach picture of measurement
+          InputSemantics: filepath
+   -
+      Name: InputTraveler-dynamic
+      ShortDescription:  establish signatures dynamically
+      RequiredInputs:
+        -
+          Label: Establish needed signatures
+          InputSemantics: signature
+          Role:  (?)
+        -
+          Label: Always require supervisor
+          InputSemantics: signature
+          Role:   supervisor
+
+          
+
+
+

@@ -134,6 +134,14 @@ public class TestIngest {
     
     checkFile(fp, true);
   }
+  @Test
+  public void validateOperatorInput() {
+    System.out.println("running validateOperatorInput test");
+    String fp = "src/test/yaml/OperatorInput_autotest.yaml";
+    // Should validate and produce warning that signature field is irrelevant
+    // for float input and will be ignored
+    checkFile(fp, true);
+  }
   /* Don't routinely run ingest test to avoid cluttering up db */
   @Ignore @Test
   public void ingestSimple() {
