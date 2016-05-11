@@ -279,7 +279,7 @@
              database.</dd>
            <dt>RelationshipAction:</dt>
            <dd>One of a known, enumerated set.  Currently that set includes 'assign',
-            'install' and 'uninstall'           
+            'install', 'deassign' and 'uninstall'.           
            </dd>
         </dl>
         </dd>

@@ -1,0 +1,32 @@
+Name: DEF-ASM-03 
+ShortDescription: Relationship example
+Description: 'In this example a part of type MyCmp is disassembled
+              from a part of type MyAsm.  The deassign and deinstall
+              are done in separate steps'
+Subsystem: Default
+HardwareGroup: MyAsm
+Version: next
+Sequence:
+- Name: DEF-ASM-03_takeApart
+  ShortDescription: Do actual disassembly
+  RelationshipTasks:
+  - RelationshipName: MyAsm_MyCmp
+    RelationshipAction: uninstall
+  Version: next
+- Name: DEF-ASM-03_mullOver
+  ShortDescription: "Take a good look at components after disassembly"
+  Version: next
+  OptionalInputs:
+  - Label: Snapshot
+    Description: Optionally take a picture of the MyCmp after diassembly
+    InputSemantics: filepath
+- Name: DEF-ASM-03_deassign
+  ShortDescription: Deassign the part
+  Version: next
+  RelationshipTasks:
+  - RelationshipName: MyAsm_MyCmp
+    RelationshipAction: deassign
+    
+
+
+
