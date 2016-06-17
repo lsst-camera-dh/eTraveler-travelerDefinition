@@ -31,11 +31,12 @@ public class DownloadYamlServlet extends HttpServlet {
     if (ostyle.contains("canonical")) {subtype="_canonical";}
     else if (ostyle.contains("verbose")) subtype="_verbose";
     ConcurrentHashMap<String, Traveler> tmap;
+    String attributeName = DbImporter.getTravelerMapAttribute();
     tmap = (ConcurrentHashMap<String, Traveler>) 
-      request.getSession().getAttribute("TRAVELER_MAP");
+      request.getSession().getAttribute(attributeName);
     if (tmap == null)  {
       tmap = new ConcurrentHashMap<String, Traveler> ();
-      request.getSession().setAttribute("TRAVELER_MAP", tmap);
+      request.getSession().setAttribute(attributeName, tmap);
     }
     Traveler trav = DbImporter.getTravelerFromKey(travelerKey, tmap);
     String fname = travelerKey.replace('@', '_') + subtype + ".yaml";

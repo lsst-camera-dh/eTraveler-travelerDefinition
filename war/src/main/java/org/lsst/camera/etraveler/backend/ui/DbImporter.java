@@ -46,9 +46,10 @@ import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
  * @author jrb
  */
 public class DbImporter { 
- 
-  //static ConcurrentHashMap<String, Traveler> s_travelers = 
-  //    new ConcurrentHashMap<String, Traveler>();
+  private static String s_travelerMapAttribute = "travelerMap";
+  public static String getTravelerMapAttribute() {
+    return s_travelerMapAttribute;
+  }
   
   private static String makeKey(String name, String version) 
     {return name + "_" + version;}
@@ -427,10 +428,10 @@ public class DbImporter {
   static private ConcurrentHashMap<String, Traveler> getTravelerMap(PageContext pageCxt) {
     ConcurrentHashMap tmap=null;
     tmap = (ConcurrentHashMap<String, Traveler>) 
-      pageCxt.getAttribute("TRAVELER_MAP", PageContext.SESSION_SCOPE);
+      pageCxt.getAttribute(s_travelerMapAttribute, PageContext.SESSION_SCOPE);
     if (tmap == null) {
       tmap = new ConcurrentHashMap<String, Traveler>();
-      pageCxt.setAttribute("TRAVELER_MAP", tmap);
+      pageCxt.setAttribute(s_travelerMapAttribute, tmap, PageContext.SESSION_SCOPE);
     }
     return tmap;
   }
