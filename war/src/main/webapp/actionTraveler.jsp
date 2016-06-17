@@ -38,108 +38,11 @@
   <myTree:TreeVariables />
   
   <c:choose>
-    <c:when test="${param.action == 'edit' }">
 
-  <h4>Selected step:  ${sessionScope.nodePath} </h4>
-   <p>To unselect all steps use the browser refresh button</p>
-    <c:choose> 
-      <c:when test="${! empty sessionScope.leafPath }">   
-      
-     <form action="processAction.jsp" id="actionForm"  name="actionForm" 
-           target="doAction"  title="Edit Actions" onreset="clearDoAction()">
-       <fieldset>
-         <legend>Select per-step action</legend>
-       <table>
-         <tr><td><input type="submit" id="action" 
-                                            name="action" value="Display" /></td></tr>  
-         <tr><td><input type="submit" id="action" name="action"
-                                 value="Edit" /></td></tr>
-         <tr><td><input type="submit" id="action" name="action" 
-                                        value=" Add leaf sibling (NYI)" disabled /></td></tr>
-         <tr><td><input type="submit" id="action" name="action" 
-                                             value="Add folder sibling" disabled /></td></tr>
-         <tr><td><b><input class="warn" type="submit" id="action" name="action"
-                                   value="Remove (NYI)" disabled /></b></td></tr>
-     
-       </table>
-       </fieldset>
-     
-     </form>
-    </c:when>
-     <c:when test="${! empty param.folderSelectedPath}" >
-      
-     <form action="processAction.jsp" id="actionForm"  name="actionForm" 
-           target="doAction"  title="Edit Actions" onreset="clearDoAction()" >
-    
-       <fieldset>
-         <legend>Select per-step action</legend>
-       <table>
-     
-         <tr><td><input type="submit" id="action" 
-                                            name="action"value="Display" /></td></tr>  
-         <tr><td><input type="submit" id="action" name="action"
-                                 value="Edit" /></td></tr>
-   
-         <tr><td><input type="submit" id="action" name="action" 
-                                      value="Add leaf child (NYI)" disabled /></td></tr>
-         <tr><td><input type="submit" id="action" name="action" 
-                                           value="Add folder child (NYI)" disabled /></td></tr>
-         <tr><td><input type="submit" id="action" name="action" 
-                                        value="Add leaf sibling (NYI)" disabled  /></td></tr>
-         <tr><td><input type="submit" id="action" name="action" 
-                                             value="Add folder sibling (NYI)" disabled /></td></tr>
-         <tr><td >
-             <b> <input class="seriousWarn" type="submit" id="action" 
-                name="action "value="Remove step &amp; substeps! (NYI)" disabled /></b></td></tr>
-       
-       </table>
-       </fieldset>
-  
-     </form>
-      
-     </c:when>
-      <c:otherwise> <h4> NO process step selected</h4>
-        <p>Select step in navigation pane to left to see edit operations</p>
-      </c:otherwise>
-    </c:choose>
-        
-    <h4>Global Traveler Actions</h4>
-    <table><tr><td>
-    <a href="globalActions.jsp?action=list" target="doAction">List modified steps</a>
-        </td></tr> 
-  <%--    <tr><td>
-    <a href="globalActions.jsp?action=revert" target="doAction">Undo step modifications</a><br />
-      </td></tr>   --%>
-      <tr><td>
-          <b> Ingest modified traveler</b>
-          <form  action="globalActions.jsp" target="doAction">
-            
-            
-             <table ><tr>
-        <td><label for="reason"><b> Description of new process traveler: </b>
-          </label></td>
-          <td><textarea  rows="2" cols="40" id="reason"  name="reason" >
- 
-            </textarea> 
-          </td></tr>
-      <tr><td>
-          <label for="owner">
-    <b>Responsible person:</b> </label></td>
-    <td><input type="text" name="owner" cols="30" id="owner" value=""/>
-    </td></tr></table>
-      <fieldset>
-      <legend>Actions</legend>
-   
-      <input type="submit" value="ingest" name="action" />  
-      </fieldset>
-            
-            
-          </form>
-          
-   <%-- <a href="globalActions.jsp?action=ingest" target="doAction">Ingest modified traveler</a></p>
---%>   
-</td></tr>  </table>
-    </c:when>
+
+
+
+
     <c:when test="${param.action == 'view' }">
        <local:displayProcessStep />
     </c:when>

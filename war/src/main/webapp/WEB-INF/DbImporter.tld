@@ -29,11 +29,13 @@
     <function-class>org.lsst.camera.etraveler.backend.ui.DbImporter</function-class>
     <function-signature>void makeTree(javax.servlet.jsp.PageContext, java.lang.String)</function-signature>
   </function>
+  <!--
   <function>
     <name>doAction</name>
     <function-class>org.lsst.camera.etraveler.backend.ui.DbImporter</function-class>
     <function-signature>void doAction(javax.servlet.jsp.PageContext, java.lang.String)</function-signature>
-  </function>
+    </function>
+    -->
   <function>
     <name>selectedNodeAttributes</name>
     <function-class>org.lsst.camera.etraveler.backend.ui.DbImporter</function-class>
@@ -92,6 +94,7 @@
     <function-class>org.lsst.camera.etraveler.backend.ui.DbImporter</function-class>
     <function-signature>boolean selectedIsRoot(javax.servlet.jsp.PageContext)</function-signature>
   </function>
+  <!--
   <function>
     <name>saveStep</name>
     <function-class>org.lsst.camera.etraveler.backend.ui.DbImporter</function-class>
@@ -108,7 +111,8 @@
     <function-signature>java.lang.String adjustList(javax.servlet.jsp.PageContext,
                          java.lang.String)
     </function-signature>
-  </function>
+    </function>
+    -->
   <function>
     <name>makeNCR</name>
     <function-class>org.lsst.camera.etraveler.backend.ui.DbImporter</function-class>

@@ -18,7 +18,7 @@ import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 import org.freehep.webutil.tree.DefaultIconSet; // freeheptree.DefaultIconSet;
 import org.freehep.webutil.tree.Tree; // freeheptree.Tree;  
-import org.lsst.camera.etraveler.backend.ui.EditedTreeNode;
+//import org.lsst.camera.etraveler.backend.ui.EditedTreeNode;
 import org.lsst.camera.etraveler.backend.node.Prerequisite;
 import org.lsst.camera.etraveler.backend.node.PrescribedResult;
 import org.lsst.camera.etraveler.backend.node.ProcessNode;
@@ -44,20 +44,23 @@ public class TravelerTreeVisitor implements TravelerVisitor {
     public String      m_editType;
   }
   */
-  public TravelerTreeVisitor(boolean editable) {
-    m_editable = editable;
-    if (editable)  {
-      m_reason = "edit";
-    } else {
-      m_reason = "display";
+  public TravelerTreeVisitor(boolean editable) throws EtravelerException {
+    if (editable) {
+      throw
+        new EtravelerException("TravelerTreeVisitor: editing not supported");
     }
-    if (editable) m_editedNodes = new HashMap<ProcessTreeNode, String>();
+    m_editable = editable;
+    m_reason = "display";
   }
   
-  public TravelerTreeVisitor(boolean editable, String reason) {
+  public TravelerTreeVisitor(boolean editable, String reason) throws
+  EtravelerException {
+    if (editable) {
+      throw
+        new EtravelerException("TravelerTreeVisitor: editing not supported");
+    }
     m_editable = editable;
     m_reason = reason;
-    if (editable) m_editedNodes = new HashMap<ProcessTreeNode, String>();
   }
   
   public String getReason() {return m_reason;}
@@ -155,10 +158,10 @@ public class TravelerTreeVisitor implements TravelerVisitor {
         m_treeRenderer.setLeafHref(href + "&leafSelectedPath=%p");
         m_treeRenderer.setFolderHref(href + "&folderSelectedPath=%p");
 
-        if (m_editable)  {
-          m_treeRenderer.setTarget("action");
+        // if (m_editable)  {
+        //   m_treeRenderer.setTarget("action");
              
-        }
+        // }
 
         if (m_reason.equals("NCR")) {
           m_treeRenderer.setTarget("NCR");
@@ -173,59 +176,59 @@ public class TravelerTreeVisitor implements TravelerVisitor {
       System.out.println("Failed to render tree with exception: " + ex.getMessage());
     }
   }
-  public boolean addEdited(ProcessTreeNode node, String how)  {
-    if (!m_editable) return false;
+  // public boolean addEdited(ProcessTreeNode node, String how)  {
+  //   if (!m_editable) return false;
    
-    m_editedNodes.put(node, how);
-    return true;
-  }
-  public boolean undoEdited(String path) {
-    if (!m_editable) return false;
-    ProcessTreeNode theNode = null;
-    boolean ok = false;
-    Set<ProcessTreeNode> nodes = m_editedNodes.keySet();
-    for (ProcessTreeNode node: nodes) {
-      if (node.getPath().equals(path)) {
-        theNode=node;
-        String how = m_editedNodes.get(node);
-        if (how.equals("modified")) {
-          ok = theNode.getProcessNode().recover(false);
-        } else if (how.equals("modified all")) {
-          ok = theNode.getProcessNode().recoverAll(false);
-        }
-        if (ok) m_editedNodes.remove(theNode);
-        return ok;
-      }
-    }
-    return false;
-  }
+  //   m_editedNodes.put(node, how);
+  //   return true;
+  // }
+  // public boolean undoEdited(String path) {
+  //   if (!m_editable) return false;
+  //   ProcessTreeNode theNode = null;
+  //   boolean ok = false;
+  //   Set<ProcessTreeNode> nodes = m_editedNodes.keySet();
+  //   for (ProcessTreeNode node: nodes) {
+  //     if (node.getPath().equals(path)) {
+  //       theNode=node;
+  //       String how = m_editedNodes.get(node);
+  //       if (how.equals("modified")) {
+  //         ok = theNode.getProcessNode().recover(false);
+  //       } else if (how.equals("modified all")) {
+  //         ok = theNode.getProcessNode().recoverAll(false);
+  //       }
+  //       if (ok) m_editedNodes.remove(theNode);
+  //       return ok;
+  //     }
+  //   }
+  //   return false;
+  // }
   
-  public ArrayList<EditedTreeNode> getEdited() {
-    ArrayList<EditedTreeNode> edited = new ArrayList<EditedTreeNode>();
+  // public ArrayList<EditedTreeNode> getEdited() {
+  //   ArrayList<EditedTreeNode> edited = new ArrayList<EditedTreeNode>();
     
-    Set<ProcessTreeNode> nodes = m_editedNodes.keySet();
-    for (ProcessTreeNode node: nodes) {
-      EditedTreeNode e = new EditedTreeNode(node.getPath(), m_editedNodes.get(node));
-      edited.add(e);
-    }
-    return edited;
-  }
+  //   Set<ProcessTreeNode> nodes = m_editedNodes.keySet();
+  //   for (ProcessTreeNode node: nodes) {
+  //     EditedTreeNode e = new EditedTreeNode(node.getPath(), m_editedNodes.get(node));
+  //     edited.add(e);
+  //   }
+  //   return edited;
+  // }
   
-  public int getNEdited() {
-    if (m_editedNodes == null) return 0;
-    return m_editedNodes.size();
-  }
+  // public int getNEdited() {
+  //   if (m_editedNodes == null) return 0;
+  //   return m_editedNodes.size();
+  // }
   
-  public boolean clearModified() {
-    if (!m_editable) return false;
+  // public boolean clearModified() {
+  //   if (!m_editable) return false;
     /* Really should be
      *    for node in HashMap
      *        restore
      *        remove from HashMap
      */
-    m_editedNodes.clear();
-    return true;
-  }
+  //   m_editedNodes.clear();
+  //   return true;
+  // }
   int getCount() {
     m_treeNodeCount++;
     return m_treeNodeCount;
@@ -240,5 +243,5 @@ public class TravelerTreeVisitor implements TravelerVisitor {
   private String m_reason=null;
   private String m_title="The tree";
   private Traveler m_traveler=null;
-  private HashMap <ProcessTreeNode, String> m_editedNodes=null;
+  // private HashMap <ProcessTreeNode, String> m_editedNodes=null;
 }
