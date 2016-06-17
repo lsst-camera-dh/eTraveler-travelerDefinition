@@ -9,6 +9,7 @@ import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.naming.InitialContext;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -37,10 +38,12 @@ public class TravelerImageServlet extends HttpServlet {
     }
     String decodedName = URLDecoder.decode(request.getParameter("name"), "UTF-8");
     Traveler trav;
+    ConcurrentHashMap<String, Traveler> tmap = (ConcurrentHashMap<String, Traveler>)
+      request.getSession().getAttribute("TRAVELER_MAP");
     try {
       trav = DbImporter.getCachedTraveler(decodedName,
           request.getParameter("version"), request.getParameter("hgroup"),
-          request.getParameter("db"));
+          request.getParameter("db"), tmap);
     } catch (EtravelerException ex) {
       throw new ServletException(ex.getMessage());
     }

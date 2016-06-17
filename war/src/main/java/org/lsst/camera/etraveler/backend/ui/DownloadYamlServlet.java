@@ -3,6 +3,8 @@ import java.io.*;
 import java.net.URLDecoder;
 // import javax.naming.InitialContext;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 import javax.servlet.*;
 import javax.servlet.http.*;
 
@@ -28,7 +30,14 @@ public class DownloadYamlServlet extends HttpServlet {
     String subtype="";
     if (ostyle.contains("canonical")) {subtype="_canonical";}
     else if (ostyle.contains("verbose")) subtype="_verbose";
-    Traveler trav = DbImporter.getTravelerFromKey(travelerKey);
+    ConcurrentHashMap<String, Traveler> tmap;
+    tmap = (ConcurrentHashMap<String, Traveler>) 
+      request.getSession().getAttribute("TRAVELER_MAP");
+    if (tmap == null)  {
+      tmap = new ConcurrentHashMap<String, Traveler> ();
+      request.getSession().setAttribute("TRAVELER_MAP", tmap);
+    }
+    Traveler trav = DbImporter.getTravelerFromKey(travelerKey, tmap);
     String fname = travelerKey.replace('@', '_') + subtype + ".yaml";
    
     response.setContentType("text/plain");

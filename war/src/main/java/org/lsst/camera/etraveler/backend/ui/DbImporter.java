@@ -47,21 +47,23 @@ import org.srs.web.base.filters.modeswitcher.ModeSwitcherFilter;
  */
 public class DbImporter { 
  
-  static ConcurrentHashMap<String, Traveler> s_travelers =
-      new ConcurrentHashMap<String, Traveler>();
- 
+  //static ConcurrentHashMap<String, Traveler> s_travelers = 
+  //    new ConcurrentHashMap<String, Traveler>();
+  
   private static String makeKey(String name, String version) 
     {return name + "_" + version;}
 
-  public static String makeKey(String name, String version, String hgroup, 
+  private static String makeKey(String name, String version, String hgroup, 
       String dbType) {
     return name + "_" + version + "_" + hgroup + "@" + dbType;
   }
-  public static Traveler getTraveler(String name, String version, 
+  private static Traveler getTraveler(String name, String version, 
                                      String hgroup, String dbType, 
-                                     String datasource) 
+                                      String datasource, PageContext pageCxt) 
     throws EtravelerException {
-    ConcurrentHashMap<String, Traveler> travelers=s_travelers;
+    ConcurrentHashMap<String, Traveler> travelers =
+      getTravelerMap(pageCxt);
+      // =s_travelers;
 
     String key = makeKey(name, version, hgroup, dbType);
     ProcessNode travelerRoot = null;
@@ -98,10 +100,11 @@ public class DbImporter {
     return traveler;
   }
 
-  public static ProcessNode getProcess(String name, String version, 
-      String hgroup, String dbType, String datasource) 
+  private static ProcessNode getProcess(String name, String version, 
+                                        String hgroup, String dbType,
+                                        String datasource, PageContext pc) 
     throws EtravelerException {
-    return getTraveler(name, version, hgroup, dbType, datasource).getRoot();
+    return getTraveler(name, version, hgroup, dbType, datasource, pc).getRoot();
   }
   public static String retrieveProcess(PageContext context)  {
     return retrieveProcess(context, true);
@@ -119,7 +122,7 @@ public class DbImporter {
         "etravelerDb");
     ProcessNode traveler = null;
     try {
-      traveler = getProcess(name, version, hgroup, dbType, datasource);
+      traveler = getProcess(name, version, hgroup, dbType, datasource, context);
     } catch (EtravelerException ex) {
       return("Failed to retrieve process with exception: " + ex.getMessage() );
     }
@@ -274,7 +277,7 @@ public class DbImporter {
   
     try {
       originalTraveler = 
-        getTraveler(name, version, hgroup, dbType, datasource);
+        getTraveler(name, version, hgroup, dbType, datasource, context);
       originalTravelerRoot = originalTraveler.getRoot();
     } catch (EtravelerException ex) {
       try {
@@ -346,7 +349,7 @@ public class DbImporter {
         "etravelerDb");
     ProcessNode traveler = null;
     try {
-      traveler = getProcess(name, version, hgroup, dbType, datasource);
+      traveler = getProcess(name, version, hgroup, dbType, datasource, context);
     } catch (EtravelerException ex) {
       System.out.println("Failed to retrieve process with exception: " + ex.getMessage() );
       return;
@@ -400,20 +403,37 @@ public class DbImporter {
    * @return 
    */
   static public Traveler 
-    getCachedTraveler(String name, String version, String hgroup, String db) 
+    getCachedTraveler(String name, String version, String hgroup, String db,
+                      ConcurrentHashMap<String, Traveler> tmap) 
     throws EtravelerException {
     if ((name == null) || (version == null) || (hgroup == null) || (db == null)) {
       throw new EtravelerException("Incomplete input to getCachedTraveler(name, version, hgroup, db)");
     }
     String key = makeKey(name, version, hgroup, db);
-    return s_travelers.get(key);
+    return tmap.get(key);
   }
   
-  static public Traveler getTravelerFromKey(String key) {
-    Traveler trav = s_travelers.get(key);
+  static public Traveler
+    getTravelerFromKey(String key, ConcurrentHashMap<String, Traveler> tmap) {
+    Traveler trav = tmap.get(key);
     return trav;
   }
   
+  /**
+   * Access data structure saved in session variable, used to cache
+   * traveler definitions for display.  If it doesn't already exist
+   * allocate and store in the session variable
+   */
+  static private ConcurrentHashMap<String, Traveler> getTravelerMap(PageContext pageCxt) {
+    ConcurrentHashMap tmap=null;
+    tmap = (ConcurrentHashMap<String, Traveler>) 
+      pageCxt.getAttribute("TRAVELER_MAP", PageContext.SESSION_SCOPE);
+    if (tmap == null) {
+      tmap = new ConcurrentHashMap<String, Traveler>();
+      pageCxt.setAttribute("TRAVELER_MAP", tmap);
+    }
+    return tmap;
+  }
   /**
     * Do selected action on current traveler/process step. 
     * Can find tree visitor (hence traveler) and selected step path
@@ -682,7 +702,8 @@ public class DbImporter {
     
     String dbType = ModeSwitcherFilter.getVariable(context.getSession(), 
                                                    "dataSourceMode");
-    return getCachedTraveler(name, version, hgroup, dbType);
+    return getCachedTraveler(name, version, hgroup, dbType,
+                             getTravelerMap(context));
   }
     
   /* Probably need to do something here for relationship tasks */
