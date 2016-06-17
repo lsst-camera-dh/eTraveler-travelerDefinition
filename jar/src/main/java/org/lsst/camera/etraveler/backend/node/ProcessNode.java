@@ -477,7 +477,6 @@ public class ProcessNode implements  TravelerElement
       throws EtravelerException {
     visitor.visit(this, activity, cxt);
   }
-  
  
   /**
    * Interface for importing process nodes from another representation.
@@ -522,12 +521,6 @@ public class ProcessNode implements  TravelerElement
     void finishImport(ProcessNode process);
   }
   
-  public void makeDot(Writer writer) throws EtravelerException {
-    TravelerDotVisitor vis = new TravelerDotVisitor();
-    vis.initOutput(writer, "\n");
-    vis.visit(this, "dot file", null);
-    vis.endOutput();
-  }
   /**
    * Interface for exporting a process node to another representation, such
    * as a text file
