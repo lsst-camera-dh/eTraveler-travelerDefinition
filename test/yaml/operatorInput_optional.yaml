@@ -18,6 +18,9 @@ Sequence:
           InputSemantics: int
           MinValue: 0
           MaxValue: 10
+        -
+          Label: Lots of text
+          InputSemantics: text
         - 
           Label: Displacement
           Units: mm

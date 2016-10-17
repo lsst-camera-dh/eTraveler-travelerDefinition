@@ -82,10 +82,12 @@ public class ProcessNode implements  TravelerElement
   private void copyFrom(ProcessNode model) {
     m_hardwareGroup = new String(model.m_hardwareGroup);
     // This will go
+    /*
     if (model.m_hardwareRelationshipType != null)  {
       m_hardwareRelationshipType = new String(model.m_hardwareRelationshipType);
       m_hardwareRelationshipSlot = new String(model.m_hardwareRelationshipSlot);
     }
+    */
     // ... down to here
 
     if (model.m_userVersionString != null) 
@@ -323,10 +325,12 @@ public class ProcessNode implements  TravelerElement
     if (m_hardwareGroup != null)
       pList.add(new Attribute("hardware group", m_hardwareGroup));
     // This section will go at some point
+    /*
     if (m_hardwareRelationshipType != null) {
       pList.add(new Attribute("hardware relationship type", m_hardwareRelationshipType));
       pList.add(new Attribute("hardware relationship slot", m_hardwareRelationshipSlot));
     }
+    */
     //    ... through here
     pList.add(new Attribute("description", m_description));
     pList.add(new Attribute("short description", m_shortDescription));
@@ -587,7 +591,7 @@ public class ProcessNode implements  TravelerElement
          interpretation of some other fields */
       ptarget.acceptTravelerActionMask(m_travelerActionMask);
 
-      if (m_hardwareRelationshipType == null) m_hardwareRelationshipSlot = null;
+      //if (m_hardwareRelationshipType == null) m_hardwareRelationshipSlot = null;
       ptarget.acceptVersion(m_version);
       ptarget.acceptUserVersionString(m_userVersionString);
       ptarget.acceptShortDescription(m_shortDescription);
@@ -830,8 +834,10 @@ public class ProcessNode implements  TravelerElement
   private boolean m_hasClones=false;
   private boolean m_isRef=false;
   private String m_hardwareGroup=null;
+  /* obsolete??
   private String m_hardwareRelationshipType=null;
   private String m_hardwareRelationshipSlot="1";
+  */
   private String m_processId=null;
   private String m_version=null;
   private String m_userVersionString="";

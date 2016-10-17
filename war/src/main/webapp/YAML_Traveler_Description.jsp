@@ -55,7 +55,7 @@
       <h2>Keys Taking a Scalar Value</h2>
       <p>Key names in <span class='redError'><b>red</b></span> are not yet fully implemented.</p>
       <dl>
-        <dt class="redError">AddLabel:</dt>
+        <dt>AddLabel:</dt>
         <dd>Value is label to be added to the component on which the traveler is being executed.  The
           label must have already been defined.<br /><br /></dd>
         <dt>Clone:</dt>
@@ -101,7 +101,7 @@
           which case operator will be prompted with menu of known locations.
           <br /><br />
         </dd>
-        <dt class="redError">NewStatus:</dt>
+        <dt>NewStatus:</dt>
         <dd>
           <p>Status to which component is to be set. Must be defined in database
           as a known status value or must be the string
@@ -139,7 +139,7 @@
           process step in the data base with name = value of RefName: and 
           the same hardware group as this traveler.<br /><br />
         </dd>
-        <dt class="redError">RemoveLabel:</dt>
+        <dt>RemoveLabel:</dt>
         <dd>Value is label to be removed from the component on which the traveler is being executed.  The
           label must have already been defined (and should be associated with
           the component at the start of the step).<br /><br /></dd>
@@ -272,7 +272,7 @@
         <dt><br />RelationshipTasks:</dt>
         <dd>
 	The value for this key is a list of RelationshipTask nodes.  Each such node
-        is a dict with two fields, both required:
+        is a dict with three fields.  The first two are required, the third is optional.
         <dl>
            <dt>RelationshipName:</dt>
            <dd>Must match the name of a relationship type previously defined in the
@@ -281,6 +281,11 @@
            <dd>One of a known, enumerated set.  Currently that set includes 'assign',
             'install', 'deassign' and 'uninstall'.           
            </dd>
+           <dt><span class='redError'>RelationshipSlot:</span></dt>
+           <dd>May be one of the slot names belonging to the relationship specified by RelationshipName, 
+               the string 'ALL' or the string '(?)', in which case the operator will be presented with
+               a menu of possibilities. If not supplied, defaults to 'ALL' (old behavior).
+           </dd>	   
         </dl>
         </dd>
         <dt name="RequiredInputs" id="RequiredInputs" ><br />RequiredInputs:</dt>
@@ -312,10 +317,10 @@
 	<dd>Value is a list, taken from a predefined set of properties in the database.
          Commonly-used properties include HarnessedJob and Automatable. Other known
          values will be supplied automatically when corresponding scalar keys are
-         used.  These include <span class='redError'>SetHardwareStatus (NewStatus:)</span>, 
+         used.  These include SetHardwareStatus (NewStatus:), 
          SetHardwareLocation (NewLocation:), 
-         <span class='redError'>AddLabel (AddLabel:)</span> and 
-         <span class='redError'>RemoveLabel (RemoveLabel:)</span> 
+         AddLabel (AddLabel:) and 
+         RemoveLabel (RemoveLabel:)
          If any of these appear under TravelerActions: without
          the corresponding key, at execution time the Operator will be prompted with
          a menu of suitable possibilities. (Here the same convention is being followed:

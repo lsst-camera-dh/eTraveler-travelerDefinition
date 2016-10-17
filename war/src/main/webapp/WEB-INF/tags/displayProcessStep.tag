@@ -70,12 +70,13 @@
       </c:if>
 
        <c:if test="${import:getRelationshipTaskCount(pageContext) > 0}">
-        <h3>Hardware relationships</h3>
+        <h3>Hardware Relationships</h3>
         <display:table name="${import:getRelationshipTasks(pageContext)}"
                        class="datatable" uid="relationship" >
           <display:column property="name" title="Name" 
                           sortable="true" style="text-align:left"/>
           <display:column property="action" title="Action" style="text-align:left"/>
+          <display:column property="slot" title="Slot descriptor" style="text-align:left"/>
         </display:table>
       </c:if>
 

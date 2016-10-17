@@ -27,6 +27,10 @@ public class RelationshipTaskToYaml implements RelationshipTask.ExportTarget {
     m_data.put("RelationshipAction", action);
   }
 
+  public void acceptRelationshipSlot(String slot) {
+    m_data.put("RelationshipSlot", slot);
+  }
+
   public void acceptRelationshipTaskId(String id) {
     if (m_vis.getIncludeDbInternal()) {
       m_data.put("FromSourceRelationshipTaskId", id);

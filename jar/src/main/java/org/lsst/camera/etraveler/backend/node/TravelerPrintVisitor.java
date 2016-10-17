@@ -226,6 +226,9 @@ public class TravelerPrintVisitor
                      m_relationshipName + s_eol);
       m_writer.write(leadingBlanks + "Relationship action: " + 
                      m_relationshipAction + s_eol);
+      m_writer.write(leadingBlanks + "Relationship slot: " + 
+                     m_relationshipSlot + s_eol);
+
     } catch (IOException ex) {
       System.out.println("Exception while writing relationship task:");
       System.out.println(ex.getMessage());
@@ -261,7 +264,7 @@ public class TravelerPrintVisitor
  
   public void setWriter(Writer writer)  {m_writer = writer;}
   private void resetProcessScalars() {
-    m_id=null; m_name=null;     m_hardwareRelationshipType=null;
+    m_id=null; m_name=null;   //  m_hardwareRelationshipType=null;
     m_hardwareGroup=null; m_version=null; m_userVersionString=null; m_description=null;
     m_maxIteration=null; m_substeps=null; m_travelerActionMask=0;
     m_originalId=null; m_condition=null; m_newLocation=null;
@@ -280,6 +283,7 @@ public class TravelerPrintVisitor
   private void resetRelationshipTask() {
     m_relationshipName= null;
     m_relationshipAction=null;
+    m_relationshipSlot=null;
   }
 
   // Implementation of ProcessNode.ExportTarget
@@ -288,12 +292,14 @@ public class TravelerPrintVisitor
   public void acceptHardwareGroup(String hardwareGroup) {m_hardwareGroup  = hardwareGroup;}
 
   // Next few lines will go..
+  /*
   public void acceptHardwareRelationshipType(String hardwareRelationshipType ) {
     m_hardwareRelationshipType  = hardwareRelationshipType;
   }
    public void acceptHardwareRelationshipSlot(String hardwareRelationshipSlot ) {
     m_hardwareRelationshipSlot  = hardwareRelationshipSlot;
   }
+  */
   // .. down to here
 
   public void acceptVersion(String version) {m_version = version;}
@@ -377,6 +383,9 @@ public class TravelerPrintVisitor
   public void acceptRelationshipAction(String action) {
     m_relationshipAction=action;
   }
+  public void acceptRelationshipSlot(String slot) {
+    m_relationshipSlot=slot;
+  }
   public void acceptRelationshipParent(ProcessNode process) { }
   public void acceptRelationshipTaskId(String id) {}
 
@@ -417,8 +426,8 @@ public class TravelerPrintVisitor
   private String m_hardwareGroup=null;
 
   // delete next couple lines someday
-  private String m_hardwareRelationshipType=null;
-  private String m_hardwareRelationshipSlot="1";
+  //  private String m_hardwareRelationshipType=null;
+  //  private String m_hardwareRelationshipSlot="1";
   //   .. down to here
   private String m_version=null;
   private String m_userVersionString=null;
@@ -455,6 +464,7 @@ public class TravelerPrintVisitor
   // Store relationship task contents   until we're ready to write
   private String m_relationshipName=null;
   private String m_relationshipAction=null;
+  private String m_relationshipSlot=null;
 
   // Store prescribed result contents until we're ready to write
   private String m_label=null;

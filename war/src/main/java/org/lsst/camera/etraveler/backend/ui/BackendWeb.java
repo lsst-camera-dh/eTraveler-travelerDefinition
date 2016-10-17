@@ -31,17 +31,19 @@ public class BackendWeb {
     String groupArg = cxt.getAttribute("group").toString();
     String versionArg = cxt.getAttribute("version").toString();
     String stateArg = cxt.getAttribute("state").toString();
+    String subArg = cxt.getAttribute("subsystem").toString();
     
     String oldwhere = " where (rootProcessId=Process.id)  and (Process.hardwareGroupId=HardwareGroup.id)" ;
    
     oldwhere += " order by Process.name, Process.version desc";
     /* Include two fake columns, values to be overwritten by displayTable decorator */
     String[] cols = {"P.name as name", "P.version as version", "HG.name as hname",
-      "HG.id as hgid",
+      "HG.id as hgid", "S.name as subsystem",
       "P.shortDescription as description", "P.createdBy", "P.creationTS", "TTS.name as state", 
       "'vw' as viewEdit", "'an' as addNCR"};
     String tableSpec = "Process P inner join TravelerType TT on P.id=TT.rootProcessId ";
     tableSpec += "inner join HardwareGroup HG on HG.id=P.hardwareGroupId ";
+    tableSpec += "inner join Subsystem S on S.id=TT.subsystemId ";
     tableSpec += "inner join TravelerTypeStateHistory TTSH on TT.id=TTSH.travelerTypeId ";
     tableSpec += "and TTSH.id=(select max(id) from TravelerTypeStateHistory";
     tableSpec +=" where travelerTypeId=TT.id) ";
@@ -56,6 +58,9 @@ public class BackendWeb {
     }
     if (! stateArg.equals("any"))  {
       where += " and TTS.name='" + stateArg +"' ";
+    }
+    if (! subArg.equals("any")) {
+      where += " and S.name='" + subArg + "' ";
     }
     if (versionArg.equals("latest")) {
       where += " and P.version=(select max(version) from Process where ";

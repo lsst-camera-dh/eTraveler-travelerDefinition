@@ -17,7 +17,8 @@ public class RelationshipTaskDb implements RelationshipTask.Importer,
     s_tagTableQuery = null;
   }
 
-  private static String[] s_tagTableCols = {"MRT.name", "MRA.name"};
+  private static String[] s_tagTableCols = {"MRT.name", "MRA.name", "PRT.slotForm",
+                                            "PRT.multiRelationshipSlotTypeId"};
 
   /**
    * use this constructor when building for export from RelationshipTask 
@@ -58,8 +59,21 @@ public class RelationshipTaskDb implements RelationshipTask.Importer,
     int ix = 0;
     m_name = rs.getString(++ix);
     m_action =  rs.getString(++ix);
-   
+    m_slotForm = rs.getString(++ix);
+    m_slotId = rs.getString(++ix);
     rs.close();
+    
+    if (m_slotForm.equals("ALL")) {
+      m_slotname="ALL";
+    } else if (m_slotForm.equals("QUERY")) {
+      m_slotname="(?)";
+    } else if (m_slotForm.equals("SPECIFIED")) { // look up name
+      m_slotname = connect.fetchColumn("MultiRelationshipSlotType", "slotname",
+                                         " where id='" + m_slotId + "'");
+    } else { // unrecognized
+      throw new EtravelerException("No such slot type specification as " + m_slotForm);
+    }
+
   }   // end constructor
 
   /*
@@ -90,12 +104,29 @@ public class RelationshipTaskDb implements RelationshipTask.Importer,
       throw new EtravelerException("Relationship type " + m_name +
           " is not compatible with this traveler's hardware group");
     }
+    if (m_slotname.equals("") || m_slotname.equals("ALL")) {
+      m_slotId=null;
+      m_slotForm="ALL";
+    } else if (m_slotname.equals("(?)") ) {
+      m_slotId=null;
+      m_slotForm="QUERY";
+    } else {
+      m_slotForm="SPECIFIED";
+      m_slotId = m_connect.fetchColumn(
+        "MultiRelationshipType MRT join MultiRelationshipSlotType MRST on " +
+        "MRT.id=MRST.multiRelationshipTypeId", "MRST.id", "where MRST.slotname='"
+        + m_slotname + "'");
+      if (m_slotId == null) {
+        throw new EtravelerException("Relationship type " + m_name +
+                                    " has no slot with name " + m_slotname);
+      }
+    }
     m_verified = true;
   }
 
   private static String[] s_insertTagCols=
-  {"processId", "multiRelationshipTypeId", "multiRelationshipActionId", 
-    "createdBy"};
+  {"processId", "multiRelationshipTypeId", "multiRelationshipActionId",
+   "multiRelationshipSlotTypeId", "slotForm", "createdBy"};
 
   void writeToDb(DbConnection connect, ProcessNodeDb parent, String user) 
     throws    SQLException {
@@ -103,7 +134,9 @@ public class RelationshipTaskDb implements RelationshipTask.Importer,
     vals[0] = parent.provideId();
     vals[1] = m_relationshipId;
     vals[2] = m_actionId;
-    vals[3] = user;
+    vals[3] = m_slotId;
+    vals[4] = m_slotForm;
+    vals[5] = user;
  
     try {
       m_tagId = m_connect.doInsert("ProcessRelationshipTag", s_insertTagCols, vals, "", 
@@ -118,11 +151,13 @@ public class RelationshipTaskDb implements RelationshipTask.Importer,
 
   // Importer interface
   public String provideRelationshipName() {return m_name;}
-  public String provideRelationshipAction() {return m_action;} 
+  public String provideRelationshipAction() {return m_action;}
+  public String provideRelationshipSlot() {return m_slotname;}
   
   // ExportTarget interface
   public void acceptRelationshipName(String name) { m_name = name;}
   public void acceptRelationshipAction(String action) { m_action = action;}
+  public void acceptRelationshipSlot(String slot) {m_slotname = slot;}
   public void acceptRelationshipParent(ProcessNode parent) {m_parent=parent;}
   public void acceptRelationshipTaskId(String id) {m_tagId = id;}
   
@@ -130,9 +165,12 @@ public class RelationshipTaskDb implements RelationshipTask.Importer,
   private String m_tagId=null; /* this id is for entry in ProcessRelationshipTag */
   private String m_name="";
   private String m_action="";
+  private String m_slotname="";
   private ProcessNode m_parent=null;
   private String m_relationshipId=null;
   private String m_actionId=null;
+  private String m_slotId=null;
+  private String m_slotForm="ALL";
  
   private DbConnection m_connect=null;
   private boolean m_verified=false;
