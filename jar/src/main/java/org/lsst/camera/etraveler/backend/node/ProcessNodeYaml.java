@@ -318,6 +318,10 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
           if (maxI < 1)  {
             throw new WrongTypeYamlValue("maxIteration", v, "Process");
           }
+          if ((parent == null) && (maxI != 1)) {
+            throw new
+              EtravelerException("MaxIteration for root step must be 1");
+          }
         } catch (NumberFormatException e) {
           throw new WrongTypeYamlValue("maxIteration", v, "Process");
         }

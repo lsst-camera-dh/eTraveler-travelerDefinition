@@ -323,8 +323,7 @@
          RemoveLabel (RemoveLabel:)
          If any of these appear under TravelerActions: without
          the corresponding key, at execution time the Operator will be prompted with
-         a menu of suitable possibilities. (Here the same convention is being followed:
-         <span class='redError'>red</span> means not yet fully implemented.
+         a menu of suitable possibilities. 
         </dd>
       </dl>
       <h2 id='ref_clone'>Referenced and Cloned Steps</h2>

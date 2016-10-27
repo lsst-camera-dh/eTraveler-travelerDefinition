@@ -1,7 +1,9 @@
 package org.lsst.camera.etraveler.backend.node;
 import org.lsst.camera.etraveler.backend.exceptions.UnknownDbId;
 import org.lsst.camera.etraveler.backend.exceptions.EtravelerException;
+import org.lsst.camera.etraveler.backend.exceptions.EtravelerWarning;
 import org.lsst.camera.etraveler.backend.db.DbConnection;
+import java.io.Writer;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -107,7 +109,24 @@ public class RelationshipTaskDb implements RelationshipTask.Importer,
     if (m_slotname.equals("") || m_slotname.equals("ALL")) {
       m_slotId=null;
       m_slotForm="ALL";
-    } else if (m_slotname.equals("(?)") ) {
+      m_verified = true;
+      return;
+    }
+    /* If there only is one slot, issue warning and switch to "ALL" */
+    String nSlot = m_connect.fetchColumn(
+        "MultiRelationshipType MRT join MultiRelationshipSlotType MRST on " +
+        "MRT.id=MRST.multiRelationshipTypeId", "count(MRST.slotname)",
+        "where MRT.id='"
+        + m_relationshipId + "'");
+    if (Integer.parseInt(nSlot) == 1) {
+      // print warning.  Only ALL makes sense
+      m_slotForm="ALL";
+      m_slotId=null;
+      m_verified = true;
+      throw new
+        EtravelerWarning("Slot form set to ALL for single-slot relationship type");
+    }
+    if (m_slotname.equals("(?)") ) {
       m_slotId=null;
       m_slotForm="QUERY";
     } else {

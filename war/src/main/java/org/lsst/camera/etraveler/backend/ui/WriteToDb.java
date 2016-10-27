@@ -116,12 +116,14 @@ public class WriteToDb {
 
   public static String writeNCRToDb(NCRSpecification ncr, String user, 
                                     boolean useTransactions, String dbType,
-                                    String dataSource) {
+                                    String dataSource, PageContext cxt) {
+    JspWriter wrt = cxt.getOut();
+
     if (!dbType.equals(ncr.getDbType())) return "db type match failure";
     DbConnection conn = makeConnection(dbType, dataSource);
     if (conn == null) return "Unable to get db connection for " + dbType;
     conn.setSourceDb(dbType);
-    TravelerToDbVisitor vis = new TravelerToDbVisitor(conn);
+    TravelerToDbVisitor vis = new TravelerToDbVisitor(conn, wrt, "<br />");
     vis.setUseTransactions(useTransactions);
     vis.setUser(user);
   

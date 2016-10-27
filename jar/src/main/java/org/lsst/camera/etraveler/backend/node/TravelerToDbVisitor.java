@@ -4,6 +4,7 @@
  */
 package org.lsst.camera.etraveler.backend.node;
 import org.lsst.camera.etraveler.backend.exceptions.EtravelerException;
+import java.io.Writer;
 import java.sql.SQLException;
 import org.lsst.camera.etraveler.backend.db.DbConnection;
 
@@ -12,8 +13,10 @@ import org.lsst.camera.etraveler.backend.db.DbConnection;
  * @author jrb
  */
 public class TravelerToDbVisitor implements TravelerVisitor  {
-  public TravelerToDbVisitor(DbConnection connection) {
+  public TravelerToDbVisitor(DbConnection connection, Writer wrt, String eol) {
     m_connect = connection;
+    m_writer = wrt;
+    m_eol = eol;
   }
   public void setUser(String user) {
     m_user = user;
@@ -36,7 +39,7 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
       } catch (SQLException ex) {
         throw new EtravelerException("SQL failure setting AutoCommit");
       }
-      m_processNodeDb.verify(m_connect, m_subsystem);
+      m_processNodeDb.verify(m_connect, m_subsystem, m_writer, m_eol);
     }  else if (activity.equals("write"))  {
       /* Perhaps pass reason string in cxt argument.  Then
        * pass as argument to registerTraveler
@@ -108,6 +111,8 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
   private ProcessNode m_process = null;
   private ProcessNodeDb m_processNodeDb=null;
   private DbConnection m_connect = null;
+  private Writer m_writer = null;
+  private String m_eol = "";
   private boolean m_useTransactions = true;
   private String m_user = null;
   private NCRSpecificationDb m_specDb = null;

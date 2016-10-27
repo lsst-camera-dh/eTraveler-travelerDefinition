@@ -30,6 +30,7 @@ public class Traveler {
   private String m_source=null;  // e.g. db, yaml
   private String m_sourceDb="[none]";  // dataSourceMode value or "[none]"
   private String m_subsystem=null;
+  private String m_eol="";
 
   /**
    *   Create Traveler wrapper for in-memory traveler def (i.e.,
@@ -75,20 +76,21 @@ public class Traveler {
    *  @param wrt  Used to write error messages or warnings
    */
    public Traveler(String fileContents, boolean nameWarning,
-                   Writer wrt, String eol)  throws IOException {    
-    Yaml yaml = new Yaml(true);
-    Map yamlMap = null;
-    String nameHandling="none";
-    if (nameWarning) nameHandling="warn";
-    else nameHandling="error";
-    try {
-      yamlMap = (Map<String, Object>) yaml.load(fileContents);
-    } catch (Exception ex) {
-      System.out.println("Failed to load yaml with exception " + ex.getMessage());
-      wrt.write("Failed to load yaml with exception '"
-                + ex.getMessage() + "'" + eol);
-      return;
-    }
+                   Writer wrt, String eol)  throws IOException {
+     m_eol = eol;
+     Yaml yaml = new Yaml(true);
+     Map yamlMap = null;
+     String nameHandling="none";
+     if (nameWarning) nameHandling="warn";
+     else nameHandling="error";
+     try {
+       yamlMap = (Map<String, Object>) yaml.load(fileContents);
+     } catch (Exception ex) {
+       System.out.println("Failed to load yaml with exception " + ex.getMessage());
+       wrt.write("Failed to load yaml with exception '"
+                 + ex.getMessage() + "'" + eol);
+       return;
+     }
     ProcessNodeYaml topYaml = new ProcessNodeYaml(wrt, eol, nameHandling);
     boolean namesOk = true;
     try {
@@ -229,7 +231,7 @@ public class Traveler {
    */
   public String writeToDb(String user, boolean useTransactions, 
                           boolean ingest, String reason, String owner,
-                          HttpServletRequest req, Writer errWriter) 
+                          HttpServletRequest req, Writer errWriter)
   throws IOException {
     return writeToDb(user, useTransactions, ingest, reason, owner,
                      new SessionData(req), errWriter);
@@ -250,7 +252,7 @@ public class Traveler {
    */
   public String writeToDb(String user, boolean useTransactions, 
                           boolean ingest, String reason, String owner,
-                          SessionData sessionData, Writer errWriter) 
+                          SessionData sessionData, Writer errWriter)
   throws IOException {
 
     String dbType = sessionData.getDbType();
@@ -263,7 +265,8 @@ public class Traveler {
     }
     conn.setSourceDb(dbType);
 
-    TravelerToDbVisitor vis = new TravelerToDbVisitor(conn);
+    TravelerToDbVisitor vis = new TravelerToDbVisitor(conn, errWriter,
+                                                      m_eol);
     vis.setUseTransactions(useTransactions);
     vis.setUser(user);
 
@@ -384,7 +387,7 @@ public class Traveler {
     }
     try {
       String retStatus = trav.writeToDb(operator, true, imp, reason, 
-        responsible, sessionData, wrt);
+                                        responsible, sessionData, wrt);
       String msg = wrt.toString();
       if (msg != null) {
         if (msg.isEmpty()) {
