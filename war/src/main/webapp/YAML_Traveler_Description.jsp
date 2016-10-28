@@ -281,10 +281,12 @@
            <dd>One of a known, enumerated set.  Currently that set includes 'assign',
             'install', 'deassign' and 'uninstall'.           
            </dd>
-           <dt><span class='redError'>RelationshipSlot:</span></dt>
+           <dt>RelationshipSlot:</dt>
            <dd>May be one of the slot names belonging to the relationship specified by RelationshipName, 
-               the string 'ALL' or the string '(?)', in which case the operator will be presented with
-               a menu of possibilities. If not supplied, defaults to 'ALL' (old behavior).
+               or the string 'ALL'. <%-- or the string '(?)', in which case the operator will be presented with
+               a menu of possibilities.--%> If not supplied, defaults to 'ALL' (old behavior). If there only
+               is one slot and it is specified by name in the YAML file, that specification will be changed
+               to 'ALL' when the file is ingested.
            </dd>	   
         </dl>
         </dd>

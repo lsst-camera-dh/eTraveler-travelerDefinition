@@ -1,0 +1,22 @@
+Name: DEF-ASM_Pie
+ShortDescription: add ice cream scoop at a time in one step
+Description: Test various features of RelationshipTask parsing
+HardwareGroup: applePie
+Subsystem: Default
+Sequence:
+- Name: DEF-ASM_Pie-assemble1
+  ShortDescription: Install all scoops with separate actions
+  RelationshipTasks:
+  - {RelationshipName: alaMode,
+     RelationshipAction: install,
+     RelationshipSlot: '(?)'}
+  - {RelationshipName: alaMode,
+     RelationshipAction: install,
+     RelationshipSlot: scoopTwo}
+  MaxIteration: '1'
+  Version: next
+#- Name: DEF-ASM_Pie-assemble2
+#  ShortDescription: Second scoop of ice cream
+#  RelationshipTasks:
+
+

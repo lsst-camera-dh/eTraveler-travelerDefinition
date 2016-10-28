@@ -67,7 +67,7 @@ public class RelationshipTaskDb implements RelationshipTask.Importer,
     
     if (m_slotForm.equals("ALL")) {
       m_slotname="ALL";
-    } else if (m_slotForm.equals("QUERY")) {
+          } else if (m_slotForm.equals("QUERY")) {
       m_slotname="(?)";
     } else if (m_slotForm.equals("SPECIFIED")) { // look up name
       m_slotname = connect.fetchColumn("MultiRelationshipSlotType", "slotname",
@@ -126,20 +126,22 @@ public class RelationshipTaskDb implements RelationshipTask.Importer,
       throw new
         EtravelerWarning("Slot form set to ALL for single-slot relationship type");
     }
-    if (m_slotname.equals("(?)") ) {
-      m_slotId=null;
-      m_slotForm="QUERY";
-    } else {
-      m_slotForm="SPECIFIED";
-      m_slotId = m_connect.fetchColumn(
-        "MultiRelationshipType MRT join MultiRelationshipSlotType MRST on " +
-        "MRT.id=MRST.multiRelationshipTypeId", "MRST.id", "where MRST.slotname='"
-        + m_slotname + "'");
-      if (m_slotId == null) {
-        throw new EtravelerException("Relationship type " + m_name +
-                                    " has no slot with name " + m_slotname);
-      }
+    // Don't support QUERY for now
+    //    if (m_slotname.equals("(?)") ) {
+    //      m_slotId=null;
+    //      m_slotForm="QUERY";
+    //    } else {
+    m_slotForm="SPECIFIED";
+    m_slotId = m_connect.fetchColumn("MultiRelationshipType MRT join " +
+                                     "MultiRelationshipSlotType MRST on " +
+                                     "MRT.id=MRST.multiRelationshipTypeId",
+                                     "MRST.id", "where MRST.slotname='"
+                                     + m_slotname + "'");
+    if (m_slotId == null) {
+      throw new EtravelerException("Relationship type " + m_name +
+                                   " has no slot with name " + m_slotname);
     }
+    // }
     m_verified = true;
   }
 
