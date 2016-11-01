@@ -406,7 +406,11 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
                             if (act.equals("AddLabel")) {
                               m_travelerActionMask |= TravelerActionBits.ADD_LABEL;
                             } else {
-                              throw new UnrecognizedYamlKey(act, "TravelerActions");
+                              if (act.equals("Repeatable")) {
+                                m_travelerActionMask |= TravelerActionBits.REPEATABLE;
+                              } else {
+                                throw new UnrecognizedYamlKey(act, "TravelerActions");
+                              }
                             }
                           }
                         }

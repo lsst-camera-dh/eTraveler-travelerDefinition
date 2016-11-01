@@ -656,6 +656,19 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     }   else { // assuming we checked compatibility of child earlier
       m_hardwareGroupId = m_dbParent.m_hardwareGroupId;
     }
+    if ((m_travelerActionMask & TravelerActionBits.REPEATABLE) != 0) {
+      try {
+        checkRetries();
+      }
+      catch (EtravelerWarning warnEx) {
+        System.out.println(warnEx.getMessage());
+        try {
+          wrt.write(eol + warnEx.getMessage() + eol);
+        } catch (IOException ioEx) {
+          // do nothing
+        }
+      }
+    }
     if (m_newStatus != null) {
       if ((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_STATUS) != 0) {
         if (m_hardwareStatusIdMap.containsKey(m_newStatus)) {
@@ -1099,7 +1112,14 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
                          ex.getMessage());
       throw ex;
     }
-  }  
+  }
+  private void checkRetries() throws EtravelerWarning {
+    if (Integer.parseInt(m_maxIteration) > 1) {
+      m_maxIteration = "1";
+      throw new
+        EtravelerWarning("Max iteration count > 1 incompatible with Repeatable step; count set back to 1");
+    }
+  }
  
   /* Pick a separator string unlikely to appear in any actual db entry */
   private static final String GLUE = "%&*";

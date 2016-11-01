@@ -84,7 +84,9 @@
         <dt>MaxIteration:</dt>
         <dd>
           The number of tries allowed without special, privileged intervention.
-          Defaults to 1.<br /><br />
+          Defaults to 1.  If the step is repeatable and MaxIteration
+	  has a value > 1 in the YAML file, ingest will issue a warning and
+	  set the iteration count back to 1.<br /><br />
         </dd>
         <dt id="Name">Name:</dt>
         <dd>
@@ -317,7 +319,12 @@
           executed in sequence.  Value is a list of process nodes.</dd>
         <dt id="TravelerActions"><br />TravelerActions:</dt>
 	<dd>Value is a list, taken from a predefined set of properties in the database.
-         Commonly-used properties include HarnessedJob and Automatable. Other known
+         Commonly-used properties include HarnessedJob and Automatable. 
+         The Repeatable property may be specified in those rare cases where
+         it makes sense to repeat a step indefinitely, regardless of whether
+         it failed or succeeded.  A step may not be both repeatable and
+         retryable. <br /><br />
+         Other known property
          values will be supplied automatically when corresponding scalar keys are
          used.  These include SetHardwareStatus (NewStatus:), 
          SetHardwareLocation (NewLocation:), 

@@ -7,6 +7,8 @@ Sequence:
   - Name: Branch
     ShortDescription: Select next step to execute
     MaxIteration: 100
+    TravelerActions:
+      - Repeatable
     Selection:
       - Name: OngoingNCR_description
         Condition: Description of failure
