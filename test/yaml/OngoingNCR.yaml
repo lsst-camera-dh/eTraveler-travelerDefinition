@@ -1,0 +1,199 @@
+Name: OngoingNCR
+Subsystem: Default
+HardwareGroup: Anything
+ShortDescription: Execute a fixed set of NCR-related steps, possibly multiple
+                  times
+Sequence:
+  - Name: Branch
+    ShortDescription: Select next step to execute
+    MaxIteration: 100
+    TravelerActions:
+      - Repeatable
+    Selection:
+      - Name: OngoingNCR_description
+        Condition: Description of failure
+        MaxIteration: 10
+        ShortDescription: Description of failure
+        Description: 'This section describes the failure. It needs to
+        have a clear description of the failure in contrast to the
+        requirements or expected conditions. You also have the option of
+        uploading up to five pictures or files.<br><br> If the effect of
+        this NCR is not contained within the subsystem please contact
+        System Integration.'
+        RequiredInputs:
+        - {Description: Describe what was observed, InputSemantics: text, Label: Was seen}
+        - {Description: Describe the expected conditions as defined in the procedure, InputSemantics: text, Label: Should have been seen}
+
+        OptionalInputs:
+        - {Description: Optional comment (1), InputSemantics: text, Label: Enter the first optional comment}
+        - {Description: Optional comment (2), InputSemantics: text, Label: Enter the second optional comment}
+        - {Description: Optional comment (3), InputSemantics: text, Label: Enter the third optional comment}
+        - {Description: Optional comment (4), InputSemantics: text, Label: Enter the fourth optional comment}
+        - {Description: Optional comment (5), InputSemantics: text, Label: Enter the fifth optional comment}
+        - {Description: Upload file or photo (1), InputSemantics: filepath, Label: Attach the first optional file or photo}
+        - {Description: Upload file or photo (2), InputSemantics: filepath, Label: Attach the second optional file or photo}
+        - {Description: Upload file or photo (3), InputSemantics: filepath, Label: Attach the third optional file or photo}
+        - {Description: Upload file or photo (4), InputSemantics: filepath, Label: Attach the fourth optional file or photo}
+        - {Description: Upload file or photo (5), InputSemantics: filepath, Label: Attach the fifth optional file or photo}
+      - Name: OngoingNCR_analysis
+        Condition: Failure analysis
+        MaxIteration: 10
+        ShortDescription: 'NCR: Define the root cause of the problem. '
+        Description: '<br>Define the root cause of the problem. Discuss
+        the disposition of the part and justification for that disposition.
+        If the disposition is use-as-is, define the impact the failure has
+        on the sub-system. Camera and observatory. That impact should
+        reference by identifier and document code and quote all affected
+        derived specification, sub-system specification, sub-system ICD
+        requirement, camera standards and plan requirement, camera
+        specifications, Observatory ICD requirement. <br><br> You can
+        also optionally upload up to five photos or files.'
+        RequiredInputs:
+        - {Description: Describe the root cause analysis, InputSemantics: text, Label: Root cause analysis}
+        OptionalInputs:
+        - {Description: Optional comment (1), InputSemantics: text, Label: Enter the first optional comment}
+        - {Description: Optional comment (2), InputSemantics: text, Label: Enter the second optional comment}
+        - {Description: Optional comment (3), InputSemantics: text, Label: Enter the third optional comment}
+        - {Description: Optional comment (4), InputSemantics: text, Label: Enter the fourth optional comment}
+        - {Description: Optional comment (5), InputSemantics: text, Label: Enter the fifth optional comment}
+        - {Description: Upload file or photo (1), InputSemantics: filepath, Label: Attach the first optional file or photo}
+        - {Description: Upload file or photo (2), InputSemantics: filepath, Label: Attach the second optional file or photo}
+        - {Description: Upload file or photo (3), InputSemantics: filepath, Label: Attach the third optional file or photo}
+        - {Description: Upload file or photo (4), InputSemantics: filepath, Label: Attach the fourth optional file or photo}
+        - {Description: Upload file or photo (5), InputSemantics: filepath, Label: Attach the fifth optional file or photo}
+      - Name: OngoingNCR_Needed_Rework
+        Condition: Describe needed rework
+        ShortDescription: 'NCR: Describe how the part reenters the test flow. '
+        Description: 'Describe how the part reenters the test flow. For
+        repair/rework, define (or provide links to) the plans for that
+        rework/repair. In all cases, define how the workflow is restarted.
+        For example, for a use-as-is the workflow may be resumed at the
+        failed step. Consider any earlier steps required to get the part
+        into the correct configuration. For rework/repair, define the
+        additional testing needed in sufficient detail to implement that
+        testing in eTraveler or other test processes. <br><br> You can
+        also optionally upload up to five photos or files.'
+        RequiredInputs:
+        - {Description: Describe how the part reenters the test flow, InputSemantics: text, Label: Rework}
+        OptionalInputs:
+        - {Description: Optional comment (1), InputSemantics: text, Label: Enter the first optional comment}
+        - {Description: Optional comment (2), InputSemantics: text, Label: Enter the second optional comment}
+        - {Description: Optional comment (3), InputSemantics: text, Label: Enter the third optional comment}
+        - {Description: Optional comment (4), InputSemantics: text, Label: Enter the fourth optional comment}
+        - {Description: Optional comment (5), InputSemantics: text, Label: Enter the fifth optional comment}
+        - {Description: Upload file or photo (1), InputSemantics: filepath, Label: Attach the first optional file or photo}
+        - {Description: Upload file or photo (2), InputSemantics: filepath, Label: Attach the second optional file or photo}
+        - {Description: Upload file or photo (3), InputSemantics: filepath, Label: Attach the third optional file or photo}
+        - {Description: Upload file or photo (4), InputSemantics: filepath, Label: Attach the fourth optional file or photo}
+        - {Description: Upload file or photo (5), InputSemantics: filepath, Label: Attach the fifth optional file or photo}
+      - Name: OngoingNCR_Disposition
+        Condition: Describe Disposition
+        MaxIteration: '25'
+        Description: '<br> This is the NCR disposition. The available 
+        options are <br><br>- Use-as-is <br>- Repair <br>- Rework 
+        <br> - Return to supplier <br> - Reject
+        <br><br>Disposition impact: Provide a summary of impact and 
+        implications and reference to the appropriate LCN supporting 
+        cost, schedule or specification change if applicable.
+        <br><br> You can also optionally upload up to five photos or files.'
+        ShortDescription: 'NCR: Disposition'
+        RequiredInputs:
+        - {Description: 'What is the disposition?', InputSemantics: text, Label: Disposition}
+        - {Description: 'What is the cost impact if the disposition is accepted?', Units: '',
+           InputSemantics: text, Label: Accepted Cost}
+        - {Description: 'What is the cost impact if the disposition is not accepted?', Units: '',
+           InputSemantics: text, Label: Not Accepted Cost}
+        - {Description: 'What is the schedule impact if the disposition is accepted?', Units: '',
+           InputSemantics: text, Label: Accepted Schedule}
+        - {Description: 'What is the schedule impact if the disposition is not accepted?',
+           InputSemantics: text, Label: Not Accepted Schedule}
+        - {Description: 'What is the performance impact if the disposition is accepted?', InputSemantics: text,
+           Label: Accepted Performance}
+        - {Description: 'What is the performance impact if the disposition is not accepted?',
+           InputSemantics: text, Label: Not Accepted Performance}
+        OptionalInputs:
+        - {Description: Optional comment (1), InputSemantics: text, Label: Enter the first optional comment}
+        - {Description: Optional comment (2), InputSemantics: text, Label: Enter the second optional comment}
+        - {Description: Optional comment (3), InputSemantics: text, Label: Enter the third optional comment}
+        - {Description: Optional comment (4), InputSemantics: text, Label: Enter the fourth optional comment}
+        - {Description: Optional comment (5), InputSemantics: text, Label: Enter the fifth optional comment}
+        - {Description: Upload file or photo (1), InputSemantics: filepath, Label: Attach the first optional file or photo}
+        - {Description: Upload file or photo (2), InputSemantics: filepath, Label: Attach the second optional file or photo}
+        - {Description: Upload file or photo (3), InputSemantics: filepath, Label: Attach the third optional file or photo}
+        - {Description: Upload file or photo (4), InputSemantics: filepath, Label: Attach the fourth optional file or photo}
+        - {Description: Upload file or photo (5), InputSemantics: filepath, Label: Attach the fifth optional file or photo}
+      - Name: OngoingNCR_Approval
+        Condition: Approval of disposition
+        MaxIteration: '25'
+        ShortDescription: 'NCR: Approval of disposition'
+        Description: 'The Responsible Engineer must execute this step. She/He has 
+        the autority to decide that no additional signatures are required for this 
+        NCR and may, after having entered her/his name, skip the remainder of the 
+        step.<br> If the impact is not contained within the subsystem, contact 
+        System Integration for guidance on the signature list.
+        <br> Approval level depends on what requirement is not met: <br> <br> 
+        <b>1. </b> Subsystem derived requirements/procedures - impact contained in 
+        the subsystem: Subsystem manager. <br> <b> 2. </b> Camera subsystem ICD - 
+        impacts interface or schedule agreements with another camera subsystem: 
+        Affected subsystem managers, possibly System Integration or Camera Project 
+        Manager. <br> <b> 3. </b> Camera subsystem specification - impacts subsystem 
+        performance or schedule, but not camera performance or schedule: Subsystem manager, 
+        System Integration and/or Camera Project Manager. If a camera specification is 
+        impacted then possibly add the Observatory. <br> <b> 4. </b> Camera 
+        specification - impacts camera specification (LCA-42), but not camera 
+        requirements (LSE-59): System Integration and/or Camera Project Manager. <br> <b> 
+        5. </b> Observatory ICD - impacts other observatory subsystems: System Integration, 
+        Camera Project Manager and Camera Scientist and the LSST Project Director at the 
+        camera level. The observatory SE and other Observatory subsystems will be involved 
+        by a process at the observatory level. <br> <b> 6. </b> Camera requirements - impacts 
+        camera performance or schedule needed by the observatory: System integration, 
+        Camera Project Manager, Camera Scientist and the LSST Project Director. Observatory 
+        SE will be involved by a process at the Observatory level.<br> <br> If System 
+        Integration approval is required, the Chief Mechanical and Electrical Engineers 
+        will also have to sign off. <br> If Observatory approval is required, then the 
+        Camera Project Manager''s signature will assume the CCB process was done and 
+        accepted. A comment must be added stating that signature assumes issue was 
+        resolved with the project CCB.<br>'
+        Prerequisites:
+        - {Name: Responsible Engineer, Description: <b>This step must be executed by the Responsible Engineer.</b>,
+           Quantity: '1', PrerequisiteType: PREPARATION}
+        RequiredInputs:
+        - {Description: Name of the Responsible Engineer, InputSemantics: text,
+           Label: Responsible Engineer}
+        - {Description: 'Are additional signatures needed? If False, skip the rest of the
+           step.', InputSemantics: boolean, Label: Additional signatures}
+        - {Description: 'Define the NCR signature sequence - Choose from this list: ', Units: none,
+           Role: '(?)', InputSemantics: signature, Label: Choose signature(s)}
+        OptionalInputs:
+        - {Description: Optional comment (1), InputSemantics: text, Label: Enter the first optional comment}
+        - {Description: Optional comment (2), InputSemantics: text, Label: Enter the second optional comment}
+        - {Description: Optional comment (3), InputSemantics: text, Label: Enter the third optional comment}
+        - {Description: Optional comment (4), InputSemantics: text, Label: Enter the fourth optional comment}
+        - {Description: Optional comment (5), InputSemantics: text, Label: Enter the fifth optional comment}
+        - {Description: Upload file or photo (1), InputSemantics: filepath, Label: Attach the first optional file or photo}
+        - {Description: Upload file or photo (2), InputSemantics: filepath, Label: Attach the second optional file or photo}
+        - {Description: Upload file or photo (3), InputSemantics: filepath, Label: Attach the third optional file or photo}
+        - {Description: Upload file or photo (4), InputSemantics: filepath, Label: Attach the fourth optional file or photo}
+        - {Description: Upload file or photo (5), InputSemantics: filepath, Label: Attach the fifth optional file or photo}
+      - Name: OngoingNCR_CorrectiveAction
+        Condition: Describe Corrective Action
+        ShortDescription: 'NCR: Corrective/Preventative action'
+        Description: 'Description of any actions to prevent this problem from happening to other parts.
+        Could be process change. Should we attah a label to the hardware component with the NCR number?'
+        MaxIteration: 25
+        RequiredInputs:
+        - {Description: Corrective or preventive action, InputSemantics: text,
+           Label: Corrective action}
+        - {Description: Approval of corrective or preventive action, InputSemantics: text,
+           Label: Corrective action approval}
+        OptionalInputs:
+        - {Description: Optional comment (1), InputSemantics: text, Label: Enter the first optional comment}
+        - {Description: Optional comment (2), InputSemantics: text, Label: Enter the second optional comment}
+        - {Description: Optional comment (3), InputSemantics: text, Label: Enter the third optional comment}
+        - {Description: Optional comment (4), InputSemantics: text, Label: Enter the fourth optional comment}
+        - {Description: Optional comment (5), InputSemantics: text, Label: Enter the fifth optional comment}
+        - {Description: Upload file or photo (1), InputSemantics: filepath, Label: Attach the first optional file or photo}
+        - {Description: Upload file or photo (2), InputSemantics: filepath, Label: Attach the second optional file or photo}
+        - {Description: Upload file or photo (3), InputSemantics: filepath, Label: Attach the third optional file or photo}
+        - {Description: Upload file or photo (4), InputSemantics: filepath, Label: Attach the fourth optional file or photo}
+        - {Description: Upload file or photo (5), InputSemantics: filepath, Label: Attach the fifth optional file or photo}

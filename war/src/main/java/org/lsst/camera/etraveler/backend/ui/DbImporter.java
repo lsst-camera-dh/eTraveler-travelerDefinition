@@ -677,7 +677,7 @@ public class DbImporter {
      */
     WriteToDb.writeNCRToDb(ncrSpec, 
         context.getSession().getAttribute("userName").toString(), true, 
-        dbType, datasource);
+                           dbType, datasource, context);
   }
   
   

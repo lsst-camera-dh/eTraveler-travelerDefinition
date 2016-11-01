@@ -3,12 +3,15 @@
  * and open the template in the editor.
  */
 package org.lsst.camera.etraveler.backend.node;
+import java.io.IOException;
 import org.lsst.camera.etraveler.backend.exceptions.DbContentException;
 import org.lsst.camera.etraveler.backend.exceptions.EtravelerException;
+import org.lsst.camera.etraveler.backend.exceptions.EtravelerWarning;
 import org.lsst.camera.etraveler.backend.db.DbConnection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -614,7 +617,12 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public boolean isRootNode() {
     return (m_travelerRoot == this);
   }
-  public void verify(DbConnection connect, String sub) throws EtravelerException {   
+  /**
+     Check that node is compatible with specified database.  
+     wrt argument can be used for warnings; else throw exception
+   */
+  public void verify(DbConnection connect, String sub, Writer wrt,
+                     String eol) throws EtravelerException {   
     // For first time through (parentless node)  maybe look up some things,
     // such as all possible relationship types, prereq types and semantic types.
     //  Save and pass on through when calling verify on children, prereqs, etc.
@@ -647,6 +655,19 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       }        
     }   else { // assuming we checked compatibility of child earlier
       m_hardwareGroupId = m_dbParent.m_hardwareGroupId;
+    }
+    if ((m_travelerActionMask & TravelerActionBits.REPEATABLE) != 0) {
+      try {
+        checkRetries();
+      }
+      catch (EtravelerWarning warnEx) {
+        System.out.println(warnEx.getMessage());
+        try {
+          wrt.write(eol + warnEx.getMessage() + eol);
+        } catch (IOException ioEx) {
+          // do nothing
+        }
+      }
     }
     if (m_newStatus != null) {
       if ((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_STATUS) != 0) {
@@ -730,8 +751,18 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     }
     if (m_relationshipTasksDb != null) {
       for (int rt=0; rt < m_relationshipTasksDb.length; rt++) {
-        m_relationshipTasksDb[rt].verify(m_relationshipTypeMap,
-            m_relationshipActionMap, m_hardwareGroupId);
+        try {
+          m_relationshipTasksDb[rt].verify(m_relationshipTypeMap,
+                                           m_relationshipActionMap,
+                                           m_hardwareGroupId);
+        } catch (EtravelerWarning ex) {
+          System.out.println(ex.getMessage());
+          try {
+            wrt.write(eol + ex.getMessage() + eol);
+          } catch (IOException ioEx) {
+            // do nothing
+          }
+        }
       }
     }
     if (!(m_version.equals("1"))) { 
@@ -759,7 +790,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     // a label and not a regular status     !!!!
     if (m_childrenDb != null) {
       for (int ic=0; ic < m_childrenDb.length; ic++) {
-        m_childrenDb[ic].verify(connect, null);
+        m_childrenDb[ic].verify(connect, null, wrt, eol);
       
         if ((m_travelerActionMask & TravelerActionBits.AUTOMATABLE) != 0) {
           if ((m_childrenDb[ic].m_travelerActionMask & 
@@ -1081,7 +1112,14 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
                          ex.getMessage());
       throw ex;
     }
-  }  
+  }
+  private void checkRetries() throws EtravelerWarning {
+    if (Integer.parseInt(m_maxIteration) > 1) {
+      m_maxIteration = "1";
+      throw new
+        EtravelerWarning("Max iteration count > 1 incompatible with Repeatable step; count set back to 1");
+    }
+  }
  
   /* Pick a separator string unlikely to appear in any actual db entry */
   private static final String GLUE = "%&*";

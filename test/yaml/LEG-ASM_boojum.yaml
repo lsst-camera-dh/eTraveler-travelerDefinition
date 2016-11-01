@@ -1,0 +1,13 @@
+Name: LEG-ASM_boojum
+ShortDescription: assemble borogove onto the boojum
+Description: 'File for testing parsing of relationship tasks
+  expect to edit as appropriate to test particular features'
+HardwareGroup: boojum
+Subsystem: Legacy
+Sequence:
+- Name: LEG-ASM_boojum-assemble1
+  ShortDescription: Install the single borogove
+  RelationshipTasks:
+  - {RelationshipName: boojum_borogove_1,
+     RelationshipAction: install,
+     RelationshipSlot: '(?)'}

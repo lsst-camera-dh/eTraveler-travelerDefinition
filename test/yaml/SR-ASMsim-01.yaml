@@ -1,0 +1,31 @@
+Name: SR-ASMsim-01 
+ShortDescription: Assemble CCDs onto RSA for simulation
+Description: 'Make a fake raft for simulation.  This traveler
+              assembles 9 e2v CCDs onto fake RSA type
+              to be used by simulation code'
+Subsystem: SR
+HardwareGroup: LCA-10753-RSA_sim
+Version: next
+Sequence:
+- Name: SR-ASMsim-01-decide
+  ShortDescription: Choose CCD type to install
+  Version: next
+  Selection:
+  - Name: SR-ASMsim-01-E2V
+    Condition: E2V-CCD
+    ShortDescription: Install 9 E2V CCDs on the RSA
+    Version: next
+    RelationshipTasks:
+    - RelationshipName: RSA_contains_E2V-CCD_sim
+      RelationshipAction: install
+  - Name: SR-ASMsim-01-ITL
+    Condition: ITL-CCD
+    ShortDescription: Install 9 ITL CCDs on the RSA
+    Version: next
+    RelationshipTasks:
+     - RelationshipName: RSA_contains_ITL-CCD_sim
+       RelationshipAction: install
+
+
+
+

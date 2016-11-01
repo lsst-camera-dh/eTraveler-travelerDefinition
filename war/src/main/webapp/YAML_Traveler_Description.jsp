@@ -55,7 +55,7 @@
       <h2>Keys Taking a Scalar Value</h2>
       <p>Key names in <span class='redError'><b>red</b></span> are not yet fully implemented.</p>
       <dl>
-        <dt class="redError">AddLabel:</dt>
+        <dt>AddLabel:</dt>
         <dd>Value is label to be added to the component on which the traveler is being executed.  The
           label must have already been defined.<br /><br /></dd>
         <dt>Clone:</dt>
@@ -84,7 +84,9 @@
         <dt>MaxIteration:</dt>
         <dd>
           The number of tries allowed without special, privileged intervention.
-          Defaults to 1.<br /><br />
+          Defaults to 1.  If the step is repeatable and MaxIteration
+	  has a value > 1 in the YAML file, ingest will issue a warning and
+	  set the iteration count back to 1.<br /><br />
         </dd>
         <dt id="Name">Name:</dt>
         <dd>
@@ -101,7 +103,7 @@
           which case operator will be prompted with menu of known locations.
           <br /><br />
         </dd>
-        <dt class="redError">NewStatus:</dt>
+        <dt>NewStatus:</dt>
         <dd>
           <p>Status to which component is to be set. Must be defined in database
           as a known status value or must be the string
@@ -139,7 +141,7 @@
           process step in the data base with name = value of RefName: and 
           the same hardware group as this traveler.<br /><br />
         </dd>
-        <dt class="redError">RemoveLabel:</dt>
+        <dt>RemoveLabel:</dt>
         <dd>Value is label to be removed from the component on which the traveler is being executed.  The
           label must have already been defined (and should be associated with
           the component at the start of the step).<br /><br /></dd>
@@ -272,7 +274,7 @@
         <dt><br />RelationshipTasks:</dt>
         <dd>
 	The value for this key is a list of RelationshipTask nodes.  Each such node
-        is a dict with two fields, both required:
+        is a dict with three fields.  The first two are required, the third is optional.
         <dl>
            <dt>RelationshipName:</dt>
            <dd>Must match the name of a relationship type previously defined in the
@@ -281,6 +283,13 @@
            <dd>One of a known, enumerated set.  Currently that set includes 'assign',
             'install', 'deassign' and 'uninstall'.           
            </dd>
+           <dt>RelationshipSlot:</dt>
+           <dd>May be one of the slot names belonging to the relationship specified by RelationshipName, 
+               or the string 'ALL'. <%-- or the string '(?)', in which case the operator will be presented with
+               a menu of possibilities.--%> If not supplied, defaults to 'ALL' (old behavior). If there only
+               is one slot and it is specified by name in the YAML file, that specification will be changed
+               to 'ALL' when the file is ingested.
+           </dd>	   
         </dl>
         </dd>
         <dt name="RequiredInputs" id="RequiredInputs" ><br />RequiredInputs:</dt>
@@ -310,16 +319,20 @@
           executed in sequence.  Value is a list of process nodes.</dd>
         <dt id="TravelerActions"><br />TravelerActions:</dt>
 	<dd>Value is a list, taken from a predefined set of properties in the database.
-         Commonly-used properties include HarnessedJob and Automatable. Other known
+         Commonly-used properties include HarnessedJob and Automatable. 
+         The Repeatable property may be specified in those rare cases where
+         it makes sense to repeat a step indefinitely, regardless of whether
+         it failed or succeeded.  A step may not be both repeatable and
+         retryable. <br /><br />
+         Other known property
          values will be supplied automatically when corresponding scalar keys are
-         used.  These include <span class='redError'>SetHardwareStatus (NewStatus:)</span>, 
+         used.  These include SetHardwareStatus (NewStatus:), 
          SetHardwareLocation (NewLocation:), 
-         <span class='redError'>AddLabel (AddLabel:)</span> and 
-         <span class='redError'>RemoveLabel (RemoveLabel:)</span> 
+         AddLabel (AddLabel:) and 
+         RemoveLabel (RemoveLabel:)
          If any of these appear under TravelerActions: without
          the corresponding key, at execution time the Operator will be prompted with
-         a menu of suitable possibilities. (Here the same convention is being followed:
-         <span class='redError'>red</span> means not yet fully implemented.
+         a menu of suitable possibilities. 
         </dd>
       </dl>
       <h2 id='ref_clone'>Referenced and Cloned Steps</h2>

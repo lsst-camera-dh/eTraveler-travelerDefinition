@@ -8,9 +8,12 @@
 <sql:query var="statesQ">
    select name from TravelerTypeState order by name;
 </sql:query>
-   <sql:query var="groupsQ">
-     select name from HardwareGroup order by name;
-   </sql:query>
+<sql:query var="groupsQ">
+   select name from HardwareGroup order by name;
+</sql:query>
+<sql:query var="subsQ">
+    select name from Subsystem order by name;
+ </sql:query>
 
 <!DOCTYPE html>
 
@@ -47,6 +50,12 @@
         <filter:filterOption value="${groupName.name}"><c:out value="${groupName.name}" /></filter:filterOption>
       </c:forEach>
     </filter:filterSelection>
+      <filter:filterSelection title="Subsystem" var="subsystem" defaultValue='any'>
+      <filter:filterOption value="any" >Any</filter:filterOption>
+      <c:forEach var="subName" items="${subsQ.rows}" >
+        <filter:filterOption value="${subName.name}"><c:out value="${subName.name}" /></filter:filterOption>
+      </c:forEach>
+    </filter:filterSelection>
       </filter:filterTable>
         </td></tr></table>  
         <c:set var="ttype_action" value="displayTraveler.jsp" />
@@ -58,6 +67,7 @@
                           sortable="true" style="text-align:left" />
            <display:column property="version" sortable="true" style="text-align:right" />
            <display:column property="hname" sortable="true" style="text-align:left" />
+           <display:column property="subsystem" sortable="true" style="text-align:left" />
            <display:column property="state" sortable="true" style="text-align:left" />
            <display:column property="description"  style="text-align:left" />
            <display:column property="createdBy" title="Creator"  style="text-align:left" />

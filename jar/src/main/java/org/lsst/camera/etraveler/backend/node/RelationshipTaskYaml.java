@@ -18,7 +18,8 @@ public class RelationshipTaskYaml implements RelationshipTask.Importer {
   private static ArrayList<String> s_knownKeys = null;
   static final int RELATIONSHIPNAME=0;
   static final int RELATIONSHIPACTION=1;
-  static final int FROMSOURCERELATIONSHIPTASKID=2;
+  static final int RELATIONSHIPSLOT=2;
+  static final int FROMSOURCERELATIONSHIPTASKID=3;
 
   public void readYaml(Map<String, Object> yamlMap, ProcessNodeYaml parent, int iPre)
       throws EtravelerException {
@@ -26,6 +27,7 @@ public class RelationshipTaskYaml implements RelationshipTask.Importer {
       s_knownKeys = new ArrayList<String>(FROMSOURCERELATIONSHIPTASKID + 1);
       s_knownKeys.add(RELATIONSHIPNAME, "RelationshipName");
       s_knownKeys.add(RELATIONSHIPACTION, "RelationshipAction");
+      s_knownKeys.add(RELATIONSHIPSLOT, "RelationshipSlot");
       s_knownKeys.add(FROMSOURCERELATIONSHIPTASKID, "FromSourceRelationshipTaskId");
     }
     m_parent = parent;
@@ -48,6 +50,8 @@ public class RelationshipTaskYaml implements RelationshipTask.Importer {
         m_name = v; break;
       case RELATIONSHIPACTION:
         m_action = v; break;
+      case RELATIONSHIPSLOT:
+        m_slot = v;
        /* Ignore informational keys written by export */
       case FROMSOURCERELATIONSHIPTASKID:
         break;
@@ -62,8 +66,10 @@ public class RelationshipTaskYaml implements RelationshipTask.Importer {
   }
   public String provideRelationshipName() {return m_name;}
   public String provideRelationshipAction() {return m_action;}
+  public String provideRelationshipSlot() {return m_slot;}
   
   private String m_name="";
   private String m_action="";
+  private String m_slot="ALL";
   private ProcessNodeYaml m_parent=null;
 }
