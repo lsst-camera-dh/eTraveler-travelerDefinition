@@ -9,14 +9,14 @@ Sequence:
   RelationshipTasks:
   - {RelationshipName: alaMode,
      RelationshipAction: install,
-     RelationshipSlot: '(?)'}
-  - {RelationshipName: alaMode,
-     RelationshipAction: install,
      RelationshipSlot: scoopTwo}
   MaxIteration: '1'
   Version: next
 #- Name: DEF-ASM_Pie-assemble2
 #  ShortDescription: Second scoop of ice cream
 #  RelationshipTasks:
+#  - {RelationshipName: alaMode,
+#     RelationshipAction: install,
+#     RelationshipSlot: '(?)'}
 
 

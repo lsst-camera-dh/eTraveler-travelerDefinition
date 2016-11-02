@@ -136,7 +136,8 @@ public class RelationshipTaskDb implements RelationshipTask.Importer,
                                      "MultiRelationshipSlotType MRST on " +
                                      "MRT.id=MRST.multiRelationshipTypeId",
                                      "MRST.id", "where MRST.slotname='"
-                                     + m_slotname + "'");
+                                     + m_slotname + "' and MRT.id='" 
+                                     + m_relationshipId + "'");
     if (m_slotId == null) {
       throw new EtravelerException("Relationship type " + m_name +
                                    " has no slot with name " + m_slotname);
