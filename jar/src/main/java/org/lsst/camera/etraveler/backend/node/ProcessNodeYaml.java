@@ -168,7 +168,11 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     if (parent == null)  {
       if (yamlMap.containsKey("SourceDb"))  {
         m_sourceDb = yamlMap.get("SourceDb").toString();
-      } 
+      }
+      if (!yamlMap.containsKey("HardwareGroup")) {
+        throw new EtravelerException("Missing keyword 'HardwareGroup' in " +
+                                     "root step of traveler definition");
+      }
     } else {
       m_sourceDb = parent.m_sourceDb;
     }
@@ -511,7 +515,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         ((m_travelerActionMask & TravelerActionBits.REMOVE_LABEL) != 0) )
       throw new EtravelerException("Cannot add and remove label in the same step");
    
-    // Hardware type is inherited from parent
+    // Hardware group is inherited from parent
     if (m_parent != null) {
       m_hardwareGroup = m_parent.m_hardwareGroup;  
     }

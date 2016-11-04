@@ -98,7 +98,7 @@ public class Traveler {
     } catch (Exception ex) {
       System.out.println("Failed to process yaml with exception '" 
           + ex.getMessage() + "'");
-      wrt.write("Failed to load yaml with exception '" 
+      wrt.write("Failed to process yaml with exception '" 
           + ex.getMessage() + "'" + eol);
       return;
     }

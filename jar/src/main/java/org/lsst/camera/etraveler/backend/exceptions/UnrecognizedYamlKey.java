@@ -14,7 +14,7 @@ public class UnrecognizedYamlKey  extends EtravelerException {
   public String m_key;
   public String m_nodeType;
   public UnrecognizedYamlKey(String key, String nodeType) {
-    super(nodeType + " node has no key " + key);
+    super("Unrecognized key " + key + " for node type " + nodeType);
     m_key = key;
     m_nodeType = nodeType;
   }
