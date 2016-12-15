@@ -28,7 +28,7 @@ public class HardwareTypeNode
     }
   }
 
-  public getName() {return m_name;}
+  public String getName() {return m_name;}
   /**
    * Interface for importing hardware nodes from another representation,
    * such as spreadsheet
@@ -52,6 +52,19 @@ public class HardwareTypeNode
        Return true if this was the last row; false otherwise
      */
     boolean finishImport();
+  }
+  public void exportToWrapper(HardwareTypeNode.Wrapper target) {
+    target.acceptName(m_name);
+    target.acceptChildren(m_children);
+  }
+
+
+
+  // Near-clone from ProcessNode.Wrapper
+  public interface Wrapper {
+    void acceptName(String name);
+    void acceptChildren(ArrayList<HardwareTypeNode> children);
+    void exportDone();
   }
 
   private HardwareTypeNode m_parent=null;

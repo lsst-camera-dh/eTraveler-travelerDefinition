@@ -2,7 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.lsst.camera.etraveler.backend.ui;
+package org.lsst.camera.etraveler.backend.assemblyUi;
+
+// Implementation in progress.  Code in this package doesn't yet
+// compile, but it's not used anywhere 
+
 import org.lsst.camera.etraveler.backend.ui.ProcessTreeNode;
 import org.lsst.camera.etraveler.backend.exceptions.EtravelerException;
 import java.io.Writer;
@@ -19,12 +23,10 @@ import javax.servlet.jsp.PageContext;
 import org.freehep.webutil.tree.DefaultIconSet; // freeheptree.DefaultIconSet;
 import org.freehep.webutil.tree.Tree; // freeheptree.Tree;  
 //import org.lsst.camera.etraveler.backend.ui.EditedTreeNode;
-import org.lsst.camera.etraveler.backend.node.Prerequisite;
-import org.lsst.camera.etraveler.backend.node.PrescribedResult;
-import org.lsst.camera.etraveler.backend.node.ProcessNode;
-import org.lsst.camera.etraveler.backend.node.RelationshipTask;
+import org.lsst.camera.etraveler.backend.hnode.HardwareTypeNode;
+import org.lsst.camera.etraveler.backend.hnode.AssemblyTemplate;
 import org.lsst.camera.etraveler.backend.node.Traveler;
-import org.lsst.camera.etraveler.backend.node.TravelerVisitor;
+import org.lsst.camera.etraveler.backend.hnode.AssemblyVisitor;
 
 /**
  * Create text file (or byte stream) for input to GraphViz
@@ -33,7 +35,7 @@ import org.lsst.camera.etraveler.backend.node.TravelerVisitor;
  * 
  * @author jrb
  */
-public class TravelerTreeVisitor implements TravelerVisitor { 
+public class AssemblyTreeVisitor implements AssemblyVisitor { 
   /**
    * Store vital information about a edited ProcessTreeNode in case
    * we later want to restore. It's a pure data class.
@@ -44,22 +46,24 @@ public class TravelerTreeVisitor implements TravelerVisitor {
     public String      m_editType;
   }
   */
-  public TravelerTreeVisitor(boolean editable) throws EtravelerException {
+  public AssemblyTreeVisitor(boolean editable) throws EtravelerException {
     if (editable) {
       throw
-        new EtravelerException("TravelerTreeVisitor: editing not supported");
+        new EtravelerException("AssemblyTreeVisitor: editing not supported");
     }
-    m_editable = editable;
+    //m_editable = editable;
     m_reason = "display";
   }
   
-  public TravelerTreeVisitor(boolean editable, String reason) throws
+  public AssemblyTreeVisitor(/* boolean editable, */ String reason) throws
   EtravelerException {
+    /*
     if (editable) {
       throw
         new EtravelerException("TravelerTreeVisitor: editing not supported");
     }
     m_editable = editable;
+    */
     m_reason = reason;
   }
   
@@ -74,18 +78,20 @@ public class TravelerTreeVisitor implements TravelerVisitor {
   public Tree getTreeRenderer() {
     return m_treeRenderer;
   }
-  public ProcessTreeNode getTreeRoot() {
+  public HardwareTreeNode getTreeRoot() {
     return m_treeRoot;
   }
-  public ProcessNode getTravelerRoot() {
-    return m_treeRoot.getProcessNode();
+  public HardwareTypeNode getAssemblyRoot() {
+    return m_treeRoot.getHardwareTypeNode();
   }
-  public Traveler getTraveler() { return m_traveler; }
-  public void setTraveler(Traveler trav) {
-    m_traveler=trav;
-    if (trav.getSubsystem() != null) {
+  public AssemblyTemplate getAssemblyTemplate() { return m_template; }
+  public void setAssemblyTemplate(AssemblyTemplate t) {
+    m_template=t;
+    /*
+    if (t.getSubsystem() != null) {
       m_title="The tree, subsystem=" + trav.getSubsystem();
     }
+    */
   }
   
   public void setPath(String path) {
@@ -96,11 +102,11 @@ public class TravelerTreeVisitor implements TravelerVisitor {
    * traveler our traveler was copied from
    * @param original 
    */
-  public void setCopiedFrom(ProcessNode original) {
+  public void setCopiedFrom(HardwareTypeNode original) {
     m_original = original;
   }
 
-  public ProcessTreeNode findNodeFromPath(String path, String treeNodeId) {
+  public HardwareTreeNode findNodeFromPath(String path, String treeNodeId) {
     if (m_treeRoot == null) return null;  /* not built yet */
 
     int secondSlash = path.indexOf("/", 1);
@@ -108,7 +114,7 @@ public class TravelerTreeVisitor implements TravelerVisitor {
     String nodePath = path;
     /* Otherwise strip off root path at the front */
     nodePath = nodePath.substring(secondSlash);
-    ProcessTreeNode guess = (ProcessTreeNode) m_treeRoot.findNode(nodePath, false);
+    HardwareTreeNode guess = (HardwareTreeNode) m_treeRoot.findNode(nodePath, false);
     /* The only way guess can be wrong is if there are at least two siblings with the same
      * name.  See if we've got the right one by looking at treeNodeId field
      */
@@ -116,9 +122,9 @@ public class TravelerTreeVisitor implements TravelerVisitor {
   }
 
   // Implementation of TravelerVisitor
-  public void visit(ProcessNode process, String activity, Object cxt) throws EtravelerException {
+  public void visit(HardwareTypeNode hnode, String activity, Object cxt) throws EtravelerException {
     
-    ProcessTreeNode treeNode = new ProcessTreeNode(this, process, null);
+    HardwareTreeNode treeNode = new HardwareTreeNode(this, hnode, null);
     if (m_treeRenderer == null) {
       if (m_path == null) {
         m_treeRenderer = new Tree(new DefaultIconSet());
@@ -128,7 +134,7 @@ public class TravelerTreeVisitor implements TravelerVisitor {
       //m_treeRenderer.setRootVisible(false);
       m_treeRoot = treeNode;
     }
-    process.exportToWrapper(treeNode);   
+    hnode.exportToWrapper(treeNode);   
    
     //   For now ignore prereqs and results
     // If children
@@ -140,15 +146,7 @@ public class TravelerTreeVisitor implements TravelerVisitor {
   }
   // For the time being ignore prerequisites, results and relationship tasks; 
   // just draw nodes & edges
-  public void visit(PrescribedResult result, String activity, Object cxt) 
-      throws EtravelerException {
-  }
-  public void visit(Prerequisite prerequisite, String activity, Object cxt) 
-      throws EtravelerException {
-  }
-  public void visit(RelationshipTask rel, String activity, Object cxt) 
-      throws EtravelerException {
-  }
+ 
   public void render(PageContext context) {
     JspWriter outWriter = context.getOut();
     String href = "actionTraveler.jsp?action=" + m_reason;
@@ -176,59 +174,9 @@ public class TravelerTreeVisitor implements TravelerVisitor {
       System.out.println("Failed to render tree with exception: " + ex.getMessage());
     }
   }
-  // public boolean addEdited(ProcessTreeNode node, String how)  {
-  //   if (!m_editable) return false;
-   
-  //   m_editedNodes.put(node, how);
-  //   return true;
-  // }
-  // public boolean undoEdited(String path) {
-  //   if (!m_editable) return false;
-  //   ProcessTreeNode theNode = null;
-  //   boolean ok = false;
-  //   Set<ProcessTreeNode> nodes = m_editedNodes.keySet();
-  //   for (ProcessTreeNode node: nodes) {
-  //     if (node.getPath().equals(path)) {
-  //       theNode=node;
-  //       String how = m_editedNodes.get(node);
-  //       if (how.equals("modified")) {
-  //         ok = theNode.getProcessNode().recover(false);
-  //       } else if (how.equals("modified all")) {
-  //         ok = theNode.getProcessNode().recoverAll(false);
-  //       }
-  //       if (ok) m_editedNodes.remove(theNode);
-  //       return ok;
-  //     }
-  //   }
-  //   return false;
-  // }
+ 
   
-  // public ArrayList<EditedTreeNode> getEdited() {
-  //   ArrayList<EditedTreeNode> edited = new ArrayList<EditedTreeNode>();
-    
-  //   Set<ProcessTreeNode> nodes = m_editedNodes.keySet();
-  //   for (ProcessTreeNode node: nodes) {
-  //     EditedTreeNode e = new EditedTreeNode(node.getPath(), m_editedNodes.get(node));
-  //     edited.add(e);
-  //   }
-  //   return edited;
-  // }
-  
-  // public int getNEdited() {
-  //   if (m_editedNodes == null) return 0;
-  //   return m_editedNodes.size();
-  // }
-  
-  // public boolean clearModified() {
-  //   if (!m_editable) return false;
-    /* Really should be
-     *    for node in HashMap
-     *        restore
-     *        remove from HashMap
-     */
-  //   m_editedNodes.clear();
-  //   return true;
-  // }
+ 
   int getCount() {
     m_treeNodeCount++;
     return m_treeNodeCount;
@@ -236,12 +184,12 @@ public class TravelerTreeVisitor implements TravelerVisitor {
   
   private Tree m_treeRenderer=null;
   private int m_treeNodeCount = 0;
-  private ProcessTreeNode m_treeRoot = null;
-  private ProcessNode m_original = null;
+  private HardwareTreeNode m_treeRoot = null;
+  private HardwareTypeNode m_original = null;
   private String m_path=null;
-  private boolean m_editable=false; 
+  //private boolean m_editable=false; 
   private String m_reason=null;
   private String m_title="The tree";
-  private Traveler m_traveler=null;
+  private AssemblyTemplate m_template=null;
   // private HashMap <ProcessTreeNode, String> m_editedNodes=null;
 }
