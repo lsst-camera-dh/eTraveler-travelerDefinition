@@ -1,14 +1,18 @@
 package org.lsst.camera.etraveler.backend.assemblyUi;
 
+// Implementation in progress.  Code in this package doesn't yet
+// compile, but it's not used anywhere 
+
 import java.util.ArrayList;
 import org.freehep.webutil.tree.DefaultTreeNode; // freeheptree.DefaultTreeNode;
 import org.lsst.camera.etraveler.backend.hnode.HardwareTypeNode;
+import org.lsst.camera.etraveler.backend.assemblyUi.AssemblyTreeVisitor;
 
 public class HardwareTreeNode extends DefaultTreeNode 
   implements HardwareTypeNode.Wrapper {
 
 
-  HardwareTreeNode(AssemblyTreeVisitor vis, HardwareNode hnode, 
+  HardwareTreeNode(AssemblyTreeVisitor vis, HardwareTypeNode hnode, 
                    HardwareTreeNode treeParent) {
     super(hnode.getName(), treeParent);
  
@@ -19,7 +23,6 @@ public class HardwareTreeNode extends DefaultTreeNode
   }
 
   public HardwareTypeNode getHardwareTypeNode() { return m_hnode;}
-
 
 
   /* Implementation of HardwareTypeNode.ExportTarget
@@ -72,7 +75,7 @@ public class HardwareTreeNode extends DefaultTreeNode
     return href + "&treeNodeId=" + Integer.toString(m_myId);
   }
   private String m_substeps=null;
-  private TravelerTreeVisitor m_vis=null;
+  private AssemblyTreeVisitor m_vis=null;
   /*
    * m_processNode is ProcessNode from which this ProcessTreeNode is derived
    */

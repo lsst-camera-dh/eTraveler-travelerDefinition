@@ -1,0 +1,226 @@
+package org.lsst.camera.etraveler.backend.ingest;
+
+import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.Ignore;
+import static org.junit.Assert.*;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+
+// interfaces which apply to both XSSF (xlsx) and HSSF (xls) documents
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+
+// Expect underlying format will be xlsx
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+public class TestPOI {
+
+  //private String m_contentsSimple = null;
+  //private String m_contentsFailure = null;
+  //private HashMap<String, String> m_parms = null;
+  //  private SessionData m_sessionData;
+
+  private short m_levelIx;
+  private short m_refNumberIx;
+  private short m_cmpDesignationIx;
+  private short m_batchedIx;
+  private short m_qtyIx;
+  private short m_maxLevelSeen;
+  private short m_lastLevelSeen;
+  
+  @Before
+  public void setup() {
+    // clear levelIx.  Give others their default values
+    m_levelIx = -1;
+    m_refNumberIx = 2;
+    m_cmpDesignationIx = 3;
+    m_batchedIx = 6;
+    m_qtyIx = 7;
+    m_maxLevelSeen = -1;
+    m_lastLevelSeen = -1;
+  }
+
+  @Test
+  public void readXlsxInput() {
+    //String fp = "src/test/spread/littleDir/littleSpread.xlsx";
+    String fp = "src/test/spread/AutoChanger_Light_enhanced.xlsx";
+    FileInputStream fstream = null;
+    System.out.println("Running readXlsxInput test");
+    try {
+      fstream = new FileInputStream(fp);
+    } catch (FileNotFoundException e) {
+      System.out.println("No such file as " + fp + "\n");
+      return;
+    }
+    Workbook wb = null;
+    try {
+      wb = WorkbookFactory.create(fstream);
+    } catch (InvalidFormatException e) {
+      System.out.println("Invalid spreadsheet input\n");
+      return;
+    } catch (IOException ex) {
+      System.out.println("IOException detected\n");
+      return;
+    }
+    interpret(wb);
+      //        assertNull("validation should have succeeded", 
+  }
+
+  private void interpret(Workbook wb) {
+    Sheet s = wb.getSheet("eTraveler");
+    if (s == null) {
+      s = wb.getSheetAt(0);
+    }
+    if (s == null) {
+      System.out.println("Workbook has no sheets");
+      return;
+    }
+    // Scan rows, looking for header.  Insist that first header cell
+    // contains "Level"
+    Iterator<Row> rows = s.rowIterator();
+    Row row = null;
+    int rowNum = 0;
+    while (rows.hasNext() && m_levelIx == -1) {
+      row = rows.next();
+      System.out.print("On row ");  System.out.println(rowNum);
+      rowNum++;
+      if (row == null) continue;
+      System.out.print("row is non-null ");
+      Cell zeroth = row.getCell(0);
+      Cell first = row.getCell(1);
+      if (zeroth != null) {
+        System.out.print("Cell 0 value is: " + 
+          zeroth.getStringCellValue().trim() + "\n");
+      }
+      if (first == null) continue;
+      System.out.print("cell is non-null\n");
+      if (first.getCellType() != Cell.CELL_TYPE_STRING) {
+        System.out.print("Cell type is");
+        System.out.println(first.getCellType());
+        continue;
+      }
+      String fval = first.getStringCellValue().trim();
+      System.out.println("First cell value is: " + fval);
+      if (first.getStringCellValue().equals("Level")) {
+        m_levelIx = 1;
+        break;
+      }
+    }
+    if (m_levelIx == -1) {
+      System.out.println("Header row never found\n");
+      return;
+    }
+    System.out.println("Found header row\n");
+    short minColIx = row.getFirstCellNum();
+    short maxColIx = row.getLastCellNum();
+    for (short colIx = minColIx; colIx < maxColIx; colIx++) {
+      
+      Cell cell = row.getCell(colIx);
+      if (cell == null) continue;
+      String val = cell.getStringCellValue();
+      if (val == null) continue;
+      if (val.equals("Reference ID Number")) {
+        m_refNumberIx = colIx;
+        System.out.print("Found ref number ix: "); 
+        System.out.println(colIx);
+      }
+      if (val.equals("Component Designation")) {
+        m_cmpDesignationIx = colIx;
+        System.out.print("Found cmp designation ix: "); 
+        System.out.println(colIx);
+      }
+      if (val.equals("Batched")) {
+        m_batchedIx = colIx;
+        System.out.print("Found batched ix: "); 
+        System.out.println(colIx); 
+      }
+      if (val.equals("Qty")) {
+        m_qtyIx = colIx;
+        System.out.print("Found Qty ix: "); 
+        System.out.println(colIx);
+      }
+    }
+    // Now scan remaining rows, making some sanity checks
+    while (rows.hasNext()) {
+      row = rows.next();
+      if (row == null) continue;
+      if (row.getCell(m_cmpDesignationIx) == null) continue;
+      String cmp = row.getCell(m_cmpDesignationIx).getStringCellValue();
+      System.out.println("Found cmp " + cmp);
+      Cell batched = row.getCell(m_batchedIx);
+      if (batched != null) {
+        if (batched.getCellType() == Cell.CELL_TYPE_NUMERIC) { 
+          try {
+            int v = (int) batched.getNumericCellValue();
+            if ((v != 0) && (v != 1)) {
+              System.out.println("Unrecognized value for batched\n");
+              return;
+            } else {
+              System.out.println("Found good value for batched");
+            }
+          } catch (Exception e) {
+            System.out.println("Caught exeception " + e.getMessage());
+            System.out.println("Value for batched is not numeric!\n");
+            String txt = batched.getStringCellValue();
+            System.out.println("String value of cell is " + txt);
+            return;
+          }
+        }
+      }
+    }
+  }
+  /* Don't routinely run ingest test to avoid cluttering up db */
+  @Ignore @Test
+  public void ingestSimpleXlsx() {
+    System.out.println("Running ingestSimpleXlsx test");
+
+  }
+  /*  
+  private void checkFile(String fp, boolean validateOnly) 
+  {
+    if (validateOnly) {
+      m_parms.put("validateOnly", "true");
+    } else {
+      m_parms.put("validateOnly", "false");
+    }   
+    String contents = "";
+    try {
+      FileReader f = new FileReader(fp);
+      BufferedReader br = new BufferedReader(f);
+      String line = br.readLine();
+      while (line != null) {
+        contents += line + "\n";
+        line = br.readLine();
+      }
+    } catch  (FileNotFoundException ex)   {
+      fail("Unable to open file " + fp);
+      return;
+    } catch (IOException ex) {
+      fail("Exception while reading " + fp);
+      return;
+    }
+    m_parms.put("contents", contents);
+      Map<String, String> results =
+      Traveler.ingest(m_sessionData, m_parms);
+    
+    System.out.println("Summary: " + results.get("summary"));
+    if (results.containsKey("acknowledge") ) {
+      System.out.println("Messages: " + results.get("acknowledge"));
+      assertNull("Validation should have succeeded",
+        results.get("acknowledge"));
+    }
+  }
+  */
+}
