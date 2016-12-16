@@ -7,7 +7,11 @@ import java.util.ArrayList;
  *
  * @author jrb
  *
- * Base class for all representations of a hardware assembly type
+ * Base class for all representations of a hardware assembly type.
+ * Properties associated with the hardware (not assembly) come
+ * from the underlying HtypeBase object, accessible via getHardwareType
+ * This interface otherwise only concerns relations for which the
+ * hardware type is the parent component type
  */
 public interface AtypeInterface
 {
