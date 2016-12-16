@@ -26,6 +26,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.lsst.camera.etraveler.backend.exceptions.EtravelerException;
 import org.lsst.camera.etraveler.backend.util.Verify;
 
+/**
+ * Hardware assembly as represented in spreadsheet
+ * @author jrb
+ */
+
 public class HardwareAssemblyTable implements HardwareTypeNode.Importer  {
   public static final int FTYPE_XLSX=1;
 
