@@ -69,7 +69,7 @@ public class HardwareTypeNode
 
   private HardwareTypeNode m_parent=null;
   private String       m_name=null;    /* component type name */
-  private String       m_slotname=null;
+  private String       m_slotname=null; /* if child in assembly */
   // Maybe add field for lsst id of actual component if assigned or installed
   // private String       m_componentId=null;
   

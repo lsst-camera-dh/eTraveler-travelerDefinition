@@ -7,6 +7,7 @@ package org.lsst.camera.etraveler.backend.hardware;
 
 import java.util.ArrayList;
 /**
+ * Specifics for spreadsheet representation of an assembly type
  *
  * @author jrb
  */
