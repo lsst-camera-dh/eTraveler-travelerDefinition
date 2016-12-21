@@ -29,41 +29,20 @@ import org.lsst.camera.etraveler.backend.node.Traveler;
 import org.lsst.camera.etraveler.backend.hnode.AssemblyVisitor;
 
 /**
- * Create text file (or byte stream) for input to GraphViz
- * 
- * (Maybe also provide services to invoke GraphViz?)
- * 
  * @author jrb
  */
 public class AssemblyTreeVisitor implements AssemblyVisitor { 
-  /**
-   * Store vital information about a edited ProcessTreeNode in case
-   * we later want to restore. It's a pure data class.
-   
-  private class TreeNodeEditInfo {
-    public ProcessNode m_process;
-    public int         m_myId;
-    public String      m_editType;
-  }
-  */
+
   public AssemblyTreeVisitor(boolean editable) throws EtravelerException {
     if (editable) {
       throw
         new EtravelerException("AssemblyTreeVisitor: editing not supported");
     }
-    //m_editable = editable;
     m_reason = "display";
   }
   
-  public AssemblyTreeVisitor(/* boolean editable, */ String reason) throws
+  public AssemblyTreeVisitor(String reason) throws
   EtravelerException {
-    /*
-    if (editable) {
-      throw
-        new EtravelerException("TravelerTreeVisitor: editing not supported");
-    }
-    m_editable = editable;
-    */
     m_reason = reason;
   }
   
@@ -101,11 +80,11 @@ public class AssemblyTreeVisitor implements AssemblyVisitor {
    * If created for editing, we'll want to save root of the original
    * traveler our traveler was copied from
    * @param original 
-   */
+   
   public void setCopiedFrom(HardwareTypeNode original) {
     m_original = original;
   }
-
+  */
   public HardwareTreeNode findNodeFromPath(String path, String treeNodeId) {
     if (m_treeRoot == null) return null;  /* not built yet */
 
@@ -121,7 +100,7 @@ public class AssemblyTreeVisitor implements AssemblyVisitor {
     return guess.findSibling(treeNodeId);
   }
 
-  // Implementation of TravelerVisitor
+  // Implementation of AssemblyVisitor
   public void visit(HardwareTypeNode hnode, String activity, Object cxt) throws EtravelerException {
     
     HardwareTreeNode treeNode = new HardwareTreeNode(this, hnode, null);
@@ -136,16 +115,11 @@ public class AssemblyTreeVisitor implements AssemblyVisitor {
     }
     hnode.exportToWrapper(treeNode);   
    
-    //   For now ignore prereqs and results
     // If children
-    //   Create new travelever visitor; set output stream to ours
+    //   Create new assembly visitor; set output stream to ours
     //   Recurse through children.  
-    //    After each child, draw edge from us to it.  Maybe differentiate
-    //    between selection / sequence children with color or line style
-   
+    //    After each child, draw edge from us to it.  
   }
-  // For the time being ignore prerequisites, results and relationship tasks; 
-  // just draw nodes & edges
  
   public void render(PageContext context) {
     JspWriter outWriter = context.getOut();
@@ -155,11 +129,6 @@ public class AssemblyTreeVisitor implements AssemblyVisitor {
 
         m_treeRenderer.setLeafHref(href + "&leafSelectedPath=%p");
         m_treeRenderer.setFolderHref(href + "&folderSelectedPath=%p");
-
-        // if (m_editable)  {
-        //   m_treeRenderer.setTarget("action");
-             
-        // }
 
         if (m_reason.equals("NCR")) {
           m_treeRenderer.setTarget("NCR");
