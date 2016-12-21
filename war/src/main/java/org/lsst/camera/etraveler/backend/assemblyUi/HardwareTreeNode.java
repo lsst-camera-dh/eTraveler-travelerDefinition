@@ -31,11 +31,9 @@ public class HardwareTreeNode extends DefaultTreeNode
   */
  
   public void acceptName(String name) {
-    //m_name = name;
     setLabel(name);
   }
   public void acceptChildren(ArrayList<HardwareTypeNode> children) {
-    // m_children=children;
     if (children == null) return;
 
     // Do recursion here
@@ -77,7 +75,7 @@ public class HardwareTreeNode extends DefaultTreeNode
   private String m_substeps=null;
   private AssemblyTreeVisitor m_vis=null;
   /*
-   * m_processNode is ProcessNode from which this ProcessTreeNode is derived
+   * m_hnode is HardwareTypeNode from which this ProcessTreeNode is derived
    */
   private HardwareTypeNode m_hnode=null;
   private HardwareTreeNode m_treeParent=null;

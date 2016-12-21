@@ -9,6 +9,8 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.InputStream;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
@@ -169,7 +171,11 @@ public class HardwareAssemblyTable implements HardwareTypeNode.Importer  {
     }
     interpret(wb);
   }
+  
 
+  private void readXlsxString(String str) throws EtravelerException {
+    StringReader  sr = new StringReader(str);
+  }
   /**
      Find first row containing first key value.  Check that it
      also contains all the keys; save column positions.
