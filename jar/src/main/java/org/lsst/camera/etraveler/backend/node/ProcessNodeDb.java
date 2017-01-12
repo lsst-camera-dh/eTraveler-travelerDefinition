@@ -1102,7 +1102,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
           oldValue = map.putIfAbsent(rs.getString(1), rs.getString(2));
         }
         if (oldValue != null) {
-          throw new DbContentException("id or " + nameCol + "duplicate in "
+          throw new DbContentException("id (=" + rs.getString(1) + ") or " 
+            + nameCol + "=(" + rs.getString(2) + ") duplicate in "
               + table); 
         }
         more = rs.next();
