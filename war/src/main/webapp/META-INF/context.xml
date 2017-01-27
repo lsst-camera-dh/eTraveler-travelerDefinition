@@ -7,9 +7,7 @@
   <ResourceLink global="jdbc/rd-lsst-cam-dev" name="jdbc/rd-lsst-cam-dev" type="javax.sql.DataSource"/>
   <ResourceLink global="jdbc/rd-lsst-cmft" name="jdbc/rd-lsst-cmft" type="javax.sql.DataSource"/>
   <ResourceLink global="jdbc/rd-lsst-camt" name="jdbc/rd-lsst-camt" type="javax.sql.DataSource"/>
-  <!--
   <ResourceLink global="jdbc/scdms_prod" name="jdbc/scdms_prod" type="javax.sql.DataSource" />
- -->
   <ResourceLink global="jdbc/scdms_dev" name="jdbc/scdms_dev" type="javax.sql.DataSource"/>
   <ResourceLink global="jdbc/scdms_test" name="jdbc/scdms_test" type="javax.sql.DataSource"/>
 </Context>
