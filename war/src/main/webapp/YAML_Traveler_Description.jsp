@@ -237,17 +237,17 @@
         <dl>
 	  <dt>PrerequisiteType:</dt>
           <dd>Required.  Value must be one of the following: PROCESS_STEP,
-          TEST_EQUIPMENT, CONSUMABLE, PREPARATION.  (One more value, COMPONENT, is
-          allowed but deprecated. If used its value must be the name of some
-          hardware type already defined in the database.)
+          TEST_EQUIPMENT, CONSUMABLE, PREPARATION.
           </dd>
           <dt>Name:</dt> 
-          <dd>Required.  If PrerequisiteType was COMPONENT, its value must be the name
-          of a hardware type already defined in the database.  If TEST_EQUIPMENT, it
-          <em>may</em> be a known hardware type name.  If PROCESS_STEP, it must match
-          the name of another step, preferably in the same traveler.  For CONSUMABLE
+          <dd>Required.   If TEST_EQUIPMENT, it
+          <em>may</em> be a known hardware type name.  If PROCESS_STEP, 
+          it should match
+          the name of another step in the same traveler (not currently
+          enforced).  For CONSUMABLE
           and PREPARATION, name should be descriptive, e.g. "gloves" would be a
-          CONSUMABLE.  A PREPARATION step might have a name like "instructions" or
+          CONSUMABLE.  
+          A PREPARATION step might have a name like "instructions" or
           "preliminaries".
           </dd>
           <dt>UserVersionString:</dt>
@@ -257,7 +257,7 @@
           <dd>Optional; defaults to 1.  If present, must be a positive integer. Mostly
           useful for CONSUMABLEs.</dd>
           <dt>Description:</dt>
-          <dd>Optional.  Especially useful for PREREQUISITE and TEST_EQUIPMENT.</dd>
+          <dd>Optional.  Especially useful for PREPARATION and TEST_EQUIPMENT.</dd>
         </dl>
 	</dd>	
     
