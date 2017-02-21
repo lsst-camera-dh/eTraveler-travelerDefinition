@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.lsst.camera</groupId>
     <artifactId>org-lsst-camera-etraveler-backend-core</artifactId>
-    <version>1.35.3</version>
+    <version>1.36-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>LSST eTraveler Backend Jar</name>
     <dependencies>
@@ -32,6 +32,25 @@
          <artifactId>org-srs-web-base</artifactId>
          <version>2.29</version>
       </dependency>
+      
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>4.4.6</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.7.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         
