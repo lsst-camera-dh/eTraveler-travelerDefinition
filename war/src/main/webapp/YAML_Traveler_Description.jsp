@@ -175,6 +175,16 @@
           
           <br /><br />
         </dd>
+        <dt>NCR:</dt>
+        <dd>Does not take a value.
+            If present, this traveler may be used as a stand-alone NCR.
+            Ignored for all steps except root step</dd>
+        <dt>Jobname:</dt>
+        <dd>If the step has 'HarnessedJob' attribute, this value
+          will be used in forming the command to launch the job.
+          If not present, value of Name: paremeter will be used.
+          Ignored for steps without 'HarnessedJob attribute.
+        </dd>
         <dt>UserVersionString:</dt>
         <dd>
           User-supplied version identification required for Job Harness

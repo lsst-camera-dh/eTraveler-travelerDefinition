@@ -70,11 +70,12 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     m_parentEdgeId = parentEdgeId;
     init(processName, version, hgroup, travelerRoot);
   }
-  private static String[] s_initCols = {"name", 
-    "hardwareGroupId",  "version", 
-    "userVersionString", "description", "shortDescription", "instructionsURL", "substeps", 
-    "maxIteration", "travelerActionMask", "permissionMask", "originalId", "newLocation",
-    "newHardwareStatusId"};
+  private static String[]
+    s_initCols = {"name", "hardwareGroupId",  "version", "jobname",
+                  "userVersionString", "description", "shortDescription",
+                  "instructionsURL", "substeps", "maxIteration",
+                  "travelerActionMask", "permissionMask", "originalId",
+                  "newLocation", "newHardwareStatusId"};
   private static String[] s_edgeCols = {"step", "cond"};
   private static PreparedStatement s_processQuery = null;
   private static PreparedStatement s_edgeQuery = null;
@@ -87,7 +88,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
    * Query db and save all information of interest for process specified by
    * input parameters
    * @param processName   "name" field in db
-   * @param userVersion   "userVersionString"  field in db
+   * @param userVersion   "userVersionString" field in db
    * @param hgroup         name for hardware group
    * @param travelerRoot
    * @return 
@@ -98,8 +99,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     String where = " WHERE Process.name=" + processName + " and userVersionString=" 
             + userVersion + " and HardwareGroup.name='" + hgroup 
         + "' and Process.hardwareGroupId=HardwareGroup.id";
-    String id = m_connect.fetchColumn("Process join HardwareGroup", "Process.id", 
-        where);
+    String id = m_connect.fetchColumn("Process join HardwareGroup",
+                                      "Process.id", where);
     if (id == null)  {
       SQLException ex = new SQLException("Fetch column failure");
       throw ex;
@@ -183,6 +184,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       m_hardwareGroupId = rs.getString(++ix);
       m_hardwareGroup = m_hardwareGroupNameMap.get(m_hardwareGroupId);
       m_version = rs.getString(++ix);
+      m_jobname = rs.getString(++ix);
       m_userVersionString = rs.getString(++ix);
       if (m_userVersionString  == null) m_userVersionString = "";
       m_description = rs.getString(++ix);
@@ -394,6 +396,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     return m_hardwareRelationshipSlot; }
     */
   public String provideVersion() {return m_version;}
+  public String provideJobname(){return m_jobname;}
   public String provideUserVersionString() {return m_userVersionString;}
   public String provideDescription() {
     if (m_description == null) return "";
@@ -467,6 +470,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   }
   
   public void acceptVersion(String version) { m_version = version; }
+  public void acceptJobname(String jobname) { m_jobname = jobname; }
   public void acceptUserVersionString(String userVersionString) {
     m_userVersionString = userVersionString;
   }
@@ -621,7 +625,11 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
      Check that node is compatible with specified database.  
      wrt argument can be used for warnings; else throw exception
    */
-  public void verify(DbConnection connect, String sub, Writer wrt,
+  public void verify(DbConnection connect, String sub,  Writer wrt,
+                     String eol) throws EtravelerException {
+    verify(connect, sub, null, wrt, eol);
+  }
+  public void verify(DbConnection connect, String sub, String NCR, Writer wrt,
                      String eol) throws EtravelerException {   
     // For first time through (parentless node)  maybe look up some things,
     // such as all possible relationship types, prereq types and semantic types.
@@ -656,6 +664,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     }   else { // assuming we checked compatibility of child earlier
       m_hardwareGroupId = m_dbParent.m_hardwareGroupId;
     }
+    m_standaloneNCR = NCR;
     if ((m_travelerActionMask & TravelerActionBits.REPEATABLE) != 0) {
       try {
         checkRetries();
@@ -815,10 +824,12 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   }
   // NOTE:  Can use keyword DEFAULT for columns not always set to user-supplied,
   //         value, e.g. hardwareRelationshipType
-  private static   String[] s_insertProcessCols={"name", 
-    "hardwareGroupId", "version", "userVersionString", "description", "shortDescription",
-    "instructionsURL", "substeps", "maxIteration", "newLocation", "newHardwareStatusId", "originalId",
-    "travelerActionMask", "permissionMask", "createdBy"};
+  private static   String[]
+    s_insertProcessCols={"name", "hardwareGroupId", "version", "jobname",
+                         "userVersionString", "description", "shortDescription",
+                         "instructionsURL", "substeps", "maxIteration",
+                         "newLocation", "newHardwareStatusId", "originalId",
+                         "travelerActionMask", "permissionMask", "createdBy"};
   private static   String[] s_insertEdgeCols={"parent", "child", "step", "cond", "createdBy"};
  
   
@@ -848,6 +859,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
         m_version = nextAvailableVersion(m_originalId);
       }
       vals[++ix] = m_version;
+      vals[++ix] = m_jobname;
       if ((m_userVersionString != null) && m_userVersionString.isEmpty()) {
         vals[++ix] = null;
       } else {
@@ -978,11 +990,26 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     String tableSpec = "TravelerType TT join Subsystem S on TT.subsystemId=S.id";
     return conn.fetchColumn(tableSpec, "S.shortName", where);
   }
+  public String getStandaloneNCR(DbConnection conn) throws SQLException {
+    if (m_id == null) return null;
+    if (m_dbParent != null) return null;
+    String where = " where rootProcessId='" + m_id +"'";
+    String tableSpec = "TravelerType";
+    String val=conn.fetchColumn(tableSpec, "standaloneNCR", where);
+    if (val != null) m_standaloneNCR = "1";
+    else m_standaloneNCR=null;
+    return m_standaloneNCR;
+  }
+
+  public String getStandaloneNCR() {
+    return m_standaloneNCR;
+  }
   /*
    * Add new row to TravelerType and TravelerTypeStateHistory tables
    */
-   private static   String[] s_insertTravTypeCols={"rootProcessId", "owner", 
-     "reason", "subsystemId", "createdBy"};
+   private static String[]
+     s_insertTravTypeCols={"rootProcessId", "owner", "reason", "subsystemId",
+                           "standaloneNCR", "createdBy"};
    private static   String[] s_insertTravTypeHistoryCols={"reason", "createdBy", "travelerTypeId",
     "travelerTypeStateId"};
   public  void registerTraveler(String owner, String reason) 
@@ -992,7 +1019,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     vals[1] = owner.trim();
     vals[2] = reason.trim();
     vals[3] = m_subsystemId;
-    vals[4] = m_vis.getUser();
+    vals[4] = m_standaloneNCR;
+    vals[5] = m_vis.getUser();
     String [] valsHist = new String[s_insertTravTypeHistoryCols.length];
     valsHist[0] = "new traveler";
     valsHist[1] = m_vis.getUser();
@@ -1138,6 +1166,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private String m_hardwareGroup=null;
   private String m_hardwareGroupId = null;
   private String m_version=null;
+  private String m_jobname=null;
   private String m_userVersionString="";
   private String m_description=null;
   private String m_shortDescription=null;
@@ -1172,6 +1201,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private boolean m_edited=false;
   private String m_sourceDb=null;
   private String m_subsystemId = null;  /* only used for root node */
+  private String m_standaloneNCR = null;  /* only used for root node */
   private ProcessNodeDb m_travelerRoot=null;
 
   // For reading from db
