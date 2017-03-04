@@ -92,6 +92,9 @@ public class ProcessNode implements  TravelerElement
 
     if (model.m_userVersionString != null) 
       m_userVersionString = new String(model.m_userVersionString);
+    if (model.m_jobname != null) {
+      m_jobname = new String(model.m_jobname);
+    }		
     m_description = new String(model.m_description);
     m_shortDescription = new String(model.m_shortDescription);
     m_instructionsURL = new String(model.m_instructionsURL);
@@ -179,6 +182,7 @@ public class ProcessNode implements  TravelerElement
       }
     }    
 
+    m_jobname = imp.provideJobname();
     m_userVersionString = imp.provideUserVersionString();
     m_description = imp.provideDescription();
     m_shortDescription = imp.provideShortDescription();
@@ -322,6 +326,12 @@ public class ProcessNode implements  TravelerElement
     } else {
       pList.add(new Attribute("user version string", ""));
     }
+    if (m_jobname != null) {
+      pList.add(new Attribute("jobname", m_jobname));
+    } else {
+      pList.add(new Attribute("jobname", ""));
+    }
+
     if (m_hardwareGroup != null)
       pList.add(new Attribute("hardware group", m_hardwareGroup));
     // This section will go at some point
@@ -491,6 +501,7 @@ public class ProcessNode implements  TravelerElement
     String provideName();
     String provideHardwareGroup();
     String provideVersion();
+    String provideJobname();
     String provideUserVersionString();
     String provideDescription();
     String provideShortDescription();
@@ -536,6 +547,7 @@ public class ProcessNode implements  TravelerElement
     void acceptIsCloned(boolean isCloned);
     void acceptIsRef(boolean isRef);
     void acceptVersion(String version);
+    void acceptJobname(String jobname);
     void acceptUserVersionString(String userVersionString);
     void acceptDescription(String description);
     void acceptShortDescription(String desc);
@@ -593,6 +605,7 @@ public class ProcessNode implements  TravelerElement
 
       //if (m_hardwareRelationshipType == null) m_hardwareRelationshipSlot = null;
       ptarget.acceptVersion(m_version);
+      ptarget.acceptJobname(m_jobname);
       ptarget.acceptUserVersionString(m_userVersionString);
       ptarget.acceptShortDescription(m_shortDescription);
       ptarget.acceptDescription(m_description);
@@ -704,6 +717,7 @@ public class ProcessNode implements  TravelerElement
     m_instructionsURL = src.m_instructionsURL;
     m_maxIteration = src.m_maxIteration;
     m_userVersionString = src.m_userVersionString;
+    m_jobname = src.m_jobname;
     m_newLocation = src.m_newLocation;
     m_newStatus = src.m_newStatus;
     // For now, do not handle recurs==true, so leave option count and seq count
@@ -740,6 +754,7 @@ public class ProcessNode implements  TravelerElement
   public String getName() { return m_name;}
   public String getVersion() {return m_version;}
   public String getUserVersionString() {return m_userVersionString;}
+  public String getJobname() {return m_jobname;}
   public String getProcessId() {return m_processId;}
   public String getHardwareGroup() {return m_hardwareGroup;}
   public String getDescription() {return m_description;}
@@ -776,6 +791,7 @@ public class ProcessNode implements  TravelerElement
   public void setShortDescription(String desc) 
   {m_shortDescription = desc;}
   public void setVersion(String version)  {m_version = version;}
+  public void setJobname(String jobname)  {m_jobname = jobname;}
   public void setUserVersionString(String ustring) {m_userVersionString = ustring;}
   public void setInstructionsURL(String url) {m_instructionsURL = url;}
   public void setMaxIteration(String maxIt) {m_maxIteration = maxIt;}
@@ -840,6 +856,7 @@ public class ProcessNode implements  TravelerElement
   */
   private String m_processId=null;
   private String m_version=null;
+  private String m_jobname=null;
   private String m_userVersionString="";
   private String m_description=null;
   private String m_shortDescription=null;

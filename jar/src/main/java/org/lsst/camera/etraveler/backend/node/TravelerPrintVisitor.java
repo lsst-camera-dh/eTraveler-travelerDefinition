@@ -66,6 +66,9 @@ public class TravelerPrintVisitor
       if (m_userVersionString != null) {
         m_writer.write(leadingBlanks+"UserVersionString: " + m_userVersionString + s_eol);
       }
+      if (m_jobname != null) {
+        m_writer.write(leadingBlanks+"Jobname: " + m_jobname + s_eol);
+      }
       if (m_travelerActionMask != 0) {
         m_writer.write(leadingBlanks + "TravelerActionMask: " + m_travelerActionMask);
         if ((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_LOCATION) != 0) {
@@ -265,7 +268,8 @@ public class TravelerPrintVisitor
   public void setWriter(Writer writer)  {m_writer = writer;}
   private void resetProcessScalars() {
     m_id=null; m_name=null;   //  m_hardwareRelationshipType=null;
-    m_hardwareGroup=null; m_version=null; m_userVersionString=null; m_description=null;
+    m_hardwareGroup=null; m_version=null;
+    m_userVersionString=null; m_jobname=null; m_description=null;
     m_maxIteration=null; m_substeps=null; m_travelerActionMask=0;
     m_originalId=null; m_condition=null; m_newLocation=null;
   }
@@ -305,6 +309,7 @@ public class TravelerPrintVisitor
   public void acceptVersion(String version) {m_version = version;}
   public void acceptUserVersionString(String userVersionString) {
     m_userVersionString = userVersionString;}
+  public void acceptJobname(String jobname) {m_jobname=jobname;}
   public void acceptDescription(String description) {m_description = description;}
   public void acceptShortDescription(String desc) 
   {m_shortDescription = desc;}
@@ -431,6 +436,7 @@ public class TravelerPrintVisitor
   //   .. down to here
   private String m_version=null;
   private String m_userVersionString=null;
+  private String m_jobname=null;
   private String m_description=null;
   private String m_shortDescription=null;
   private String m_instructionsURL=null;

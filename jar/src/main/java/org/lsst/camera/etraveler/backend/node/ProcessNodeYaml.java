@@ -96,6 +96,8 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     s_knownKeys.add("AddLabel");
     s_knownKeys.add("RemoveLabel");
     s_knownKeys.add("Subsystem");
+    s_knownKeys.add("NCR");
+    s_knownKeys.add("Jobname");
     /* Following are written by yaml export; informational only */
     s_knownKeys.add("FromSourceVersion");
     s_knownKeys.add("FromSourceId");
@@ -128,11 +130,13 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   static final int ADDLABEL=23;
   static final int REMOVELABEL=24;
   static final int SUBSYSTEM=25;
+  static final int NCR=26;
+  static final int JOBNAME=27;
   
-  static final int FROMSOURCEVERSION=26;
-  static final int FROMSOURCEID=27;
-  static final int FROMSOURCEORIGINALID=28;
-  static final int FROMSOURCESOURCEDB=29;
+  static final int FROMSOURCEVERSION=28;
+  static final int FROMSOURCEID=29;
+  static final int FROMSOURCEORIGINALID=30;
+  static final int FROMSOURCESOURCEDB=31;
   
   public ProcessNodeYaml() {}
   
@@ -299,6 +303,10 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         // ignore for all but top node
         if (m_parent == null) m_subsystem=v;
         break;
+      case NCR:
+        // ignore for all but top node
+        if (m_parent == null) m_standaloneNCR="1";
+        break;
       case VERSION:
         m_version = v; 
         if (!m_version.equals("next")) {
@@ -306,6 +314,9 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
             throw new WrongTypeYamlValue("version", m_version, "Process");
           }
         }
+        break;
+      case JOBNAME:
+        m_jobname = v;
         break;
       case USERVERSIONSTRING:
         m_userVersionString = v; break;
@@ -534,6 +545,8 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       throw new EtravelerException("Operator inputs not allowed on automated step \""
           + m_name + "\" ");
     }
+    if ((TravelerActionBits.HARNESSED & m_travelerActionMask) == 0)
+      m_jobname = null;
 
     // Finished with keys. Have handled everything except process children
     if (m_nChildren > 0) {    // Do recursion
@@ -603,6 +616,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   public String provideName()  {return m_name;}
   public String provideHardwareGroup() {return m_hardwareGroup;}
   public String provideVersion() {return m_version;}
+  public String provideJobname() {return m_jobname;}
   public String provideUserVersionString() {return m_userVersionString;}
   public String provideDescription() {return m_description;}
   public String provideShortDescription() {return m_shortDescription;}
@@ -655,6 +669,8 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   }
   public void finishImport(ProcessNode process) {}
   public String getSubsystem() {return m_subsystem;}
+  public String getStandaloneNCR() {return m_standaloneNCR;}
+
   public Writer getWriter() {return m_writer;}
   public String getEol() {return m_eol;}
 
@@ -672,6 +688,8 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private String m_newStatus=null;
   private String m_edgeCondition = null;
   private String m_sourceDb = null;  // only of interest for top node
+  private String m_standaloneNCR = null; // only of interest for top node
+  private String m_jobname = null;
   
   private int m_nChildren = 0;
   private int m_nPrerequisites = 0;

@@ -30,8 +30,26 @@ public class Traveler {
   private String m_source=null;  // e.g. db, yaml
   private String m_sourceDb="[none]";  // dataSourceMode value or "[none]"
   private String m_subsystem=null;
+  private String m_standaloneNCR=null;
   private String m_eol="";
 
+  /**
+   *   Create Traveler wrapper for in-memory traveler def (i.e.,
+   *   process nodes are in-memory) 
+   *   @param root    root process node
+   *   @param source  e.g. db, yaml
+   *   @param sourceDb
+   *   @param subsystem
+   *   @param standaloneNCR
+   */
+  public Traveler(ProcessNode root, String source, String sourceDb, 
+                  String subsystem, String standaloneNCR) {
+    m_root=root;
+    m_source = source;
+    m_sourceDb = sourceDb;
+    m_subsystem=subsystem;
+    m_standaloneNCR=standaloneNCR;
+  }
   /**
    *   Create Traveler wrapper for in-memory traveler def (i.e.,
    *   process nodes are in-memory) 
@@ -114,6 +132,7 @@ public class Traveler {
       m_root = rootNode;
       m_source = "yaml";
       m_subsystem = topYaml.getSubsystem();
+      m_standaloneNCR = topYaml.getStandaloneNCR();
     } catch (Exception ex) {
       System.out.println("Failed to import from yaml with exception " + ex.getMessage());
       wrt.write("Failed to import from yaml with exception '" +
@@ -139,6 +158,7 @@ public class Traveler {
   public String getSource() {return m_source;}
   public String getSourceDb() {return m_sourceDb;}
   public String getSubsystem() {return m_subsystem;}
+  public String getStandaloneNCR() {return m_standaloneNCR;}
   public String getName() {return m_root.getName();}
   public String getVersion() {return m_root.getVersion();}
   public String getHgroup() {return m_root.getHardwareGroup(); }
@@ -200,6 +220,7 @@ public class Traveler {
     TravelerToYamlVisitor vis = new TravelerToYamlVisitor(m_sourceDb);
     vis.setIncludeDbInternal(includeDebug);
     vis.setSubsystem(this.getSubsystem());
+    vis.setStandaloneNCR(this.getStandaloneNCR());
     try {
       vis.visit(this.getRoot(), "", null);
     } catch (EtravelerException ex) {
@@ -282,6 +303,7 @@ public class Traveler {
     }
     try {
       vis.setSubsystem(m_subsystem);
+      vis.setStandaloneNCR(m_standaloneNCR);
       vis.visit(m_root, "verify", null);
     }  catch (Exception ex)  {
       conn.close();
@@ -313,7 +335,9 @@ public class Traveler {
                           vis.getTravelerHardwareGroup(), null, null);
       ProcessNode travelerRoot = new ProcessNode(null, travelerDb);
       String subsys = travelerDb.getSubsystem(conn);
-      travelerFromDb = new Traveler(travelerRoot, "db", dbType, subsys);
+      String standaloneNCR = travelerDb.getStandaloneNCR();
+      travelerFromDb = new Traveler(travelerRoot, "db", dbType, subsys,
+                                    standaloneNCR);
     }  catch (NumberFormatException ex) {
       conn.close();
       errWriter.write("input version must be an integer!");
