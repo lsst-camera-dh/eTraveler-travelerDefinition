@@ -1014,6 +1014,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     "travelerTypeStateId"};
   public  void registerTraveler(String owner, String reason) 
       throws SQLException, EtravelerException {
+    m_standaloneNCR = m_vis.getStandaloneNCR();
     String[] vals = new String[s_insertTravTypeCols.length];
     vals[0] = m_id;
     vals[1] = owner.trim();

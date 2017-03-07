@@ -305,7 +305,11 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         break;
       case NCR:
         // ignore for all but top node
-        if (m_parent == null) m_standaloneNCR="1";
+        if (m_parent == null) {
+          if ((!v.equals("0")) && (!v.equals("no")) && (!v.equals("No"))
+              && (!v.equals("false")) && (!v.equals("False")) )
+          m_standaloneNCR="1";
+        }
         break;
       case VERSION:
         m_version = v; 
@@ -317,6 +321,9 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         break;
       case JOBNAME:
         m_jobname = v;
+        if (m_nameHandling.equals("warn")) {
+            ok = ok && checkName(m_name);
+        }
         break;
       case USERVERSIONSTRING:
         m_userVersionString = v; break;
