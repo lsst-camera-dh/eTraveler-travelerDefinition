@@ -71,6 +71,21 @@ public class NCRSpecificationDb {
     m_travelerRootId = rs.getString("rootProcessId");
     m_status = rs.getString("status");
   }
+
+  /**
+   * Constructor for standalone NCR
+   */
+  public NCRSpecificationDb(TravelerToDbVisitor vis, String rootId) {
+    m_condition="Standalone";
+    m_exitPathString = null;
+    m_returnPathString = null;
+    m_exitProcessId = rootId;
+    m_returnProcessId = rootId;
+    m_ncrProcessId = rootId;
+    m_travelerRootId = rootId;
+    m_verified = true;
+    m_vis = vis;
+  }
   
   public void verify(DbConnection conn) throws EtravelerException {
     m_travelerRootId = m_spec.getRoot().getProcessId();
@@ -109,13 +124,15 @@ public class NCRSpecificationDb {
   public void writeToDb(DbConnection conn) throws EtravelerException {
     if (!m_verified) throw new EtravelerException("Bad ncr specification");
     String[] vals = new String[s_insertExceptionCols.length];
-    vals[0] = m_spec.getCondition();
+    // vals[0] = m_spec.getCondition();
+    vals[0] = m_condition;
     vals[1] = m_exitPathString;
     vals[2] = m_returnPathString;
     vals[3] = m_exitProcessId;
     vals[4] = m_returnProcessId;
     vals[5] = m_travelerRootId;
-    vals[6] = m_spec.getNCRId();
+    // vals[6] = m_spec.getNCRId();
+    vals[6] = m_ncrProcessId;
     vals[7] = m_vis.getUser();
     try {
       conn.setAutoCommit(true);

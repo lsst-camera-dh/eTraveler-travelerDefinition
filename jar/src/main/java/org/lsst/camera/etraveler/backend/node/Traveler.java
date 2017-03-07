@@ -319,6 +319,14 @@ public class Traveler {
       vis.setReason(reason);
       vis.setOwner(owner);
       vis.visit(m_root, "write", null);
+      if (m_standaloneNCR != null) {
+        // Find root id of new traveler
+        String rootId = vis.getProcessNodeDb().provideId();
+        // make a new, special NCRSpecificationDb
+        NCRSpecificationDb ncrSpecDb = new NCRSpecificationDb(vis, rootId);
+        // write it to Db
+        ncrSpecDb.writeToDb(vis.getConnection());
+      }
     }  catch (Exception ex) {
       conn.close();
       errWriter.write("Failed to write to " + dbType + 

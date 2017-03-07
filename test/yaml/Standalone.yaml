@@ -1,0 +1,17 @@
+Name:  StandaloneNCR
+Subsystem: Default
+NCR: yes
+HardwareGroup:   Anything
+Description: Use for testing ingest of standalone NCRs
+ShortDescription: Testing
+Sequence:
+  -
+    Name: StandaloneNCR_1
+    Description:   Get some input
+    ShortDescription: Get some input
+    RequiredInputs:
+      -
+        Label: "Why"
+        Description:  "Why are we doing this?"
+        InputSemantics: string
+        
