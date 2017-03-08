@@ -322,7 +322,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       case JOBNAME:
         m_jobname = v;
         if (m_nameHandling.equals("warn")) {
-            ok = ok && checkName(m_name);
+            ok = ok && checkName(m_jobname);
         }
         break;
       case USERVERSIONSTRING:
@@ -552,8 +552,11 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       throw new EtravelerException("Operator inputs not allowed on automated step \""
           + m_name + "\" ");
     }
-    if ((TravelerActionBits.HARNESSED & m_travelerActionMask) == 0)
+    if ((TravelerActionBits.HARNESSED & m_travelerActionMask) == 0) {
       m_jobname = null;
+    } else {
+      if (m_jobname == null) m_jobname = m_name;
+    }
 
     // Finished with keys. Have handled everything except process children
     if (m_nChildren > 0) {    // Do recursion
