@@ -37,7 +37,6 @@
                           style="text-align:left" />
 
           <display:column property="version" style="text-align:right" />
-          <display:column property="jobname" style="text-align:left" />
           <display:column property="userVersionString" title="User version"
                           style="text-align:left" />
         </display:table>
