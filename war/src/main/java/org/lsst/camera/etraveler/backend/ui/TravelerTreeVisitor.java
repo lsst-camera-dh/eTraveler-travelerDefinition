@@ -85,6 +85,8 @@ public class TravelerTreeVisitor implements TravelerVisitor {
     m_traveler=trav;
     if (trav.getSubsystem() != null) {
       m_title="The tree, subsystem=" + trav.getSubsystem();
+      if (trav.getStandaloneNCR() != null)
+        m_title += ", Standalone NCR";
     }
   }
   
@@ -176,59 +178,6 @@ public class TravelerTreeVisitor implements TravelerVisitor {
       System.out.println("Failed to render tree with exception: " + ex.getMessage());
     }
   }
-  // public boolean addEdited(ProcessTreeNode node, String how)  {
-  //   if (!m_editable) return false;
-   
-  //   m_editedNodes.put(node, how);
-  //   return true;
-  // }
-  // public boolean undoEdited(String path) {
-  //   if (!m_editable) return false;
-  //   ProcessTreeNode theNode = null;
-  //   boolean ok = false;
-  //   Set<ProcessTreeNode> nodes = m_editedNodes.keySet();
-  //   for (ProcessTreeNode node: nodes) {
-  //     if (node.getPath().equals(path)) {
-  //       theNode=node;
-  //       String how = m_editedNodes.get(node);
-  //       if (how.equals("modified")) {
-  //         ok = theNode.getProcessNode().recover(false);
-  //       } else if (how.equals("modified all")) {
-  //         ok = theNode.getProcessNode().recoverAll(false);
-  //       }
-  //       if (ok) m_editedNodes.remove(theNode);
-  //       return ok;
-  //     }
-  //   }
-  //   return false;
-  // }
-  
-  // public ArrayList<EditedTreeNode> getEdited() {
-  //   ArrayList<EditedTreeNode> edited = new ArrayList<EditedTreeNode>();
-    
-  //   Set<ProcessTreeNode> nodes = m_editedNodes.keySet();
-  //   for (ProcessTreeNode node: nodes) {
-  //     EditedTreeNode e = new EditedTreeNode(node.getPath(), m_editedNodes.get(node));
-  //     edited.add(e);
-  //   }
-  //   return edited;
-  // }
-  
-  // public int getNEdited() {
-  //   if (m_editedNodes == null) return 0;
-  //   return m_editedNodes.size();
-  // }
-  
-  // public boolean clearModified() {
-  //   if (!m_editable) return false;
-    /* Really should be
-     *    for node in HashMap
-     *        restore
-     *        remove from HashMap
-     */
-  //   m_editedNodes.clear();
-  //   return true;
-  // }
   int getCount() {
     m_treeNodeCount++;
     return m_treeNodeCount;

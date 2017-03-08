@@ -83,7 +83,8 @@ public class DbImporter {
         // Need db query to get subsystem, probably belongs in ProcessNodeDb.
         // Or maybe make a TravelerDb class??
         String subsys = travelerDb.getSubsystem(conn);
-        traveler = new Traveler(travelerRoot, "db", dbType, subsys);
+        String standaloneNCR = travelerDb.getStandaloneNCR(conn);
+        traveler = new Traveler(travelerRoot, "db", dbType, subsys, standaloneNCR);
         travelers.putIfAbsent(key, traveler);
       }  catch (NumberFormatException ex) {
         conn.close();
@@ -283,7 +284,7 @@ public class DbImporter {
       originalTravelerRoot = originalTraveler.getRoot();
     } catch (EtravelerException ex) {
       try {
-        context.getOut().println("Failed to retreive process with exception: " 
+        context.getOut().println("Failed to retrieve process with exception: " 
             + ex.getMessage());
       } catch (IOException ioex) {}
       System.out.println("Failed to retrieve process with exception: " + ex.getMessage() );
@@ -297,10 +298,6 @@ public class DbImporter {
     HttpServletRequest request = (HttpServletRequest) context.getRequest();
     vis.setPath(request.getContextPath());
     try {
-      //if (reason.equals("edit"))  { /* make a copy */
-      //  traveler = new Traveler(originalTraveler);
-      //  travelerRoot = traveler.getRoot();
-      //}
       if (travelerRoot ==  null) {
         System.out.println("Failed to copy traveler for editing");
         return;
@@ -311,10 +308,6 @@ public class DbImporter {
       System.out.println("Failed to build tree: " + ex.getMessage() );
       return;
     }
-    //if (reason.equals("edit")) {
-      // Tell visitor about original traveler
-    //  vis.setCopiedFrom(originalTravelerRoot);
-    //}
     jspContext.setAttribute("treeVisitor", vis, PageContext.SESSION_SCOPE);
     vis.render(context);
   }
@@ -331,8 +324,9 @@ public class DbImporter {
       System.out.println("Failed to build tree: " + ex.getMessage() );
       return;
     }
-    vis.setTitle("Preview tree from YAML check, subsystem='" 
-        + traveler.getSubsystem() + "'");
+    String title="Preview tree from YAML check, subsystem='" + traveler.getSubsystem() + "'";
+    if (traveler.getStandaloneNCR() != null) title += ", Standalone NCR";
+    vis.setTitle(title);
     HttpServletRequest request = (HttpServletRequest) context.getRequest();
     vis.setPath(request.getContextPath());
     try {
@@ -345,62 +339,6 @@ public class DbImporter {
         PageContext.SESSION_SCOPE);
     vis.render(context);
   }
-  // static public void dotImgMap(PageContext context) {
-  //   JspWriter outWriter = context.getOut();
-  //   /* Make the map */
-  //   String name = context.getRequest().getParameter("traveler_name");
-  //   String version = context.getRequest().getParameter("traveler_version");
-  //   String hgroup = context.getRequest().getParameter("traveler_hgroup");
-  //   String dbType = ModeSwitcherFilter.getVariable(context.getSession(),
-  //       "dataSourceMode");
-  //   String datasource = ModeSwitcherFilter.getVariable(context.getSession(),
-  //       "etravelerDb");
-  //   ProcessNode traveler = null;
-  //   try {
-  //     traveler = getProcess(name, version, hgroup, dbType, datasource, context);
-  //   } catch (EtravelerException ex) {
-  //     System.out.println("Failed to retrieve process with exception: " + ex.getMessage() );
-  //     return;
-  //   }
-    
-  //   StringWriter dotWriter = new StringWriter();
-  //   TravelerDotVisitor vis = new TravelerDotVisitor();
-    
-  //   try {
-  //     vis.initOutput(dotWriter, "\n");
-  //     vis.visit(traveler, "dot file", null);
-  //     vis.endOutput();
-  //   } catch (EtravelerException ex) {
-  //     System.out.println("Failed to make dot file: " + ex.getMessage());
-  //   }
-  //   GraphViz gv = new GraphViz("dot");
-  //   ByteArrayOutputStream bytes=null;
-  //   try {
-  //     bytes = gv.getGraph(dotWriter.toString(), GraphViz.Format.CMAPX);
-  //     outWriter.println(bytes.toString());
-  //   } catch (IOException ex) {
-  //     System.out.println("Failed to make or output image map");
-  //     return;
-  //   }
- 
-  //   /* Post to servlet to make the image */
-  //   String encodedName=null;    
-  //   try {
-  //     encodedName = 
-  //         URLEncoder.encode(context.getRequest().getParameter("traveler_name"), "UTF-8");
-  //   } catch (UnsupportedEncodingException ex) {
-  //     System.out.println("Bad traveler name");
-  //   }
- 
-  //   try {
-  //     outWriter.println("<img src=\"TravelerImageServlet?name=" + name + "&version=" 
-  //         + version + "&hgroup=" + hgroup + "&db=" +dbType 
-  //         + "\" usemap=\"#Traveler\"  />");
-  //   } catch  (IOException ex) {
-  //     System.out.println("Couldn't write img line");
-  //   }
-    
-  // }
  
   /**
    * getTraveler only accesses local data.  It tries to find traveler among 
