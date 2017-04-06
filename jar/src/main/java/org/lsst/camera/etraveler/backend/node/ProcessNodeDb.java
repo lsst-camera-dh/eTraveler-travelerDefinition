@@ -996,7 +996,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     String where = " where rootProcessId='" + m_id +"'";
     String tableSpec = "TravelerType";
     String val=conn.fetchColumn(tableSpec, "standaloneNCR", where);
-    if (val != null) m_standaloneNCR = "1";
+    if (val.equals("1")) m_standaloneNCR = "1";
     else m_standaloneNCR=null;
     return m_standaloneNCR;
   }
