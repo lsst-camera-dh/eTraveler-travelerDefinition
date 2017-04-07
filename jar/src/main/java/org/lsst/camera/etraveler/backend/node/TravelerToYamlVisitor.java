@@ -22,6 +22,7 @@ public class TravelerToYamlVisitor implements TravelerVisitor {
   private Map<String, Object> data;
   private boolean m_includeDbInternal = false;
   private String m_subsystem=null;
+  private String m_standaloneNCR=null;
   
   public TravelerToYamlVisitor(String dbSource)  {
     m_dbSource = dbSource;
@@ -31,6 +32,8 @@ public class TravelerToYamlVisitor implements TravelerVisitor {
   public boolean getIncludeDbInternal() {return m_includeDbInternal;}
   public void setSubsystem(String sub) {m_subsystem = sub;}
   public String getSubsystem() {return m_subsystem;}
+  public void setStandaloneNCR(String NCR) {m_standaloneNCR = NCR;}
+  public String getStandaloneNCR() {return m_standaloneNCR;}
   public void visit(ProcessNode process, String activity, Object cxt) throws EtravelerException {
     Object cxtToPass = cxt;
     boolean topNode = false;
@@ -45,6 +48,7 @@ public class TravelerToYamlVisitor implements TravelerVisitor {
     if (topNode)  {
       yamlChild.acceptSourceDb(m_dbSource);
       yamlChild.acceptSubsystem(m_subsystem);
+      yamlChild.acceptStandaloneNCR(m_standaloneNCR);
     }
   }
   public void addChild(ArrayList< HashMap<String, Object> > children, ProcessNode process,

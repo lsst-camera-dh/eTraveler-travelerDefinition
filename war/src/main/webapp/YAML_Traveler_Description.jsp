@@ -81,6 +81,12 @@
         <dd>The hardware group the traveler acts on.  The key is required for the root
           element and ignored everywhere else (its value is inherited from the root).
           <br /><br /></dd>
+        <dt>Jobname:</dt>
+        <dd>If the step has 'HarnessedJob' attribute, this value
+          will be used in forming the command to launch the job.
+          If not present, value of Name: paremeter will be used.
+          Ignored for steps without 'HarnessedJob attribute.
+        </dd>
         <dt>MaxIteration:</dt>
         <dd>
           The number of tries allowed without special, privileged intervention.
@@ -95,6 +101,10 @@
           include any of the following characters:
           <pre>;,:?!}{]['"/$#&amp;=*^</pre>
         </dd>
+        <dt>NCR:</dt>
+        <dd> If this key is present and its value is anything <em>other</em> than
+            <b>0</b>, <b>no</b>, <b>false</b> the traveler may be used as a stand-alone NCR.
+            The key is ignored for all steps except root step</dd>
         <dt>NewLocation:</dt>
         <dd>
           Location to which component is to be moved.  Must be defined in

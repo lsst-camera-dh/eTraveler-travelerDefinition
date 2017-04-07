@@ -101,6 +101,8 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
   public String getTravelerHardwareGroup() {return m_travelerHardwareGroup;}
   public String getSubsystem() {return m_subsystem;}
   public void setSubsystem(String sub){m_subsystem=sub;}
+  public String getStandaloneNCR() {return m_standaloneNCR;}
+  public void setStandaloneNCR(String NCR) {m_standaloneNCR = NCR;}
   public void setUseTransactions(boolean setting) {
     m_useTransactions = setting;
   }
@@ -122,4 +124,5 @@ public class TravelerToDbVisitor implements TravelerVisitor  {
   private String m_travelerVersion= null;
   private String m_travelerHardwareGroup=null;
   private String m_subsystem=null;
+  private String m_standaloneNCR=null;
 }

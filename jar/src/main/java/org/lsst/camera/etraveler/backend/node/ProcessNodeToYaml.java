@@ -72,6 +72,9 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
     }
     
   }
+  public void acceptJobname(String jobname) {
+    if (!m_isCloned) putIfPresent("Jobname", jobname);
+  }
   public void acceptUserVersionString(String userVersionString) {
     if (!m_isCloned) putIfPresent("UserVersionString", userVersionString);
   }
@@ -276,6 +279,11 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
   public void acceptSubsystem(String sub) {
     if (sub != null) {
       m_data.put("Subsystem", sub);
+    }
+  }
+  public void acceptStandaloneNCR(String NCR) {
+    if (NCR != null) {
+      m_data.put("NCR", NCR);
     }
   }
   // Do we need anything more having to do with edges?
