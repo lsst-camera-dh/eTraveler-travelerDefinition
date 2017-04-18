@@ -1,0 +1,27 @@
+%YAML 1.1
+---
+Name: genericLabels
+HardwareGroup: snark
+Version: next
+Description: Play with labels, new status
+ShortDescription: Test stuff 
+Sequence:
+  - Name: genericLabels-addLabel
+    Version: next
+    AddLabel: "SnarkRandom:green"
+    Description:   add a known label. Description field here
+       was spread across two lines
+    ShortDescription: add label
+  - Name: genericLabels-no-quotes
+    Version: next
+    Description: See if parser can deal with unquoted embedded colon
+    ShortDescription: unquoted label with embedded colon
+    AddLabel: SnarkRandom:fuzzy
+  - Name: genericLabels-removeLabel
+    RemoveLabel: SnarkRandom:green
+    Description: remove a generic label
+    ShortDescription: remove a label
+    Version: next
+
+
+

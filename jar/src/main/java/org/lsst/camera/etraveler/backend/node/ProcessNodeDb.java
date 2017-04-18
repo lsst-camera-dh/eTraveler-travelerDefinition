@@ -75,7 +75,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
                   "userVersionString", "description", "shortDescription",
                   "instructionsURL", "substeps", "maxIteration",
                   "travelerActionMask", "permissionMask", "originalId",
-                  "newLocation", "newHardwareStatusId"};
+                  "newLocation", "newHardwareStatusId", "genericLabelId"};
   private static String[] s_edgeCols = {"step", "cond"};
   private static PreparedStatement s_processQuery = null;
   private static PreparedStatement s_edgeQuery = null;
@@ -197,11 +197,24 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       m_originalId = rs.getString(++ix);
       m_newLocation = rs.getString(++ix);
       m_newStatusId = rs.getString(++ix);
+      m_genericLabelId = rs.getString(++ix);
       rs.close();
       decodePermissionGroupMask();
       if (m_newStatusId != null)  { /* find corresponding string */
-        m_newStatus = m_connect.fetchColumn("HardwareStatus", "name",
-            " where id ='" + m_newStatusId + "'");
+        m_newStatus =
+          m_connect.fetchColumn("HardwareStatus", "name",
+                                " where id ='" + m_newStatusId + "'");
+      }
+      if (m_genericLabelId != null) {// Fetch group name, label name; concat
+        String labelName =
+          m_connect.fetchColumn("Label", "name", " where id='"
+                                + m_genericLabelId + "'");
+        String tableSpec =
+          "Label join LabelGroup on Label.labelGroupId=LabelGroup.id";
+        String groupName =
+          m_connect.fetchColumn(tableSpec, "LabelGroup.name",
+                                " where Label.id=" + m_genericLabelId);
+        m_newStatus = groupName + ":" + labelName;
       }
     
       if (!m_substeps.equals("NONE")) { // can't use default m_nChildren=0 
@@ -686,12 +699,18 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
           throw new EtravelerException("No hardware status entry for " 
               + m_newStatus);
         }
-      } else if ((m_travelerActionMask & 
-          (TravelerActionBits.ADD_LABEL + TravelerActionBits.REMOVE_LABEL)) != 0) {
-        if (m_hardwareLabelIdMap.containsKey(m_newStatus)) {
-          m_newStatusId = m_hardwareLabelIdMap.get(m_newStatus);
-        } else {
-          throw new EtravelerException("No hardware label entry for " + m_newStatus);
+      } else if ((m_travelerActionMask & (TravelerActionBits.ADD_LABEL+
+                                          TravelerActionBits.REMOVE_LABEL))!=0){
+        if ((m_travelerActionMask & TravelerActionBits.GENERIC_LABEL) == 0 ) {
+          // old-style label
+          if (m_hardwareLabelIdMap.containsKey(m_newStatus)) {
+            m_newStatusId = m_hardwareLabelIdMap.get(m_newStatus);
+          } else {
+            throw new
+              EtravelerException("No hardware label entry for " +m_newStatus);
+          }
+        } else {   // generic label
+          m_genericLabelId = findHardwareGenericLabel(m_newStatus);
         }
       }
     }
@@ -828,7 +847,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     s_insertProcessCols={"name", "hardwareGroupId", "version", "jobname",
                          "userVersionString", "description", "shortDescription",
                          "instructionsURL", "substeps", "maxIteration",
-                         "newLocation", "newHardwareStatusId", "originalId",
+                         "newLocation", "newHardwareStatusId",
+                         "genericLabelId", "originalId",
                          "travelerActionMask", "permissionMask", "createdBy"};
   private static   String[] s_insertEdgeCols={"parent", "child", "step", "cond", "createdBy"};
  
@@ -872,6 +892,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       vals[++ix] = m_maxIteration;
       vals[++ix] = m_newLocation;
       vals[++ix] = m_newStatusId;
+      vals[++ix] = m_genericLabelId;
       vals[++ix] = m_originalId;
       vals[++ix] = String.valueOf(m_travelerActionMask);
       if (m_permissionGroups != null ) {
@@ -1150,7 +1171,27 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
         EtravelerWarning("Max iteration count > 1 incompatible with Repeatable step; count set back to 1");
     }
   }
- 
+
+  /* Find Label.id for a generic label, given group name and label name */
+  private String findHardwareGenericLabel(String label)
+    throws EtravelerException  {
+    // Parse into groupname and labelname pieces
+    String pieces[] = label.split(":");
+    if (pieces.length != 2)
+      throw new EtravelerException("Badly formed generic label " + label);
+    if ((pieces[0].length() == 0) || (pieces[1].length() == 0))
+      throw new EtravelerException("Badly formed generic label " + label);
+    String tableSpec =
+      "Label join LabelGroup on Label.labelGroupId=LabelGroup.id join " +
+      "Labelable on LabelGroup.labelableId=Labelable.id";
+    String where = " where LabelGroup.name = '" + pieces[0] +
+      "' and Label.name='" + pieces[1] + "' and Labelable.name='hardware'";
+    String labelId = m_connect.fetchColumn(tableSpec, "Label.id", where);
+    if (labelId == null) {
+      throw new EtravelerException("No such hardware label '" + label + "'");
+    }
+    return labelId;
+  }
   /* Pick a separator string unlikely to appear in any actual db entry */
   private static final String GLUE = "%&*";
   private static final String GLUE_QUOTED = "\\Q" + GLUE + "\\E";
@@ -1177,6 +1218,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private String m_newLocation;
   private String m_newStatus;
   private String m_newStatusId;
+  private String m_genericLabelId;
   private int m_travelerActionMask=0;
   private int m_permissionGroupMask=0;
   private String m_originalId=null;
