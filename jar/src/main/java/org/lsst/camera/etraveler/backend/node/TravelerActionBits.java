@@ -23,6 +23,7 @@ public class TravelerActionBits {
   public static final int REPEATABLE=512;
   public static final int STATUS_OR_LABEL = SET_HARDWARE_STATUS +
       ADD_LABEL + REMOVE_LABEL;
+  public static final int GENERIC_LABEL=1024;
   
   public static String getYamlKey(int actionBit) {
     switch (actionBit) {
@@ -46,6 +47,8 @@ public class TravelerActionBits {
       return "AddLabel";
     case REPEATABLE:
       return "Repeatable";
+    case GENERIC_LABEL:
+      return "GenericLabel";
     default:
       throw new IllegalArgumentException("Unknown traveler action bit");
     }

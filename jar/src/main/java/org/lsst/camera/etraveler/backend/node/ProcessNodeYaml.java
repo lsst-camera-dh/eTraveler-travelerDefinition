@@ -373,10 +373,16 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
           v = "(?)";
         }
         m_newStatus = v;
+        if (v.indexOf(':') > -1) {
+          m_travelerActionMask |= TravelerActionBits.GENERIC_LABEL;
+        }
         break;
       case REMOVELABEL:
         m_travelerActionMask |= TravelerActionBits.REMOVE_LABEL;
         m_newStatus = v;
+        if (v.indexOf(':') > -1) {
+          m_travelerActionMask |= TravelerActionBits.GENERIC_LABEL;
+        }
         break;
       case CONDITION:
         m_edgeCondition = v; break;
@@ -431,7 +437,11 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
                               if (act.equals("Repeatable")) {
                                 m_travelerActionMask |= TravelerActionBits.REPEATABLE;
                               } else {
-                                throw new UnrecognizedYamlKey(act, "TravelerActions");
+                                if (act.equals("GenericLabel")) {
+                                  ;  // ignore. Gets set if label has embedded :
+                                } else {
+                                  throw new UnrecognizedYamlKey(act, "TravelerActions");
+                                }
                               }
                             }
                           }
