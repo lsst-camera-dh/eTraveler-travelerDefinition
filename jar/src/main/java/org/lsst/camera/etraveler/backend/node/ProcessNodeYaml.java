@@ -510,7 +510,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
            
             Map<String, Object> reqInputsMap = (Map<String, Object>) list.get(iR);
             m_prescribedResults[iR] = new PrescribedResultYaml();
-            m_prescribedResults[iR].readYaml(reqInputsMap, this, iR);
+            ok = ok && m_prescribedResults[iR].readYaml(reqInputsMap, this, iR);
           }
           break;
         case OPTIONALINPUTS:

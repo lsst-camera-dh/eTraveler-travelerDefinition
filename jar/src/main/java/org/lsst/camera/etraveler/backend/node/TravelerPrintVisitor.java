@@ -250,9 +250,10 @@ public class TravelerPrintVisitor
       m_writer.write(leadingBlanks + "*" + s_eol);
       leadingBlanks += s_indent;
       m_writer.write(leadingBlanks + "Result label: " + m_label + s_eol);
+      m_writer.write(leadingBlanks + "Result name: " + m_resultName + s_eol);
       m_writer.write(leadingBlanks + "Result semantics: " + m_semantics + s_eol);      
       m_writer.write(leadingBlanks + "Result units: " + m_units + s_eol);
-      m_writer.write(leadingBlanks + "Result description: " + m_description + s_eol);
+      m_writer.write(leadingBlanks + "Result description: " + m_resultDescription + s_eol);
       m_writer.write(leadingBlanks + "Result min value: " + m_minValue + s_eol);
       m_writer.write(leadingBlanks + "Result max value: " + m_maxValue + s_eol);
       if (m_semantics.equals("signature")) {
@@ -283,6 +284,7 @@ public class TravelerPrintVisitor
     m_label=null; m_units=null; m_minValue=null; m_maxValue=null;
     m_resultDescription=null; m_semantics=null; m_choiceField=null;
     m_resultRole=null;
+    m_resultName=null;
   }
   private void resetRelationshipTask() {
     m_relationshipName= null;
@@ -414,6 +416,9 @@ public class TravelerPrintVisitor
   public void acceptResultDescription(String description) {
     m_resultDescription = description;
   }
+  public void acceptResultName(String name) {
+    m_resultName=name;
+  }
   public void acceptSignatureRole(String role) {
     m_resultRole = role;
   }
@@ -474,11 +479,12 @@ public class TravelerPrintVisitor
 
   // Store prescribed result contents until we're ready to write
   private String m_label=null;
+  private String m_resultName=null;
+  private String m_resultDescription=null;
   private String m_units=null;
   private String m_semantics=null;
   private String m_minValue=null;
   private String m_maxValue=null;
-  private String m_resultDescription=null;
   private String m_resultRole=null;
   private String m_choiceField=null;
   

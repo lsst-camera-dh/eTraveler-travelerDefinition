@@ -28,6 +28,7 @@ public class PrescribedResult  implements TravelerElement {
       ptarget.acceptMaxValue(m_maxValue);
       ptarget.acceptIsOptional(m_isOptional);
       ptarget.acceptResultDescription(m_description);
+      ptarget.acceptResultName(m_name);
       if (m_semantics.equals("signature")) {
         ptarget.acceptSignatureRole(m_role);
       }
@@ -36,6 +37,7 @@ public class PrescribedResult  implements TravelerElement {
  
   public interface Importer {
     String provideLabel();
+    String provideName();
     String provideSemantics();
     String provideDescription();
     String provideUnits();
@@ -47,10 +49,12 @@ public class PrescribedResult  implements TravelerElement {
   }
   public interface ExportTarget extends TravelerElement.ExportTarget {
     void acceptLabel(String label);
+    // void acceptName(String name);
     void acceptSemantics(String semantics);
     void acceptUnits(String units);
     void acceptMinValue(String minValue);
     void acceptMaxValue(String maxValue);
+    void acceptResultName(String name);
     void acceptResultDescription(String description);
     void acceptChoiceField(String choiceField);
     void acceptIsOptional(String isOptional);
@@ -59,6 +63,7 @@ public class PrescribedResult  implements TravelerElement {
   public PrescribedResult(ProcessNode parent, PrescribedResult.Importer imp) {
     m_parent = parent;
     m_label = imp.provideLabel();
+    m_name = imp.provideName();
     m_semantics = imp.provideSemantics();
     m_description = imp.provideDescription();
     m_units = imp.provideUnits();
@@ -72,6 +77,7 @@ public class PrescribedResult  implements TravelerElement {
   public PrescribedResult(ProcessNode parent, PrescribedResult orig) {
     m_parent = parent;
     m_label = new String(orig.m_label);
+    m_name = new String(orig.m_name);
     m_semantics = new String(orig.m_semantics);
     m_description = new String(orig.m_description);
     m_units = new String(orig.m_units);
@@ -85,6 +91,7 @@ public class PrescribedResult  implements TravelerElement {
   public AttributeList getAttributes() {
     AttributeList atts = new AttributeList(6);
     atts.add(new Attribute("label", m_label));
+    atts.add(new Attribute("name", m_name));
     atts.add(new Attribute("type", m_semantics));
     atts.add(new Attribute("description", m_description));
     atts.add(new Attribute("isOptional", m_isOptional));
@@ -104,6 +111,7 @@ public class PrescribedResult  implements TravelerElement {
   }
     
   public String getLabel() {return m_label;}
+  public String getName() {return m_name;}
   public String getSemantics() {return m_semantics;}
   public String getDescription() {return m_description;}
   public String getUnits() {return m_units;}
@@ -180,6 +188,7 @@ public class PrescribedResult  implements TravelerElement {
   }
   private String m_label;
   private String m_semantics;
+  private String m_name;
   private String m_units="";
   private String m_minValue="";
   private String m_maxValue="";

@@ -16,28 +16,34 @@ Sequence:
         -
           Label: Count ( no more than 10)
           InputSemantics: int
+          Name:  count_input
           MinValue: 0
           MaxValue: 10
         -
           Label: Lots of text
+          Name: text_input
           InputSemantics: text
         - 
           Label: Displacement
           Units: mm
+          Name: displacement
           InputSemantics: float
           Role: operator
         -
           Label: Operator needs to sign
           InputSemantics: signature
+          Name: operator_signature
           Role:  operator
         -
           Label: Need one more signature
           InputSemantics: signature
+          Name: supervisor_signature
           Role:  supervisor
       OptionalInputs:
         -
           Label: Snapshot
           Description:  Attach picture of measurement
+          Name: optional_measurement_picture
           InputSemantics: filepath
    -
       Name: InputTraveler-dynamic
@@ -45,10 +51,12 @@ Sequence:
       RequiredInputs:
         -
           Label: Establish needed signatures
+          Name: establish_signatures
           InputSemantics: signature
           Role:  (?)
         -
           Label: Always require supervisor
+          Name: supervisor_signature
           InputSemantics: signature
           Role:   supervisor
 
