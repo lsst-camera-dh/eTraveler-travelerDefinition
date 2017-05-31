@@ -214,7 +214,9 @@
           is a dict with the following fields:
           <dl>
             <dt>Label:</dt>
-              <dd>Required. Used to prompt operator for a sensible value </dd>
+              <dd>Required. Used to prompt operator for a sensible value.
+                Two inputs belonging to the same process step must
+                have distinct labels. </dd>
             <dt>InputSemantics: </dt>
             <dd>
               Required. Value must be one of a set of known values.
@@ -227,7 +229,12 @@
             <display:column property="onlyRequired" title="RequiredInputs Only"
                    />
          </display:table>
-
+            <dt>Name:</dt>
+              <dd>Required.  Must be a single "word" (no embedded blanks;
+               some punctuation characters not allowed) which ideally
+               indicates the meaning of the input so it can be used
+               as a search term in data mining. Two inputs belonging to the
+               same process step must have distinct names.
             </dd>
             <dt>Units: </dt>
             <dd>Optional information for operator</dd>

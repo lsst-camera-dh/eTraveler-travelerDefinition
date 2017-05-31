@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.io.Writer;
 import java.io.IOException;
+import  java.util.regex.Pattern;
 
 /**
  *
@@ -19,6 +20,7 @@ import java.io.IOException;
  */
 public class PrescribedResultYaml implements PrescribedResult.Importer {
   private static ArrayList<String> s_knownKeys = null;
+  private static ArrayList<String> s_rqdKeys = null;
   static final int LABEL=0;
   static final int SEMANTICS=1;
   static final int UNITS=2;
@@ -26,9 +28,11 @@ public class PrescribedResultYaml implements PrescribedResult.Importer {
   static final int MAXVALUE=4;
   static final int DESCRIPTION=5;
   static final int ROLE=6;
+  static final int NAME=7;
     
-  public void readYaml(Map<String, Object> yamlMap, ProcessNodeYaml parent, int iPre) 
-  throws EtravelerException {
+  public boolean readYaml(Map<String, Object> yamlMap, ProcessNodeYaml parent, int iPre) 
+    throws EtravelerException, IOException {
+    boolean ok = true;
     if (s_knownKeys == null)  {
       s_knownKeys = new ArrayList<String>(DESCRIPTION + 1);
       s_knownKeys.add(LABEL, "Label");
@@ -38,9 +42,23 @@ public class PrescribedResultYaml implements PrescribedResult.Importer {
       s_knownKeys.add(MAXVALUE, "MaxValue");
       s_knownKeys.add(DESCRIPTION, "Description");
       s_knownKeys.add(ROLE, "Role");
+      s_knownKeys.add(NAME, "Name");
+
+      s_rqdKeys = new ArrayList<String>();
+      s_rqdKeys.add("Label");
+      s_rqdKeys.add("InputSemantics");
+      s_rqdKeys.add("Name");
     }
-    m_parent = parent;
     
+    m_parent = parent;
+
+    // Make sure required fields have been supplied
+    for (String rqd : s_rqdKeys) {
+      if (!yamlMap.containsKey(rqd)) {
+        throw new
+          EtravelerException("Operator input description missing key " + rqd); 
+      }
+    }
     Iterator<String> it = yamlMap.keySet().iterator();
    
     while (it.hasNext()) {
@@ -74,7 +92,12 @@ public class PrescribedResultYaml implements PrescribedResult.Importer {
         // is of correct type.  Similarly for MAXVALUE case.
         break;
       case MAXVALUE:
-        m_maxValue = v; break; 
+        m_maxValue = v; break;
+      case NAME:
+        m_name = v;
+        // Check if it's a valid name
+        ok = ok && checkName(v, parent.getWriter(), parent.getEol());
+        break;
       case ROLE:
         if (m_isOptional.equals("1")) {
           throw new EtravelerException("Optional inputs may not include Role: keyword ");
@@ -95,7 +118,34 @@ public class PrescribedResultYaml implements PrescribedResult.Importer {
         }
       }
     }
+    return ok;
   }
+
+  private boolean checkName(String name, Writer wrt, String eol) throws  IOException {
+    if (wrt == null) {
+        throw new IOException("checkName has no writer to complain with");
+    }
+    String proscribed = ".*[ ',#{}:/$&?!^=*\\\"\\[\\]\\s].*";
+    String noInitialHyphen = "-.*";
+    //String proscribed = "[',#{}:/$&?!]";
+    boolean match = Pattern.matches(proscribed, name);
+    if (match) {
+      wrt.write("ERROR!! " + eol);
+      wrt.write("Operator input name '" + name + "' contains whitespace or one of these frowned-upon characters: " + eol);
+      wrt.write("# : / $ & , ' \" ! ? = * ^ } { ] [ " + eol);
+      wrt.flush();
+      return false;
+    }
+    if (Pattern.matches(noInitialHyphen, name)) {
+        wrt.write("ERROR!! " + eol);
+        wrt.write("Step name '" + name +
+                       "' starts with a hyphen, which is not allowed" + eol);  
+        wrt.flush();
+        return false;
+    }
+    return true;
+  }
+
   public String provideLabel() {return m_label;}
   public String provideSemantics() {return m_semantics;}
   public String provideUnits() {return m_units;}
@@ -105,6 +155,7 @@ public class PrescribedResultYaml implements PrescribedResult.Importer {
   public String provideChoiceField() {return m_choiceField;}
   public String provideIsOptional() {return m_isOptional;}
   public String provideRole() {return m_role;}
+  public String provideName() {return m_name;}
   public void setIsOptional(String isOptional) {m_isOptional = isOptional;}
   private String m_label=null;
   private String m_semantics=null;
@@ -115,6 +166,7 @@ public class PrescribedResultYaml implements PrescribedResult.Importer {
   private String m_choiceField="";
   private String m_isOptional="0";
   private String m_role="";
+  private String m_name="";
   
   private ProcessNodeYaml m_parent=null;
 }

@@ -15,25 +15,30 @@ Sequence:
       RequiredInputs:
         -
           Label: Count ( no more than 10)
+          Name: count
           InputSemantics: int
           MinValue: 0
           MaxValue: 10
         - 
           Label: Displacement
+          Name: displacement
           Units: mm
           InputSemantics: float
           Role: operator
         -
           Label: Operator needs to sign
+          Name: operator_signature
           InputSemantics: signature
           Role:  operator
         -
           Label: Need one more signature
+          Name: another_signature
           InputSemantics: signature
           Role:  supervisor
       OptionalInputs:
         -
           Label: Snapshot
+          Name:  snapshot
           Description:  Attach picture of measurement
           InputSemantics: filepath
    -
@@ -42,10 +47,12 @@ Sequence:
       RequiredInputs:
         -
           Label: Establish needed signatures
+          Name: Establish_signatures
           InputSemantics: signature
           Role:  (?)
         -
           Label: Always require supervisor
+          Name: supervisor_signature
           InputSemantics: signature
           Role:   supervisor
 

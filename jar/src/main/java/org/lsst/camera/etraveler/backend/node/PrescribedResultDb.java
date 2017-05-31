@@ -20,9 +20,10 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
   public static void reset() {
     s_inputPatternQuery = null;
   }
-  private static String[] s_patternCols = {"inputSemanticsId", "label",
-    "units", "description", "isOptional", "minV", "maxV", "choiceField",
-    "permissionGroupId"};
+  private static String[]
+    s_patternCols = {"inputSemanticsId", "label", "units", "description",
+                     "name", "isOptional", "minV", "maxV",
+                     "choiceField", "permissionGroupId"};
   
   private static ConcurrentHashMap<String, String> s_semanticsIdMap;
     
@@ -85,6 +86,7 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
     m_label =  rs.getString(++ix);
     m_units =  rs.getString(++ix);
     m_description =  rs.getString(++ix);
+    m_name = rs.getString(++ix);
     m_isOptional = rs.getString(++ix);
     m_minV =  rs.getString(++ix);
     if (m_minV != null) {
@@ -134,8 +136,8 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
   }
 
   private static String[] s_insertResultCols=
-  {"label", "inputSemanticsId", "processId", "description", "units", "isOptional",
-    "createdBy", "minV", "maxV", "permissionGroupId"};
+  {"label", "inputSemanticsId", "processId", "description", "name", "units", 
+    "isOptional", "createdBy", "minV", "maxV", "permissionGroupId"};
 
   void writeToDb(DbConnection connect, ProcessNodeDb parent, String user) 
     throws    SQLException {
@@ -144,17 +146,18 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
     vals[1] = m_semanticsId;
     vals[2] = parent.provideId();
     vals[3] = m_description;
-    vals[4] = m_units;
-    vals[5] = m_isOptional;
-    vals[6] = user;
+    vals[4] = m_name;
+    vals[5] = m_units;
+    vals[6] = m_isOptional;
+    vals[7] = user;
     if (m_minV != null) {
       if (m_minV.isEmpty()) m_minV = null;
     }
-    vals[7] = m_minV;
+    vals[8] = m_minV;
     if (m_maxV != null) {
       if (m_maxV.isEmpty()) m_maxV = null;
     }
-    vals[8] = m_maxV;
+    vals[9] = m_maxV;
     if (m_roleId != null) {
       if (m_roleId.isEmpty()) m_roleId = null;
       if (m_roleId.equals("(?)")) m_roleId = null;
@@ -176,6 +179,7 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
   public String provideLabel() {return m_label;}
   public String provideSemantics() {return m_semantics;} 
   public String provideDescription() {return m_description;}
+  public String provideName() {return m_name;}
   public String provideUnits() {return m_units;}
   public String provideMinValue() {return m_minV;}
   public String provideMaxValue() {return m_maxV;}
@@ -192,6 +196,9 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
   public void acceptResultDescription(String description) {
     m_description = description;
   }
+  public void acceptResultName(String name) {
+    m_name = name;
+  }
   public void acceptSignatureRole(String role) {
     m_role = role;
   }
@@ -206,6 +213,7 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
   private String m_semanticsId=null;
   private String m_units=null;
   private String m_description="";
+  private String m_name=null;
   private String m_minV=null;
   private String m_maxV=null;
   private String m_choiceField=null;

@@ -56,9 +56,11 @@ public class TestIngest {
     bld = appendLine(bld, "    Version: next");
     bld = appendLine(bld, "    OptionalInputs:");
     bld = appendLine(bld, "      - Label: Enter an integer ");
+    bld = appendLine(bld, "        Name: integer_input");
     bld = appendLine(bld, "        InputSemantics: int");
     bld = appendLine(bld, "        Description: test optional input");
     bld = appendLine(bld, "      - Label: Enter a string ");
+    bld = appendLine(bld, "        Name: string_input");
     bld = appendLine(bld, "        InputSemantics: string");
     bld = appendLine(bld, "        Description: 2nd optional input");
     m_contentsSimple = bld.toString();

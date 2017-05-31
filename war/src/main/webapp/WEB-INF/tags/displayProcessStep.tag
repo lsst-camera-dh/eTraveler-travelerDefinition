@@ -47,6 +47,8 @@
                        class="datatable" uid="result" >
           <display:column property="label" title="Label" 
                           sortable="true" style="text-align:left"/>
+          <display:column property="name" title="Name"
+                          sortable="true" style="text-align:left"/>
           <display:column property="semantics" title="Type" style="text-align:left"/>
           <display:column property="description" title="Descrip" style="text-align:left" />
           <display:column property="units" style="text-align:left" />
@@ -60,6 +62,8 @@
         <display:table name="${import:getOptionalResults(pageContext)}"
                        class="datatable" uid="result" >
           <display:column property="label" title="Label" 
+                          sortable="true" style="text-align:left"/>
+          <display:column property="name" title="Name"
                           sortable="true" style="text-align:left"/>
           <display:column property="semantics" title="Type" style="text-align:left"/>
           <display:column property="description" title="Descrip" style="text-align:left" />

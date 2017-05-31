@@ -41,6 +41,10 @@ public class ResultToYaml implements PrescribedResult.ExportTarget {
   public void acceptResultDescription(String description) {
     if (description != null) m_data.put("Description", description);
   }
+  public void acceptResultName(String name) {
+    if (name != null) m_data.put("Name", name);
+  }
+
   public void acceptSignatureRole(String role) {
     if (role != null) m_data.put("Role", role);
   }
