@@ -20,6 +20,14 @@ Sequence:
           MinValue: 0
           MaxValue: 10
         -
+          Label: Yes or no?
+          InputSemantics: boolean
+          Name: boolean_input
+        -
+          Label:  Check the checkbox
+          InputSemantics: checkbox
+          Name: checkbox_input
+        -
           Label: Lots of text
           Name: text_input
           InputSemantics: text

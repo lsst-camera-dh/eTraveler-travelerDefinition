@@ -530,7 +530,8 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     /* 
        At this point everything has been read in. Make adjustments for
        various fields which are in some sense defaulted or derived
-       from other fields
+       from other fields.  Make some consistency checks which couldn't 
+       be done earlier.
     */
     if (m_description == null) m_description = m_shortDescription;
 
@@ -566,6 +567,18 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       m_jobname = null;
     } else {
       if (m_jobname == null) m_jobname = m_name;
+    }
+
+    // If parent is selection step, must include a condition
+    if (m_parent.provideSubsteps().equals("SELECTION")) {
+      if (m_edgeCondition == null) {
+        throw new EtravelerException("Non-empty condition required for selection child step");
+      } else {
+        if ((m_edgeCondition).trim().equals("")) {
+          throw new EtravelerException("Non-empty condition required for selection child step");
+        }
+      }
+      
     }
 
     // Finished with keys. Have handled everything except process children
