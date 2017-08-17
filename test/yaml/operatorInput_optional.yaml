@@ -33,8 +33,8 @@ Sequence:
           InputSemantics: text
         - 
           Label: Displacement
+          Name:  displacement
           Units: mm
-          Name: displacement
           InputSemantics: float
           Role: operator
         -

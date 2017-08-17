@@ -56,7 +56,8 @@ public class PrescribedResultYaml implements PrescribedResult.Importer {
     for (String rqd : s_rqdKeys) {
       if (!yamlMap.containsKey(rqd)) {
         throw new
-          EtravelerException("Operator input description missing key " + rqd); 
+          EtravelerException("Operator input description belonging to step '"
+            + parent.provideName() + "' is missing key " + rqd); 
       }
     }
     Iterator<String> it = yamlMap.keySet().iterator();

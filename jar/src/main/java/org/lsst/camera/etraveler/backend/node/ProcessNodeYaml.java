@@ -570,15 +570,17 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     }
 
     // If parent is selection step, must include a condition
-    if (m_parent.provideSubsteps().equals("SELECTION")) {
-      if (m_edgeCondition == null) {
-        throw new EtravelerException("Non-empty condition required for selection child step");
-      } else {
-        if ((m_edgeCondition).trim().equals("")) {
-          throw new EtravelerException("Non-empty condition required for selection child step");
+    if (m_parent != null) {
+      if (m_parent.provideSubsteps().equals("SELECTION")) {
+        if (m_edgeCondition == null) {
+          throw new EtravelerException("Non-empty condition required for selection child step '" 
+            + m_name + "'");
+        } else {
+          if ((m_edgeCondition).trim().equals("")) {
+            throw new EtravelerException("Non-empty condition required for selection child step");
+          }
         }
       }
-      
     }
 
     // Finished with keys. Have handled everything except process children
