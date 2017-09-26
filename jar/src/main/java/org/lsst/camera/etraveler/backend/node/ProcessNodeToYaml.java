@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.lsst.camera.etraveler.backend.node;
 
 import java.util.ArrayList;
@@ -56,6 +52,10 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
     if (groups == null) return;
     m_data.put("PermissionGroups", groups);
   }
+  public void acceptTravelerTypeLabels(ArrayList<String> labels) {
+    if (labels == null) return;
+    m_data.put("TravelerTYpeLabels", labels);
+  }
 
   public void acceptHardwareGroup(String hardwareGroup) {
      if (m_isRoot) m_data.put("HardwareGroup", hardwareGroup);
@@ -94,16 +94,19 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
   public  void acceptMaxIteration(String maxIteration) {
     if (!m_isCloned) m_data.put("MaxIteration", maxIteration);
   }
-  public void acceptNewLocation(String newLoc) {
+  public void acceptNewLocation(String newLoc, String site) {
     if (newLoc != null) {
       m_data.put("NewLocation", newLoc);
     } else {
-      if ((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_LOCATION) != 0 ) {
-        m_data.put("NewLocation", "(?)");
+      if (site != null) {
+        m_data.put("LocationSite", site);
+      } else {
+        if ((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_LOCATION)
+            != 0 )         m_data.put("NewLocation", "(?)");
       }
     }
   }
-  public void acceptNewStatus(String newStatus) {
+  public void acceptNewStatus(String newStatus, String labelGroup) {
     switch (m_travelerActionMask & TravelerActionBits.STATUS_OR_LABEL) {
       case TravelerActionBits.SET_HARDWARE_STATUS:
         if (newStatus != null) {
@@ -113,17 +116,26 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
       case TravelerActionBits.ADD_LABEL:
         if (newStatus != null) {
           m_data.put("AddLabel", newStatus);
-        } else {  m_data.put("AddLabel", "(?)");  }
+        } else {
+          if (labelGroup != null) {
+            m_data.put("AddLabelInGroup", labelGroup);
+          } else m_data.put("AddLabel", "(?)");
+        }
         break;
       case TravelerActionBits.REMOVE_LABEL:
         if (newStatus != null)  {
           m_data.put("RemoveLabel", newStatus);
+        } else {
+          if (labelGroup != null) {
+            m_data.put("RemoveLabelInGroup", labelGroup);
+          }
         }
         break;
       default:
         return;
     }
   }
+
   public void acceptSubsteps(String substeps) {
     m_substeps = substeps;
   }

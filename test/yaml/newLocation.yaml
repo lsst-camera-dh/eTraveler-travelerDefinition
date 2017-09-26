@@ -13,9 +13,14 @@ Sequence:
     NewLocation: Cabinet2
   - Name: newLocation-prompt
     Version: next
-    Description: Move to locatiion operator specifies at prompt
+    Description: Move to location operator specifies at prompt
     ShortDescription: explicit request for prompt
     NewLocation: (?)
+  - Name: newInSite
+    Description: "Prompt operator for new location, but only within
+                specified site"
+    ShortDescription: Prompt for new location within site
+    NewLocationInSite: CCIN2P3
   - Name: MovePromptImplicit
     Version: next
     ShortDescription: implicit request for prompt

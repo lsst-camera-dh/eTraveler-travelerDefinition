@@ -92,12 +92,16 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     s_knownKeys.add("RefVersion");
     s_knownKeys.add("SourceDb");
     s_knownKeys.add("NewLocation");
+    s_knownKeys.add("NewLocationInSite");
     s_knownKeys.add("NewStatus");
     s_knownKeys.add("AddLabel");
     s_knownKeys.add("RemoveLabel");
+    s_knownKeys.add("AddLabelInGroup");
+    s_knownKeys.add("RemoveLabelInGroup");
     s_knownKeys.add("Subsystem");
     s_knownKeys.add("NCR");
     s_knownKeys.add("Jobname");
+    s_knownKeys.add("TravelerTypeLabels");
     /* Following are written by yaml export; informational only */
     s_knownKeys.add("FromSourceVersion");
     s_knownKeys.add("FromSourceId");
@@ -126,17 +130,21 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   static final int REFVERSION=19;
   static final int SOURCEDB=20;
   static final int NEWLOCATION=21;
-  static final int NEWSTATUS=22;
-  static final int ADDLABEL=23;
-  static final int REMOVELABEL=24;
-  static final int SUBSYSTEM=25;
-  static final int NCR=26;
-  static final int JOBNAME=27;
+  static final int NEWLOCATIONINSITE=22;
+  static final int NEWSTATUS=23;
+  static final int ADDLABEL=24;
+  static final int REMOVELABEL=25;
+  static final int ADDLABELINGROUP=26;
+  static final int REMOVELABELINGROUP=27;
+  static final int SUBSYSTEM=28;
+  static final int NCR=29;
+  static final int JOBNAME=30;
+  static final int TRAVELERTYPELABELS=31;
   
-  static final int FROMSOURCEVERSION=28;
-  static final int FROMSOURCEID=29;
-  static final int FROMSOURCEORIGINALID=30;
-  static final int FROMSOURCESOURCEDB=31;
+  static final int FROMSOURCEVERSION=32;
+  static final int FROMSOURCEID=33;
+  static final int FROMSOURCEORIGINALID=34;
+  static final int FROMSOURCESOURCEDB=35;
   
   public ProcessNodeYaml() {}
   
@@ -176,6 +184,13 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       if (!yamlMap.containsKey("HardwareGroup")) {
         throw new EtravelerException("Missing keyword 'HardwareGroup' in " +
                                      "root step of traveler definition");
+      }
+      if (yamlMap.containsKey("TravelerTypeLabels")) {
+        m_travelerTypeLabels = new ArrayList<String>();
+        List<String> labelList = (List<String>) yamlMap.get("TravelerTypeLabels");
+        for (String lbl : labelList) {
+          m_travelerTypeLabels.add(lbl);
+        }
       }
     } else {
       m_sourceDb = parent.m_sourceDb;
@@ -357,6 +372,10 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         }
         m_newLocation = v;
         break;
+      case NEWLOCATIONINSITE:
+        m_travelerActionMask |= TravelerActionBits.SET_HARDWARE_LOCATION;
+        m_locationSite = v;
+        break;
       case NEWSTATUS:
         m_travelerActionMask |= TravelerActionBits.SET_HARDWARE_STATUS;
         /* several different aliases may be used for operator prompt */
@@ -377,6 +396,11 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
           m_travelerActionMask |= TravelerActionBits.GENERIC_LABEL;
         }
         break;
+      case ADDLABELINGROUP:
+        m_travelerActionMask |= TravelerActionBits.ADD_LABEL;
+        m_travelerActionMask |= TravelerActionBits.GENERIC_LABEL;        
+        m_labelGroup = v;
+        break;
       case REMOVELABEL:
         m_travelerActionMask |= TravelerActionBits.REMOVE_LABEL;
         m_newStatus = v;
@@ -384,9 +408,15 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
           m_travelerActionMask |= TravelerActionBits.GENERIC_LABEL;
         }
         break;
+      case REMOVELABELINGROUP:
+        m_travelerActionMask |= TravelerActionBits.REMOVE_LABEL;
+        m_travelerActionMask |= TravelerActionBits.GENERIC_LABEL;        
+        m_labelGroup = v;
+        break;
       case CONDITION:
         m_edgeCondition = v; break;
       case SOURCEDB:
+      case TRAVELERTYPELABELS:
       case REFNAME:
       case REFVERSION:
         break;  /* all handled above */
@@ -543,7 +573,13 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     if ( ((m_travelerActionMask & TravelerActionBits.ADD_LABEL) != 0) &&
         ((m_travelerActionMask & TravelerActionBits.REMOVE_LABEL) != 0) )
       throw new EtravelerException("Cannot add and remove label in the same step");
-   
+    // If both addLabel and addLabelInGroup (similarly for remove) complain
+    if ((m_newStatus != null) && (m_labelGroup != null))
+      throw new EtravelerException("Cannot specify individual label and label group in same step");
+
+    // same for newLocation and locationSite
+    if ((m_newLocation != null) && (m_locationSite != null))
+      throw new EtravelerException("Cannot specify individual location and location site in same step");
     // Hardware group is inherited from parent
     if (m_parent != null) {
       m_hardwareGroup = m_parent.m_hardwareGroup;  
@@ -658,10 +694,15 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   public String provideInstructionsURL() {return m_instructionsURL;}
   public String provideMaxIteration() {return m_maxIteration;}
   public String provideNewLocation() {return m_newLocation;}
+  public String provideLocationSite() {return m_locationSite;}
   public String provideNewStatus() {return m_newStatus;}
+  public String provideLabelGroup() {return m_labelGroup;}
   public String provideSubsteps() {return m_substeps;}
   public int provideTravelerActionMask() {return m_travelerActionMask;}
   public ArrayList<String> providePermissionGroups() {return m_permissionGroups;}
+  public ArrayList<String> provideTravelerTypeLabels() {
+    return m_travelerTypeLabels;
+  }
   public String provideOriginalId() {return null;}
   public int provideNChildren() {return m_nChildren;}
   public int provideNPrerequisites() {return m_nPrerequisites;}
@@ -720,11 +761,14 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private String m_shortDescription=null;
   private String m_maxIteration="1";
   private String m_newLocation=null;
-  private String m_newStatus=null;
+  private String m_locationSite=null;
+  private String m_newStatus=null;        // or label
+  private String m_labelGroup=null;
   private String m_edgeCondition = null;
   private String m_sourceDb = null;  // only of interest for top node
   private String m_standaloneNCR = null; // only of interest for top node
   private String m_jobname = null;
+  private ArrayList<String> m_travelerTypeLabels = null;
   
   private int m_nChildren = 0;
   private int m_nPrerequisites = 0;

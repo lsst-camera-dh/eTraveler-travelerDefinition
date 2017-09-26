@@ -11,6 +11,7 @@ import org.lsst.camera.etraveler.backend.db.DbConnection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Connection;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
@@ -71,11 +72,12 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     init(processName, version, hgroup, travelerRoot);
   }
   private static String[]
-    s_initCols = {"name", "hardwareGroupId",  "version", "jobname",
-                  "userVersionString", "description", "shortDescription",
+    s_initCols = {"P.name as pname", "P.hardwareGroupId",  "version", "jobname",
+                  "userVersionString", "P.description", "shortDescription",
                   "instructionsURL", "substeps", "maxIteration",
                   "travelerActionMask", "permissionMask", "originalId",
-                  "newLocation", "newHardwareStatusId", "genericLabelId"};
+                  "newLocation", "newHardwareStatusId", "genericLabelId",
+                  "labelGroupId", "LabelGroup.name as labelGroup","siteId", "Site.name as site"};
   private static String[] s_edgeCols = {"step", "cond"};
   private static PreparedStatement s_processQuery = null;
   private static PreparedStatement s_edgeQuery = null;
@@ -99,7 +101,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     String where = " WHERE Process.name=" + processName + " and userVersionString=" 
             + userVersion + " and HardwareGroup.name='" + hgroup 
         + "' and Process.hardwareGroupId=HardwareGroup.id";
-    String id = m_connect.fetchColumn("Process join HardwareGroup",
+    String id = m_connect.fetchColumn("Process join HardwareGroup left join LabelGroup on labelGroupId=LabelGroup.id left join Site on siteId = Site.id",
                                       "Process.id", where);
     if (id == null)  {
       SQLException ex = new SQLException("Fetch column failure");
@@ -198,6 +200,10 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       m_newLocation = rs.getString(++ix);
       m_newStatusId = rs.getString(++ix);
       m_genericLabelId = rs.getString(++ix);
+      m_labelGroupId = rs.getString(++ix);
+      m_labelGroup = rs.getString(++ix);
+      m_locationSiteId = rs.getString(++ix);
+      m_locationSite = rs.getString(++ix);
       rs.close();
       decodePermissionGroupMask();
       if (m_newStatusId != null)  { /* find corresponding string */
@@ -216,7 +222,16 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
                                 " where Label.id=" + m_genericLabelId);
         m_newStatus = groupName + ":" + labelName;
       }
-    
+      /*
+      if (m_locationSiteId != null) {
+        m_locationSite=m_connect.fetchColumn("Site", "name",
+                                             "where id='"+m_locationSiteId+"'");
+      }
+      if (m_labelGroupId != null) {
+        m_labelGroup=m_connect.fetchColumn("LabelGroup", "name",
+                                           "where id='"+m_labelGroupId+"'");
+      }
+      */
       if (!m_substeps.equals("NONE")) { // can't use default m_nChildren=0 
         s_edgeQuery.setString(1, m_id);
         rs = s_edgeQuery.executeQuery();          
@@ -233,6 +248,10 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
           m_childIds[i] = rs.getString(1);
           m_childEdgeIds[i] = rs.getString(2);
         }
+      }
+      if (travelerRoot == null) { // check for labels
+        m_travelerTypeLabels = getLabels(m_connect.getConnection(),
+                                         m_id, "travelerType");
       }
       /* see if there are prerequisites associated with this step */    
       m_prerequisiteIds = getAssociateIds(s_prereqQuery);
@@ -311,7 +330,10 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   }
   private void initQueries() throws SQLException {
     String where = " WHERE id=?";
-    s_processQuery = m_connect.prepareQuery("Process", s_initCols, where);
+    String tableSpec =
+      "Process P left join Site on P.siteId=Site.id left join LabelGroup on P.labelGroupId=LabelGroup.id";
+    s_processQuery = m_connect.prepareQuery(tableSpec, s_initCols,
+                                            " WHERE P.id=?");
     s_edgeInfoQuery = m_connect.prepareQuery("ProcessEdge", s_edgeCols, where);
     
     
@@ -425,7 +447,9 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   }
   public String provideMaxIteration() {return m_maxIteration;}
   public String provideNewLocation() {return m_newLocation;}
+  public String provideLocationSite() {return m_locationSite;}
   public String provideNewStatus() {return m_newStatus;}
+  public String provideLabelGroup() {return m_labelGroup;}
   public String provideSubsteps() {return m_substeps;}
   public int provideTravelerActionMask() {return m_travelerActionMask;}
   public String provideOriginalId() {return m_originalId;}
@@ -469,6 +493,9 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public boolean provideHasClones() {return m_isCloned;}
   public boolean provideIsRef() { return m_isRef;}  // does this make any sense?
   public String provideSourceDb() { return m_sourceDb;}
+  public ArrayList<String> provideTravelerTypeLabels() {
+    return m_travelerTypeLabels;
+  }
 
   public void finishImport(ProcessNode process) {
     process.setProcessId(m_id);
@@ -491,14 +518,16 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public void acceptShortDescription(String desc) {m_shortDescription=desc;}
   public void acceptInstructionsURL(String url) {m_instructionsURL = url;}
   public void acceptMaxIteration(String maxIteration) {m_maxIteration=maxIteration;}
-  public void acceptNewLocation(String newLoc) {
+  public void acceptNewLocation(String newLoc, String site) {
     m_newLocation=newLoc;
+    m_locationSite=site;
     if (newLoc == null) return;
     /* Canonical non-null representation for operator prompt is "(?)" */
     if (newLoc.equals("(?)")) m_newLocation = null;
   }
-  public void acceptNewStatus(String newStat) {
+  public void acceptNewStatus(String newStat, String group) {
     m_newStatus=newStat;
+    m_labelGroup=group;
     if (newStat == null) return;
     /* Canonical non-null representation for operator prompt is "(?)" */
     if (newStat.equals("(?)")) m_newStatus = null;
@@ -513,6 +542,13 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     m_permissionGroups = new ArrayList<String>(groups.size());
     for (String g : groups) {
       m_permissionGroups.add(new String(g));
+    }
+  }
+  public  void acceptTravelerTypeLabels(ArrayList<String> labels) {
+    if (labels == null) return;
+    m_travelerTypeLabels = new ArrayList<String>(labels.size());
+    for (String lbl : labels) {
+      m_travelerTypeLabels.add(new String(lbl));
     }
   }
   public void acceptChildren(ArrayList<ProcessNode> children) {
@@ -793,6 +829,38 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
         }
       }
     }
+    // If labelGroup is non-null, check it's a valid group name
+    // and stash id
+    if (m_labelGroup != null) {
+      String where = " where name='" + m_labelGroup + "'";
+      m_labelGroupId = m_connect.fetchColumn("LabelGroup", "id", where);
+      if (m_labelGroupId == null) {
+        throw new
+          EtravelerException("Unknown label group: " + m_labelGroup);
+      }
+    }
+
+    if (m_locationSite != null) {
+      String where = " where name='" + m_locationSite + "'";
+      m_locationSiteId = m_connect.fetchColumn("Site", "id", where);
+      if (m_locationSiteId == null) {
+        throw new
+          EtravelerException("Unknown site: " + m_locationSite);
+      }
+    }
+
+    if (m_travelerTypeLabels != null) {
+      try {
+        m_travelerTypeLabelIds =
+          verifyLabels(m_connect.getConnection(), m_travelerTypeLabels,
+                       "travelerType");
+      } catch (SQLException ex) {
+        throw new
+          EtravelerException("Label verification failed with SQL exception"
+                             + ex.getMessage());
+      }
+    }
+    
     if (!(m_version.equals("1"))) { 
       if (!acceptableVersion(m_version)) {
         throw new 
@@ -847,8 +915,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     s_insertProcessCols={"name", "hardwareGroupId", "version", "jobname",
                          "userVersionString", "description", "shortDescription",
                          "instructionsURL", "substeps", "maxIteration",
-                         "newLocation", "newHardwareStatusId",
-                         "genericLabelId", "originalId",
+                         "newLocation", "siteId", "newHardwareStatusId",
+                         "genericLabelId", "labelGroupId", "originalId",
                          "travelerActionMask", "permissionMask", "createdBy"};
   private static   String[] s_insertEdgeCols={"parent", "child", "step", "cond", "createdBy"};
  
@@ -891,8 +959,10 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       vals[++ix] = m_substeps;
       vals[++ix] = m_maxIteration;
       vals[++ix] = m_newLocation;
+      vals[++ix] = m_locationSiteId;
       vals[++ix] = m_newStatusId;
       vals[++ix] = m_genericLabelId;
+      vals[++ix] = m_labelGroupId;
       vals[++ix] = m_originalId;
       vals[++ix] = String.valueOf(m_travelerActionMask);
       if (m_permissionGroups != null ) {
@@ -1202,7 +1272,81 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     
     return key.split(GLUE_QUOTED);
   }
- 
+
+  /**
+     Find any labels associated with object with id=id, labelable type=labelable
+     Return array list of strings of form labelGroup:labelName
+  */
+  private static ArrayList<String>
+    getLabels(Connection connect, String id, String labelable)
+  throws SQLException {
+    String sql=
+      "select L.id as labelId,concat(LG.name,':',L.name) as fullname from Label L join LabelHistory LH on L.id=LH.labelId join Labelable on Labelable.id=LH.labelableId join LabelGroup LG on LG.id=L.labelGroupId where LH.objectId='" + id + "' and LH.adding=1 and Labelable.name='" + labelable + "' and LH.id in (select max(id) from LabelHistory group by objectId,labelId)";
+    PreparedStatement stmt =
+      connect.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE);
+    ResultSet rs = stmt.executeQuery();
+    boolean gotRow = rs.first();
+    if (!gotRow) return null;
+    ArrayList<String> fullnames = new ArrayList<String>();
+    while (gotRow) {
+      fullnames.add(rs.getString("fullname"));
+      rs.relative(1);
+    }
+    stmt.close();
+    return fullnames;
+  }
+  /** 
+      Check that labels already exist in the db
+  */
+  private static ArrayList<String> verifyLabels(Connection connect,
+                                   ArrayList<String> labels, String ltype)
+    throws EtravelerException, SQLException {
+    String sql="select L.id from Label L join LabelGroup LG on L.labelGroupId=LG.id join Labelable on LG.labelableId=Labelable.id where Labelable.name='"
+      + ltype + "' and '?' = concat(LG.name,':',L.name)";
+    PreparedStatement stmt=
+      connect.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE);
+    ResultSet rs;
+    ArrayList<String> returnIds = new ArrayList<String>();
+    for (String fullname: labels) {
+      stmt.setString(1, fullname);
+      rs = stmt.executeQuery();
+      boolean gotOne = rs.first();
+      if (!gotOne ) {
+        stmt.close();
+        throw new EtravelerException("Unknown label " + fullname);
+      }
+      returnIds.add(rs.getString("id"));
+    }
+    stmt.close();
+    return returnIds;
+  }
+  /**
+     Add collection of labels to the object.   Assume it's a new
+     object so no need to check if it already has any of them
+   */
+  private static void addLabels(Connection connect, ArrayList<String> ids,
+                                String objectType, String objectId,
+                                String user, String reason)
+    throws SQLException, EtravelerException {
+    if (reason == null) reason="";
+    String sql="insert into LabelHistory set objectId='" + objectId +
+      "',labelableId=(select id from Labelable where name='" + objectType +
+      "'),labelId='?',reason='" + reason + "',adding=1,createdBy='" +
+      user + "',creationTS=UTC_TIME()";
+    PreparedStatement stmt=
+      connect.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE);
+    try {
+      for (String id: ids) {
+        stmt.setString(1,id);
+        stmt.executeQuery();
+      }
+    } catch (Exception ex) {
+      stmt.close();
+      //rethrow??
+      throw ex;
+    }
+    stmt.close();
+  }
   private String m_id=null;  
   private String m_name=null;
   private String m_hardwareGroup=null;
@@ -1216,7 +1360,11 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private String m_substeps=null;
   private String m_maxIteration=null;
   private String m_newLocation;
+  private String m_locationSite=null;
+  private String m_locationSiteId=null;
   private String m_newStatus;
+  private String m_labelGroup=null;
+  private String m_labelGroupId=null;
   private String m_newStatusId;
   private String m_genericLabelId;
   private int m_travelerActionMask=0;
@@ -1237,6 +1385,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private String[] m_optionalResultIds;
   private String[] m_relationshipTaskIds;
   private ArrayList<String>  m_permissionGroups=null;
+  private ArrayList<String>  m_travelerTypeLabels=null;
+  private ArrayList<String>  m_travelerTypeLabelIds=null;
   private DbConnection m_connect;
   private boolean m_isCloned=false;
   private boolean m_hasClones = false;
