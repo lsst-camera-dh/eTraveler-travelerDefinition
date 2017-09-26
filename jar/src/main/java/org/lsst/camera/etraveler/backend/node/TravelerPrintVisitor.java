@@ -92,14 +92,20 @@ public class TravelerPrintVisitor
           if (m_newStatus != null) {
             m_writer.write(leadingBlanks + "AddLabel: " + m_newStatus + s_eol);
           }  else {
-            m_writer.write(leadingBlanks + "AddLabel: (?)" + s_eol);
+            if (m_labelGroup == null) {
+              m_writer.write(leadingBlanks + "AddLabel: (?)" + s_eol);
+            } else m_writer.write(leadingBlanks + "AddLabelInGroup: "
+                                  + m_labelGroup + s_eol);
           }
         }
         // No wildcard allowed for remove label
         if ((m_travelerActionMask & TravelerActionBits.REMOVE_LABEL) !=0) {
           if (m_newStatus != null) {
-            m_writer.write(leadingBlanks + "REMOVE_LABEL: " + m_newStatus + s_eol);
-          } 
+            m_writer.write(leadingBlanks + "RemoveLabel: " + m_newStatus + s_eol);
+          } else {
+            m_writer.write(leadingBlanks + "RemoveLabelInGroup: "
+                           + m_labelGroup + s_eol);
+          }
         }
       }
       if ((m_permissionGroups != null))  {
@@ -402,9 +408,6 @@ public class TravelerPrintVisitor
   public void acceptRelationshipTaskId(String id) {}
 
   // Implementation of PrescribedResult.ExportTarget
-  public void acceptLabel(String label) {
-    m_label = label;
-  }
   public void acceptSemantics(String semantics) {
     m_semantics = semantics;
   }
@@ -416,6 +419,9 @@ public class TravelerPrintVisitor
   }
   public void acceptMaxValue(String maxValue) {
     m_maxValue = maxValue;
+  }
+  public void acceptLabel(String label) {
+    m_label = label;
   }
 
   public void acceptResultDescription(String description) {

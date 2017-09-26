@@ -22,6 +22,16 @@ Sequence:
     Description: remove a generic label
     ShortDescription: remove a label
     Version: next
+  - Name: genericLabels-addLabel-prompt
+    AddLabel: "(?)"
+    Description: add any label using prompt
+    ShortDescription: add any label
+    Version: next
+  - Name: genericLabels-addFromGroup
+    AddLabelInGroup: SnarkRandom
+    Description: add a label from label group SnarkRandom
+    ShortDescription: add label from group
+    
 
 
 

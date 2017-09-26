@@ -204,9 +204,9 @@ public class ProcessNode implements  TravelerElement
     m_newStatus = imp.provideNewStatus();
     m_labelGroup = imp.provideLabelGroup();
     if (((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_STATUS) !=0) &&
-        (m_newStatus == null)) m_newStatus = "(?)";
-    if (((m_travelerActionMask & TravelerActionBits.ADD_LABEL) !=0) &&
         (m_newStatus == null) ) m_newStatus = "(?)";
+    if (((m_travelerActionMask & TravelerActionBits.ADD_LABEL) !=0) &&
+        (m_newStatus == null) && (m_labelGroup == null) ) m_newStatus = "(?)";
     if ((m_parent == null) && (!m_maxIteration.equals("1"))) {
       throw new EtravelerException("Root step may not have max iteration > 1");
     }
@@ -376,7 +376,21 @@ public class ProcessNode implements  TravelerElement
         else pList.add(new Attribute("remove label", m_newStatus));
       }
     }
-
+    if (m_newStatus == null) {
+      if ((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_STATUS) != 0)
+        {
+          pList.add(new Attribute("new status", "(?)"));
+      } else if ((m_travelerActionMask & TravelerActionBits.ADD_LABEL) != 0) {
+        if (m_labelGroup != null) pList.add(new Attribute("add label from group", m_labelGroup));
+        else pList.add(new Attribute("add label", "(?)"));
+      }
+      else if ((m_travelerActionMask & TravelerActionBits.REMOVE_LABEL) != 0) {
+        if (m_labelGroup != null)
+          pList.add(new Attribute("remove label from group", m_labelGroup));
+        else pList.add(new Attribute("remove label", "(?)"));
+      }
+    }
+      
     if (m_sequenceCount > nChild) nChild = m_sequenceCount;
     pList.add(new Attribute("# substeps", Integer.toString(nChild)));
     int nPrereq = 0;
