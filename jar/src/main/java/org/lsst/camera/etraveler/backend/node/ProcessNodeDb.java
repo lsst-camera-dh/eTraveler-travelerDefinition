@@ -223,16 +223,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
                                 " where Label.id=" + m_genericLabelId);
         m_newStatus = groupName + ":" + labelName;
       }
-      /*
-      if (m_locationSiteId != null) {
-        m_locationSite=m_connect.fetchColumn("Site", "name",
-                                             "where id='"+m_locationSiteId+"'");
-      }
-      if (m_labelGroupId != null) {
-        m_labelGroup=m_connect.fetchColumn("LabelGroup", "name",
-                                           "where id='"+m_labelGroupId+"'");
-      }
-      */
+
       if (!m_substeps.equals("NONE")) { // can't use default m_nChildren=0 
         s_edgeQuery.setString(1, m_id);
         rs = s_edgeQuery.executeQuery();          
@@ -301,9 +292,16 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       }
       rs.close();
 
-      if (travelerRoot == null) { // check for labels
+      if (travelerRoot == null) { // check for labels. Need traveler type id
+        String travelerTypeId =
+          m_connect.fetchColumn("TravelerType", "id",
+                                " where rootProcessId='" + m_id + "'");
+        if (travelerTypeId == null) {
+          throw new EtravelerException("Unable to find traveler type entry");
+        }
         m_travelerTypeLabels =
-          LabelUtil.getLabels(m_connect.getConnection(), m_id, "travelerType");
+          LabelUtil.getLabels(m_connect.getConnection(), travelerTypeId,
+                              "travelerType");
       }
       
       //
@@ -1038,11 +1036,6 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     for (int iChild = 0; iChild < m_childrenDb.length; iChild++ ) {
       m_childrenDb[iChild].writeToDb(connect, this);
     }
-    if ((parent == null) && (m_travelerTypeLabels != null)) {
-      LabelUtil.addLabels(connect.getConnection(), m_travelerTypeLabelIds,
-                          "travelerType", m_id, m_vis.getUser(),
-                          "travelerType label applied at ingest");
-    }
   }
   private String nextAvailableVersion(String originalId) 
     throws SQLException, EtravelerException {
@@ -1103,6 +1096,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public String getStandaloneNCR() {
     return m_standaloneNCR;
   }
+  
   /*
    * Add new row to TravelerType and TravelerTypeStateHistory tables
    */
@@ -1125,9 +1119,11 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     valsHist[0] = "new traveler";
     valsHist[1] = m_vis.getUser();
     valsHist[3] = "1";    /* cheating here.  This is TravelerTypeState value for "new" */
+    String travTypeId=null;
     try {
-      String travTypeId = m_connect.doInsert("TravelerType", s_insertTravTypeCols,
-          vals, "", DbConnection.ADD_CREATION_TIMESTAMP);
+      travTypeId =
+        m_connect.doInsert("TravelerType", s_insertTravTypeCols,
+                           vals, "", DbConnection.ADD_CREATION_TIMESTAMP);
       valsHist[2] = travTypeId;
       String travTypeHistoryId = m_connect.doInsert("TravelerTypeStateHistory",
           s_insertTravTypeHistoryCols, valsHist, "", DbConnection.ADD_CREATION_TIMESTAMP);
@@ -1136,6 +1132,11 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
             + m_name + "with exception");
         System.out.println(ex.getMessage());
         throw ex;
+    }
+    if ((m_travelerRoot == this) && (m_travelerTypeLabels != null)) {
+      LabelUtil.addLabels(m_connect.getConnection(), m_travelerTypeLabelIds,
+                          "travelerType", travTypeId, m_vis.getUser(),
+                          "travelerType label applied at ingest");
     }
   }
   private void addComponentPrerequisite(String cmpId) {
