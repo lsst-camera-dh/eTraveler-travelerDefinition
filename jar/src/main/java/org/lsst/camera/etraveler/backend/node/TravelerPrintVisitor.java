@@ -114,6 +114,12 @@ public class TravelerPrintVisitor
           m_writer.write(leadingBlanks + s_indent + g + s_eol);
         }
       }
+      if ((m_travelerTypeLabels != null))  {
+        m_writer.write(leadingBlanks + "TravelerTypeLabels:" + s_eol);
+        for (String lbl : m_travelerTypeLabels) {
+          m_writer.write(leadingBlanks + s_indent + lbl + s_eol);
+        }
+      }
       if (m_condition != null) {
         m_writer.write(leadingBlanks + "Condition: " + m_condition + s_eol);
       }

@@ -54,7 +54,7 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
   }
   public void acceptTravelerTypeLabels(ArrayList<String> labels) {
     if (labels == null) return;
-    m_data.put("TravelerTYpeLabels", labels);
+    m_data.put("TravelerTypeLabels", labels);
   }
 
   public void acceptHardwareGroup(String hardwareGroup) {

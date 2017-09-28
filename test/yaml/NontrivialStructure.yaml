@@ -6,6 +6,9 @@ HardwareGroup: Generic-CCD
 Description: 'To be used for testing. Exemplifies most features,
              excluding JH and assemblies'
 ShortDescription: For testing many features
+TravelerTypeLabels:
+  - Importance:junk
+  - Complexity:medium
 Sequence:
   -
     Name: NTS-seq1
