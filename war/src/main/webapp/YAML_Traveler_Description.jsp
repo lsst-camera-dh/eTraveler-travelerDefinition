@@ -58,7 +58,13 @@
         <dt>AddLabel:</dt>
         <dd>Value is label to be added to the component on which the traveler is being executed.  The
           label must have already been defined.<br /><br /></dd>
-        <dt>Clone:</dt>
+        <dt>AddLabelInGroup:</dt>
+        <dd>Value is label group name.  The group must already exit in the
+	database and must apply to hardware components.  Operator will be
+	prompted with a list of all labels in that group.
+          <br /><br /></dd>
+
+       <dt>Clone:</dt>
         <dd>Request that  copy of another node be reinserted at another location in
           the procedeure. The value of Clone: must match the value of <a href="#Name">Name:</a>
           for a previously described process step.  The step <em>and all its descendants</em>
@@ -113,6 +119,12 @@
           which case operator will be prompted with menu of known locations.
           <br /><br />
         </dd>
+        <dt>NewLocationInSite:</dt>
+        <dd>
+          A site.  Must be defined in the database.  Operator will
+          be prompted with a list of all locations at that site.
+          <br /><br />
+        </dd>
         <dt>NewStatus:</dt>
         <dd>
           <p>Status to which component is to be set. Must be defined in database
@@ -155,6 +167,12 @@
         <dd>Value is label to be removed from the component on which the traveler is being executed.  The
           label must have already been defined (and should be associated with
           the component at the start of the step).<br /><br /></dd>
+        <dt>RemoveLabelInGroup:</dt>
+        <dd>Value is label group name.  The group must already exit in the
+	database and must apply to hardware components.  Operator will be
+	prompted with a list of all labels in that group.
+          <br /><br /></dd>
+
         <dt id="Short">ShortDescription:</dt>
         <dd>
           Description of process step, limited to 255 characters.  It appears in various Front-end
@@ -288,6 +306,7 @@
             <display:column property="name" title="Role" sortable="true"
                             headerClass="sortable" style="text-align:left" />
          </display:table>
+         </dd>
         <dt><br />RelationshipTasks:</dt>
         <dd>
 	The value for this key is a list of RelationshipTask nodes.  Each such node
@@ -351,6 +370,13 @@
          the corresponding key, at execution time the Operator will be prompted with
          a menu of suitable possibilities. 
         </dd>
+
+        <dt id="TravelerTypeLabels" name="TravelerTypeLabels"><br />TravelerTypeLabels:</dt>
+	<dd>Optional.  A list of labels in the
+            form <i>labelGroupName</i>:<i>labelName</i>.  The labels
+            must already exist and must be applicable to traveler types.
+            Applies only to root step in the procedure.
+         </dd>
       </dl>
       <h2 id='ref_clone'>Referenced and Cloned Steps</h2>
       <p>In addition to 'regular' process steps, one may also refer to existing

@@ -75,7 +75,10 @@ public class TravelerPrintVisitor
           if (m_newLocation != null) {
             m_writer.write(leadingBlanks + "NewLocation: " + m_newLocation + s_eol);
           }  else {
-            m_writer.write(leadingBlanks + "NewLocation: (?)" + s_eol);
+            if (m_locationSite != null) {
+              m_writer.write(leadingBlanks + "NewLocationInSite: " +
+                             m_locationSite + s_eol);
+            } else m_writer.write(leadingBlanks + "NewLocation: (?)" + s_eol);
           }
         }
         if ((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_STATUS) !=0) {
@@ -89,20 +92,32 @@ public class TravelerPrintVisitor
           if (m_newStatus != null) {
             m_writer.write(leadingBlanks + "AddLabel: " + m_newStatus + s_eol);
           }  else {
-            m_writer.write(leadingBlanks + "AddLabel: (?)" + s_eol);
+            if (m_labelGroup == null) {
+              m_writer.write(leadingBlanks + "AddLabel: (?)" + s_eol);
+            } else m_writer.write(leadingBlanks + "AddLabelInGroup: "
+                                  + m_labelGroup + s_eol);
           }
         }
         // No wildcard allowed for remove label
         if ((m_travelerActionMask & TravelerActionBits.REMOVE_LABEL) !=0) {
           if (m_newStatus != null) {
-            m_writer.write(leadingBlanks + "REMOVE_LABEL: " + m_newStatus + s_eol);
-          } 
+            m_writer.write(leadingBlanks + "RemoveLabel: " + m_newStatus + s_eol);
+          } else {
+            m_writer.write(leadingBlanks + "RemoveLabelInGroup: "
+                           + m_labelGroup + s_eol);
+          }
         }
       }
       if ((m_permissionGroups != null))  {
         m_writer.write(leadingBlanks + "PermissionGroups:" + s_eol);
         for (String g : m_permissionGroups) {
           m_writer.write(leadingBlanks + s_indent + g + s_eol);
+        }
+      }
+      if ((m_travelerTypeLabels != null))  {
+        m_writer.write(leadingBlanks + "TravelerTypeLabels:" + s_eol);
+        for (String lbl : m_travelerTypeLabels) {
+          m_writer.write(leadingBlanks + s_indent + lbl + s_eol);
         }
       }
       if (m_condition != null) {
@@ -297,17 +312,6 @@ public class TravelerPrintVisitor
   public void acceptName(String name) {m_name = name;}
   public void acceptHardwareGroup(String hardwareGroup) {m_hardwareGroup  = hardwareGroup;}
 
-  // Next few lines will go..
-  /*
-  public void acceptHardwareRelationshipType(String hardwareRelationshipType ) {
-    m_hardwareRelationshipType  = hardwareRelationshipType;
-  }
-   public void acceptHardwareRelationshipSlot(String hardwareRelationshipSlot ) {
-    m_hardwareRelationshipSlot  = hardwareRelationshipSlot;
-  }
-  */
-  // .. down to here
-
   public void acceptVersion(String version) {m_version = version;}
   public void acceptUserVersionString(String userVersionString) {
     m_userVersionString = userVersionString;}
@@ -320,8 +324,14 @@ public class TravelerPrintVisitor
    }
   public void acceptMaxIteration(String maxIteration) {
     m_maxIteration = maxIteration;}
-  public void acceptNewLocation(String newLoc) {m_newLocation=newLoc;}
-  public void acceptNewStatus(String newStat) {m_newStatus=newStat;}
+  public void acceptNewLocation(String newLoc, String site) {
+    m_newLocation=newLoc;
+    m_locationSite=site;
+  }
+  public void acceptNewStatus(String newStat, String group) {
+    m_newStatus=newStat;
+    m_labelGroup=group;
+  }
   public void acceptSubsteps(String substeps) {m_substeps = substeps;}
   public void acceptTravelerActionMask(int travelerActionMask) {
     m_travelerActionMask = travelerActionMask;}
@@ -330,6 +340,13 @@ public class TravelerPrintVisitor
     m_permissionGroups = new ArrayList<String>(groups.size());
     for (String g : groups) {
       m_permissionGroups.add(g);
+    }
+  }
+  public void acceptTravelerTypeLabels(ArrayList<String> labels) {
+    if (labels == null) return;
+    m_travelerTypeLabels = new ArrayList<String>(labels.size());
+    for (String lbl : labels) {
+      m_travelerTypeLabels.add(lbl);
     }
   }
   public void acceptOriginalId(String originalId) {m_originalId = originalId;}
@@ -397,9 +414,6 @@ public class TravelerPrintVisitor
   public void acceptRelationshipTaskId(String id) {}
 
   // Implementation of PrescribedResult.ExportTarget
-  public void acceptLabel(String label) {
-    m_label = label;
-  }
   public void acceptSemantics(String semantics) {
     m_semantics = semantics;
   }
@@ -411,6 +425,9 @@ public class TravelerPrintVisitor
   }
   public void acceptMaxValue(String maxValue) {
     m_maxValue = maxValue;
+  }
+  public void acceptLabel(String label) {
+    m_label = label;
   }
 
   public void acceptResultDescription(String description) {
@@ -447,7 +464,9 @@ public class TravelerPrintVisitor
   private String m_instructionsURL=null;
   private String m_maxIteration=null;
   private String m_newLocation=null;
+  private String m_locationSite=null;
   private String m_newStatus=null;
+  private String m_labelGroup=null;
   private String m_substeps=null;
   private String m_condition=null;
   private int m_travelerActionMask=0;
@@ -463,6 +482,7 @@ public class TravelerPrintVisitor
   private ArrayList<PrescribedResult> m_optionalResults=null;
   private ArrayList<RelationshipTask> m_relationshipTasks=null;
   private ArrayList<String> m_permissionGroups=null;
+  private ArrayList<String> m_travelerTypeLabels=null;
   
   // Store prereq. contents until we're ready to write
   private String m_prereqType=null;

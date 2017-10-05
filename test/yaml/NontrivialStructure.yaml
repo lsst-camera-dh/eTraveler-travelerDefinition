@@ -6,6 +6,9 @@ HardwareGroup: Generic-CCD
 Description: 'To be used for testing. Exemplifies most features,
              excluding JH and assemblies'
 ShortDescription: For testing many features
+TravelerTypeLabels:
+  - Importance:junk
+  - Complexity:medium
 Sequence:
   -
     Name: NTS-seq1
@@ -77,14 +80,17 @@ Sequence:
         RequiredInputs:
           -
             Label: Count ( no more than 10)
+            Name: count
             InputSemantics: int
             MinValue: 0
             MaxValue: 10
           - 
             Label: Displacement
+            Name: displacement
             Units: mm
             InputSemantics: float
           -
             Label: Snapshot
+            Name: measurement_picture
             Description:  Attach picture of measurement
             InputSemantics: filepath

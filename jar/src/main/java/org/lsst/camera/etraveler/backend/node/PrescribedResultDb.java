@@ -162,7 +162,7 @@ public class PrescribedResultDb implements PrescribedResult.Importer,
       if (m_roleId.isEmpty()) m_roleId = null;
       if (m_roleId.equals("(?)")) m_roleId = null;
     }
-    vals[9] = m_roleId;
+    vals[10] = m_roleId;
  
     try {
       m_id = m_connect.doInsert("InputPattern", s_insertResultCols, vals, "", 

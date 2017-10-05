@@ -81,14 +81,6 @@ public class ProcessNode implements  TravelerElement
    */
   private void copyFrom(ProcessNode model) {
     m_hardwareGroup = new String(model.m_hardwareGroup);
-    // This will go
-    /*
-    if (model.m_hardwareRelationshipType != null)  {
-      m_hardwareRelationshipType = new String(model.m_hardwareRelationshipType);
-      m_hardwareRelationshipSlot = new String(model.m_hardwareRelationshipSlot);
-    }
-    */
-    // ... down to here
 
     if (model.m_userVersionString != null) 
       m_userVersionString = new String(model.m_userVersionString);
@@ -104,8 +96,13 @@ public class ProcessNode implements  TravelerElement
     m_travelerActionMask = model.m_travelerActionMask;
     if (model.m_newLocation != null) 
       m_newLocation = new String(model.m_newLocation);
+    if (model.m_locationSite != null) 
+      m_locationSite = new String(model.m_locationSite);
     if (model.m_newStatus != null)  
       m_newStatus = new String(model.m_newStatus);
+    if (model.m_labelGroup != null) 
+      m_labelGroup = new String(model.m_labelGroup);
+    
     if (model.m_newStatusId != null)
       m_newStatusId = new String(model.m_newStatusId);
 
@@ -200,13 +197,16 @@ public class ProcessNode implements  TravelerElement
       throw new EtravelerException("Step " + m_name + " is not automatable!");
     }
     m_newLocation = imp.provideNewLocation();
-    if (((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_LOCATION) !=0) &&
-        (m_newLocation == null)) m_newLocation = "(?)";
+    m_locationSite = imp.provideLocationSite();
+    if (((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_LOCATION) !=0)
+        && (m_newLocation == null) && (m_locationSite == null) )
+      m_newLocation = "(?)";
     m_newStatus = imp.provideNewStatus();
+    m_labelGroup = imp.provideLabelGroup();
     if (((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_STATUS) !=0) &&
-        (m_newStatus == null)) m_newStatus = "(?)";
+        (m_newStatus == null) ) m_newStatus = "(?)";
     if (((m_travelerActionMask & TravelerActionBits.ADD_LABEL) !=0) &&
-        (m_newStatus == null)) m_newStatus = "(?)";
+        (m_newStatus == null) && (m_labelGroup == null) ) m_newStatus = "(?)";
     if ((m_parent == null) && (!m_maxIteration.equals("1"))) {
       throw new EtravelerException("Root step may not have max iteration > 1");
     }
@@ -215,6 +215,7 @@ public class ProcessNode implements  TravelerElement
     m_processId = imp.provideId();
     m_originalId = imp.provideOriginalId();
     m_permissionGroups = imp.providePermissionGroups();
+    m_travelerTypeLabels = imp.provideTravelerTypeLabels();
     
     checkNonempty("children type", m_substeps);
     if ((!m_substeps.equals("NONE")) 
@@ -334,14 +335,6 @@ public class ProcessNode implements  TravelerElement
 
     if (m_hardwareGroup != null)
       pList.add(new Attribute("hardware group", m_hardwareGroup));
-    // This section will go at some point
-    /*
-    if (m_hardwareRelationshipType != null) {
-      pList.add(new Attribute("hardware relationship type", m_hardwareRelationshipType));
-      pList.add(new Attribute("hardware relationship slot", m_hardwareRelationshipSlot));
-    }
-    */
-    //    ... through here
     pList.add(new Attribute("description", m_description));
     pList.add(new Attribute("short description", m_shortDescription));
     pList.add(new Attribute("max iterations", m_maxIteration));
@@ -356,20 +349,48 @@ public class ProcessNode implements  TravelerElement
         pList.add(new Attribute("permission groups", groupString));
       }
     }
+    if (m_travelerTypeLabels != null) {
+      if (m_travelerTypeLabels.size() > 0) {
+        String labelsString = m_travelerTypeLabels.get(0);
+        for (int i=1; i < m_travelerTypeLabels.size(); i++) {
+          labelsString += ", " + m_travelerTypeLabels.get(i);
+        }
+        pList.add(new Attribute("traveler type labels", labelsString));
+      }
+    }
+    
     int nChild = m_optionCount;
-    if (m_newLocation != null) {
+    if (m_locationSite != null) {
+      pList.add(new Attribute("new location site", m_locationSite));
+    } else    if (m_newLocation != null) {
       pList.add(new Attribute("new location", m_newLocation));
     }
     if (m_newStatus != null)  {
       if ((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_STATUS) != 0) {
         pList.add(new Attribute("new status", m_newStatus));
       } else if ((m_travelerActionMask & TravelerActionBits.ADD_LABEL) != 0) {
-        pList.add(new Attribute("add label", m_newStatus));
+        if (m_labelGroup != null) pList.add(new Attribute("add label from group", m_labelGroup));
+        else pList.add(new Attribute("add label", m_newStatus));
       } else if ((m_travelerActionMask & TravelerActionBits.REMOVE_LABEL) != 0) {
-        pList.add(new Attribute("remove label", m_newStatus));
+        if (m_labelGroup != null) pList.add(new Attribute("remove label from group", m_labelGroup));
+        else pList.add(new Attribute("remove label", m_newStatus));
       }
     }
-
+    if (m_newStatus == null) {
+      if ((m_travelerActionMask & TravelerActionBits.SET_HARDWARE_STATUS) != 0)
+        {
+          pList.add(new Attribute("new status", "(?)"));
+      } else if ((m_travelerActionMask & TravelerActionBits.ADD_LABEL) != 0) {
+        if (m_labelGroup != null) pList.add(new Attribute("add label from group", m_labelGroup));
+        else pList.add(new Attribute("add label", "(?)"));
+      }
+      else if ((m_travelerActionMask & TravelerActionBits.REMOVE_LABEL) != 0) {
+        if (m_labelGroup != null)
+          pList.add(new Attribute("remove label from group", m_labelGroup));
+        else pList.add(new Attribute("remove label", "(?)"));
+      }
+    }
+      
     if (m_sequenceCount > nChild) nChild = m_sequenceCount;
     pList.add(new Attribute("# substeps", Integer.toString(nChild)));
     int nPrereq = 0;
@@ -508,11 +529,14 @@ public class ProcessNode implements  TravelerElement
     String provideInstructionsURL();
     String provideMaxIteration();
     String provideNewLocation();
+    String provideLocationSite();
     String provideNewStatus();
+    String provideLabelGroup();
     String provideSubsteps();
     int provideTravelerActionMask();
     String provideOriginalId();
     ArrayList<String> providePermissionGroups();
+    ArrayList<String> provideTravelerTypeLabels();
     int provideNChildren();
     int provideNPrerequisites();
     int provideNPrescribedResults();
@@ -553,11 +577,12 @@ public class ProcessNode implements  TravelerElement
     void acceptShortDescription(String desc);
     void acceptInstructionsURL(String instructionsURL);
     void acceptMaxIteration(String maxIterations);
-    void acceptNewLocation(String newLoc);
-    void acceptNewStatus(String newStat);
+    void acceptNewLocation(String newLoc, String site);
+    void acceptNewStatus(String newStat, String labelGroup);
     void acceptSubsteps(String substeps);
     void acceptTravelerActionMask(int travelerActionMask);
     void acceptPermissionGroups(ArrayList<String> groups);
+    void acceptTravelerTypeLabels(ArrayList<String> labels);
     void acceptOriginalId(String originalId);
     void acceptChildren(ArrayList<ProcessNode> children);
     void acceptPrerequisites(ArrayList<Prerequisite> prerequisites);
@@ -603,7 +628,6 @@ public class ProcessNode implements  TravelerElement
          interpretation of some other fields */
       ptarget.acceptTravelerActionMask(m_travelerActionMask);
 
-      //if (m_hardwareRelationshipType == null) m_hardwareRelationshipSlot = null;
       ptarget.acceptVersion(m_version);
       ptarget.acceptJobname(m_jobname);
       ptarget.acceptUserVersionString(m_userVersionString);
@@ -611,12 +635,14 @@ public class ProcessNode implements  TravelerElement
       ptarget.acceptDescription(m_description);
       ptarget.acceptInstructionsURL(m_instructionsURL);
       ptarget.acceptMaxIteration(m_maxIteration);
- 
-      ptarget.acceptNewLocation(m_newLocation);
-      ptarget.acceptNewStatus(m_newStatus);
+
+      ptarget.acceptNewLocation(m_newLocation, m_locationSite);
+
+      ptarget.acceptNewStatus(m_newStatus, m_labelGroup);
       ptarget.acceptOriginalId(m_originalId);
       ptarget.acceptSubsteps(m_substeps);
       ptarget.acceptPermissionGroups(m_permissionGroups);
+      ptarget.acceptTravelerTypeLabels(m_travelerTypeLabels);
       ptarget.acceptPrerequisites(m_prerequisites);
       ptarget.acceptPrescribedResults(m_resultNodes);
       ptarget.acceptOptionalResults(m_optionalResultNodes);
@@ -719,7 +745,9 @@ public class ProcessNode implements  TravelerElement
     m_userVersionString = src.m_userVersionString;
     m_jobname = src.m_jobname;
     m_newLocation = src.m_newLocation;
+    m_locationSite = src.m_locationSite;
     m_newStatus = src.m_newStatus;
+    m_labelGroup = src.m_labelGroup;
     // For now, do not handle recurs==true, so leave option count and seq count
     // alone
     if (src.getPrerequisiteCount() > 0) {
@@ -762,8 +790,10 @@ public class ProcessNode implements  TravelerElement
   public String getInstructionsURL() { return m_instructionsURL;}
   public String getMaxIteration() {return m_maxIteration;}
   public String getNewLocation() {return m_newLocation;}
+  public String getLocationSite() {return m_locationSite;}
   public String getNewStatus() {return m_newStatus;}
   public String getNewStatusId() {return m_newStatusId;}
+  public String getLabelGroup() {return m_labelGroup;}
   public String getCondition() {
     if (m_parentEdge == null) return null;
     return m_parentEdge.getCondition();
@@ -796,7 +826,9 @@ public class ProcessNode implements  TravelerElement
   public void setInstructionsURL(String url) {m_instructionsURL = url;}
   public void setMaxIteration(String maxIt) {m_maxIteration = maxIt;}
   public void setNewLocation(String newLoc) {m_newLocation = newLoc;}
+  public void setLocationSite(String site) {m_locationSite = site;}
   public void setNewStatus(String newStat) {m_newStatus = newStat;}
+  public void setLabelGroup(String group) {m_labelGroup = group;}
   public void newVersion() {
     m_edited = true;
     m_isRef = false;
@@ -845,15 +877,12 @@ public class ProcessNode implements  TravelerElement
   private ArrayList<PrescribedResult> m_optionalResultNodes=null;
   private ArrayList<RelationshipTask> m_relationshipTasks=null;
   private ArrayList<String> m_permissionGroups=null;
+  private ArrayList<String> m_travelerTypeLabels=null;
   private String m_name=null;
   private boolean m_isCloned=false;
   private boolean m_hasClones=false;
   private boolean m_isRef=false;
   private String m_hardwareGroup=null;
-  /* obsolete??
-  private String m_hardwareRelationshipType=null;
-  private String m_hardwareRelationshipSlot="1";
-  */
   private String m_processId=null;
   private String m_version=null;
   private String m_jobname=null;
@@ -863,7 +892,9 @@ public class ProcessNode implements  TravelerElement
   private String m_instructionsURL= "";
   private String m_maxIteration=null;
   private String m_newLocation=null;
+  private String m_locationSite=null;
   private String m_newStatus=null;
+  private String m_labelGroup=null;
   private String m_newStatusId=null; /* Make accessible for export to YAML */
   private String m_substeps=null;
   private String m_sourceDb=null;
