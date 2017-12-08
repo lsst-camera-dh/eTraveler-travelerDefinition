@@ -635,6 +635,7 @@ public class ProcessNode implements  TravelerElement
       ptarget.acceptId(m_processId);
       if (m_parentEdge != null) {
         ptarget.acceptCondition(m_parentEdge.getCondition());
+        ptarget.acceptHardwareCondition(m_parentEdge.getHardwareCondition());
       }
       ptarget.acceptIsCloned(m_isCloned);
       ptarget.acceptName(m_name);

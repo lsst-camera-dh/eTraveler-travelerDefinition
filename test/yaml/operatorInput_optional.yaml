@@ -20,6 +20,10 @@ Sequence:
           MinValue: 0
           MaxValue: 10
         -
+          Label: Enter valid url
+          InputSemantics: url
+          Name: test_url
+        -
           Label: Yes or no?
           InputSemantics: boolean
           Name: boolean_input

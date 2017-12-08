@@ -947,13 +947,15 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
           throw new EtravelerException("Unknown hardware type name " +
                                        m_edgeHardwareCondition);
         }   
-      } /* and that it is in the traveler's hardware group. */
-      String where=" where hardwareTypeId='" + m_branchHardwareTypeId +
-        "' and hardwareGoupId='" + m_hardwareGroupId + "'";
-      if (m_connect.fetchColumn("HardwareTypeGroupMapping", "id", where)
-          == null) {
-        throw new EtravelerException("Hardware type " + m_edgeHardwareCondition
-                                     + " not in group " + m_hardwareGroup);
+        /* and that it is in the traveler's hardware group. */
+        String where=" where hardwareTypeId='" + m_branchHardwareTypeId +
+          "' and hardwareGroupId='" + m_hardwareGroupId + "'";
+        if (m_connect.fetchColumn("HardwareTypeGroupMapping", "id", where)
+            == null) {
+          throw new EtravelerException("Hardware type "
+                                       + m_edgeHardwareCondition
+                                       + " not in group " + m_hardwareGroup);
+        }
       }
     }
          
