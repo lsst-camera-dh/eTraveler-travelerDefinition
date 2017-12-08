@@ -123,6 +123,10 @@ public class TravelerPrintVisitor
       if (m_condition != null) {
         m_writer.write(leadingBlanks + "Condition: " + m_condition + s_eol);
       }
+      if (m_hardwareCondition != null) {
+        m_writer.write(leadingBlanks + "HardwareTypeCondition: " +
+                       m_hardwareCondition + s_eol);
+      }
       m_writer.write(leadingBlanks+"Max iteration: " + m_maxIteration + s_eol);
       m_writer.write(leadingBlanks+"Short description: " + 
                      m_shortDescription + s_eol);
@@ -287,7 +291,8 @@ public class TravelerPrintVisitor
     m_hardwareGroup=null; m_version=null;
     m_userVersionString=null; m_jobname=null; m_description=null;
     m_maxIteration=null; m_substeps=null; m_travelerActionMask=0;
-    m_originalId=null; m_condition=null; m_newLocation=null;
+    m_originalId=null; m_condition=null; m_hardwareCondition=null;
+    m_newLocation=null;
   }
   
   private void resetPrereq() {
@@ -351,6 +356,9 @@ public class TravelerPrintVisitor
   }
   public void acceptOriginalId(String originalId) {m_originalId = originalId;}
   public void acceptCondition(String condition) {m_condition=condition;}
+  public void acceptHardwareCondition(String condition) {
+    m_hardwareCondition=condition;
+  }
   public void acceptChildren(ArrayList<ProcessNode> children) {m_children=children;}
   public void acceptPrerequisites(ArrayList<Prerequisite> prereqs) {
     m_prerequisites=prereqs;
@@ -469,6 +477,7 @@ public class TravelerPrintVisitor
   private String m_labelGroup=null;
   private String m_substeps=null;
   private String m_condition=null;
+  private String m_hardwareCondition=null;
   private int m_travelerActionMask=0;
   private String m_sourceDb=null;
   private String m_originalId=null;

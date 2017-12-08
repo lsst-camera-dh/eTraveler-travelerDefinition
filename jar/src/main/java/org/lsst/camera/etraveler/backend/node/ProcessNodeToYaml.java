@@ -190,7 +190,10 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
       }
       if (m_substeps.equals("SELECTION")) {
         m_data.put("Selection", children);
-      }       
+      }
+      if (m_substeps.equals("HARDWARE_SELECTION")) {
+        m_data.put("HardwareTypeSelection", children);
+      }
     } 
   }
   public void acceptPrerequisites(ArrayList<Prerequisite> prerequisites) {
@@ -259,6 +262,9 @@ public class ProcessNodeToYaml implements ProcessNode.ExportTarget {
    */
   public void acceptCondition(String condition) {
      putIfPresent("Condition", condition);
+  }
+  public void acceptHardwareCondition(String condition) {
+     putIfPresent("HardwareTypeCondition", condition);
   }
   public void acceptClonedFrom(ProcessNode process) {
      

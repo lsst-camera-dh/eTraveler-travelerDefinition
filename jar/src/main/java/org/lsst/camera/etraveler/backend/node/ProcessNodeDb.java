@@ -12,7 +12,6 @@ import org.lsst.camera.etraveler.backend.util.LabelUtil;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Connection;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
@@ -79,7 +78,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
                   "travelerActionMask", "permissionMask", "originalId",
                   "newLocation", "newHardwareStatusId", "genericLabelId",
                   "labelGroupId", "LabelGroup.name as labelGroup","siteId", "Site.name as site"};
-  private static String[] s_edgeCols = {"step", "cond"};
+  private static String[] s_edgeCols = {"step", "cond",
+                                        "HT.name as hardwareTypeName"};
   private static PreparedStatement s_processQuery = null;
   private static PreparedStatement s_edgeQuery = null;
   private static PreparedStatement s_prereqQuery = null;
@@ -142,7 +142,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     if (travelerRoot == null) {
       initIdMaps();
       m_travelerRoot = this;
-      m_nodeMap = new ConcurrentHashMap<String, ProcessNodeDb>();
+      m_nodeMap = new ConcurrentHashMap< >();
       m_nodeMap.put(m_id, this);
     } else {
       m_travelerRoot = travelerRoot;
@@ -160,6 +160,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
         rs.next();
         m_edgeStep = rs.getInt(1);
         m_edgeCondition = rs.getString(2);
+        m_edgeHardwareCondition = rs.getString(3);
       } catch (SQLException ex) {
         System.out.println("Query for process " + m_id + " failed with exception");
         System.out.println(ex.getMessage());
@@ -314,7 +315,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
         ArrayList<String> exceptIds = 
             m_connect.fetchColumnMulti("ExceptionType", "id", where);
         if (exceptIds != null)  {
-          m_ncrSpecsDb = new ArrayList<NCRSpecificationDb>();
+          m_ncrSpecsDb = new ArrayList< >();
           for (String id: exceptIds)  {
             m_ncrSpecsDb.add(new NCRSpecificationDb(m_connect, id));
           }
@@ -335,12 +336,12 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       "Process P left join Site on P.siteId=Site.id left join LabelGroup on P.labelGroupId=LabelGroup.id";
     s_processQuery = m_connect.prepareQuery(tableSpec, s_initCols,
                                             " WHERE P.id=?");
-    s_edgeInfoQuery = m_connect.prepareQuery("ProcessEdge", s_edgeCols, where);
-    
-    
+    s_edgeInfoQuery =
+      m_connect.prepareQuery("ProcessEdge left join HardwareType HT on ProcessEdge.branchHardwareTypeId=HT.id", s_edgeCols, " where ProcessEdge.id=?");
     where = " WHERE parent=?";    
     String[] getCol = {"COUNT(*)"};
-    s_edgeQuery = m_connect.prepareQuery("ProcessEdge", getCol, where);
+    s_edgeQuery = m_connect.prepareQuery("ProcessEdge", getCol,
+                                         where);
     String[] childCol = {"child", "id"};
     where = " WHERE parent=? order by abs(step)";    
     s_childQuery = m_connect.prepareQuery("ProcessEdge", childCol, where);  
@@ -369,7 +370,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
    */
   private void decodePermissionGroupMask() {
     if (m_permissionGroupMask == 0) return;
-    m_permissionGroups = new ArrayList<String>();
+    m_permissionGroups = new ArrayList< >();
     int remaining = m_permissionGroupMask;
     int bit = 1;
     while ((remaining != 0) && (bit < Integer.MAX_VALUE))  {
@@ -400,30 +401,34 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   }
   String [] getAssociateIds(PreparedStatement query) throws SQLException {
     query.setString(1, m_id);
-    ResultSet rs = query.executeQuery();
-    boolean more = rs.next();
-    int count = 0;
-    while (more) {
-      count++;
+    try (ResultSet rs  = query.executeQuery() ) {
+      boolean more = rs.next();
+      int count = 0;
+      while (more) {
+        count++;
         more = rs.next();
-    }
-    if (count == 0) {
-      rs.close();
-      return null;
-    }
+      }
+      if (count == 0) {
+        //rs.close();
+        return null;
+      }
     
-    String [] retArray = new String[count];
-    rs.beforeFirst();
-    for (int i=0; i < count; i++) {
-      rs.next();
-      retArray[i] = rs.getString(1);
+      String [] retArray = new String[count];
+      rs.beforeFirst();
+      for (int i=0; i < count; i++) {
+        rs.next();
+        retArray[i] = rs.getString(1);
+      }
+      // rs.close();
+      return retArray;
     }
-    rs.close();
-    return retArray;  
   }
   // ProcessNode.Importer interface implementation: support import into ProcessNode
+  @Override
   public String provideId() {return m_id;}
+  @Override
   public String provideName()  {return m_name;}
+  @Override
   public String provideHardwareGroup() {return m_hardwareGroup;}
   /*
   public String provideHardwareRelationshipType()  {
@@ -431,47 +436,74 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   public String provideHardwareRelationshipSlot()  {
     return m_hardwareRelationshipSlot; }
     */
+  @Override
   public String provideVersion() {return m_version;}
+  @Override
   public String provideJobname(){return m_jobname;}
+  @Override
   public String provideUserVersionString() {return m_userVersionString;}
+  @Override
   public String provideDescription() {
     if (m_description == null) return "";
     return m_description;
   }
+  @Override
   public String provideShortDescription() {
     if (m_shortDescription == null) return "";
     return m_shortDescription;
   }
-   public String provideInstructionsURL() {
+  @Override
+  public String provideInstructionsURL() {
     if (m_instructionsURL == null) return "";
     return m_instructionsURL;
   }
+  @Override
   public String provideMaxIteration() {return m_maxIteration;}
+  @Override
   public String provideNewLocation() {return m_newLocation;}
+  @Override
   public String provideLocationSite() {return m_locationSite;}
+  @Override
   public String provideNewStatus() {return m_newStatus;}
+  @Override
   public String provideLabelGroup() {return m_labelGroup;}
+  @Override
   public String provideSubsteps() {return m_substeps;}
+  @Override
   public int provideTravelerActionMask() {return m_travelerActionMask;}
+  @Override
   public String provideOriginalId() {return m_originalId;}
+  @Override
   public ArrayList<String> providePermissionGroups() {return m_permissionGroups;}
+  @Override
   public int provideNChildren() {return m_nChildren;}
+  @Override
   public int provideNPrerequisites() {return m_nPrerequisites;}
+  @Override
   public int provideNPrescribedResults() {return m_nPrescribedResults;}
+  @Override
   public int provideNOptionalResults() {return m_nOptionalResults;}
+  @Override
   public int provideNRelationshipTasks() { return m_nRelationshipTasks;}
+  @Override
   public int provideEdgeStep() {return m_edgeStep;}
+  @Override
   public String provideEdgeCondition() {return m_edgeCondition;}
+  @Override
+  public String provideEdgeHardwareCondition() {return m_edgeHardwareCondition;}
   //public String provideParentEdgeId() {return m_parentEdgeId;}
+  @Override
   public ProcessEdge provideParentEdge(ProcessNode parent, ProcessNode child) {
-    ProcessEdge parentEdge = new ProcessEdge(parent, child, m_edgeStep, m_edgeCondition);
+    ProcessEdge parentEdge = new ProcessEdge(parent, child, m_edgeStep, m_edgeCondition, m_edgeHardwareCondition);
     parentEdge.setId(m_parentEdgeId);
     return parentEdge;
   }
+  @Override
   public ProcessNode provideChild(ProcessNode parent, int n) throws Exception {
     return new ProcessNode(parent, new ProcessNodeDb(m_connect, m_childIds[n],
         m_childEdgeIds[n], m_travelerRoot));
   }
+  @Override
   public Prerequisite providePrerequisite(ProcessNode parent, int n) throws Exception {
     return new
       Prerequisite(parent, new 
@@ -479,46 +511,65 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
                                   m_prerequisiteTypeMap, 
                                   m_hardwareTypeNameMap));
   }
+  @Override
   public PrescribedResult provideResult(ProcessNode parent, int n) throws Exception {
     return new PrescribedResult(parent, new PrescribedResultDb(m_connect, m_resultIds[n], m_permissionGroupMap));
   }
+  @Override
   public PrescribedResult provideOptionalResult(ProcessNode parent, int n) throws Exception {
     return new PrescribedResult(parent, 
                                 new PrescribedResultDb(m_connect, m_optionalResultIds[n], m_permissionGroupMap));
   }
+  @Override
   public RelationshipTask provideRelationshipTask(ProcessNode parent, int n) throws Exception {
     return new RelationshipTask(parent,
         new RelationshipTaskDb(m_connect, m_relationshipTaskIds[n]));
   }
+  @Override
   public boolean provideIsCloned() {return m_isCloned;}
+  @Override
   public boolean provideHasClones() {return m_isCloned;}
+  @Override
   public boolean provideIsRef() { return m_isRef;}  // does this make any sense?
+  @Override
   public String provideSourceDb() { return m_sourceDb;}
+  @Override
   public ArrayList<String> provideTravelerTypeLabels() {
     return m_travelerTypeLabels;
   }
-
+  @Override
   public void finishImport(ProcessNode process) {
     process.setProcessId(m_id);
     process.setOriginalId(m_originalId);
   }   
   
   // ProcessNode.ExportTarget implementation: allow ProcessNode to export to us
+  @Override
   public void acceptId(String id) {   m_id = id; }
+  @Override
   public void acceptName(String name) {  m_name = name; }
+  @Override
   public void acceptHardwareGroup(String hardwareGroup) {
     m_hardwareGroup=hardwareGroup;
   }
   
+  @Override
   public void acceptVersion(String version) { m_version = version; }
+  @Override
   public void acceptJobname(String jobname) { m_jobname = jobname; }
+  @Override
   public void acceptUserVersionString(String userVersionString) {
     m_userVersionString = userVersionString;
   }
+  @Override
   public void acceptDescription(String description) {m_description=description;}
+  @Override
   public void acceptShortDescription(String desc) {m_shortDescription=desc;}
+  @Override
   public void acceptInstructionsURL(String url) {m_instructionsURL = url;}
+  @Override
   public void acceptMaxIteration(String maxIteration) {m_maxIteration=maxIteration;}
+  @Override
   public void acceptNewLocation(String newLoc, String site) {
     m_newLocation=newLoc;
     m_locationSite=site;
@@ -526,6 +577,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     /* Canonical non-null representation for operator prompt is "(?)" */
     if (newLoc.equals("(?)")) m_newLocation = null;
   }
+  @Override
   public void acceptNewStatus(String newStat, String group) {
     m_newStatus=newStat;
     m_labelGroup=group;
@@ -533,25 +585,31 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     /* Canonical non-null representation for operator prompt is "(?)" */
     if (newStat.equals("(?)")) m_newStatus = null;
   }
+  @Override
   public void acceptSubsteps(String substeps) {m_substeps = substeps; }
+  @Override
   public void acceptTravelerActionMask(int travelerActionMask) {
     m_travelerActionMask = travelerActionMask;
   }
+  @Override
   public  void acceptOriginalId(String originalId) {m_originalId = originalId;}
+  @Override
   public  void acceptPermissionGroups(ArrayList<String> groups) {
     if (groups == null) return;
-    m_permissionGroups = new ArrayList<String>(groups.size());
+    m_permissionGroups = new ArrayList< >(groups.size());
     for (String g : groups) {
       m_permissionGroups.add(new String(g));
     }
   }
+  @Override
   public  void acceptTravelerTypeLabels(ArrayList<String> labels) {
     if (labels == null) return;
-    m_travelerTypeLabels = new ArrayList<String>(labels.size());
+    m_travelerTypeLabels = new ArrayList< >(labels.size());
     for (String lbl : labels) {
       m_travelerTypeLabels.add(new String(lbl));
     }
   }
+  @Override
   public void acceptChildren(ArrayList<ProcessNode> children) {
     if (m_isCloned || m_isRef)  {
       m_children = null;
@@ -573,6 +631,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     }
   }
     
+  @Override
   public void acceptPrerequisites(ArrayList<Prerequisite> prerequisites) {    
     if (m_isCloned || m_isRef)  {
       m_prerequisites = null;
@@ -596,6 +655,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     }
   }
  
+  @Override
   public void acceptRelationshipTasks(ArrayList<RelationshipTask> rels)  {
     if (m_isCloned || m_isRef) {
       m_relationshipTasks = null;
@@ -611,6 +671,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       }
     }
   } 
+  @Override
   public void acceptPrescribedResults(ArrayList<PrescribedResult> prescribedResults) {
     if (m_isCloned || m_isRef)  {
       m_results = null;
@@ -628,6 +689,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       }
     }
   }
+  @Override
   public void acceptOptionalResults(ArrayList<PrescribedResult> prescribedResults) {
     if (m_isCloned || m_isRef)  {
       m_optionalResults = null;
@@ -646,25 +708,36 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
     }
   }
   // Following is to transmit condition assoc. with parent edge
+  @Override
   public void acceptCondition(String condition) {
     m_edgeCondition = condition;
   }
+  @Override
+  public void acceptHardwareCondition(String condition) {
+    m_edgeHardwareCondition = condition;
+  }
+  @Override
   public void acceptClonedFrom(ProcessNode process) {
     if (process != null) {
       m_isCloned = true;
       m_fromProcessNode = process;
     }
   }
+  @Override
   public void acceptIsCloned(boolean isCloned) {
     m_isCloned = isCloned;
   }
+  @Override
   public void acceptHasClones(boolean hasClones) {
     m_hasClones = hasClones;
   }
+  @Override
   public void acceptIsRef(boolean isRef) {
     m_isRef = isRef;
   }
+  @Override
   public void acceptEdited(boolean edited) { m_edited = edited;}
+  @Override
   public void exportDone() {
     if (m_edited) {m_version = "modified";}
   }
@@ -861,7 +934,29 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
                              + ex.getMessage());
       }
     }
-    
+
+    /* If edgeHardwareCondition is not null:
+         If not equal to special value, check that is it
+         a valid hardware type name */
+    if (m_edgeHardwareCondition != null) {
+      if (!m_edgeHardwareCondition.equals(ProcessNode.hardwareDefaultString())
+          ) {
+        m_branchHardwareTypeId =
+          (String) m_hardwareTypeNameMap.get(m_edgeHardwareCondition);
+        if (m_branchHardwareTypeId == null) {
+          throw new EtravelerException("Unknown hardware type name " +
+                                       m_edgeHardwareCondition);
+        }   
+      } /* and that it is in the traveler's hardware group. */
+      String where=" where hardwareTypeId='" + m_branchHardwareTypeId +
+        "' and hardwareGoupId='" + m_hardwareGroupId + "'";
+      if (m_connect.fetchColumn("HardwareTypeGroupMapping", "id", where)
+          == null) {
+        throw new EtravelerException("Hardware type " + m_edgeHardwareCondition
+                                     + " not in group " + m_hardwareGroup);
+      }
+    }
+         
     if (!(m_version.equals("1"))) { 
       if (!acceptableVersion(m_version)) {
         throw new 
@@ -919,7 +1014,7 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
                          "newLocation", "siteId", "newHardwareStatusId",
                          "genericLabelId", "labelGroupId", "originalId",
                          "travelerActionMask", "permissionMask", "createdBy"};
-  private static   String[] s_insertEdgeCols={"parent", "child", "step", "cond", "createdBy"};
+  private static   String[] s_insertEdgeCols={"parent", "child", "step", "cond", "branchHardwareTypeId", "createdBy"};
  
   
   public void writeToDb(DbConnection connect, ProcessNodeDb parent) 
@@ -1058,7 +1153,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
       edgeVals[1] = m_id;
       edgeVals[2] = String.valueOf(m_edgeStep);
       edgeVals[3] = m_edgeCondition;
-      edgeVals[4] = m_vis.getUser();
+      edgeVals[4] = m_branchHardwareTypeId;
+      edgeVals[5] = m_vis.getUser();
  
       try {
         m_parentEdgeId = m_connect.doInsert("ProcessEdge", s_insertEdgeCols, 
@@ -1173,25 +1269,25 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
    RelationshipTaskDb.reset();
   }
   private void initIdMaps() throws SQLException {
-    m_relationshipTypeMap = new ConcurrentHashMap<String, String>();
+    m_relationshipTypeMap = new ConcurrentHashMap< >();
     fillIdMap("MultiRelationshipType", "name", " where TRUE", m_relationshipTypeMap);
-    m_relationshipActionMap = new ConcurrentHashMap<String, String>();
+    m_relationshipActionMap = new ConcurrentHashMap< >();
     fillIdMap("MultiRelationshipAction", "name", " where TRUE", m_relationshipActionMap);
-    m_semanticsTypeMap = new ConcurrentHashMap<String, String>();
+    m_semanticsTypeMap = new ConcurrentHashMap< >();
     fillIdMap("InputSemantics", "name", " where TRUE", m_semanticsTypeMap);
-    m_prerequisiteTypeMap = new ConcurrentHashMap<String, String>();
+    m_prerequisiteTypeMap = new ConcurrentHashMap< >();
     fillIdMap("PrerequisiteType", "name", " where TRUE", m_prerequisiteTypeMap);
-    m_hardwareTypeNameMap = new ConcurrentHashMap<String, String>();
+    m_hardwareTypeNameMap = new ConcurrentHashMap< >();
     fillIdMap("HardwareType", "name", " where TRUE", m_hardwareTypeNameMap);
-    m_hardwareGroupNameMap = new ConcurrentHashMap<String, String>();
+    m_hardwareGroupNameMap = new ConcurrentHashMap< >();
     fillIdMap("HardwareGroup", "name", " where TRUE",  m_hardwareGroupNameMap);
-    m_hardwareStatusIdMap = new ConcurrentHashMap<String, String>();
+    m_hardwareStatusIdMap = new ConcurrentHashMap< >();
     fillIdMap("HardwareStatus", "name", " where isStatusValue='1'", m_hardwareStatusIdMap);
-    m_hardwareLabelIdMap = new ConcurrentHashMap<String, String>();
+    m_hardwareLabelIdMap = new ConcurrentHashMap< >();
     fillIdMap("HardwareStatus", "name", " where isStatusValue='0'", m_hardwareLabelIdMap);
-    m_permissionGroupMap = new ConcurrentHashMap<String, String>();
+    m_permissionGroupMap = new ConcurrentHashMap< >();
     fill2WayMap("PermissionGroup", "maskBit", "name", " where TRUE", m_permissionGroupMap);
-    m_processNameIdMap = new ConcurrentHashMap<String, String>();
+    m_processNameIdMap = new ConcurrentHashMap< >();
   }
 
   private void copyIdMaps() {
@@ -1308,6 +1404,8 @@ public class ProcessNodeDb implements ProcessNode.Importer, ProcessNode.ExportTa
   private String m_parentEdgeId = null;
   private int m_edgeStep = 0;
   private String m_edgeCondition = null;
+  private String m_edgeHardwareCondition = null;
+  private String m_branchHardwareTypeId = null;
   private int m_nChildren = 0;
   private int m_nPrerequisites = 0;
   private int m_nPrescribedResults = 0;

@@ -112,7 +112,7 @@ public class Traveler {
     ProcessNodeYaml topYaml = new ProcessNodeYaml(wrt, eol, nameHandling);
     boolean namesOk = true;
     try {
-      namesOk = topYaml.readYaml(yamlMap, null, false, 0, null);
+      namesOk = topYaml.readYaml(yamlMap, null, 0, null);
     } catch (Exception ex) {
       System.out.println("Failed to process yaml with exception '" 
           + ex.getMessage() + "'");

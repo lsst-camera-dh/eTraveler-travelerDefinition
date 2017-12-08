@@ -53,7 +53,9 @@
         <li><p>Values for some keys will be inherited from the node's parent.</p></li> 
       </ul>
       <h2>Keys Taking a Scalar Value</h2>
-      <p>Key names in <span class='redError'><b>red</b></span> are not yet fully implemented.</p>
+      <p>Key names in <span class='redError'><b>red</b></span> are not yet fully implemented.  Key names in <s class="deprecated">strikeout type with
+      gray background</s> are deprecated; support
+       may be discontinued at any time.</p>
       <dl>
         <dt>AddLabel:</dt>
         <dd>Value is label to be added to the component on which the traveler is being executed.  The
@@ -64,34 +66,50 @@
 	prompted with a list of all labels in that group.
           <br /><br /></dd>
 
-       <dt>Clone:</dt>
-        <dd>Request that  copy of another node be reinserted at another location in
+       <dt><s class="deprecated">Clone:</s></dt>
+        <dd><s class="deprecated">Request that  copy of another node be reinserted at another location in
           the procedeure. The value of Clone: must match the value of <a href="#Name">Name:</a>
           for a previously described process step.  The step <em>and all its descendants</em>
           will be inserted. The only other keywords which may appear in a Clone: step are
           Version: (which must match the value for Version: for the step being 
-          referenced) and Condition:<br /><br />
+          referenced) and Condition:<br /><br /></s>
         </dd>
-        <dt>Condition:</dt>
+        <dt id="Condition">Condition:</dt>
         <dd>A text string describing the condition under which the operator should select this node.
-          It only has an effect if the node is a child of a <a href="#Selection">Selection</a>.<br /><br />
+          It only has an effect if the node is a child of a <a href="#Selection">Selection</a>, in which case <em>all</em> child steps of the Selection
+	  must have the Condition: keyword.  See also
+	  <a href="#HTC">HardwareTypeCondition:</a></d><br /><br />
         </dd>
         <dt id="Description">Description:</dt>
         <dd>Complete description and instructions for the step, displayed when the traveler
           is being executed. This can be very long (up to 16k bytes). If the process step does not
           require such a long description, the <a href="#Short">ShortDescription:</a> field may suffice.  
           It's limited to 255 characters. If ShortDescription: has been specified and Description: has not, 
-          the value for for ShortDescription: will be copied to Description when the file is ingested. 
+          the value for for ShortDescription: will be copied to Description when the file is ingested.  <br /><br />
         </dd> 
         <dt>HardwareGroup:</dt>
         <dd>The hardware group the traveler acts on.  The key is required for the root
           element and ignored everywhere else (its value is inherited from the root).
           <br /><br /></dd>
+	<dt id="HTC">HardwareTypeCondition:</dt>
+	<dd>This is an alternative to the <a href="#Condition">Condition:</a>
+	keyword described above, applicable only for children of
+	<a href='#HardwareTypeSelection'>HardwareTypeSelection:</a>.
+	 Value is either a hardware type name or the special value string
+	 '(otherwise)'. In the first case, the hardware type name must
+	 correspond to a type defined in the target database which is a
+	 member of the hardware group for the traveler. If there is
+	 a step with value of HardwareTypeCondition: equal to '(otherwise)',
+	 that step will be executed in case none of the other hardware
+	 types match the type of the component on which the traveler is
+	 being executed.<br /><br />
+	  
+	</dd>
         <dt>Jobname:</dt>
         <dd>If the step has 'HarnessedJob' attribute, this value
           will be used in forming the command to launch the job.
           If not present, value of Name: paremeter will be used.
-          Ignored for steps without 'HarnessedJob attribute.
+          Ignored for steps without 'HarnessedJob attribute.  <br /><br />
         </dd>
         <dt>MaxIteration:</dt>
         <dd>
@@ -110,7 +128,7 @@
         <dt>NCR:</dt>
         <dd> If this key is present and its value is anything <em>other</em> than
             <b>0</b>, <b>no</b>, <b>false</b> the traveler may be used as a stand-alone NCR.
-            The key is ignored for all steps except root step</dd>
+            The key is ignored for all steps except root step.<br /><br /></dd>
         <dt>NewLocation:</dt>
         <dd>
           Location to which component is to be moved.  Must be defined in
@@ -145,23 +163,23 @@
           <br /><br />
 
         </dd>
-        <dt>RefName:</dt>
-        <dd>
+        <dt><s class="deprecated">RefName:</s></dt>
+        <dd><s class="deprecated">
           The name of a process step already ingested in the database from 
           some other traveler of the same hardware group as this one.
           This step (and all descendents, as for treatment of Clone:) is,
           for all practical purposes, inserted in the new traveler.
           The only other keys which may appear in a node with RefName: are
-          RefVersion: and Condition:
+          RefVersion: and Condition:</s>
           <br /><br />
         </dd>
-        <dt>RefVersion:</dt>
-        <dd>
+        <dt><s class="deprecated">RefVersion:</s></dt>
+        <dd><s class="deprecated">
           Version of process step referenced here. This key is ignored unless
           RefName: is also present.  If RefName: is specified and RefVersion:
           is not, RefVersion: defaults to 'last'; the highest versioned
           process step in the data base with name = value of RefName: and 
-          the same hardware group as this traveler.<br /><br />
+          the same hardware group as this traveler.</s><br /><br />
         </dd>
         <dt>RemoveLabel:</dt>
         <dd>Value is label to be removed from the component on which the traveler is being executed.  The
@@ -350,6 +368,12 @@
           is to be executed as selected by the Operator at execution time.
           The value of this key is a list of process nodes.
         </dd>
+        <dt id="HardwareTypeSelection"><br />HardwareTypeSelection:</dt>
+        <dd>Indicates that the process step has children, one of which
+          is to be executed depending on the hardware type of the 
+          component. The choice is made automatically at execution time.
+          The value of this key is a list of process nodes.
+        </dd>
         <dt><br />Sequence:</dt>
         <dd>Indicates that the process step has children which are to be 
           executed in sequence.  Value is a list of process nodes.</dd>
@@ -378,8 +402,8 @@
             Applies only to root step in the procedure.
          </dd>
       </dl>
-      <h2 id='ref_clone'>Referenced and Cloned Steps</h2>
-      <p>In addition to 'regular' process steps, one may also refer to existing
+      <h2 id='ref_clone'><s class="deprecated">Referenced and Cloned Steps</s></h2>
+      <p><s class="deprecated">In addition to 'regular' process steps, one may also refer to existing
           steps.  There are two different methods, depending on whether you
           want to refer to a step already defined in the current traveler or
           one defined in another, already-ingested traveler. In either case most
@@ -387,15 +411,15 @@
           cause an error if present or will be ignored.  Definitions for
       cloned or reference step do not include child steps (nor Prerequistes,
           RequiredResults, etc.) because these things have already been
-          defined in the step being cloned or referred to. </p>
-      <ul><li>
+          defined in the step being cloned or referred to.</s> </p>
+      <ul><li><s class="deprecated">
               For cloned steps, the only keywords which may be present
               are Clone: (required) and Version: (optional).  The value
               must be the name of a step defined above in the same traveler.
               If the keyword Version: is present, the associated value
-              must be 'cloned' (with or without quotes).
+              must be 'cloned' (with or without quotes).</s>
           </li>
-          <li>
+          <li><s class="deprecated">
               For reference steps, use the keyword RefName: whose value must
               match the name of a step in some already-ingested traveler for
               the same hardware group.   The keyword RefVersion: is optional.
@@ -404,27 +428,30 @@
               version number.  You may also specify a positive integer value.
               <b>WARNING:</b> When travelers using a reference are exported
                 the fact that the step was originally a reference will not
-                be preserved.
+                be preserved.</s>
           </li>
       </ul>
       <h3>Restrictions</h3>
       <p>Within a traveler, all steps with the same name must also have the
-      same version.  This implies certain restrictions on regular steps,
-      cloned steps and reference steps, namely</p>
+      same version.  This implies certain restrictions on 
+      regular steps<s class="deprecated">, cloned steps and reference steps,</s>
+          namely</p>
       <ul>
           <li>There may be only one 'regular' step with a given name 
               (value of keyword Name:) in a
               traveler definition.</li>
-          <li>For any clone step, the value of Clone: must be a string 
-              which has already appeared
-              as the value of Name: for some prior regular step. </li>
-          <li>If there is a ref step (keyword RefName:) the value of RefName:
-              must be different from the names of any regular steps or clones.
+          <li><s class="deprecated">For any clone step, the value of Clone: 
+              must be a string which has already appeared
+              as the value of Name: for some prior regular step.</s> </li>
+          <li><s class="deprecated">If there is a ref step (keyword RefName:) 
+              the value of RefName: must be different from the names of 
+              any regular steps or clones.</s>
           </li>
           <li>
-              If there are two steps using the keyword RefName: with the same
-              value, they must also have the same value for RefVersion: (or
-              they can both omit RefVersion: so the value defaults to 'last')
+              <s class="deprecated">If there are two steps using the keyword 
+              RefName: with the same value, they must also have the same 
+              value for RefVersion: (or they can both omit RefVersion: so 
+              the value defaults to 'last')</s>
           </li>
       </ul>
       <%-- Sections to perhaps be added later

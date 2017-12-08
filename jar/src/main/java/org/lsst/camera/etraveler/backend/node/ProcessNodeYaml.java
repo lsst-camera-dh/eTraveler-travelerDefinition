@@ -23,7 +23,7 @@ import  java.util.LinkedHashMap;
 import  java.util.HashMap;
 import  java.util.List;
 import  java.util.Map;
-import  java.util.Set;
+import  java.util.HashSet;
 import  java.util.Iterator;
 import  java.io.Writer;
 import  java.io.IOException;
@@ -102,6 +102,8 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
     s_knownKeys.add("NCR");
     s_knownKeys.add("Jobname");
     s_knownKeys.add("TravelerTypeLabels");
+    s_knownKeys.add("HardwareTypeSelection");
+    s_knownKeys.add("HardwareTypeCondition");    
     /* Following are written by yaml export; informational only */
     s_knownKeys.add("FromSourceVersion");
     s_knownKeys.add("FromSourceId");
@@ -140,11 +142,13 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   static final int NCR=29;
   static final int JOBNAME=30;
   static final int TRAVELERTYPELABELS=31;
+  static final int HARDWARETYPESELECTION=32;
+  static final int HARDWARETYPECONDITION=33;
   
-  static final int FROMSOURCEVERSION=32;
-  static final int FROMSOURCEID=33;
-  static final int FROMSOURCEORIGINALID=34;
-  static final int FROMSOURCESOURCEDB=35;
+  static final int FROMSOURCEVERSION=34;
+  static final int FROMSOURCEID=35;
+  static final int FROMSOURCEORIGINALID=36;
+  static final int FROMSOURCESOURCEDB=37;
   
   public ProcessNodeYaml() {}
   
@@ -158,12 +162,11 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
    * 
    * @param yamlMap      Result of loading with snakeyaml
    * @param parent       Reference to ProcessNodeYaml parent, if any
-   * @param isSelection  True only if we're in a list under Selection key.
    * @param iChild       0 if no parent.  Else positive int
    * @throws UnrecognizedYamlKey 
    */
   public boolean readYaml(Map<String, Object> yamlMap, 
-                       ProcessNodeYaml parent, boolean isSelection, int iChild,
+                       ProcessNodeYaml parent, int iChild,
                        HashMap<String, ProcessNodeYaml> processes) 
     throws EtravelerException, Exception {
     boolean ok = true;
@@ -414,7 +417,21 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
         m_labelGroup = v;
         break;
       case CONDITION:
-        m_edgeCondition = v; break;
+        if (m_parent.provideSubsteps().equals("SELECTION") ) {
+          m_edgeCondition = v;
+          if (!m_parent.addCondition(v)) {
+            throw new EtravelerException("Duplicate condition value");
+          }
+        }
+        break;
+      case HARDWARETYPECONDITION:
+        if (m_parent.provideSubsteps().equals("HARDWARE_SELECTION") )  {
+          m_edgeHardwareCondition = v;
+          if (!m_parent.addCondition(v)) {
+            throw new EtravelerException("Duplicate hardware type condition");
+          }
+        }
+        break;
       case SOURCEDB:
       case TRAVELERTYPELABELS:
       case REFNAME:
@@ -482,7 +499,7 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
                 }
               }
             }
-          }
+          } 
           if ((m_travelerActionMask & (TravelerActionBits.ASYNC | 
                                       TravelerActionBits.HARNESSED)) ==
               TravelerActionBits.ASYNC) {
@@ -492,18 +509,30 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
 
           break;
         case SEQUENCE:
-          if (m_substeps.equals("SELECTION") ) {
-            throw new ConflictingChildren("SELECTION", "SEQUENCE");
+          if (m_substeps.equals("SELECTION") ||
+              m_substeps.equals("HARDWARE_SELECTION") ) {
+            throw new ConflictingChildren("SELECTION", m_substeps);
           }
           m_substeps="SEQUENCE";
           childList = (List<Node>) yamlMap.get(foundKey);
           m_nChildren = childList.size();
           break;
         case SELECTION:
-          if (m_substeps.equals("SEQUENCE") ) {
-            throw new ConflictingChildren("SELECTION", "SEQUENCE");
+          if (m_substeps.equals("SEQUENCE") ||
+              m_substeps.equals("HARDWARE_SELECTION")) {
+            throw new ConflictingChildren("SELECTION", m_substeps);
           }
           m_substeps="SELECTION";
+          m_conditions = new HashSet<String>();
+          childList = (List<Node>) yamlMap.get(foundKey);
+          m_nChildren = childList.size();
+          break;
+        case HARDWARETYPESELECTION:
+          if (m_substeps.equals("SEQUENCE") || m_substeps.equals("SELECTION")) {
+            throw new ConflictingChildren("HARDWARE_SELECTION", m_substeps);
+          }
+          m_substeps="HARDWARE_SELECTION";
+          m_conditions = new HashSet<String>();          
           childList = (List<Node>) yamlMap.get(foundKey);
           m_nChildren = childList.size();
           break;
@@ -619,17 +648,31 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
       }
     }
 
+    // If parent is hardware type selection step, must include htype condition
+    if (m_parent != null) {
+      if (m_parent.provideSubsteps().equals("HARDWARE_SELECTION")) {
+        if (m_edgeHardwareCondition == null) {
+          throw new EtravelerException("Non-empty hardware type condition required for hardware type selection child step '" 
+            + m_name + "'");
+        } else {
+          if ((m_edgeHardwareCondition).trim().equals("")) {
+            throw new EtravelerException("Non-empty hardware type condition required for hardware type selection child step");
+          }
+        }
+      }
+    }
+    
     // Finished with keys. Have handled everything except process children
     if (m_nChildren > 0) {    // Do recursion
       m_children = new ProcessNodeYaml[m_nChildren];
-      boolean hasSelection = (m_substeps.equals("SELECTION"));
+
       for (int iC = 0; iC < m_nChildren; iC++) {
         Map<String, Object> processMap =
           (Map<String, Object>) childList.get(iC);
         m_children[iC] = new ProcessNodeYaml(m_writer, m_eol, m_nameHandling);
         
         boolean childOk =
-          m_children[iC].readYaml(processMap, this, hasSelection, iC, m_processes);
+          m_children[iC].readYaml(processMap, this, iC, m_processes);
         ok = ok && childOk;
       }
     }  
@@ -717,8 +760,9 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   public String provideSourceDb() {return m_sourceDb;}
   public int provideEdgeStep() {return m_edgeStep;}
   public String provideEdgeCondition() {return m_edgeCondition;}
+  public String provideEdgeHardwareCondition() {return m_edgeHardwareCondition;}
   public ProcessEdge provideParentEdge(ProcessNode parent, ProcessNode child) {
-    ProcessEdge parentEdge = new ProcessEdge(parent, child, m_edgeStep, m_edgeCondition);
+    ProcessEdge parentEdge = new ProcessEdge(parent, child, m_edgeStep, m_edgeCondition, m_edgeHardwareCondition);
     return parentEdge;
   }
   public ProcessNode provideChild(ProcessNode parent, int n) throws Exception {
@@ -746,7 +790,9 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   public void finishImport(ProcessNode process) {}
   public String getSubsystem() {return m_subsystem;}
   public String getStandaloneNCR() {return m_standaloneNCR;}
-
+  public boolean addCondition(String c) {
+    return m_conditions.add(c);
+  }
   public Writer getWriter() {return m_writer;}
   public String getEol() {return m_eol;}
 
@@ -765,9 +811,11 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private String m_newStatus=null;        // or label
   private String m_labelGroup=null;
   private String m_edgeCondition = null;
+  private String m_edgeHardwareCondition = null;
   private String m_sourceDb = null;  // only of interest for top node
   private String m_standaloneNCR = null; // only of interest for top node
   private String m_jobname = null;
+  private String m_hardwareTypeCondition = null;
   private ArrayList<String> m_travelerTypeLabels = null;
   
   private int m_nChildren = 0;
@@ -800,5 +848,9 @@ public class ProcessNodeYaml implements ProcessNode.Importer {
   private String m_eol = "";
   
   // Keep track of process name/version pairs we've seen
-  private HashMap<String, ProcessNodeYaml> m_processes = null; 
+  private HashMap<String, ProcessNodeYaml> m_processes = null;
+
+  // For selection or hardware type selection steps, insure condition
+  // strings for children are all distinct
+  private HashSet<String> m_conditions = null;
 }
