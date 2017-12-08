@@ -267,7 +267,7 @@ public class ProcessNode implements  TravelerElement
       else {m_optionCount = nChildren;}
       for (int iChild = 0; iChild < nChildren; iChild++) {
         ProcessNode child = imp.provideChild(this, iChild);
-        if (m_substepType.equals("HARDWARE_SELECTION") &&
+        if (m_substeps.equals("HARDWARE_SELECTION") &&
             (child.getHardwareCondition() == null)) {
           child.getParentEdge().setHardwareCondition(ProcessNode.hardwareDefaultString());
         }
