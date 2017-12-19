@@ -18,6 +18,7 @@ fieldset { border-color: black; width: 90%}
 .warn {background-color: yellow;}
 .warning {font-weight : bold}
 .seriousWarn {background-color: orange;}
+.deprecated {background-color: lightgray;
  .bold {font-weight: bold}
  .left {text-align: left;}
  .right {text-align: right;}

@@ -7,11 +7,11 @@ package org.lsst.camera.etraveler.backend.node;
 import org.lsst.camera.etraveler.backend.exceptions.IncompatibleChild;
 import org.lsst.camera.etraveler.backend.exceptions.EtravelerException;
 import org.lsst.camera.etraveler.backend.db.DbConnection;
-import org.yaml.snakeyaml.nodes.Node;
-import java.io.Writer;
+// import org.yaml.snakeyaml.nodes.Node;
+// import java.io.Writer;
 import javax.management.Attribute;
 import javax.management.AttributeList;
-import java.util.List;
+// import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,10 +22,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ProcessNode implements  TravelerElement
 {
   static private void checkNonempty(String label, String toCheck) throws Exception {
-    if ((toCheck == null) || (toCheck == "")) {
+    if ((toCheck == null) || (toCheck.equals(""))) {
       throw new Exception("Every process step must have a " + label);
     }
   }
+  public static String hardwareDefaultString() { return "(otherwise)";}
 
   // Deep copy
   // FIX ME:   do something about m_root, m_nodeMap
@@ -36,24 +37,25 @@ public class ProcessNode implements  TravelerElement
     m_copiedFrom = orig;
     /* handle m_parentEdge a bit further down */
     /* m_clonedFrom is a tricky one!  */
-    if (orig.m_originalId != null) m_originalId = new String(orig.m_originalId);
+    if (orig.m_originalId != null) m_originalId = orig.m_originalId;
     if (orig.m_processId != null) {
-      m_processId = new String(orig.m_processId);
+      m_processId = orig.m_processId;
       m_isRef = true;
     }
-    m_name = new String(orig.m_name);
-    m_version = new String(orig.m_version);
+    m_name = orig.m_name;
+    m_version = orig.m_version;
     m_isCloned = orig.m_isCloned;
     if (m_parent != null) {
       m_parentEdge = new ProcessEdge(m_parent, this, step, 
-          orig.getCondition());
+                                     orig.getCondition(),
+                                     orig.getHardwareCondition());
     }
     /* For cloned nodes, storeToNodeMap sets m_clonedFrom as side effect */
     if (m_isCloned != storeToNodeMap()) {
       throw new EtravelerException("Inconsistent clone information");
     }
-    if (orig.m_sourceDb != null) m_sourceDb = new String(orig.m_sourceDb);
-     if (orig.m_newLocation != null) m_newLocation = new String(orig.m_newLocation);
+    if (orig.m_sourceDb != null) m_sourceDb = orig.m_sourceDb;
+     if (orig.m_newLocation != null) m_newLocation = orig.m_newLocation;
     if (m_isCloned)   { // get remainder of fields from our big brother
       copyFrom(m_clonedFrom);
     }  else {
@@ -66,7 +68,7 @@ public class ProcessNode implements  TravelerElement
     
     if (orig.m_children != null) {
       int clen = orig.m_children.size();
-      m_children = new ArrayList<ProcessNode>(clen);
+      m_children = new ArrayList< >(clen);
       for (int ic = 0; ic < clen; ic++) {
         m_children.add(new ProcessNode(this, (orig.m_children).get(ic), ic));
       }
@@ -80,35 +82,35 @@ public class ProcessNode implements  TravelerElement
    * @param model 
    */
   private void copyFrom(ProcessNode model) {
-    m_hardwareGroup = new String(model.m_hardwareGroup);
+    m_hardwareGroup = model.m_hardwareGroup;
 
     if (model.m_userVersionString != null) 
-      m_userVersionString = new String(model.m_userVersionString);
+      m_userVersionString = model.m_userVersionString;
     if (model.m_jobname != null) {
-      m_jobname = new String(model.m_jobname);
+      m_jobname = model.m_jobname;
     }		
-    m_description = new String(model.m_description);
-    m_shortDescription = new String(model.m_shortDescription);
-    m_instructionsURL = new String(model.m_instructionsURL);
-    m_maxIteration = new String(model.m_maxIteration);
-    m_substeps = new String(model.m_substeps);
-    m_isOption = model.m_isOption;
+    m_description = model.m_description;
+    m_shortDescription = model.m_shortDescription;
+    m_instructionsURL = model.m_instructionsURL;
+    m_maxIteration = model.m_maxIteration;
+    m_substeps = model.m_substeps;
+    m_substepType = model.m_substepType;
     m_travelerActionMask = model.m_travelerActionMask;
     if (model.m_newLocation != null) 
-      m_newLocation = new String(model.m_newLocation);
+      m_newLocation = model.m_newLocation;
     if (model.m_locationSite != null) 
-      m_locationSite = new String(model.m_locationSite);
+      m_locationSite = model.m_locationSite;
     if (model.m_newStatus != null)  
-      m_newStatus = new String(model.m_newStatus);
+      m_newStatus = model.m_newStatus;
     if (model.m_labelGroup != null) 
-      m_labelGroup = new String(model.m_labelGroup);
+      m_labelGroup = model.m_labelGroup;
     
     if (model.m_newStatusId != null)
-      m_newStatusId = new String(model.m_newStatusId);
+      m_newStatusId = model.m_newStatusId;
 
     if (model.m_prerequisites != null) {
       int plen = model.m_prerequisites.size();
-      m_prerequisites = new ArrayList<Prerequisite>(plen);
+      m_prerequisites = new ArrayList< >(plen);
 
       for (Prerequisite pre: model.m_prerequisites)  {
         m_prerequisites.add(new Prerequisite(this, pre));
@@ -116,21 +118,21 @@ public class ProcessNode implements  TravelerElement
     }
     if (model.m_resultNodes != null) {
       int rlen = model.m_resultNodes.size();
-      m_resultNodes = new ArrayList<PrescribedResult>(rlen);
+      m_resultNodes = new ArrayList< >(rlen);
       for (PrescribedResult res: model.m_resultNodes) {
         m_resultNodes.add(new PrescribedResult(this, res));
       }
     }
     if (model.m_optionalResultNodes != null) {
       int orlen = model.m_optionalResultNodes.size();
-      m_optionalResultNodes = new ArrayList<PrescribedResult>(orlen);
+      m_optionalResultNodes = new ArrayList< >(orlen);
       for (PrescribedResult res: model.m_optionalResultNodes) {
         m_optionalResultNodes.add(new PrescribedResult(this, res));
       }
     }
     if (model.m_relationshipTasks != null) {
       int rlen = model.m_relationshipTasks.size();
-      m_relationshipTasks = new ArrayList<RelationshipTask>(rlen);
+      m_relationshipTasks = new ArrayList< >(rlen);
       for (RelationshipTask rel: model.m_relationshipTasks) {
         m_relationshipTasks.add(new RelationshipTask(this, rel));
       }
@@ -167,7 +169,8 @@ public class ProcessNode implements  TravelerElement
     m_hardwareGroup = imp.provideHardwareGroup();
     try {
       checkNonempty("hardware group", m_hardwareGroup);
-      if ((parent != null) && (m_hardwareGroup != m_parent.m_hardwareGroup)) {
+      if ((parent != null) &&
+          (!m_hardwareGroup.equals(m_parent.m_hardwareGroup))) {
         throw new IncompatibleChild(m_name, parent.m_name, 
             "hardware group mismatch");
       }
@@ -220,27 +223,29 @@ public class ProcessNode implements  TravelerElement
     checkNonempty("children type", m_substeps);
     if ((!m_substeps.equals("NONE")) 
        && (!m_substeps.equals("SEQUENCE"))
-        && (!m_substeps.equals("SELECTION")) )  {
-      throw new Exception("children type must be one of NONE/SEQUENCE/SELECTION");
+        && (!m_substeps.equals("SELECTION"))
+        && (!m_substeps.equals("HARDWARE_SELECTION")) )  {
+      throw new
+        Exception("children type must be one of NONE/SEQUENCE/SELECTION/HARDWARE_SELECTION");
     }
    
     int nPrereq = imp.provideNPrerequisites();
     if (nPrereq > 0) {
-      m_prerequisites = new ArrayList<Prerequisite>(nPrereq);
+      m_prerequisites = new ArrayList< >(nPrereq);
       for (int iPrereq = 0; iPrereq < nPrereq; iPrereq++) {
         m_prerequisites.add(imp.providePrerequisite(parent, iPrereq));
       }
     }
     int nResults = imp.provideNPrescribedResults();
     if (nResults > 0) {
-      m_resultNodes = new ArrayList<PrescribedResult>(nResults);
+      m_resultNodes = new ArrayList< >(nResults);
       for (int iResult = 0; iResult < nResults; iResult++) {
         m_resultNodes.add(imp.provideResult(parent, iResult));
       }
     }
     int nOptionalResults = imp.provideNOptionalResults();
     if (nOptionalResults > 0) {
-      m_optionalResultNodes = new ArrayList<PrescribedResult>(nResults);
+      m_optionalResultNodes = new ArrayList< >(nResults);
       for (int iOpt = 0; iOpt < nOptionalResults; iOpt++) {
         m_optionalResultNodes.add(imp.provideOptionalResult(parent, iOpt));
       }
@@ -248,7 +253,7 @@ public class ProcessNode implements  TravelerElement
     //
     int nRel = imp.provideNRelationshipTasks();
     if (nRel > 0) {
-      m_relationshipTasks = new ArrayList<RelationshipTask>(nRel);
+      m_relationshipTasks = new ArrayList< >(nRel);
       for (int iRel = 0; iRel < nRel; iRel++) {
         m_relationshipTasks.add(imp.provideRelationshipTask(parent, iRel));
       }
@@ -257,11 +262,16 @@ public class ProcessNode implements  TravelerElement
     //
     int nChildren = imp.provideNChildren();
     if (nChildren > 0)  {
-      m_children = new ArrayList<ProcessNode>(nChildren);
+      m_children = new ArrayList< >(nChildren);
       if (m_substeps.equals("SEQUENCE")) { m_sequenceCount = nChildren;}
       else {m_optionCount = nChildren;}
       for (int iChild = 0; iChild < nChildren; iChild++) {
-        m_children.add(imp.provideChild(this, iChild));
+        ProcessNode child = imp.provideChild(this, iChild);
+        if (m_substeps.equals("HARDWARE_SELECTION") &&
+            (child.getHardwareCondition() == null)) {
+          child.getParentEdge().setHardwareCondition(ProcessNode.hardwareDefaultString());
+        }
+        m_children.add(child);
       }
     }  
     if (automatable)  { // check all non-ref children are harnessed jobs or are
@@ -277,7 +287,7 @@ public class ProcessNode implements  TravelerElement
       }
     }
     if (m_parent != null) {
-      m_isOption = m_parent.m_substeps.equals("SELECTION");
+      m_substepType = m_parent.m_substeps;
     }
   }
   /**
@@ -289,7 +299,7 @@ public class ProcessNode implements  TravelerElement
   private void initNodeMap(ProcessNode parent) {
     if (parent == null)  {
       m_root = this;
-      m_nodeMap = new ConcurrentHashMap<String, ProcessNode>();
+      m_nodeMap = new ConcurrentHashMap< >();
     }  else {
       m_nodeMap = m_parent.m_nodeMap;
     }
@@ -310,7 +320,7 @@ public class ProcessNode implements  TravelerElement
     return isCloned;
   }
   private void addBuddy(ProcessNode buddy)  {
-    if (m_buddies == null) m_buddies = new ArrayList<ProcessNode>();
+    if (m_buddies == null) m_buddies = new ArrayList< >();
     m_buddies.add(m_buddies.size(), buddy);
   }
 
@@ -410,8 +420,13 @@ public class ProcessNode implements  TravelerElement
                             Integer.toString(nRelationshipTasks)));
     pList.add(new Attribute("instructions URL", m_instructionsURL));
    
-    if (m_isOption) {
+    if (m_substepType.equals("SELECTION")) {
       pList.add(new Attribute("condition", m_parentEdge.getCondition()));
+    } else {
+      if (m_substepType.equals("HARDWARE_SELECTION")) {
+      pList.add(new Attribute("hardwareTypeCondition", m_parentEdge.getHardwareCondition()));
+    }
+
     }
     pList.add(new Attribute("Edited", Boolean.toString(m_edited)));
     return pList;
@@ -441,9 +456,9 @@ public class ProcessNode implements  TravelerElement
     TravelerPrintVisitor vis = new TravelerPrintVisitor();
     //String key = makeKey(name, version, hgroup, dbType);
     //if (!s_writers.containsKey(key)) {
-    vis.setEol("\n");
+    TravelerPrintVisitor.setEol("\n");
     vis.setWriter(wrt);
-    vis.setIndent("&nbsp;&nbsp");
+    TravelerPrintVisitor.setIndent("&nbsp;&nbsp");
     try {
       vis.visit(this, "Print Html", null);
     }  catch (EtravelerException ex)  {
@@ -508,6 +523,7 @@ public class ProcessNode implements  TravelerElement
   static public ProcessNode findProcess(String name) {
       return null;
   }
+  @Override
   public void accept(TravelerVisitor visitor, String activity, Object cxt) 
       throws EtravelerException {
     visitor.visit(this, activity, cxt);
@@ -546,6 +562,7 @@ public class ProcessNode implements  TravelerElement
     //String provideParentEdgeId();
     ProcessEdge provideParentEdge(ProcessNode parent, ProcessNode child);
     String provideEdgeCondition();
+    String provideEdgeHardwareCondition();
     int provideEdgeStep();
     boolean provideIsCloned();
     boolean provideHasClones();
@@ -591,6 +608,7 @@ public class ProcessNode implements  TravelerElement
     void acceptRelationshipTasks(ArrayList<RelationshipTask> tasks);
     // Following is to transmit condition assoc. with parent edge
     void acceptCondition(String condition); 
+    void acceptHardwareCondition(String condition); 
     void acceptClonedFrom(ProcessNode process);
     void acceptHasClones(boolean hasClones);
     
@@ -609,6 +627,7 @@ public class ProcessNode implements  TravelerElement
     void acceptChildren(ArrayList<ProcessNode> children);
     void exportDone();
   }
+  @Override
   public void exportTo(TravelerElement.ExportTarget target) {
     if (target instanceof ProcessNode.ExportTarget) {
       ProcessNode.ExportTarget ptarget = (ProcessNode.ExportTarget) target;  
@@ -616,6 +635,7 @@ public class ProcessNode implements  TravelerElement
       ptarget.acceptId(m_processId);
       if (m_parentEdge != null) {
         ptarget.acceptCondition(m_parentEdge.getCondition());
+        ptarget.acceptHardwareCondition(m_parentEdge.getHardwareCondition());
       }
       ptarget.acceptIsCloned(m_isCloned);
       ptarget.acceptName(m_name);
@@ -665,6 +685,12 @@ public class ProcessNode implements  TravelerElement
     }
   }
 
+  void acceptHardwareCondition(String condition) {
+    if (m_parentEdge != null) {
+      m_parentEdge.setHardwareCondition(condition);
+    }
+  }
+  
   /**
    * Undo edit on ourself, making use of stashed m_copiedFrom
    */
@@ -751,25 +777,25 @@ public class ProcessNode implements  TravelerElement
     // For now, do not handle recurs==true, so leave option count and seq count
     // alone
     if (src.getPrerequisiteCount() > 0) {
-      m_prerequisites = new ArrayList<Prerequisite>(src.getPrerequisiteCount());
+      m_prerequisites = new ArrayList< >(src.getPrerequisiteCount());
       for (Prerequisite srcPre: src.m_prerequisites) {
         m_prerequisites.add(new Prerequisite(this, srcPre));
       }
     } else m_prerequisites = null;
     if (src.getResultCount() > 0) {
-      m_resultNodes = new ArrayList<PrescribedResult>(src.getResultCount());
+      m_resultNodes = new ArrayList< >(src.getResultCount());
       for (PrescribedResult srcRes: src.m_resultNodes) {
         m_resultNodes.add(new PrescribedResult(this, srcRes));
       }
     }
     if (src.getOptionalResultCount() > 0) {
-      m_optionalResultNodes = new ArrayList<PrescribedResult>(src.getOptionalResultCount());
+      m_optionalResultNodes = new ArrayList< >(src.getOptionalResultCount());
       for (PrescribedResult srcRes: src.m_optionalResultNodes) {
         m_optionalResultNodes.add(new PrescribedResult(this, srcRes));
       }
     }
     if (src.getRelationshipTaskCount() > 0) {
-      m_relationshipTasks = new ArrayList<RelationshipTask>(src.getRelationshipTaskCount());
+      m_relationshipTasks = new ArrayList< >(src.getRelationshipTaskCount());
       for (RelationshipTask srcTask: src.m_relationshipTasks) {
         m_relationshipTasks.add(new RelationshipTask(this, srcTask));
       }
@@ -797,6 +823,10 @@ public class ProcessNode implements  TravelerElement
   public String getCondition() {
     if (m_parentEdge == null) return null;
     return m_parentEdge.getCondition();
+  }
+  public String getHardwareCondition() {
+    if (m_parentEdge == null) return null;
+    return m_parentEdge.getHardwareCondition();
   }
   public int getPrerequisiteCount() { 
     if (m_prerequisites == null) return 0;
@@ -898,7 +928,7 @@ public class ProcessNode implements  TravelerElement
   private String m_newStatusId=null; /* Make accessible for export to YAML */
   private String m_substeps=null;
   private String m_sourceDb=null;
-  private boolean m_isOption=false;
+  private String m_substepType="SEQUENCE"; // comes from parent
   private int m_travelerActionMask=0;
   private String m_originalId=null;
   private boolean m_edited=false;

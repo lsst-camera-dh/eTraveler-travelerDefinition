@@ -1,0 +1,70 @@
+%YAML  1.1
+---
+Name: Selections
+Version: next
+HardwareGroup: snark
+Description: 'To be used for testing Selection and HardwareTypeSelection'
+ShortDescription: Testing selections
+Sequence:
+  -
+    Name: Regular_selection
+    Description: Old-style operator input selection to make sure nothing
+                 is broken
+    ShortDescription: Standard selection
+    Version: next
+    Selection:
+      -
+        Name: Less_than
+        Version: next
+        ShortDescription: an option
+        Description: Select if A is < 0
+        Condition: A < 0
+      -
+        Name: Greater_than
+        Version: next
+        ShortDescription:  another option
+        Condition: A > 0
+      -
+        Name: Equals
+        Version: next
+        ShortDescription: the only other possibility
+        Condition: A = 0
+  -
+    Name: Select_by_htype
+    ShortDescription: auto select
+    Description: Exercise new automatic selection by hardware type
+    Version: next
+    HardwareTypeSelection:
+      -
+        Name: For_boojums
+        Description: To be executed if component is a boojum
+        ShortDescription: For boojums
+        Version: next
+        HardwareTypeCondition: boojum
+        RequiredInputs:
+          -
+            Label: Enter something about the boojum
+            Name: boojum_input
+            InputSemantics: string
+      -
+        Name: For_nonboojums
+        Version: next        
+        Description: To be executed if component is not a boojums
+        ShortDescription: No boojums allowed
+        HardwareTypeCondition: not_a_boojum
+        RequiredInputs:
+          -
+            Label: Enter the number of non-boojums
+            Name: count
+            InputSemantics: int
+      -
+        Name: Everything_else
+        Version: next        
+        Description: To be executed for remaining hardware types
+        ShortDescription: Whatever is left
+        HardwareTypeCondition: (otherwise)
+        RequiredInputs:
+          -
+            Label: Enter some floating point number
+            Name: a_float
+            InputSemantics: float
