@@ -11,7 +11,7 @@
 
 <%-- Allow user to choose default db --%>
  <sql:query var="dbReleaseQ">
-       select major, minor, patch, id from DbRelease order by id desc limit 1;
+       select major, minor, patch, id from DbRelease where status='CURRENT' order by id desc limit 1;
  </sql:query>
 
 <span align="right" >

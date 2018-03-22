@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.lsst.camera</groupId>
     <artifactId>org-lsst-camera-etraveler-backend-core</artifactId>
-    <version>1.37.2</version>
+    <version>1.37.3-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>LSST eTraveler Backend Jar</name>
     <dependencies>
