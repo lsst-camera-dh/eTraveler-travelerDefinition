@@ -6,7 +6,7 @@
                  process step needs to be displayed
 --%>
 
-<link href="http://srs.slac.stanford.edu/Commons/css/srsCommons.jsp?experimentName=${appVariables.experiment}" rel="stylesheet" type="text/css">
+<link href="//srs.slac.stanford.edu/Commons/css/srsCommons.jsp?experimentName=${appVariables.experiment}" rel="stylesheet" type="text/css">
 
 
 
