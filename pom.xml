@@ -11,7 +11,7 @@
 
   <groupId>org.lsst.camera</groupId>
   <artifactId>org-lsst-camera-etraveler-backend</artifactId>
-  <version>1.37.3-SNAPSHOT</version>
+  <version>1.37.3</version>
   <packaging>pom</packaging>
 
   <name>eTraveler Backend</name>
